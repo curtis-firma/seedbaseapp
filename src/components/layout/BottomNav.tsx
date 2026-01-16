@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Home, Layers, Wallet } from 'lucide-react';
+import { Home, Layers, Wallet, Menu } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const navItems = [
@@ -8,7 +8,11 @@ const navItems = [
   { icon: Wallet, label: 'Wallet', path: '/wallet' },
 ];
 
-export function BottomNav() {
+interface BottomNavProps {
+  onMenuClick: () => void;
+}
+
+export function BottomNav({ onMenuClick }: BottomNavProps) {
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -16,10 +20,20 @@ export function BottomNav() {
     <motion.nav
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      className="fixed bottom-0 left-0 right-0 z-50 md:hidden"
+      className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
     >
-      <div className="glass-strong border-t border-border/50 px-6 pb-safe-bottom">
+      <div className="glass-strong border-t border-border/50 px-4 pb-safe-bottom">
         <div className="flex items-center justify-around py-2">
+          {/* Menu Button */}
+          <motion.button
+            onClick={onMenuClick}
+            className="relative flex flex-col items-center gap-1 px-4 py-2"
+            whileTap={{ scale: 0.95 }}
+          >
+            <Menu className="h-6 w-6 text-muted-foreground" />
+            <span className="text-xs font-medium text-muted-foreground">Menu</span>
+          </motion.button>
+
           {navItems.map((item) => {
             const isActive = location.pathname === item.path || 
               (item.path !== '/' && location.pathname.startsWith(item.path));
@@ -29,7 +43,7 @@ export function BottomNav() {
               <motion.button
                 key={item.path}
                 onClick={() => navigate(item.path)}
-                className="relative flex flex-col items-center gap-1 px-6 py-2"
+                className="relative flex flex-col items-center gap-1 px-4 py-2"
                 whileTap={{ scale: 0.95 }}
               >
                 {isActive && (

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { Bell, Search, Sprout } from 'lucide-react';
+import { Bell, Search, Sprout, HelpCircle } from 'lucide-react';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { FeedCard } from '@/components/feed/FeedCard';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
@@ -28,6 +28,12 @@ export default function HomePage() {
 
   const currentFeed = activeTab === 0 ? mockFeedItems : forYouItems;
 
+  // Trigger onboarding again
+  const handleShowHelp = () => {
+    localStorage.removeItem('seedbase-onboarding-seen');
+    window.location.reload();
+  };
+
   return (
     <div className="min-h-screen">
       {/* Header */}
@@ -43,7 +49,15 @@ export default function HomePage() {
                 <p className="text-sm text-muted-foreground">Commitment creates capacity.</p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1">
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleShowHelp}
+                className="p-2.5 hover:bg-muted rounded-xl transition-colors"
+                title="Show walkthrough"
+              >
+                <HelpCircle className="h-5 w-5 text-muted-foreground" />
+              </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 className="p-2.5 hover:bg-muted rounded-xl transition-colors"
