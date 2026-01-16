@@ -15,7 +15,7 @@ export default function WalletPage() {
   const [activeTab, setActiveTab] = useState(0);
   
   const isTrustee = activeRole === 'trustee' && isKeyActive('BaseKey');
-  const tabs = isTrustee ? ['Personal', 'Missions', 'Provision Pool'] : ['Wallet', 'Keys'];
+  const tabs = isTrustee ? ['Personal', 'Missions', 'Provision'] : ['Wallet', 'Keys'];
 
   return (
     <div className="min-h-screen pb-8">

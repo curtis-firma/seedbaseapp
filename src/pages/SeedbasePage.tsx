@@ -43,10 +43,19 @@ export default function SeedbasePage() {
             <motion.button
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
-              className="flex items-center gap-2 px-4 py-2.5 gradient-base rounded-xl text-white font-medium"
+              className={cn(
+                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-medium",
+                activeRole === 'activator' && "gradient-seed",
+                activeRole === 'trustee' && "gradient-trust",
+                activeRole === 'envoy' && "gradient-envoy"
+              )}
             >
               <Plus className="h-4 w-4" />
-              <span>New</span>
+              <span>
+                {activeRole === 'activator' && 'Commit Seed'}
+                {activeRole === 'trustee' && 'Launch Mission'}
+                {activeRole === 'envoy' && 'Submit Update'}
+              </span>
             </motion.button>
           </div>
 

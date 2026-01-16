@@ -1,7 +1,8 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, Layers, Wallet, MessageCircle, BarChart3, 
-  Radio, Rocket, Settings, X, Sprout, ChevronRight
+  Radio, Rocket, Settings, X, Sprout, ChevronRight,
+  ChevronDown, Eye, EyeOff
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
@@ -29,13 +30,15 @@ interface MobileDrawerProps {
 export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { activeRole, setActiveRole } = useUser();
+  const { activeRole, setActiveRole, walkthroughMode, setWalkthroughMode } = useUser();
 
   const roleConfig = {
-    activator: { label: 'Activator', icon: Sprout, color: 'text-seed', gradient: 'gradient-seed', description: 'Commit capital & grow the network' },
-    trustee: { label: 'Trustee', icon: Layers, color: 'text-trust', gradient: 'gradient-trust', description: 'Govern seedbases & launch missions' },
-    envoy: { label: 'Envoy', icon: Rocket, color: 'text-envoy', gradient: 'gradient-envoy', description: 'Execute missions & report impact' },
+    activator: { label: 'Activator', icon: Sprout, color: 'text-seed', gradient: 'gradient-seed', description: 'Commit capital & grow' },
+    trustee: { label: 'Trustee', icon: Layers, color: 'text-trust', gradient: 'gradient-trust', description: 'Govern & launch' },
+    envoy: { label: 'Envoy', icon: Rocket, color: 'text-envoy', gradient: 'gradient-envoy', description: 'Execute & report' },
   };
+
+  const currentRole = roleConfig[activeRole];
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -78,41 +81,6 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
               >
                 <X className="h-5 w-5" />
               </motion.button>
-            </div>
-
-            {/* Role Switcher */}
-            <div className="p-4 border-b border-border/50">
-              <p className="text-xs font-medium text-muted-foreground mb-3">CURRENT ROLE</p>
-              <div className="space-y-2">
-                {(['activator', 'trustee', 'envoy'] as const).map((role) => {
-                  const config = roleConfig[role];
-                  const Icon = config.icon;
-                  const isActive = activeRole === role;
-
-                  return (
-                    <motion.button
-                      key={role}
-                      onClick={() => setActiveRole(role)}
-                      className={cn(
-                        "w-full flex items-center gap-3 p-3 rounded-xl transition-all",
-                        isActive 
-                          ? `${config.gradient} text-white` 
-                          : "hover:bg-muted"
-                      )}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <Icon className={cn("h-5 w-5", !isActive && config.color)} />
-                      <div className="text-left flex-1">
-                        <p className="font-medium">{config.label}</p>
-                        <p className={cn("text-xs", isActive ? "text-white/80" : "text-muted-foreground")}>
-                          {config.description}
-                        </p>
-                      </div>
-                      {isActive && <ChevronRight className="h-4 w-4" />}
-                    </motion.button>
-                  );
-                })}
-              </div>
             </div>
 
             {/* Navigation */}
@@ -177,9 +145,56 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
               </div>
             </div>
 
-            {/* Footer */}
-            <div className="p-4 border-t border-border/50">
-              <p className="text-xs text-muted-foreground text-center italic">
+            {/* Footer - Role Switcher + Walkthrough */}
+            <div className="p-4 border-t border-border/50 space-y-4">
+              {/* Walkthrough Toggle */}
+              <motion.button
+                onClick={() => setWalkthroughMode(!walkthroughMode)}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="flex items-center gap-3">
+                  {walkthroughMode ? (
+                    <Eye className="h-5 w-5 text-primary" />
+                  ) : (
+                    <EyeOff className="h-5 w-5 text-muted-foreground" />
+                  )}
+                  <span className="font-medium text-sm">Walkthrough</span>
+                </div>
+                <span className={cn(
+                  "text-xs px-2 py-1 rounded-full font-medium",
+                  walkthroughMode ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
+                )}>
+                  {walkthroughMode ? 'ON' : 'OFF'}
+                </span>
+              </motion.button>
+
+              {/* Role Switcher - Minimal Dropdown Style */}
+              <div>
+                <p className="text-xs font-medium text-muted-foreground mb-2">SWITCH ROLE</p>
+                <div className="flex gap-1">
+                  {(['activator', 'trustee', 'envoy'] as const).map((role) => {
+                    const config = roleConfig[role];
+                    const isActive = activeRole === role;
+                    return (
+                      <button
+                        key={role}
+                        onClick={() => setActiveRole(role)}
+                        className={cn(
+                          "flex-1 py-2 rounded-lg text-xs font-medium transition-all",
+                          isActive
+                            ? `${config.color} bg-muted`
+                            : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                        )}
+                      >
+                        {config.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <p className="text-xs text-muted-foreground text-center italic pt-2">
                 "Commitment creates capacity."
               </p>
             </div>

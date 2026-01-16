@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, X, Send, FileText, Sprout, DollarSign, 
-  Search, AtSign, Upload, Megaphone, Heart
+  Search, AtSign, Upload, Megaphone, Heart, Rocket,
+  Layers, Flag
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
 
-type ActionMode = 'menu' | 'quick-give' | 'new-post' | 'commit-seed';
+type ActionMode = 'menu' | 'quick-give' | 'new-post' | 'commit-seed' | 'launch-mission' | 'mission-update' | 'testimony';
 
 export function QuickActionButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -28,31 +29,89 @@ export function QuickActionButton() {
     }, 300);
   };
 
-  const actions = [
-    { 
-      id: 'quick-give', 
-      icon: Send, 
-      label: 'Quick Give', 
-      description: 'Send USDC to a person or mission',
-      gradient: 'gradient-seed'
-    },
-    { 
-      id: 'new-post', 
-      icon: FileText, 
-      label: 'New Post', 
-      description: 'Share an update or testimony',
-      gradient: 'gradient-base'
-    },
-    { 
-      id: 'commit-seed', 
-      icon: Sprout, 
-      label: 'Commit Seed', 
-      description: 'Lock USDC for impact',
-      gradient: 'gradient-trust'
-    },
-  ];
+  // Role-specific actions
+  const getActionsForRole = () => {
+    switch (activeRole) {
+      case 'activator':
+        return [
+          { 
+            id: 'quick-give', 
+            icon: Send, 
+            label: 'Quick Give', 
+            description: 'Send USDC to a person or mission',
+            gradient: 'gradient-seed'
+          },
+          { 
+            id: 'new-post', 
+            icon: FileText, 
+            label: 'Post Update', 
+            description: 'Share with the network',
+            gradient: 'gradient-base'
+          },
+          { 
+            id: 'commit-seed', 
+            icon: Sprout, 
+            label: 'Commit Seed', 
+            description: 'Lock USDC for impact',
+            gradient: 'gradient-trust'
+          },
+        ];
+      case 'trustee':
+        return [
+          { 
+            id: 'launch-mission', 
+            icon: Rocket, 
+            label: 'Launch Mission', 
+            description: 'Create a new mission',
+            gradient: 'gradient-trust'
+          },
+          { 
+            id: 'new-post', 
+            icon: FileText, 
+            label: 'Post Update', 
+            description: 'Share Seedbase news',
+            gradient: 'gradient-base'
+          },
+          { 
+            id: 'quick-give', 
+            icon: Send, 
+            label: 'Distribute', 
+            description: 'Send funds to mission',
+            gradient: 'gradient-seed'
+          },
+        ];
+      case 'envoy':
+        return [
+          { 
+            id: 'mission-update', 
+            icon: Megaphone, 
+            label: 'Mission Update', 
+            description: 'Share progress on your mission',
+            gradient: 'gradient-envoy'
+          },
+          { 
+            id: 'testimony', 
+            icon: Heart, 
+            label: 'Testimony', 
+            description: 'Share a story of impact',
+            gradient: 'gradient-seed'
+          },
+          { 
+            id: 'new-post', 
+            icon: Upload, 
+            label: 'Submit Harvest', 
+            description: 'Report outcomes & metrics',
+            gradient: 'gradient-base'
+          },
+        ];
+      default:
+        return [];
+    }
+  };
 
-  const postTypes = [
+  const actions = getActionsForRole();
+
+  const envoyPostTypes = [
     { id: 'update', label: 'Mission Update', icon: Megaphone },
     { id: 'testimony', label: 'Testimony', icon: Heart },
     { id: 'harvest', label: 'Harvest Report', icon: Upload },
@@ -64,8 +123,11 @@ export function QuickActionButton() {
       <motion.button
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed z-40 w-14 h-14 rounded-2xl gradient-base text-white flex items-center justify-center shadow-elevated",
-          "bottom-24 right-4 md:bottom-8 md:right-8"
+          "fixed z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-elevated",
+          "bottom-24 right-4 md:bottom-8 md:right-8",
+          activeRole === 'activator' && "gradient-seed",
+          activeRole === 'trustee' && "gradient-trust",
+          activeRole === 'envoy' && "gradient-envoy"
         )}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -104,12 +166,12 @@ export function QuickActionButton() {
                       {mode === 'quick-give' && 'Quick Give'}
                       {mode === 'new-post' && 'New Post'}
                       {mode === 'commit-seed' && 'Commit Seed'}
+                      {mode === 'launch-mission' && 'Launch Mission'}
+                      {mode === 'mission-update' && 'Mission Update'}
+                      {mode === 'testimony' && 'Share Testimony'}
                     </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {mode === 'menu' && 'What would you like to do?'}
-                      {mode === 'quick-give' && 'Send USDC instantly'}
-                      {mode === 'new-post' && 'Share with the network'}
-                      {mode === 'commit-seed' && 'Lock value for impact'}
+                    <p className="text-sm text-muted-foreground capitalize">
+                      {mode === 'menu' ? `${activeRole} actions` : 'Share with the network'}
                     </p>
                   </div>
                   <motion.button
@@ -232,8 +294,8 @@ export function QuickActionButton() {
                       </motion.div>
                     )}
 
-                    {/* New Post Mode */}
-                    {mode === 'new-post' && (
+                    {/* New Post / Mission Update / Testimony Mode */}
+                    {(mode === 'new-post' || mode === 'mission-update' || mode === 'testimony') && (
                       <motion.div
                         key="new-post"
                         initial={{ opacity: 0, x: 20 }}
@@ -241,12 +303,12 @@ export function QuickActionButton() {
                         exit={{ opacity: 0, x: -20 }}
                         className="space-y-4"
                       >
-                        {/* Post Type */}
-                        {activeRole === 'envoy' && (
+                        {/* Post Type for Envoys */}
+                        {activeRole === 'envoy' && mode === 'new-post' && (
                           <div>
                             <label className="text-sm font-medium mb-2 block">Post Type</label>
                             <div className="flex gap-2">
-                              {postTypes.map((type) => (
+                              {envoyPostTypes.map((type) => (
                                 <button
                                   key={type.id}
                                   onClick={() => setPostType(type.id as typeof postType)}
@@ -265,9 +327,11 @@ export function QuickActionButton() {
                           </div>
                         )}
 
-                        {/* Attach to */}
+                        {/* Attach to - REQUIRED */}
                         <div>
-                          <label className="text-sm font-medium mb-2 block">Attach to Mission or Seedbase</label>
+                          <label className="text-sm font-medium mb-2 block">
+                            Attach to Mission or Seedbase <span className="text-destructive">*</span>
+                          </label>
                           <div className="relative">
                             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
                             <input
@@ -276,6 +340,9 @@ export function QuickActionButton() {
                               className="w-full bg-muted rounded-xl pl-10 pr-4 py-3 outline-none focus:ring-2 ring-primary/50"
                             />
                           </div>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Posts must be attached to a mission or seedbase
+                          </p>
                         </div>
 
                         {/* Content */}
@@ -284,7 +351,13 @@ export function QuickActionButton() {
                           <textarea
                             value={postContent}
                             onChange={(e) => setPostContent(e.target.value)}
-                            placeholder="Share your update, testimony, or report..."
+                            placeholder={
+                              mode === 'testimony' 
+                                ? "Share a story of transformation..."
+                                : mode === 'mission-update'
+                                ? "What's happening with your mission..."
+                                : "Share your update..."
+                            }
                             className="w-full bg-muted rounded-xl p-4 outline-none focus:ring-2 ring-primary/50 min-h-[120px] resize-none"
                           />
                         </div>
@@ -298,7 +371,10 @@ export function QuickActionButton() {
                         {/* Post Button */}
                         <motion.button
                           whileTap={{ scale: 0.98 }}
-                          className="w-full py-4 gradient-base rounded-xl text-white font-semibold flex items-center justify-center gap-2"
+                          className={cn(
+                            "w-full py-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2",
+                            activeRole === 'envoy' ? "gradient-envoy" : "gradient-base"
+                          )}
                         >
                           <FileText className="h-5 w-5" />
                           Post to Feed
@@ -377,6 +453,68 @@ export function QuickActionButton() {
                         <p className="text-xs text-center text-muted-foreground">
                           "Commitment creates capacity."
                         </p>
+
+                        <button
+                          onClick={() => setMode('menu')}
+                          className="w-full py-2 text-muted-foreground text-sm"
+                        >
+                          ← Back to menu
+                        </button>
+                      </motion.div>
+                    )}
+
+                    {/* Launch Mission Mode (Trustee) */}
+                    {mode === 'launch-mission' && (
+                      <motion.div
+                        key="launch-mission"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        className="space-y-4"
+                      >
+                        <div className="text-center py-4">
+                          <div className="w-16 h-16 rounded-2xl gradient-trust mx-auto mb-4 flex items-center justify-center">
+                            <Rocket className="h-8 w-8 text-white" />
+                          </div>
+                          <p className="text-sm text-muted-foreground mb-2">New Mission</p>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Mission Name</label>
+                          <input
+                            type="text"
+                            placeholder="e.g., Clean Water for Village X"
+                            className="w-full bg-muted rounded-xl px-4 py-3 outline-none focus:ring-2 ring-primary/50"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Description</label>
+                          <textarea
+                            placeholder="What will this mission accomplish?"
+                            className="w-full bg-muted rounded-xl p-4 outline-none focus:ring-2 ring-primary/50 min-h-[80px] resize-none"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-medium mb-2 block">Funding Goal (USDC)</label>
+                          <div className="relative">
+                            <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <input
+                              type="number"
+                              placeholder="10000"
+                              className="w-full bg-muted rounded-xl pl-10 pr-4 py-3 outline-none focus:ring-2 ring-primary/50"
+                            />
+                          </div>
+                        </div>
+
+                        <motion.button
+                          whileTap={{ scale: 0.98 }}
+                          className="w-full py-4 gradient-trust rounded-xl text-white font-semibold flex items-center justify-center gap-2"
+                        >
+                          <Rocket className="h-5 w-5" />
+                          Launch Mission
+                        </motion.button>
 
                         <button
                           onClick={() => setMode('menu')}
