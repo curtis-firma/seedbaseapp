@@ -6,10 +6,14 @@ export type DemoUser = {
   username: string;                 // "@handle"
   displayName: string;              // "Full Name"
   avatarUrl?: string;
-  role: "activator" | "trustee" | "envoy";
+  role: "activator" | "trustee" | "envoy" | null;
   walletDisplayId: string;          // "0xABCDEF1234567890"
-  keyType: "SeedKey" | "BaseKey" | "MissionKey";
-  keyDisplayId: string;             // "0x..."
+  keyType: "SeedKey" | "BaseKey" | "MissionKey" | null;
+  keyDisplayId: string | null;      // "0x..."
+  wallet: {
+    balance: number;                // Default 25.00 USDC
+    distributionsBalance: number;   // Default 0
+  };
   onboardingComplete: boolean;
   createdAt: string;
   updatedAt: string;
@@ -36,7 +40,25 @@ export function normalizePhone(raw: string): string {
   // demo-friendly: keep digits and +
   const cleaned = raw.trim();
   if (!cleaned) throw new Error("Phone required");
-  return cleaned.startsWith("+") ? cleaned : `+${cleaned.replace(/[^\\d]/g, "")}`;
+  // Strip non-digits except +
+  const digits = cleaned.replace(/[^\d+]/g, "");
+  // Add +1 if no country code
+  if (!digits.startsWith("+")) {
+    return `+1${digits}`;
+  }
+  return digits;
+}
+
+export function formatPhoneDisplay(phone: string): string {
+  // Format phone for display: +15551234567 -> (555) 123-4567
+  const digits = phone.replace(/\D/g, "");
+  if (digits.length === 11 && digits.startsWith("1")) {
+    const area = digits.slice(1, 4);
+    const prefix = digits.slice(4, 7);
+    const line = digits.slice(7);
+    return `(${area}) ${prefix}-${line}`;
+  }
+  return phone;
 }
 
 export function getUserStorageKey(phone: string): string {
@@ -88,6 +110,27 @@ export function isUsernameTaken(username: string, excludePhone?: string): boolea
   return false;
 }
 
+// Get all users (for @username search)
+export function getAllUsers(): DemoUser[] {
+  return listUsers()
+    .map(phone => loadUserByPhone(phone))
+    .filter((u): u is DemoUser => u !== null && u.onboardingComplete);
+}
+
+// Find user by username
+export function findUserByUsername(username: string): DemoUser | null {
+  const normalized = username.toLowerCase().replace(/^@/, '');
+  return getAllUsers().find(u => u.username?.toLowerCase() === normalized) ?? null;
+}
+
+// Update user balance
+export function updateUserBalance(phone: string, amount: number): DemoUser | null {
+  const user = loadUserByPhone(phone);
+  if (!user) return null;
+  user.wallet.balance = Math.max(0, user.wallet.balance + amount);
+  return saveUser(user);
+}
+
 // Session management
 export function setSessionPhone(phone: string): void {
   localStorage.setItem(SESSION_KEY, phone);
@@ -101,12 +144,25 @@ export function clearSession(): void {
   localStorage.removeItem(SESSION_KEY);
 }
 
+// Clear all demo data (for Settings reset)
+export function clearAllDemoData(): void {
+  const users = listUsers();
+  for (const phone of users) {
+    localStorage.removeItem(getUserStorageKey(phone));
+  }
+  localStorage.removeItem(USERS_INDEX_KEY);
+  localStorage.removeItem(SESSION_KEY);
+  // Also clear transfers
+  localStorage.removeItem("seedbase:transfers");
+}
+
 // Helper to get key type from role
 export function getKeyTypeFromRole(role: DemoUser['role']): DemoUser['keyType'] {
   switch (role) {
     case 'activator': return 'SeedKey';
     case 'trustee': return 'BaseKey';
     case 'envoy': return 'MissionKey';
+    default: return null;
   }
 }
 
@@ -114,4 +170,25 @@ export function getKeyTypeFromRole(role: DemoUser['role']): DemoUser['keyType'] 
 export function truncateHexId(hexId: string): string {
   if (hexId.length <= 12) return hexId;
   return `${hexId.slice(0, 6)}...${hexId.slice(-4)}`;
+}
+
+// Create a new demo user with defaults
+export function createDemoUser(phone: string, isDemo: boolean = false): DemoUser {
+  const normalizedPhone = isDemo ? `demo:${phone}` : normalizePhone(phone);
+  return {
+    phone: normalizedPhone,
+    username: '',
+    displayName: '',
+    role: null,
+    walletDisplayId: makeHexId(16),
+    keyType: null,
+    keyDisplayId: null,
+    wallet: {
+      balance: 25.00,
+      distributionsBalance: 0,
+    },
+    onboardingComplete: false,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  };
 }

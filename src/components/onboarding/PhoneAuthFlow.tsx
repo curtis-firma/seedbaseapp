@@ -1,14 +1,15 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Phone, ArrowRight, Check, Wallet, Sprout, Shield, Copy,
-  Key, Loader2, Sparkles, Users, Rocket
+  ArrowRight, Check, Sprout, Shield, Copy,
+  Key, Sparkles, Users, Rocket, CheckCircle2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
 import { 
   normalizePhone, loadUserByPhone, saveUser, makeHexId,
   getKeyTypeFromRole, truncateHexId, setSessionPhone, isUsernameTaken,
+  formatPhoneDisplay, createDemoUser,
   type DemoUser 
 } from '@/lib/demoAuth';
 import { toast } from 'sonner';
@@ -20,19 +21,26 @@ interface PhoneAuthFlowProps {
   forceDemo?: boolean;
 }
 
-type Step = 'welcome' | 'verify' | 'creating-wallet' | 'wallet-reveal' | 'username' | 'role-select' | 'activating-key' | 'key-reveal';
+type Step = 
+  | 'welcome' 
+  | 'verifying' 
+  | 'creating-wallet' 
+  | 'wallet-reveal' 
+  | 'username' 
+  | 'role-select' 
+  | 'activating-key' 
+  | 'key-reveal';
 
 const WALLET_CREATION_STEPS = [
-  { label: 'Generating keys...', duration: 600 },
-  { label: 'Creating wallet...', duration: 700 },
-  { label: 'Securing account...', duration: 600 },
-  { label: 'Finalizing...', duration: 500 },
+  { label: 'Generating wallet...', duration: 600 },
+  { label: 'Securing keys on Base...', duration: 700 },
+  { label: 'Connecting to Seedbase...', duration: 600 },
 ];
 
 const KEY_ACTIVATION_STEPS = [
   { label: 'Initializing...', duration: 400 },
-  { label: 'Registering...', duration: 500 },
-  { label: 'Confirming...', duration: 400 },
+  { label: 'Registering key...', duration: 500 },
+  { label: 'Confirming on-chain...', duration: 400 },
 ];
 
 const ROLE_OPTIONS = [
@@ -41,6 +49,7 @@ const ROLE_OPTIONS = [
     keyType: 'SeedKey' as const,
     title: 'Activator',
     description: 'Commit capital, earn distributions',
+    bullets: ['Plant USDC into missions', 'Receive surplus distributions', 'Track your impact'],
     icon: Sprout,
     gradient: 'gradient-seed'
   },
@@ -49,6 +58,7 @@ const ROLE_OPTIONS = [
     keyType: 'BaseKey' as const,
     title: 'Trustee',
     description: 'Govern funds, approve missions',
+    bullets: ['Manage your Seedbase', 'Approve mission deployments', 'Oversee provision pool'],
     icon: Shield,
     gradient: 'gradient-trust'
   },
@@ -57,6 +67,7 @@ const ROLE_OPTIONS = [
     keyType: 'MissionKey' as const,
     title: 'Envoy',
     description: 'Execute missions on the ground',
+    bullets: ['Receive mission funding', 'Report milestones', 'Deliver impact'],
     icon: Rocket,
     gradient: 'gradient-envoy'
   },
@@ -65,22 +76,20 @@ const ROLE_OPTIONS = [
 export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAuthFlowProps) {
   const [step, setStep] = useState<Step>('welcome');
   const [phoneNumber, setPhoneNumber] = useState('');
-  const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
+  const [isDemo, setIsDemo] = useState(forceDemo);
+  const [returningUser, setReturningUser] = useState<DemoUser | null>(null);
+  
+  // User data being built
+  const [pendingUser, setPendingUser] = useState<DemoUser | null>(null);
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
-  const [selectedRole, setSelectedRole] = useState<DemoUser['role'] | null>(null);
-  const [isDemo, setIsDemo] = useState(forceDemo);
-  
-  // Wallet/Key data (generated once per user)
-  const [walletDisplayId, setWalletDisplayId] = useState('');
-  const [keyDisplayId, setKeyDisplayId] = useState('');
+  const [selectedRole, setSelectedRole] = useState<DemoUser['role']>(null);
   
   // Animation state
   const [creationStep, setCreationStep] = useState(0);
   const [creationProgress, setCreationProgress] = useState(0);
   
   const { loginWithUser } = useUser();
-  const codeInputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Reset on forceDemo change
   useEffect(() => {
@@ -93,67 +102,103 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
   const resetFlow = () => {
     setStep('welcome');
     setPhoneNumber('');
-    setVerificationCode(['', '', '', '', '', '']);
+    setReturningUser(null);
+    setPendingUser(null);
     setUsername('');
     setDisplayName('');
     setSelectedRole(null);
-    setWalletDisplayId('');
-    setKeyDisplayId('');
     setCreationStep(0);
     setCreationProgress(0);
   };
 
-  const handlePhoneSubmit = () => {
+  // Check for returning user on phone change
+  useEffect(() => {
     if (phoneNumber.length >= 10) {
-      setStep('verify');
+      try {
+        const normalizedPhone = normalizePhone(phoneNumber);
+        const existing = loadUserByPhone(normalizedPhone);
+        if (existing?.onboardingComplete) {
+          setReturningUser(existing);
+        } else {
+          setReturningUser(null);
+        }
+      } catch {
+        setReturningUser(null);
+      }
+    } else {
+      setReturningUser(null);
+    }
+  }, [phoneNumber]);
+
+  const handlePhoneSubmit = () => {
+    if (phoneNumber.length < 10) return;
+    
+    try {
+      const normalizedPhone = normalizePhone(phoneNumber);
+      const formatted = formatPhoneDisplay(normalizedPhone);
+      
+      // Check for existing user
+      const existingUser = loadUserByPhone(normalizedPhone);
+      
+      if (existingUser?.onboardingComplete) {
+        // Returning user - skip to verification
+        setReturningUser(existingUser);
+      }
+      
+      toast.success(`Code sent to ${formatted}`);
+      setStep('verifying');
+    } catch (e) {
+      toast.error('Invalid phone number');
     }
   };
 
   const handleTryDemo = () => {
     setIsDemo(true);
-    setPhoneNumber(`demo${Date.now()}`);
-    setStep('verify');
+    setPhoneNumber(`${Date.now()}`);
+    toast.success('Demo mode activated');
+    setStep('verifying');
   };
 
-  const handleCodeChange = (index: number, value: string) => {
-    if (value.length > 1) value = value[0];
-    const newCode = [...verificationCode];
-    newCode[index] = value;
-    setVerificationCode(newCode);
+  // Auto-verify after delay (Privy-style)
+  useEffect(() => {
+    if (step !== 'verifying') return;
     
-    // Auto-focus next input
-    if (value && index < 5) {
-      codeInputRefs.current[index + 1]?.focus();
-    }
-    
-    // Auto-submit when complete
-    if (newCode.every(c => c !== '')) {
+    const timer = setTimeout(() => {
       handleVerificationComplete();
-    }
-  };
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, [step]);
 
   const handleVerificationComplete = () => {
     try {
       const normalizedPhone = isDemo ? `demo:${phoneNumber}` : normalizePhone(phoneNumber);
       const existingUser = loadUserByPhone(normalizedPhone);
       
-      if (existingUser?.onboardingComplete && !isDemo) {
-        // Returning user - restore session and skip onboarding
+      if (existingUser?.onboardingComplete) {
+        // Returning user - restore session and enter app
         setSessionPhone(normalizedPhone);
         loginWithUser(existingUser);
+        toast.success(`Welcome back, @${existingUser.username}!`);
         onComplete();
         return;
       }
       
-      // New user or demo - proceed with wallet creation
-      // If existing user has wallet ID, reuse it
-      if (existingUser?.walletDisplayId) {
-        setWalletDisplayId(existingUser.walletDisplayId);
+      // New user - create pending user with wallet ID
+      let newUser: DemoUser;
+      if (existingUser) {
+        // Partial user exists, reuse wallet ID
+        newUser = existingUser;
+      } else {
+        // Create brand new user
+        newUser = createDemoUser(phoneNumber, isDemo);
       }
       
-      setTimeout(() => setStep('creating-wallet'), 300);
+      setPendingUser(newUser);
+      setStep('creating-wallet');
     } catch (e) {
-      toast.error('Invalid phone number');
+      toast.error('Verification failed');
+      setStep('welcome');
     }
   };
 
@@ -170,7 +215,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
         const startProgress = (i / WALLET_CREATION_STEPS.length) * 100;
         const endProgress = ((i + 1) / WALLET_CREATION_STEPS.length) * 100;
         
-        // Animate progress
         const duration = WALLET_CREATION_STEPS[i].duration;
         const startTime = Date.now();
         
@@ -187,11 +231,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
         clearInterval(progressInterval);
       }
       
-      // Generate wallet ID if not already set
-      if (!walletDisplayId) {
-        setWalletDisplayId(makeHexId(16));
-      }
-      
       setStep('wallet-reveal');
     };
     
@@ -201,16 +240,19 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
       clearTimeout(timeout);
       clearInterval(progressInterval);
     };
-  }, [step, walletDisplayId]);
+  }, [step]);
 
   // Key activation animation
   useEffect(() => {
-    if (step !== 'activating-key') return;
+    if (step !== 'activating-key' || !pendingUser) return;
     
     let timeout: NodeJS.Timeout;
     let progressInterval: NodeJS.Timeout;
     
     const runSteps = async () => {
+      setCreationStep(0);
+      setCreationProgress(0);
+      
       for (let i = 0; i < KEY_ACTIVATION_STEPS.length; i++) {
         setCreationStep(i);
         const startProgress = (i / KEY_ACTIVATION_STEPS.length) * 100;
@@ -233,7 +275,16 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
       }
       
       // Generate key ID
-      setKeyDisplayId(makeHexId(16));
+      if (pendingUser && selectedRole) {
+        const keyType = getKeyTypeFromRole(selectedRole);
+        setPendingUser({
+          ...pendingUser,
+          role: selectedRole,
+          keyType,
+          keyDisplayId: makeHexId(16),
+        });
+      }
+      
       setStep('key-reveal');
     };
     
@@ -243,27 +294,37 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
       clearTimeout(timeout);
       clearInterval(progressInterval);
     };
-  }, [step]);
+  }, [step, selectedRole]);
 
   const handleCopyWallet = () => {
-    navigator.clipboard.writeText(walletDisplayId);
-    toast.success('Wallet address copied!');
+    if (pendingUser?.walletDisplayId) {
+      navigator.clipboard.writeText(pendingUser.walletDisplayId);
+      toast.success('Wallet address copied!');
+    }
   };
 
   const handleCopyKey = () => {
-    navigator.clipboard.writeText(keyDisplayId);
-    toast.success('Key ID copied!');
+    if (pendingUser?.keyDisplayId) {
+      navigator.clipboard.writeText(pendingUser.keyDisplayId);
+      toast.success('Key ID copied!');
+    }
   };
 
   const handleUsernameSubmit = () => {
     if (username.length < 2) return;
     
-    const normalizedPhone = isDemo ? `demo:${phoneNumber}` : normalizePhone(phoneNumber);
-    
-    // Check for duplicate username (skip for demo)
-    if (!isDemo && isUsernameTaken(username, normalizedPhone)) {
+    // Check for duplicate username
+    if (isUsernameTaken(username, pendingUser?.phone)) {
       toast.error('Username already taken');
       return;
+    }
+    
+    if (pendingUser) {
+      setPendingUser({
+        ...pendingUser,
+        username,
+        displayName: displayName || username,
+      });
     }
     
     setStep('role-select');
@@ -281,31 +342,24 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
   };
 
   const handleComplete = () => {
-    if (!selectedRole) return;
+    if (!pendingUser || !selectedRole) return;
     
-    const normalizedPhone = isDemo ? `demo:${phoneNumber}` : normalizePhone(phoneNumber);
-    const keyType = getKeyTypeFromRole(selectedRole);
-    
-    const user: DemoUser = {
-      phone: normalizedPhone,
+    const finalUser: DemoUser = {
+      ...pendingUser,
       username,
       displayName: displayName || username,
       role: selectedRole,
-      walletDisplayId,
-      keyType,
-      keyDisplayId,
+      keyType: getKeyTypeFromRole(selectedRole),
+      keyDisplayId: pendingUser.keyDisplayId || makeHexId(16),
       onboardingComplete: true,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
     };
     
-    // Save user (skip for pure demo mode to not pollute storage)
-    if (!isDemo) {
-      saveUser(user);
-      setSessionPhone(normalizedPhone);
-    }
+    // Save user to localStorage
+    saveUser(finalUser);
+    setSessionPhone(finalUser.phone);
     
-    loginWithUser(user);
+    loginWithUser(finalUser);
+    toast.success(`Welcome to Seedbase, @${username}!`);
     onComplete();
     
     // Reset for next time
@@ -315,7 +369,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
   if (!isOpen) return null;
 
   const getProgressSteps = () => {
-    return ['welcome', 'verify', 'wallet-reveal', 'username', 'role-select', 'key-reveal'];
+    return ['welcome', 'verifying', 'wallet-reveal', 'username', 'role-select', 'key-reveal'];
   };
 
   const progressSteps = getProgressSteps();
@@ -332,7 +386,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
       className="fixed inset-0 bg-background z-50 flex flex-col"
     >
       {/* Progress dots - hide during animations */}
-      {step !== 'creating-wallet' && step !== 'activating-key' && (
+      {step !== 'creating-wallet' && step !== 'activating-key' && step !== 'verifying' && (
         <div className="p-6 flex justify-center">
           <div className="flex gap-2">
             {progressSteps.map((s, i) => (
@@ -378,34 +432,48 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                   type="tel"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                  placeholder="+1 (555) 123-4567"
+                  placeholder="(555) 123-4567"
                   className="w-full text-center text-xl font-medium bg-muted rounded-2xl py-4 outline-none focus:ring-2 ring-primary/50"
                   autoFocus
                 />
               </div>
+
+              {/* Returning user badge */}
+              {returningUser && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 p-3 bg-seed/10 border border-seed/30 rounded-xl flex items-center gap-2 justify-center"
+                >
+                  <CheckCircle2 className="h-4 w-4 text-seed" />
+                  <span className="text-sm font-medium text-seed">
+                    Welcome back, @{returningUser.username}!
+                  </span>
+                </motion.div>
+              )}
               
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={handlePhoneSubmit}
                 disabled={phoneNumber.length < 10}
                 className={cn(
-                  "w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all mb-3",
+                  "w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all mb-4",
                   phoneNumber.length >= 10 
                     ? "gradient-seed text-white" 
                     : "bg-muted text-muted-foreground"
                 )}
               >
-                Send Code
+                Continue
                 <ArrowRight className="h-5 w-5" />
               </motion.button>
               
-              <motion.button
-                whileTap={{ scale: 0.98 }}
+              {/* Secondary "Try demo" link */}
+              <button
                 onClick={handleTryDemo}
-                className="w-full py-4 rounded-2xl font-semibold bg-transparent border border-border text-foreground hover:bg-muted transition-colors"
+                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
               >
-                Try Demo
-              </motion.button>
+                Try demo instead
+              </button>
               
               <p className="text-xs text-muted-foreground mt-6">
                 By continuing, you agree to our Terms of Service
@@ -413,46 +481,35 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
             </motion.div>
           )}
 
-          {/* Verification Code Step */}
-          {step === 'verify' && (
+          {/* Verifying Step (auto-verify) */}
+          {step === 'verifying' && (
             <motion.div
-              key="verify"
+              key="verifying"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="w-16 h-16 rounded-2xl gradient-base mx-auto mb-6 flex items-center justify-center">
-                <Shield className="h-8 w-8 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Enter verification code</h2>
-              <p className="text-muted-foreground mb-8">
-                {isDemo ? 'Demo mode: enter any 6 digits' : `Sent to ${phoneNumber.replace(/(\d{3})(\d{3})(\d{4})/, '($1) $2-$3')}`}
-              </p>
-              
-              <div className="flex gap-2 justify-center mb-6">
-                {verificationCode.map((digit, i) => (
-                  <input
-                    key={i}
-                    ref={(el) => (codeInputRefs.current[i] = el)}
-                    type="text"
-                    inputMode="numeric"
-                    maxLength={1}
-                    value={digit}
-                    onChange={(e) => handleCodeChange(i, e.target.value)}
-                    onKeyDown={(e) => {
-                      if (e.key === 'Backspace' && !digit && i > 0) {
-                        codeInputRefs.current[i - 1]?.focus();
-                      }
-                    }}
-                    className="w-12 h-14 text-center text-2xl font-bold bg-muted rounded-xl outline-none focus:ring-2 ring-primary/50"
-                    autoFocus={i === 0}
+              <div className="relative w-20 h-20 mx-auto mb-8">
+                <motion.img
+                  src={seedbaseIcon}
+                  alt="Seedbase"
+                  className="w-20 h-20"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <div className="absolute inset-0 -m-2">
+                  <motion.div
+                    className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
                   />
-                ))}
+                </div>
               </div>
               
-              <p className="text-xs text-muted-foreground">
-                Didn't receive a code? <button className="text-primary font-medium">Resend</button>
+              <h2 className="text-2xl font-bold mb-2">Verifying phone...</h2>
+              <p className="text-muted-foreground">
+                {isDemo ? 'Demo mode • Auto-verifying' : 'Checking verification code'}
               </p>
             </motion.div>
           )}
@@ -484,9 +541,34 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
               </div>
               
               <h2 className="text-2xl font-bold mb-2">Creating your Seed Wallet</h2>
-              <p className="text-muted-foreground mb-8">
+              <p className="text-muted-foreground mb-2">
                 {WALLET_CREATION_STEPS[creationStep]?.label || 'Finalizing...'}
               </p>
+              <p className="text-xs text-muted-foreground mb-8">
+                Your wallet lets you send/receive USDC instantly.
+              </p>
+              
+              {/* Progress stepper */}
+              <div className="flex items-center justify-center gap-2 mb-6">
+                {WALLET_CREATION_STEPS.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2">
+                    <div className={cn(
+                      "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all",
+                      i < creationStep ? "bg-primary text-white" :
+                      i === creationStep ? "bg-primary/20 text-primary border-2 border-primary" :
+                      "bg-muted text-muted-foreground"
+                    )}>
+                      {i < creationStep ? <Check className="h-3 w-3" /> : i + 1}
+                    </div>
+                    {i < WALLET_CREATION_STEPS.length - 1 && (
+                      <div className={cn(
+                        "w-8 h-0.5",
+                        i < creationStep ? "bg-primary" : "bg-muted"
+                      )} />
+                    )}
+                  </div>
+                ))}
+              </div>
               
               {/* Progress bar */}
               <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
@@ -499,7 +581,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
           )}
 
           {/* Wallet Reveal Step */}
-          {step === 'wallet-reveal' && (
+          {step === 'wallet-reveal' && pendingUser && (
             <motion.div
               key="wallet-reveal"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -529,7 +611,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                 </div>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 text-lg font-mono font-medium truncate">
-                    {truncateHexId(walletDisplayId)}
+                    {truncateHexId(pendingUser.walletDisplayId)}
                   </code>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
@@ -539,6 +621,9 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                     <Copy className="h-4 w-4" />
                   </motion.button>
                 </div>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Starting balance: $25.00 USDC
+                </p>
               </div>
               
               <motion.button
@@ -620,9 +705,9 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
               <div className="w-16 h-16 rounded-2xl gradient-base mx-auto mb-6 flex items-center justify-center">
                 <Key className="h-8 w-8 text-white" />
               </div>
-              <h2 className="text-2xl font-bold mb-2">Choose your role</h2>
+              <h2 className="text-2xl font-bold mb-2">Choose how you'll participate</h2>
               <p className="text-muted-foreground mb-6">
-                Select how you'll participate in Seedbase
+                Select your role in the Seedbase network
               </p>
               
               <div className="space-y-3 mb-6">
@@ -635,25 +720,36 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                     whileTap={{ scale: 0.98 }}
                     onClick={() => handleRoleSelect(option.role)}
                     className={cn(
-                      "w-full p-4 rounded-2xl border-2 text-left flex items-center gap-4 transition-all",
+                      "w-full p-4 rounded-2xl border-2 text-left transition-all",
                       selectedRole === option.role
                         ? "border-primary bg-primary/5"
                         : "border-border hover:border-primary/50"
                     )}
                   >
-                    <div className={cn(
-                      "w-12 h-12 rounded-xl flex items-center justify-center",
-                      option.gradient
-                    )}>
-                      <option.icon className="h-6 w-6 text-white" />
+                    <div className="flex items-start gap-4">
+                      <div className={cn(
+                        "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0",
+                        option.gradient
+                      )}>
+                        <option.icon className="h-6 w-6 text-white" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="font-semibold">{option.title}</p>
+                          {selectedRole === option.role && (
+                            <Check className="h-5 w-5 text-primary flex-shrink-0" />
+                          )}
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{option.description}</p>
+                        <ul className="text-xs text-muted-foreground space-y-1">
+                          {option.bullets.map((bullet, j) => (
+                            <li key={j} className="flex items-center gap-1">
+                              <span className="text-primary">•</span> {bullet}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
-                    <div className="flex-1">
-                      <p className="font-semibold">{option.title}</p>
-                      <p className="text-sm text-muted-foreground">{option.description}</p>
-                    </div>
-                    {selectedRole === option.role && (
-                      <Check className="h-5 w-5 text-primary" />
-                    )}
                   </motion.button>
                 ))}
               </div>
@@ -685,10 +781,23 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
               className="w-full max-w-sm text-center"
             >
               <div className={cn(
-                "w-20 h-20 rounded-2xl mx-auto mb-8 flex items-center justify-center",
+                "relative w-20 h-20 rounded-2xl mx-auto mb-8 flex items-center justify-center",
                 ROLE_OPTIONS.find(r => r.role === selectedRole)?.gradient || 'gradient-base'
               )}>
-                <Loader2 className="h-10 w-10 text-white animate-spin" />
+                <Key className="h-10 w-10 text-white" />
+                <div className="absolute inset-0 -m-2">
+                  <motion.div
+                    className={cn(
+                      "w-24 h-24 rounded-full border-4 border-transparent",
+                      selectedRole === 'activator' && "border-t-seed",
+                      selectedRole === 'trustee' && "border-t-trust",
+                      selectedRole === 'envoy' && "border-t-envoy"
+                    )}
+                    style={{ borderTopColor: 'currentColor' }}
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+                  />
+                </div>
               </div>
               
               <h2 className="text-2xl font-bold mb-2">
@@ -712,7 +821,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
           )}
 
           {/* Key Reveal Step */}
-          {step === 'key-reveal' && selectedRole && (
+          {step === 'key-reveal' && selectedRole && pendingUser && (
             <motion.div
               key="key-reveal"
               initial={{ opacity: 0, scale: 0.9 }}
@@ -750,7 +859,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                 </div>
                 <div className="flex items-center gap-2">
                   <code className="flex-1 text-lg font-mono font-medium truncate">
-                    {truncateHexId(keyDisplayId)}
+                    {truncateHexId(pendingUser.keyDisplayId || '')}
                   </code>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
