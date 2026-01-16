@@ -584,6 +584,19 @@ export function QuickActionButton() {
           </>
         )}
       </AnimatePresence>
+
+      {/* Quick Give SendModal */}
+      <SendModal 
+        isOpen={showSendModal} 
+        onClose={() => setShowSendModal(false)} 
+      />
+
+      {/* Coming Soon Modal */}
+      <ComingSoonModal 
+        isOpen={isComingSoonOpen} 
+        onClose={hideComingSoon} 
+        featureName={featureName} 
+      />
     </>
   );
 }

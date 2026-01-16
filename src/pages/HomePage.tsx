@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { Bell, Search, HelpCircle, MessageCircle } from 'lucide-react';
+import { Search, HelpCircle, PenSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { FeedCard } from '@/components/feed/FeedCard';
@@ -176,16 +176,10 @@ export default function HomePage() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/oneaccord')}
-                className="p-2.5 hover:bg-muted rounded-xl transition-colors"
+                className="relative p-2.5 hover:bg-muted rounded-xl transition-colors"
                 title="Messages & Transfers"
               >
-                <MessageCircle className="h-5 w-5 text-muted-foreground" />
-              </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                className="relative p-2.5 hover:bg-muted rounded-xl transition-colors"
-              >
-                <Bell className="h-5 w-5 text-muted-foreground" />
+                <PenSquare className="h-5 w-5 text-muted-foreground" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
               </motion.button>
             </div>
