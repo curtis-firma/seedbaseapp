@@ -2,9 +2,13 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { User, UserRole, KeyType } from '@/types/seedbase';
 import { mockUser } from '@/data/mockData';
 import { 
-  DemoUser, loadUserByPhone, getSessionPhone, clearSession, 
-  setSessionPhone, getKeyTypeFromRole 
-} from '@/lib/demoAuth';
+  findUserByPhone, 
+  getWalletByUserId, 
+  getKeyByUserId,
+  type DemoUser,
+  type DemoWallet,
+  type DemoKey
+} from '@/lib/supabase/demoApi';
 
 interface UserContextType {
   user: User;
@@ -25,12 +29,39 @@ interface UserContextType {
   keyType: KeyType | null;
   demoMode: boolean;
   login: (phone: string, username: string) => void;
-  loginWithUser: (demoUser: DemoUser) => void;
+  loginWithUser: (demoUser: DemoUser, wallet?: DemoWallet | null, key?: DemoKey | null) => void;
+  loginWithSupabaseUser: (userId: string) => Promise<void>;
   logout: () => void;
   startDemo: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
+
+// Session storage key
+const SESSION_KEY = 'seedbase-session';
+
+interface SessionData {
+  userId: string;
+  phone: string;
+}
+
+function saveSession(data: SessionData) {
+  localStorage.setItem(SESSION_KEY, JSON.stringify(data));
+}
+
+function loadSession(): SessionData | null {
+  const data = localStorage.getItem(SESSION_KEY);
+  if (!data) return null;
+  try {
+    return JSON.parse(data);
+  } catch {
+    return null;
+  }
+}
+
+function clearSessionData() {
+  localStorage.removeItem(SESSION_KEY);
+}
 
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User>(mockUser);
@@ -47,19 +78,37 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [keyDisplayId, setKeyDisplayId] = useState<string | null>(null);
   const [keyType, setKeyType] = useState<KeyType | null>(null);
   const [demoMode, setDemoMode] = useState(false);
+  const [isRestoring, setIsRestoring] = useState(true);
 
-  // Restore session on mount
+  // Restore session from Supabase on mount
   useEffect(() => {
-    const sessionPhone = getSessionPhone();
+    restoreSession();
+  }, []);
+
+  const restoreSession = async () => {
+    const session = loadSession();
     
-    if (sessionPhone) {
-      const existingUser = loadUserByPhone(sessionPhone);
-      
-      if (existingUser?.onboardingComplete) {
-        loginWithUser(existingUser);
+    if (session?.userId) {
+      try {
+        // Load user data from Supabase
+        const dbUser = await findUserByPhone(session.phone);
+        
+        if (dbUser?.onboarding_complete) {
+          const [wallet, key] = await Promise.all([
+            getWalletByUserId(dbUser.id),
+            getKeyByUserId(dbUser.id),
+          ]);
+          
+          loginWithUser(dbUser, wallet, key);
+        }
+      } catch (err) {
+        console.error('Error restoring session:', err);
+        clearSessionData();
       }
     }
-  }, []);
+    
+    setIsRestoring(false);
+  };
 
   const hasKey = (keyType: KeyType) => {
     return user.keys.some(k => k.type === keyType);
@@ -89,33 +138,60 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setUser(prev => ({ ...prev, name }));
   };
 
-  // Full login with DemoUser data
-  const loginWithUser = (demoUser: DemoUser) => {
+  // Full login with DemoUser data from Supabase
+  const loginWithUser = (demoUser: DemoUser, wallet?: DemoWallet | null, key?: DemoKey | null) => {
     setPhoneNumber(demoUser.phone);
     setUsername(demoUser.username);
-    setDisplayName(demoUser.displayName);
-    setWalletDisplayId(demoUser.walletDisplayId);
-    setKeyDisplayId(demoUser.keyDisplayId);
-    setKeyType(demoUser.keyType);
+    setDisplayName(demoUser.display_name);
+    setWalletDisplayId(wallet?.display_id || null);
+    setKeyDisplayId(key?.display_id || null);
+    setKeyType(key?.key_type || null);
     setIsAuthenticated(true);
     setDemoMode(demoUser.phone.startsWith('demo:'));
     
-    const userRole = demoUser.role || 'activator';
+    // Save session
+    saveSession({ userId: demoUser.id, phone: demoUser.phone });
+    
+    const userRole = demoUser.active_role || 'activator';
     
     // Update user object with new data
     setUser(prev => ({
       ...prev,
-      name: demoUser.displayName || demoUser.username,
+      name: demoUser.display_name || demoUser.username,
+      avatar: demoUser.avatar_url || prev.avatar,
       activeRole: userRole,
-      walletBalance: demoUser.wallet?.balance ?? 25.00,
+      walletBalance: wallet?.balance ?? 25.00,
       keys: prev.keys.map(k => ({
         ...k,
-        isActive: k.type === demoUser.keyType
+        isActive: k.type === key?.key_type
       }))
     }));
     
     setActiveRole(userRole);
     setViewRole(userRole);
+  };
+
+  // Login with just a user ID (fetch from Supabase)
+  const loginWithSupabaseUser = async (userId: string) => {
+    try {
+      const [wallet, key] = await Promise.all([
+        getWalletByUserId(userId),
+        getKeyByUserId(userId),
+      ]);
+      
+      // We need to get the user data - this is typically passed from onboarding
+      // For now, just set wallet and key info
+      if (wallet) {
+        setWalletDisplayId(wallet.display_id);
+      }
+      if (key) {
+        setKeyDisplayId(key.display_id);
+        setKeyType(key.key_type);
+      }
+      setIsAuthenticated(true);
+    } catch (err) {
+      console.error('Error logging in with Supabase user:', err);
+    }
   };
 
   const logout = () => {
@@ -128,7 +204,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setKeyType(null);
     setDemoMode(false);
     setViewRole('activator');
-    clearSession();
+    clearSessionData();
   };
 
   const startDemo = () => {
@@ -158,6 +234,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       demoMode,
       login,
       loginWithUser,
+      loginWithSupabaseUser,
       logout,
       startDemo,
     }}>
