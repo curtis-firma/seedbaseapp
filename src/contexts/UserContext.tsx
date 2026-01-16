@@ -47,13 +47,27 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   // Restore session on mount
   useEffect(() => {
+    console.log('=== UserContext: Session Restore ===');
+    console.log('Raw session phone:', localStorage.getItem('seedbase:session:phone'));
+    console.log('Raw users index:', localStorage.getItem('seedbase:users:index'));
+    
     const sessionPhone = getSessionPhone();
+    console.log('Parsed session phone:', sessionPhone);
+    
     if (sessionPhone) {
       const existingUser = loadUserByPhone(sessionPhone);
+      console.log('Loaded user for session:', existingUser);
+      
       if (existingUser?.onboardingComplete) {
+        console.log('Restoring authenticated session for:', existingUser.username);
         loginWithUser(existingUser);
+      } else {
+        console.log('User exists but onboarding incomplete');
       }
+    } else {
+      console.log('No active session found');
     }
+    console.log('====================================');
   }, []);
 
   const hasKey = (keyType: KeyType) => {

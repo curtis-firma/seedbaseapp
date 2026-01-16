@@ -6,8 +6,8 @@ import { MobileDrawer } from './MobileDrawer';
 import { QuickActionButton } from '@/components/shared/QuickActionButton';
 import { ProfileMenuTrigger } from '@/components/shared/ProfileMenuTrigger';
 import { PhoneAuthFlow } from '@/components/onboarding/PhoneAuthFlow';
+import { DebugPanel } from '@/components/shared/DebugPanel';
 import { useUser } from '@/contexts/UserContext';
-
 interface AppLayoutProps {
   children: ReactNode;
 }
@@ -68,6 +68,9 @@ export function AppLayout({ children }: AppLayoutProps) {
       
       {/* Phone Auth Flow */}
       <PhoneAuthFlow isOpen={showAuth} onComplete={handleAuthComplete} forceDemo={forceDemo} />
+      
+      {/* Dev-only debug panel */}
+      <DebugPanel />
     </div>
   );
 }
