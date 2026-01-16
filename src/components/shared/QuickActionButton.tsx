@@ -7,6 +7,10 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
+import { SendModal } from '@/components/wallet/SendModal';
+import { ComingSoonModal, useComingSoon } from '@/components/shared/ComingSoonModal';
+import { createPost } from '@/lib/supabase/postsApi';
+import { toast } from 'sonner';
 
 type ActionMode = 'menu' | 'quick-give' | 'new-post' | 'commit-seed' | 'launch-mission' | 'mission-update' | 'testimony';
 
@@ -17,6 +21,8 @@ export function QuickActionButton() {
   const [recipient, setRecipient] = useState('');
   const [postContent, setPostContent] = useState('');
   const [postType, setPostType] = useState<'update' | 'testimony' | 'harvest'>('update');
+  const [showSendModal, setShowSendModal] = useState(false);
+  const { isOpen: isComingSoonOpen, featureName, showComingSoon, hideComingSoon } = useComingSoon();
   const { viewRole } = useUser();
 
   const handleClose = () => {
@@ -27,6 +33,53 @@ export function QuickActionButton() {
       setRecipient('');
       setPostContent('');
     }, 300);
+  };
+
+  const handleActionClick = (actionId: string) => {
+    if (actionId === 'quick-give') {
+      handleClose();
+      setShowSendModal(true);
+    } else if (actionId === 'commit-seed' || actionId === 'launch-mission') {
+      handleClose();
+      showComingSoon(actionId === 'commit-seed' ? 'Commit Seed' : 'Launch Mission');
+    } else {
+      setMode(actionId as ActionMode);
+    }
+  };
+
+  const handlePostSubmit = async () => {
+    if (!postContent.trim()) {
+      toast.error('Please enter some content');
+      return;
+    }
+    
+    // Get user ID from session
+    const sessionData = localStorage.getItem('seedbase-session');
+    let userId: string | null = null;
+    if (sessionData) {
+      try {
+        const parsed = JSON.parse(sessionData);
+        userId = parsed.userId || null;
+      } catch {}
+    }
+
+    if (!userId) {
+      toast.error('Please sign in to post');
+      return;
+    }
+
+    const post = await createPost({
+      author_id: userId,
+      body: postContent,
+      post_type: mode === 'testimony' ? 'testimony' : mode === 'mission-update' ? 'update' : 'update',
+    });
+
+    if (post) {
+      toast.success('Post created!');
+      handleClose();
+    } else {
+      toast.error('Failed to create post');
+    }
   };
 
   // Role-specific actions
@@ -201,7 +254,7 @@ export function QuickActionButton() {
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: i * 0.05 }}
-                            onClick={() => setMode(action.id as ActionMode)}
+                            onClick={() => handleActionClick(action.id)}
                             className="w-full flex items-center gap-4 p-4 rounded-2xl border border-border/50 hover:border-primary/30 transition-all text-left"
                             whileTap={{ scale: 0.98 }}
                           >

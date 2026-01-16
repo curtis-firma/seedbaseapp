@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import { useEffect } from "react";
 import { UserProvider } from "@/contexts/UserContext";
+import { seedDemoDataIfEmpty } from "@/lib/supabase/seedDemoData";
 import { AppLayout } from "@/components/layout/AppLayout";
 import HomePage from "./pages/HomePage";
 import SeedbasePage from "./pages/SeedbasePage";
@@ -17,6 +18,9 @@ import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
+
+// Seed demo data on first load
+seedDemoDataIfEmpty();
 
 // Scroll to top on route change
 function ScrollToTop() {

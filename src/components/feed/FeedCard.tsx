@@ -6,6 +6,9 @@ import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { EmbeddedCard } from './EmbeddedCard';
 import { ImpactDrawer } from './ImpactDrawer';
+import { SendModal } from '@/components/wallet/SendModal';
+import { ComingSoonModal, useComingSoon } from '@/components/shared/ComingSoonModal';
+import { toast } from 'sonner';
 import seedbaseIcon from '@/assets/seedbase-icon.png';
 
 interface FeedCardProps {
@@ -35,10 +38,41 @@ export function FeedCard({ item, index }: FeedCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(item.likes);
   const [isImpactDrawerOpen, setIsImpactDrawerOpen] = useState(false);
+  const [showSendModal, setShowSendModal] = useState(false);
+  const { isOpen: isComingSoonOpen, featureName, showComingSoon, hideComingSoon } = useComingSoon();
 
   const handleLike = () => {
     setIsLiked(!isLiked);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
+  };
+
+  const handleShare = async () => {
+    const shareData = {
+      title: `${item.author?.name || 'Seedbase'} post`,
+      text: item.content,
+      url: window.location.href,
+    };
+
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+      } catch (err) {
+        // User cancelled or share failed
+        navigator.clipboard.writeText(window.location.href);
+        toast.success('Link copied to clipboard!');
+      }
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      toast.success('Link copied to clipboard!');
+    }
+  };
+
+  const handleComment = () => {
+    showComingSoon('Comments');
+  };
+
+  const handleFollow = () => {
+    showComingSoon('Follow');
   };
 
   const hasYourSeed = item.yourSeed !== undefined && item.yourSeed > 0;
@@ -94,6 +128,7 @@ export function FeedCard({ item, index }: FeedCardProps) {
                 {/* Follow button overlay */}
                 <motion.button
                   whileTap={{ scale: 0.9 }}
+                  onClick={handleFollow}
                   className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-base flex items-center justify-center shadow-md"
                 >
                   <Plus className="h-3 w-3 text-white" />
@@ -200,6 +235,7 @@ export function FeedCard({ item, index }: FeedCardProps) {
             {/* Comments */}
             <motion.button
               whileTap={{ scale: 0.9 }}
+              onClick={handleComment}
               className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-muted rounded-full transition-colors"
             >
               <MessageCircle className="h-4 w-4 text-muted-foreground" />
@@ -222,6 +258,7 @@ export function FeedCard({ item, index }: FeedCardProps) {
             {/* Share */}
             <motion.button
               whileTap={{ scale: 0.9 }}
+              onClick={handleShare}
               className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-muted rounded-full transition-colors"
             >
               <Share2 className="h-4 w-4 text-muted-foreground" />
@@ -247,6 +284,7 @@ export function FeedCard({ item, index }: FeedCardProps) {
           {/* Give Button */}
           <motion.button
             whileTap={{ scale: 0.95 }}
+            onClick={() => setShowSendModal(true)}
             className="w-9 h-9 rounded-full gradient-seed flex items-center justify-center shadow-glow"
           >
             <DollarSign className="h-4 w-4 text-white" />
@@ -287,6 +325,19 @@ export function FeedCard({ item, index }: FeedCardProps) {
           impactCategories={item.embeddedCard?.impactCategories || defaultImpactCategories}
         />
       )}
+
+      {/* Send Modal */}
+      <SendModal
+        isOpen={showSendModal}
+        onClose={() => setShowSendModal(false)}
+      />
+
+      {/* Coming Soon Modal */}
+      <ComingSoonModal
+        isOpen={isComingSoonOpen}
+        onClose={hideComingSoon}
+        featureName={featureName}
+      />
     </>
   );
 }

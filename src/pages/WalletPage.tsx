@@ -12,30 +12,61 @@ import { trusteeWallets } from '@/data/mockData';
 import { AddFundsModal } from '@/components/wallet/AddFundsModal';
 import { WithdrawModal } from '@/components/wallet/WithdrawModal';
 import { SendModal } from '@/components/wallet/SendModal';
-import { truncateHexId, loadUserByPhone } from '@/lib/demoAuth';
-import { getRecentTransfers, getPendingTransfersForUser, type Transfer } from '@/lib/demoTransfers';
+import { truncateDisplayId } from '@/lib/supabase/demoApi';
+import { getWalletByUserId, updateWalletBalance } from '@/lib/supabase/demoApi';
+import { getPendingTransfers, getTransfersForUser, type DemoTransfer } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 
 export default function WalletPage() {
-  const { user, activeRole, isKeyActive, walletDisplayId, keyDisplayId, keyType, phoneNumber } = useUser();
+  const { user, activeRole, isKeyActive, walletDisplayId, keyDisplayId, keyType } = useUser();
   const [activeTab, setActiveTab] = useState(0);
   const [walletBalance, setWalletBalance] = useState(25.00);
-  const [pendingTransfers, setPendingTransfers] = useState<Transfer[]>([]);
+  const [walletId, setWalletId] = useState<string | null>(null);
+  const [pendingTransfers, setPendingTransfers] = useState<DemoTransfer[]>([]);
+  const [recentTransfers, setRecentTransfers] = useState<DemoTransfer[]>([]);
   
   const isTrustee = activeRole === 'trustee' && isKeyActive('BaseKey');
   const tabs = isTrustee ? ['Personal', 'Missions', 'Provision'] : ['Wallet', 'Keys'];
 
-  // Load real balance from localStorage
-  useEffect(() => {
-    if (phoneNumber) {
-      const demoUser = loadUserByPhone(phoneNumber);
-      if (demoUser) {
-        setWalletBalance(demoUser.wallet.balance);
-      }
-      setPendingTransfers(getPendingTransfersForUser(phoneNumber));
+  // Get current user ID from session
+  const getCurrentUserId = (): string | null => {
+    const sessionData = localStorage.getItem('seedbase-session');
+    if (sessionData) {
+      try {
+        const parsed = JSON.parse(sessionData);
+        return parsed.userId || null;
+      } catch {}
     }
-  }, [phoneNumber]);
+    return null;
+  };
+
+  // Load balance and transfers from database
+  useEffect(() => {
+    loadWalletData();
+  }, []);
+
+  const loadWalletData = async () => {
+    const userId = getCurrentUserId();
+    if (!userId) return;
+    
+    try {
+      const [wallet, pending, recent] = await Promise.all([
+        getWalletByUserId(userId),
+        getPendingTransfers(userId),
+        getTransfersForUser(userId, 10)
+      ]);
+      
+      if (wallet) {
+        setWalletBalance(wallet.balance);
+        setWalletId(wallet.id);
+      }
+      setPendingTransfers(pending);
+      setRecentTransfers(recent);
+    } catch (err) {
+      console.error('Error loading wallet data:', err);
+    }
+  };
 
   const handleCopyWallet = () => {
     if (walletDisplayId) {
@@ -44,13 +75,12 @@ export default function WalletPage() {
     }
   };
 
-  const refreshBalance = () => {
-    if (phoneNumber) {
-      const demoUser = loadUserByPhone(phoneNumber);
-      if (demoUser) {
-        setWalletBalance(demoUser.wallet.balance);
-      }
-      setPendingTransfers(getPendingTransfersForUser(phoneNumber));
+  const handleAddFundsSuccess = async (amount: number) => {
+    if (walletId) {
+      const newBalance = walletBalance + amount;
+      await updateWalletBalance(walletId, newBalance);
+      setWalletBalance(newBalance);
+      toast.success(`Added $${amount.toFixed(2)} to your wallet (Demo)`);
     }
   };
 
@@ -80,7 +110,7 @@ export default function WalletPage() {
             >
               <div className="flex items-center gap-2">
                 <WalletIcon className="h-4 w-4 text-muted-foreground" />
-                <code className="text-sm font-mono">{truncateHexId(walletDisplayId)}</code>
+                <code className="text-sm font-mono">{truncateDisplayId(walletDisplayId)}</code>
               </div>
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -111,7 +141,7 @@ export default function WalletPage() {
                 <CheckCircle2 className="h-3 w-3" />
               </div>
               <code className="text-xs text-muted-foreground font-mono">
-                {truncateHexId(keyDisplayId)}
+                {truncateDisplayId(keyDisplayId)}
               </code>
             </motion.div>
           )}
@@ -130,13 +160,33 @@ export default function WalletPage() {
         <AnimatePresence mode="wait">
           {isTrustee ? (
             <>
-              {activeTab === 0 && <PersonalWalletView key="personal" balance={walletBalance} pendingTransfers={pendingTransfers} onRefresh={refreshBalance} />}
+              {activeTab === 0 && (
+                <PersonalWalletView 
+                  key="personal" 
+                  balance={walletBalance} 
+                  walletId={walletId}
+                  pendingTransfers={pendingTransfers} 
+                  recentTransfers={recentTransfers}
+                  onRefresh={loadWalletData} 
+                  onAddFundsSuccess={handleAddFundsSuccess}
+                />
+              )}
               {activeTab === 1 && <MissionsWalletView key="missions" />}
               {activeTab === 2 && <ProvisionPoolView key="provision" />}
             </>
           ) : (
             <>
-              {activeTab === 0 && <PersonalWalletView key="personal" balance={walletBalance} pendingTransfers={pendingTransfers} onRefresh={refreshBalance} />}
+              {activeTab === 0 && (
+                <PersonalWalletView 
+                  key="personal" 
+                  balance={walletBalance} 
+                  walletId={walletId}
+                  pendingTransfers={pendingTransfers}
+                  recentTransfers={recentTransfers} 
+                  onRefresh={loadWalletData}
+                  onAddFundsSuccess={handleAddFundsSuccess}
+                />
+              )}
               {activeTab === 1 && <KeysView key="keys" user={user} />}
             </>
           )}
@@ -146,19 +196,40 @@ export default function WalletPage() {
   );
 }
 
-function PersonalWalletView({ balance, pendingTransfers, onRefresh }: { balance: number; pendingTransfers: Transfer[]; onRefresh: () => void }) {
+function PersonalWalletView({ 
+  balance, 
+  walletId,
+  pendingTransfers, 
+  recentTransfers,
+  onRefresh,
+  onAddFundsSuccess
+}: { 
+  balance: number; 
+  walletId: string | null;
+  pendingTransfers: DemoTransfer[]; 
+  recentTransfers: DemoTransfer[];
+  onRefresh: () => void;
+  onAddFundsSuccess: (amount: number) => void;
+}) {
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showSend, setShowSend] = useState(false);
-  const { activeRole, phoneNumber } = useUser();
+  const { activeRole } = useUser();
   const isActivator = activeRole === 'activator';
-  const [recentActivity, setRecentActivity] = useState<Transfer[]>([]);
 
-  useEffect(() => {
-    if (phoneNumber) {
-      setRecentActivity(getRecentTransfers(phoneNumber, 5));
+  // Get current user ID
+  const getCurrentUserId = (): string | null => {
+    const sessionData = localStorage.getItem('seedbase-session');
+    if (sessionData) {
+      try {
+        const parsed = JSON.parse(sessionData);
+        return parsed.userId || null;
+      } catch {}
     }
-  }, [phoneNumber, balance]);
+    return null;
+  };
+
+  const currentUserId = getCurrentUserId();
 
   return (
     <motion.div
@@ -233,6 +304,7 @@ function PersonalWalletView({ balance, pendingTransfers, onRefresh }: { balance:
       <AddFundsModal 
         isOpen={showAddFunds} 
         onClose={() => setShowAddFunds(false)} 
+        onSuccess={onAddFundsSuccess}
       />
       <WithdrawModal 
         isOpen={showWithdraw} 
@@ -268,7 +340,7 @@ function PersonalWalletView({ balance, pendingTransfers, onRefresh }: { balance:
                 className="bg-card rounded-2xl border border-seed/30 p-4"
               >
                 <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">@{transfer.fromUsername}</span>
+                  <span className="font-medium">@{transfer.from_user?.username || 'user'}</span>
                   <span className="text-lg font-bold text-seed">${transfer.amount.toFixed(2)}</span>
                 </div>
                 <p className="text-sm text-muted-foreground mb-3">{transfer.purpose}</p>
@@ -282,7 +354,7 @@ function PersonalWalletView({ balance, pendingTransfers, onRefresh }: { balance:
       )}
 
       {/* Recent Activity */}
-      {recentActivity.length > 0 && (
+      {recentTransfers.filter(t => t.status !== 'pending').length > 0 && (
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -291,8 +363,8 @@ function PersonalWalletView({ balance, pendingTransfers, onRefresh }: { balance:
           <h2 className="font-semibold text-lg mb-3">Recent Activity</h2>
           
           <div className="bg-card rounded-2xl border border-border/50 divide-y divide-border/50">
-            {recentActivity.map((tx, i) => {
-              const isIncoming = tx.toPhone === phoneNumber;
+            {recentTransfers.filter(t => t.status !== 'pending').slice(0, 5).map((tx, i) => {
+              const isIncoming = tx.to_user_id === currentUserId;
               const isAccepted = tx.status === 'accepted';
               
               return (
@@ -312,7 +384,7 @@ function PersonalWalletView({ balance, pendingTransfers, onRefresh }: { balance:
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">
-                      {isIncoming ? `From @${tx.fromUsername}` : `To @${tx.toUsername}`}
+                      {isIncoming ? `From @${tx.from_user?.username || 'user'}` : `To @${tx.to_user?.username || 'user'}`}
                     </p>
                     <p className="text-sm text-muted-foreground capitalize">{tx.status}</p>
                   </div>
@@ -324,7 +396,7 @@ function PersonalWalletView({ balance, pendingTransfers, onRefresh }: { balance:
                       {isIncoming ? '+' : '-'}${tx.amount.toFixed(2)}
                     </p>
                     <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(tx.createdAt), { addSuffix: true })}
+                      {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
                     </p>
                   </div>
                 </div>
@@ -464,34 +536,6 @@ function MissionsWalletView() {
           </div>
         </div>
       </div>
-
-      {/* Pending Distributions */}
-      <div>
-        <h2 className="font-semibold text-lg mb-3">Pending Distributions</h2>
-        <div className="space-y-2">
-          {[
-            { mission: 'Kenya Water Project', envoy: 'Sarah K.', amount: 5000, status: 'Ready' },
-            { mission: 'Guatemala Schools', envoy: 'Marcus O.', amount: 7500, status: 'Pending approval' },
-          ].map((dist, i) => (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: i * 0.1 }}
-              className="bg-card rounded-2xl border border-border/50 p-4"
-            >
-              <div className="flex items-center justify-between mb-2">
-                <span className="font-medium">{dist.mission}</span>
-                <span className="text-lg font-bold">${dist.amount.toLocaleString()}</span>
-              </div>
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">To: {dist.envoy}</span>
-                <span className="text-xs px-2 py-1 rounded-full bg-envoy/10 text-envoy">{dist.status}</span>
-              </div>
-            </motion.div>
-          ))}
-        </div>
-      </div>
     </motion.div>
   );
 }
@@ -520,56 +564,47 @@ function ProvisionPoolView() {
           ${pool.balance.toLocaleString()}
         </p>
         <p className="text-sm opacity-80 mb-4">
-          ${pool.monthlyBudget.toLocaleString()}/mo budget
+          Monthly Budget: ${pool.monthlyBudget.toLocaleString()}
         </p>
-        
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          className="w-full py-3 bg-white/20 backdrop-blur-sm rounded-xl font-medium flex items-center justify-center gap-2"
-        >
-          <Receipt className="h-4 w-4" />
-          Request Withdrawal
-        </motion.button>
       </motion.div>
 
       {/* Budget Categories */}
-      <div>
-        <h2 className="font-semibold text-lg mb-3">Budget Categories</h2>
-        <div className="bg-card rounded-2xl border border-border/50 divide-y divide-border/50">
-          {pool.categories.map((cat, i) => {
-            const percentage = (cat.spent / cat.allocated) * 100;
-            return (
-              <div key={i} className="p-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-medium">{cat.name}</span>
-                  <span className="text-sm text-muted-foreground">
-                    ${cat.spent} / ${cat.allocated}
-                  </span>
-                </div>
-                <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
-                  <div 
-                    className={cn(
-                      "h-full rounded-full",
-                      percentage > 90 ? "bg-destructive" :
-                      percentage > 70 ? "bg-envoy" : "bg-seed"
-                    )}
-                    style={{ width: `${Math.min(percentage, 100)}%` }}
-                  />
-                </div>
-              </div>
-            );
-          })}
-        </div>
+      <div className="space-y-3">
+        <h3 className="font-semibold">Budget Categories</h3>
+        {pool.categories.map((cat, i) => (
+          <motion.div
+            key={cat.name}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: i * 0.1 }}
+            className="bg-card rounded-xl border border-border/50 p-4"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <span className="font-medium">{cat.name}</span>
+              <span className="text-sm text-muted-foreground">
+                ${cat.spent.toLocaleString()} / ${cat.allocated.toLocaleString()}
+              </span>
+            </div>
+            <div className="h-2 bg-muted rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${(cat.spent / cat.allocated) * 100}%` }}
+                transition={{ delay: 0.3 + i * 0.1 }}
+                className="h-full bg-envoy rounded-full"
+              />
+            </div>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Voting */}
-      <div className="bg-trust/5 rounded-2xl p-4 border border-trust/20">
+      {/* Multi-sig Info */}
+      <div className="bg-envoy/5 rounded-2xl p-4 border border-envoy/20">
         <div className="flex items-start gap-3">
-          <Vote className="h-5 w-5 text-trust flex-shrink-0 mt-0.5" />
+          <Users className="h-5 w-5 text-envoy flex-shrink-0 mt-0.5" />
           <div>
-            <p className="font-medium mb-1">Multi-sig Required</p>
+            <p className="font-medium mb-1">Multi-Sig Required</p>
             <p className="text-sm text-muted-foreground">
-              Provision pool withdrawals require approval from 2 of 3 trustees.
+              Pool withdrawals require 2 of 3 trustee signatures for amounts over $1,000.
             </p>
           </div>
         </div>
@@ -579,7 +614,19 @@ function ProvisionPoolView() {
 }
 
 const keyConfig = {
-  SeedKey: { icon: Sprout, gradient: 'gradient-seed', role: 'Activator' },
-  BaseKey: { icon: Shield, gradient: 'gradient-trust', role: 'Trustee' },
-  MissionKey: { icon: Rocket, gradient: 'gradient-envoy', role: 'Envoy' },
+  SeedKey: {
+    icon: Sprout,
+    gradient: 'gradient-seed',
+    role: 'Activator - Commit & Grow',
+  },
+  BaseKey: {
+    icon: Shield,
+    gradient: 'gradient-trust',
+    role: 'Trustee - Govern & Distribute',
+  },
+  MissionKey: {
+    icon: Rocket,
+    gradient: 'gradient-envoy',
+    role: 'Envoy - Execute & Report',
+  },
 };

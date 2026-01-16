@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X, Search, ArrowUpRight, Check, AlertCircle, User } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
-import { getAllUsers, loadUserByPhone, type DemoUser } from '@/lib/demoAuth';
-import { createTransfer } from '@/lib/demoTransfers';
+import { getAllCompletedUsers, searchUsers, getWalletByUserId, type DemoUser } from '@/lib/supabase/demoApi';
+import { createTransfer } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -14,26 +14,66 @@ interface SendModalProps {
 }
 
 export function SendModal({ isOpen, onClose, onSuccess }: SendModalProps) {
-  const { phoneNumber } = useUser();
+  const { user } = useUser();
   const [step, setStep] = useState<'search' | 'amount' | 'confirm' | 'success'>('search');
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUser, setSelectedUser] = useState<DemoUser | null>(null);
   const [amount, setAmount] = useState('');
   const [purpose, setPurpose] = useState('');
   const [availableUsers, setAvailableUsers] = useState<DemoUser[]>([]);
-  const [currentUser, setCurrentUser] = useState<DemoUser | null>(null);
+  const [currentBalance, setCurrentBalance] = useState(0);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
+  // Load users from database
   useEffect(() => {
-    if (isOpen && phoneNumber) {
-      // Load all users except current user
-      const users = getAllUsers().filter(u => u.phone !== phoneNumber);
+    if (isOpen) {
+      loadUsers();
+    }
+  }, [isOpen]);
+
+  const loadUsers = async () => {
+    setIsLoading(true);
+    try {
+      // Get current user ID from localStorage session
+      const sessionData = localStorage.getItem('seedbase-session');
+      let userId: string | null = null;
+      
+      if (sessionData) {
+        try {
+          const parsed = JSON.parse(sessionData);
+          userId = parsed.userId || null;
+        } catch {}
+      }
+      
+      setCurrentUserId(userId);
+      
+      // Load all users except current
+      const users = await getAllCompletedUsers(userId || undefined);
       setAvailableUsers(users);
       
-      // Load current user for balance
-      const user = loadUserByPhone(phoneNumber);
-      setCurrentUser(user);
+      // Load current user's balance
+      if (userId) {
+        const wallet = await getWalletByUserId(userId);
+        if (wallet) {
+          setCurrentBalance(wallet.balance);
+        }
+      }
+    } catch (err) {
+      console.error('Error loading users:', err);
+    } finally {
+      setIsLoading(false);
     }
-  }, [isOpen, phoneNumber]);
+  };
+
+  // Search users when query changes
+  useEffect(() => {
+    if (searchQuery.length >= 2) {
+      searchUsers(searchQuery, currentUserId || undefined).then(setAvailableUsers);
+    } else if (searchQuery.length === 0) {
+      getAllCompletedUsers(currentUserId || undefined).then(setAvailableUsers);
+    }
+  }, [searchQuery, currentUserId]);
 
   useEffect(() => {
     if (!isOpen) {
@@ -49,9 +89,10 @@ export function SendModal({ isOpen, onClose, onSuccess }: SendModalProps) {
   }, [isOpen]);
 
   const filteredUsers = availableUsers.filter(u => {
+    if (!searchQuery) return true;
     const query = searchQuery.toLowerCase().replace(/^@/, '');
     return u.username?.toLowerCase().includes(query) || 
-           u.displayName?.toLowerCase().includes(query);
+           u.display_name?.toLowerCase().includes(query);
   });
 
   const handleSelectUser = (user: DemoUser) => {
@@ -65,26 +106,38 @@ export function SendModal({ isOpen, onClose, onSuccess }: SendModalProps) {
       toast.error('Enter a valid amount');
       return;
     }
-    if (currentUser && numAmount > currentUser.wallet.balance) {
+    if (numAmount > currentBalance) {
       toast.error('Insufficient balance');
       return;
     }
     setStep('confirm');
   };
 
-  const handleSend = () => {
-    if (!currentUser || !selectedUser || !phoneNumber) return;
+  const handleSend = async () => {
+    if (!currentUserId || !selectedUser) return;
 
     const numAmount = parseFloat(amount);
-    const transfer = createTransfer(currentUser, selectedUser, numAmount, purpose || 'USDC Transfer');
+    
+    try {
+      const transfer = await createTransfer(
+        currentUserId,
+        selectedUser.id,
+        numAmount,
+        purpose || 'USDC Transfer'
+      );
 
-    if (transfer) {
-      setStep('success');
-      setTimeout(() => {
-        onSuccess?.();
-        onClose();
-      }, 1500);
-    } else {
+      if (transfer) {
+        setStep('success');
+        toast.success(`Sent $${numAmount.toFixed(2)} to @${selectedUser.username}`);
+        setTimeout(() => {
+          onSuccess?.();
+          onClose();
+        }, 1500);
+      } else {
+        toast.error('Transfer failed. Please try again.');
+      }
+    } catch (err) {
+      console.error('Transfer error:', err);
       toast.error('Transfer failed. Please try again.');
     }
   };
@@ -148,7 +201,12 @@ export function SendModal({ isOpen, onClose, onSuccess }: SendModalProps) {
 
               {/* User list */}
               <div className="space-y-2 max-h-64 overflow-y-auto">
-                {filteredUsers.length === 0 ? (
+                {isLoading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-2" />
+                    <p>Loading users...</p>
+                  </div>
+                ) : filteredUsers.length === 0 ? (
                   <div className="text-center py-8 text-muted-foreground">
                     <User className="h-12 w-12 mx-auto mb-2 opacity-50" />
                     <p>No users found</p>
@@ -157,22 +215,30 @@ export function SendModal({ isOpen, onClose, onSuccess }: SendModalProps) {
                 ) : (
                   filteredUsers.map((user) => (
                     <motion.button
-                      key={user.phone}
+                      key={user.id}
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleSelectUser(user)}
                       className="w-full p-4 bg-muted rounded-xl flex items-center gap-3 hover:bg-muted/80 transition-colors text-left"
                     >
-                      <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                        <span className="text-lg">
-                          {user.displayName?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase() || '?'}
-                        </span>
-                      </div>
+                      {user.avatar_url ? (
+                        <img 
+                          src={user.avatar_url} 
+                          alt={user.display_name || user.username}
+                          className="w-10 h-10 rounded-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-lg">
+                            {user.display_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase() || '?'}
+                          </span>
+                        </div>
+                      )}
                       <div className="flex-1">
-                        <p className="font-medium">{user.displayName || user.username}</p>
+                        <p className="font-medium">{user.display_name || user.username}</p>
                         <p className="text-sm text-muted-foreground">@{user.username}</p>
                       </div>
                       <div className="text-xs text-muted-foreground capitalize">
-                        {user.role}
+                        {user.active_role}
                       </div>
                     </motion.button>
                   ))
@@ -191,13 +257,21 @@ export function SendModal({ isOpen, onClose, onSuccess }: SendModalProps) {
             >
               {/* Selected user */}
               <div className="flex items-center gap-3 mb-6 p-4 bg-muted rounded-xl">
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
-                  <span className="text-lg">
-                    {selectedUser.displayName?.[0]?.toUpperCase() || selectedUser.username?.[0]?.toUpperCase()}
-                  </span>
-                </div>
+                {selectedUser.avatar_url ? (
+                  <img 
+                    src={selectedUser.avatar_url} 
+                    alt={selectedUser.display_name || selectedUser.username}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <span className="text-lg">
+                      {selectedUser.display_name?.[0]?.toUpperCase() || selectedUser.username?.[0]?.toUpperCase()}
+                    </span>
+                  </div>
+                )}
                 <div>
-                  <p className="font-medium">{selectedUser.displayName || selectedUser.username}</p>
+                  <p className="font-medium">{selectedUser.display_name || selectedUser.username}</p>
                   <p className="text-sm text-muted-foreground">@{selectedUser.username}</p>
                 </div>
               </div>
@@ -217,7 +291,7 @@ export function SendModal({ isOpen, onClose, onSuccess }: SendModalProps) {
                   />
                 </div>
                 <p className="text-sm text-muted-foreground mt-2">
-                  Available: ${currentUser?.wallet.balance.toFixed(2) || '0.00'}
+                  Available: ${currentBalance.toFixed(2)}
                 </p>
               </div>
 
