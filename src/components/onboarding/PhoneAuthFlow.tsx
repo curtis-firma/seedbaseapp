@@ -2,16 +2,29 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowRight, Check, Sprout, Shield, Copy,
-  Key, Sparkles, Users, Rocket, CheckCircle2
+  Key, Sparkles, Users, Rocket, CheckCircle2, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
 import { 
-  normalizePhone, loadUserByPhone, saveUser, makeHexId,
-  getKeyTypeFromRole, truncateHexId, setSessionPhone, isUsernameTaken,
+  normalizePhone, saveUser, makeHexId,
+  getKeyTypeFromRole, truncateHexId, setSessionPhone, isUsernameTaken as isUsernameTakenLocal,
   formatPhoneDisplay, createDemoUser,
   type DemoUser 
 } from '@/lib/demoAuth';
+import { 
+  findUserByPhone as findUserByPhoneDb,
+  getWalletByUserId,
+  getKeyByUserId,
+  createUser as createUserDb,
+  createWallet,
+  createKey,
+  updateUser,
+  isUsernameTaken as isUsernameTakenDb,
+  type DemoUser as DbDemoUser,
+  type DemoWallet,
+  type DemoKey,
+} from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
 import seedbaseIcon from '@/assets/seedbase-icon.png';
 
@@ -24,6 +37,7 @@ interface PhoneAuthFlowProps {
 type Step = 
   | 'welcome' 
   | 'verifying' 
+  | 'restoring'  // NEW: For returning users
   | 'creating-wallet' 
   | 'wallet-reveal' 
   | 'username' 
@@ -32,15 +46,22 @@ type Step =
   | 'key-reveal';
 
 const WALLET_CREATION_STEPS = [
-  { label: 'Generating wallet...', duration: 600 },
-  { label: 'Securing keys on Base...', duration: 700 },
-  { label: 'Connecting to Seedbase...', duration: 600 },
+  { label: 'Deriving entropy...', duration: 700 },
+  { label: 'Generating keypair...', duration: 800 },
+  { label: 'Encrypting secrets...', duration: 700 },
+  { label: 'Connecting to Base L2...', duration: 600 },
 ];
 
 const KEY_ACTIVATION_STEPS = [
-  { label: 'Initializing...', duration: 400 },
-  { label: 'Registering key...', duration: 500 },
-  { label: 'Confirming on-chain...', duration: 400 },
+  { label: 'Initializing protocol...', duration: 500 },
+  { label: 'Registering on-chain...', duration: 600 },
+  { label: 'Confirming transaction...', duration: 500 },
+];
+
+const RESTORE_STEPS = [
+  { label: 'Restoring your Seed Wallet...', duration: 800 },
+  { label: 'Loading keys...', duration: 500 },
+  { label: 'Syncing state...', duration: 400 },
 ];
 
 const ROLE_OPTIONS = [
@@ -77,10 +98,14 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
   const [step, setStep] = useState<Step>('welcome');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isDemo, setIsDemo] = useState(forceDemo);
-  const [returningUser, setReturningUser] = useState<DemoUser | null>(null);
+  const [isCheckingUser, setIsCheckingUser] = useState(false);
+  const [returningUserPreview, setReturningUserPreview] = useState<DbDemoUser | null>(null);
   
-  // User data being built
+  // User data being built (for new users)
   const [pendingUser, setPendingUser] = useState<DemoUser | null>(null);
+  const [dbUser, setDbUser] = useState<DbDemoUser | null>(null);
+  const [dbWallet, setDbWallet] = useState<DemoWallet | null>(null);
+  const [dbKey, setDbKey] = useState<DemoKey | null>(null);
   const [username, setUsername] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [selectedRole, setSelectedRole] = useState<DemoUser['role']>(null);
@@ -88,6 +113,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
   // Animation state
   const [creationStep, setCreationStep] = useState(0);
   const [creationProgress, setCreationProgress] = useState(0);
+  const [restoreStep, setRestoreStep] = useState(0);
   
   const { loginWithUser } = useUser();
 
@@ -102,48 +128,55 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
   const resetFlow = () => {
     setStep('welcome');
     setPhoneNumber('');
-    setReturningUser(null);
+    setReturningUserPreview(null);
     setPendingUser(null);
+    setDbUser(null);
+    setDbWallet(null);
+    setDbKey(null);
     setUsername('');
     setDisplayName('');
     setSelectedRole(null);
     setCreationStep(0);
     setCreationProgress(0);
+    setRestoreStep(0);
+    setIsCheckingUser(false);
   };
 
-  // Check for returning user on phone change
+  // Check for returning user in SUPABASE when phone changes
   useEffect(() => {
-    if (phoneNumber.length >= 10) {
+    if (phoneNumber.length < 10) {
+      setReturningUserPreview(null);
+      return;
+    }
+
+    const checkUser = async () => {
       try {
-        const normalizedPhone = normalizePhone(phoneNumber);
-        const existing = loadUserByPhone(normalizedPhone);
-        if (existing?.onboardingComplete) {
-          setReturningUser(existing);
+        setIsCheckingUser(true);
+        const normalizedPhone = isDemo ? `demo:${phoneNumber}` : normalizePhone(phoneNumber);
+        const existingUser = await findUserByPhoneDb(normalizedPhone);
+        
+        if (existingUser?.onboarding_complete) {
+          setReturningUserPreview(existingUser);
         } else {
-          setReturningUser(null);
+          setReturningUserPreview(null);
         }
       } catch {
-        setReturningUser(null);
+        setReturningUserPreview(null);
+      } finally {
+        setIsCheckingUser(false);
       }
-    } else {
-      setReturningUser(null);
-    }
-  }, [phoneNumber]);
+    };
+
+    const debounce = setTimeout(checkUser, 300);
+    return () => clearTimeout(debounce);
+  }, [phoneNumber, isDemo]);
 
   const handlePhoneSubmit = () => {
     if (phoneNumber.length < 10) return;
     
     try {
-      const normalizedPhone = normalizePhone(phoneNumber);
+      const normalizedPhone = isDemo ? `demo:${phoneNumber}` : normalizePhone(phoneNumber);
       const formatted = formatPhoneDisplay(normalizedPhone);
-      
-      // Check for existing user
-      const existingUser = loadUserByPhone(normalizedPhone);
-      
-      if (existingUser?.onboardingComplete) {
-        // Returning user - skip to verification
-        setReturningUser(existingUser);
-      }
       
       toast.success(`Code sent to ${formatted}`);
       setStep('verifying');
@@ -170,37 +203,103 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
     return () => clearTimeout(timer);
   }, [step]);
 
-  const handleVerificationComplete = () => {
+  const handleVerificationComplete = async () => {
     try {
       const normalizedPhone = isDemo ? `demo:${phoneNumber}` : normalizePhone(phoneNumber);
-      const existingUser = loadUserByPhone(normalizedPhone);
       
-      if (existingUser?.onboardingComplete) {
-        // Returning user - restore session and enter app
-        setSessionPhone(normalizedPhone);
-        loginWithUser(existingUser);
-        toast.success(`Welcome back, @${existingUser.username}!`);
-        onComplete();
+      // Check Supabase for existing user
+      const existingUser = await findUserByPhoneDb(normalizedPhone);
+      
+      if (existingUser?.onboarding_complete) {
+        // RETURNING USER - Skip ALL onboarding!
+        setDbUser(existingUser);
+        setStep('restoring');
         return;
       }
       
-      // New user - create pending user with wallet ID
+      // NEW USER - Start onboarding
       let newUser: DemoUser;
-      if (existingUser) {
-        // Partial user exists, reuse wallet ID
-        newUser = existingUser;
+      // Check localStorage for partial user (fallback)
+      const localUser = (() => {
+        try {
+          const { loadUserByPhone } = require('@/lib/demoAuth');
+          return loadUserByPhone(normalizedPhone);
+        } catch { return null; }
+      })();
+      
+      if (localUser) {
+        // Partial user exists in localStorage, reuse wallet ID
+        newUser = localUser;
       } else {
-        // Create brand new user
+        // Create brand new user in memory
         newUser = createDemoUser(phoneNumber, isDemo);
       }
       
       setPendingUser(newUser);
       setStep('creating-wallet');
     } catch (e) {
+      console.error('Verification failed:', e);
       toast.error('Verification failed');
       setStep('welcome');
     }
   };
+
+  // RESTORING session animation for returning users
+  useEffect(() => {
+    if (step !== 'restoring' || !dbUser) return;
+    
+    let timeout: NodeJS.Timeout;
+    
+    const runRestore = async () => {
+      // Animate restore steps
+      for (let i = 0; i < RESTORE_STEPS.length; i++) {
+        setRestoreStep(i);
+        await new Promise(resolve => {
+          timeout = setTimeout(resolve, RESTORE_STEPS[i].duration);
+        });
+      }
+      
+      // Load wallet and key from Supabase
+      const [wallet, key] = await Promise.all([
+        getWalletByUserId(dbUser.id),
+        getKeyByUserId(dbUser.id),
+      ]);
+      
+      // Update last_login_at
+      await updateUser(dbUser.id, { last_login_at: new Date().toISOString() });
+      
+      // Convert DB user to local format and login
+      const localUser: DemoUser = {
+        phone: dbUser.phone,
+        username: dbUser.username,
+        displayName: dbUser.display_name || dbUser.username,
+        role: dbUser.active_role,
+        walletDisplayId: wallet?.display_id || makeHexId(16),
+        keyType: key?.key_type || getKeyTypeFromRole(dbUser.active_role),
+        keyDisplayId: key?.display_id || null,
+        wallet: {
+          balance: wallet?.balance || 25,
+          distributionsBalance: 0,
+        },
+        onboardingComplete: true,
+        createdAt: dbUser.created_at,
+        updatedAt: new Date().toISOString(),
+      };
+      
+      // Save to localStorage for session persistence
+      saveUser(localUser);
+      setSessionPhone(localUser.phone);
+      
+      // Login and complete
+      loginWithUser(localUser);
+      toast.success(`Welcome back, @${dbUser.username}!`);
+      onComplete();
+    };
+    
+    runRestore();
+    
+    return () => clearTimeout(timeout);
+  }, [step, dbUser]);
 
   // Wallet creation animation
   useEffect(() => {
@@ -310,11 +409,12 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
     }
   };
 
-  const handleUsernameSubmit = () => {
+  const handleUsernameSubmit = async () => {
     if (username.length < 2) return;
     
-    // Check for duplicate username
-    if (isUsernameTaken(username, pendingUser?.phone)) {
+    // Check for duplicate username in Supabase
+    const taken = await isUsernameTakenDb(username);
+    if (taken) {
       toast.error('Username already taken');
       return;
     }
@@ -341,16 +441,48 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
     setStep('activating-key');
   };
 
-  const handleComplete = () => {
+  const handleComplete = async () => {
     if (!pendingUser || !selectedRole) return;
+    
+    const normalizedPhone = pendingUser.phone;
+    const keyType = getKeyTypeFromRole(selectedRole);
+    
+    // Create user in Supabase
+    const newDbUser = await createUserDb({
+      phone: normalizedPhone,
+      username: username.toLowerCase(),
+      display_name: displayName || username,
+      active_role: selectedRole,
+    });
+    
+    if (!newDbUser) {
+      toast.error('Failed to create account');
+      return;
+    }
+    
+    // Create wallet in Supabase (idempotent - only if none exists)
+    let wallet = await getWalletByUserId(newDbUser.id);
+    if (!wallet) {
+      wallet = await createWallet(newDbUser.id, 'personal', 25);
+    }
+    
+    // Create key in Supabase (idempotent - only if none exists)
+    let key = await getKeyByUserId(newDbUser.id);
+    if (!key) {
+      key = await createKey(newDbUser.id, keyType);
+    }
+    
+    // Mark onboarding complete
+    await updateUser(newDbUser.id, { onboarding_complete: true });
     
     const finalUser: DemoUser = {
       ...pendingUser,
       username,
       displayName: displayName || username,
       role: selectedRole,
-      keyType: getKeyTypeFromRole(selectedRole),
-      keyDisplayId: pendingUser.keyDisplayId || makeHexId(16),
+      keyType,
+      keyDisplayId: key?.display_id || pendingUser.keyDisplayId || makeHexId(16),
+      walletDisplayId: wallet?.display_id || pendingUser.walletDisplayId,
       onboardingComplete: true,
     };
     
@@ -375,7 +507,8 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
   const progressSteps = getProgressSteps();
   const currentStepIndex = progressSteps.indexOf(
     step === 'creating-wallet' ? 'wallet-reveal' : 
-    step === 'activating-key' ? 'key-reveal' : step
+    step === 'activating-key' ? 'key-reveal' : 
+    step === 'restoring' ? 'verifying' : step
   );
 
   return (
@@ -386,7 +519,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
       className="fixed inset-0 bg-background z-50 flex flex-col"
     >
       {/* Progress dots - hide during animations */}
-      {step !== 'creating-wallet' && step !== 'activating-key' && step !== 'verifying' && (
+      {step !== 'creating-wallet' && step !== 'activating-key' && step !== 'verifying' && step !== 'restoring' && (
         <div className="p-6 flex justify-center">
           <div className="flex gap-2">
             {progressSteps.map((s, i) => (
@@ -439,7 +572,18 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
               </div>
 
               {/* Returning user badge */}
-              {returningUser && (
+              {isCheckingUser && phoneNumber.length >= 10 && (
+                <motion.div
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="mb-4 p-3 bg-muted rounded-xl flex items-center gap-2 justify-center"
+                >
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span className="text-sm text-muted-foreground">Checking...</span>
+                </motion.div>
+              )}
+              
+              {returningUserPreview && !isCheckingUser && (
                 <motion.div
                   initial={{ opacity: 0, y: 10 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -447,7 +591,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                 >
                   <CheckCircle2 className="h-4 w-4 text-seed" />
                   <span className="text-sm font-medium text-seed">
-                    Welcome back, @{returningUser.username}!
+                    Welcome back, @{returningUserPreview.username}!
                   </span>
                 </motion.div>
               )}
@@ -498,29 +642,24 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 />
-                <div className="absolute inset-0 -m-2">
-                  <motion.div
-                    className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
-                  />
-                </div>
+                <motion.div
+                  className="absolute inset-0 rounded-full border-2 border-primary"
+                  animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
               </div>
-              
-              <h2 className="text-2xl font-bold mb-2">Verifying phone...</h2>
-              <p className="text-muted-foreground">
-                {isDemo ? 'Demo mode • Auto-verifying' : 'Checking verification code'}
-              </p>
+              <h2 className="text-xl font-semibold mb-2">Verifying...</h2>
+              <p className="text-muted-foreground">Checking your phone number</p>
             </motion.div>
           )}
 
-          {/* Creating Wallet Animation */}
-          {step === 'creating-wallet' && (
+          {/* RESTORING Step (for returning users) */}
+          {step === 'restoring' && dbUser && (
             <motion.div
-              key="creating-wallet"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              key="restoring"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
               <div className="relative w-20 h-20 mx-auto mb-8">
@@ -528,54 +667,104 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                   src={seedbaseIcon}
                   alt="Seedbase"
                   className="w-20 h-20"
-                  animate={{ scale: [1, 1.05, 1] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
+                  animate={{ rotate: [0, 5, -5, 0] }}
+                  transition={{ duration: 2, repeat: Infinity }}
                 />
-                <div className="absolute inset-0 -m-2">
-                  <motion.div
-                    className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary"
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
-                  />
-                </div>
+                <motion.div
+                  className="absolute inset-0 rounded-full border-2 border-seed"
+                  animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0, 0.6] }}
+                  transition={{ duration: 1.2, repeat: Infinity }}
+                />
               </div>
               
-              <h2 className="text-2xl font-bold mb-2">Creating your Seed Wallet</h2>
-              <p className="text-muted-foreground mb-2">
-                {WALLET_CREATION_STEPS[creationStep]?.label || 'Finalizing...'}
-              </p>
-              <p className="text-xs text-muted-foreground mb-8">
-                Your wallet lets you send/receive USDC instantly.
-              </p>
+              <h2 className="text-xl font-semibold mb-2">
+                Welcome back, @{dbUser.username}!
+              </h2>
               
-              {/* Progress stepper */}
-              <div className="flex items-center justify-center gap-2 mb-6">
-                {WALLET_CREATION_STEPS.map((s, i) => (
-                  <div key={i} className="flex items-center gap-2">
-                    <div className={cn(
-                      "w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all",
-                      i < creationStep ? "bg-primary text-white" :
-                      i === creationStep ? "bg-primary/20 text-primary border-2 border-primary" :
-                      "bg-muted text-muted-foreground"
-                    )}>
-                      {i < creationStep ? <Check className="h-3 w-3" /> : i + 1}
-                    </div>
-                    {i < WALLET_CREATION_STEPS.length - 1 && (
-                      <div className={cn(
-                        "w-8 h-0.5",
-                        i < creationStep ? "bg-primary" : "bg-muted"
-                      )} />
+              <div className="space-y-2 mt-6">
+                {RESTORE_STEPS.map((rs, i) => (
+                  <motion.div
+                    key={rs.label}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ 
+                      opacity: restoreStep >= i ? 1 : 0.3,
+                      x: 0 
+                    }}
+                    transition={{ delay: i * 0.15 }}
+                    className="flex items-center gap-3 text-left"
+                  >
+                    {restoreStep > i ? (
+                      <Check className="h-4 w-4 text-seed" />
+                    ) : restoreStep === i ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    ) : (
+                      <div className="w-4 h-4" />
                     )}
-                  </div>
+                    <span className={cn(
+                      "text-sm font-mono",
+                      restoreStep >= i ? "text-foreground" : "text-muted-foreground"
+                    )}>
+                      {rs.label}
+                    </span>
+                  </motion.div>
                 ))}
               </div>
+            </motion.div>
+          )}
+
+          {/* Creating Wallet Step */}
+          {step === 'creating-wallet' && (
+            <motion.div
+              key="creating-wallet"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              className="w-full max-w-sm text-center"
+            >
+              <motion.div
+                className="w-20 h-20 mx-auto mb-8 gradient-seed rounded-2xl flex items-center justify-center"
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
+                <Sprout className="h-10 w-10 text-white" />
+              </motion.div>
+              
+              <h2 className="text-xl font-semibold mb-2">Creating Seed Wallet</h2>
               
               {/* Progress bar */}
-              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden mb-6">
                 <motion.div
                   className="h-full gradient-seed"
-                  style={{ width: `${creationProgress}%` }}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${creationProgress}%` }}
                 />
+              </div>
+              
+              {/* Console-style status lines */}
+              <div className="space-y-2 text-left bg-muted/50 rounded-xl p-4 font-mono text-sm">
+                {WALLET_CREATION_STEPS.map((ws, i) => (
+                  <motion.div
+                    key={ws.label}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ 
+                      opacity: creationStep >= i ? 1 : 0.3,
+                      x: 0 
+                    }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-center gap-2"
+                  >
+                    {creationStep > i ? (
+                      <Check className="h-3 w-3 text-seed" />
+                    ) : creationStep === i ? (
+                      <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                    ) : (
+                      <div className="w-3 h-3" />
+                    )}
+                    <span className={creationStep >= i ? 'text-foreground' : 'text-muted-foreground'}>
+                      {ws.label}
+                    </span>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
           )}
@@ -584,7 +773,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
           {step === 'wallet-reveal' && pendingUser && (
             <motion.div
               key="wallet-reveal"
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
@@ -593,43 +782,34 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', delay: 0.2 }}
-                className="w-20 h-20 rounded-2xl gradient-seed mx-auto mb-6 flex items-center justify-center"
+                className="w-20 h-20 mx-auto mb-6 gradient-seed rounded-2xl flex items-center justify-center"
               >
                 <Check className="h-10 w-10 text-white" />
               </motion.div>
               
-              <h2 className="text-2xl font-bold mb-2">Seed Wallet Created!</h2>
-              <p className="text-muted-foreground mb-6">
-                Your on-chain identity is ready
-              </p>
+              <h2 className="text-xl font-semibold mb-2">Seed Wallet Created!</h2>
+              <p className="text-muted-foreground mb-6">Your wallet is ready on Base L2</p>
               
-              {/* Wallet Address Card */}
-              <div className="bg-card rounded-2xl border border-border/50 p-4 mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm text-muted-foreground">Wallet Address</span>
-                  <Sparkles className="h-4 w-4 text-seed" />
+              {/* Wallet ID with typewriter effect */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-muted rounded-xl p-4 mb-6"
+              >
+                <p className="text-xs text-muted-foreground mb-2">Wallet Address</p>
+                <div className="flex items-center justify-center gap-2">
+                  <TypewriterText text={pendingUser.walletDisplayId} className="font-mono text-lg" />
+                  <button onClick={handleCopyWallet} className="p-1.5 hover:bg-muted-foreground/10 rounded-lg">
+                    <Copy className="h-4 w-4 text-muted-foreground" />
+                  </button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 text-lg font-mono font-medium truncate">
-                    {truncateHexId(pendingUser.walletDisplayId)}
-                  </code>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleCopyWallet}
-                    className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </motion.button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  Starting balance: $25.00 USDC
-                </p>
-              </div>
+              </motion.div>
               
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setStep('username')}
-                className="w-full py-4 gradient-seed rounded-2xl text-white font-semibold flex items-center justify-center gap-2"
+                className="w-full py-4 gradient-seed text-white rounded-2xl font-semibold flex items-center justify-center gap-2"
               >
                 Continue
                 <ArrowRight className="h-5 w-5" />
@@ -646,34 +826,43 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="w-16 h-16 rounded-2xl gradient-trust mx-auto mb-6 flex items-center justify-center">
-                <Users className="h-8 w-8 text-white" />
-              </div>
-              <h2 className="text-2xl font-bold mb-2">Create your profile</h2>
-              <p className="text-muted-foreground mb-6">
-                Choose how others will find you
-              </p>
+              <motion.div
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="w-20 h-20 mx-auto mb-6 bg-muted rounded-full flex items-center justify-center"
+              >
+                <Users className="h-10 w-10 text-muted-foreground" />
+              </motion.div>
               
-              <div className="space-y-3 mb-6">
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-medium text-muted-foreground">@</span>
-                  <input
-                    type="text"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
-                    placeholder="username"
-                    className="w-full text-xl font-medium bg-muted rounded-2xl py-4 pl-10 pr-4 outline-none focus:ring-2 ring-primary/50"
-                    autoFocus
-                  />
+              <h2 className="text-xl font-semibold mb-2">Create Your Profile</h2>
+              <p className="text-muted-foreground mb-6">Choose a username for your Seedbase identity</p>
+              
+              <div className="space-y-4 mb-6">
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block text-left">Username</label>
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
+                    <input
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                      placeholder="yourname"
+                      className="w-full pl-8 pr-4 py-3 bg-muted rounded-xl outline-none focus:ring-2 ring-primary/50"
+                      autoFocus
+                    />
+                  </div>
                 </div>
                 
-                <input
-                  type="text"
-                  value={displayName}
-                  onChange={(e) => setDisplayName(e.target.value)}
-                  placeholder="Display Name (optional)"
-                  className="w-full text-lg bg-muted rounded-2xl py-4 px-4 outline-none focus:ring-2 ring-primary/50"
-                />
+                <div>
+                  <label className="text-sm text-muted-foreground mb-1 block text-left">Display Name (optional)</label>
+                  <input
+                    type="text"
+                    value={displayName}
+                    onChange={(e) => setDisplayName(e.target.value)}
+                    placeholder="Your Name"
+                    className="w-full px-4 py-3 bg-muted rounded-xl outline-none focus:ring-2 ring-primary/50"
+                  />
+                </div>
               </div>
               
               <motion.button
@@ -683,7 +872,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                 className={cn(
                   "w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all",
                   username.length >= 2 
-                    ? "gradient-trust text-white" 
+                    ? "gradient-seed text-white" 
                     : "bg-muted text-muted-foreground"
                 )}
               >
@@ -700,58 +889,47 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="w-full max-w-sm text-center"
+              className="w-full max-w-sm"
             >
-              <div className="w-16 h-16 rounded-2xl gradient-base mx-auto mb-6 flex items-center justify-center">
-                <Key className="h-8 w-8 text-white" />
+              <div className="text-center mb-6">
+                <h2 className="text-xl font-semibold mb-2">Choose Your Role</h2>
+                <p className="text-muted-foreground">Select your primary role in the Seedbase ecosystem</p>
               </div>
-              <h2 className="text-2xl font-bold mb-2">Choose how you'll participate</h2>
-              <p className="text-muted-foreground mb-6">
-                Select your role in the Seedbase network
-              </p>
               
               <div className="space-y-3 mb-6">
-                {ROLE_OPTIONS.map((option, i) => (
-                  <motion.button
-                    key={option.role}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.1 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => handleRoleSelect(option.role)}
-                    className={cn(
-                      "w-full p-4 rounded-2xl border-2 text-left transition-all",
-                      selectedRole === option.role
-                        ? "border-primary bg-primary/5"
-                        : "border-border hover:border-primary/50"
-                    )}
-                  >
-                    <div className="flex items-start gap-4">
-                      <div className={cn(
-                        "w-12 h-12 rounded-xl flex items-center justify-center flex-shrink-0",
-                        option.gradient
-                      )}>
-                        <option.icon className="h-6 w-6 text-white" />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="font-semibold">{option.title}</p>
-                          {selectedRole === option.role && (
-                            <Check className="h-5 w-5 text-primary flex-shrink-0" />
-                          )}
+                {ROLE_OPTIONS.map((option) => {
+                  const isSelected = selectedRole === option.role;
+                  const Icon = option.icon;
+                  
+                  return (
+                    <motion.button
+                      key={option.role}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => handleRoleSelect(option.role)}
+                      className={cn(
+                        "w-full p-4 rounded-2xl border-2 transition-all text-left",
+                        isSelected 
+                          ? `border-primary ${option.gradient}` 
+                          : "border-border hover:border-primary/50 bg-card"
+                      )}
+                    >
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center",
+                          isSelected ? "bg-white/20" : option.gradient
+                        )}>
+                          <Icon className={cn("h-5 w-5", isSelected ? "text-white" : "text-white")} />
                         </div>
-                        <p className="text-sm text-muted-foreground mb-2">{option.description}</p>
-                        <ul className="text-xs text-muted-foreground space-y-1">
-                          {option.bullets.map((bullet, j) => (
-                            <li key={j} className="flex items-center gap-1">
-                              <span className="text-primary">•</span> {bullet}
-                            </li>
-                          ))}
-                        </ul>
+                        <div>
+                          <p className={cn("font-semibold", isSelected && "text-white")}>{option.title}</p>
+                          <p className={cn("text-sm", isSelected ? "text-white/80" : "text-muted-foreground")}>
+                            {option.description}
+                          </p>
+                        </div>
                       </div>
-                    </div>
-                  </motion.button>
-                ))}
+                    </motion.button>
+                  );
+                })}
               </div>
               
               <motion.button
@@ -761,70 +939,82 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                 className={cn(
                   "w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all",
                   selectedRole 
-                    ? "gradient-base text-white" 
+                    ? "gradient-seed text-white" 
                     : "bg-muted text-muted-foreground"
                 )}
               >
-                Activate Key
+                Activate {selectedRole ? ROLE_OPTIONS.find(r => r.role === selectedRole)?.keyType : 'Key'}
                 <Key className="h-5 w-5" />
               </motion.button>
             </motion.div>
           )}
 
-          {/* Activating Key Animation */}
-          {step === 'activating-key' && (
+          {/* Activating Key Step */}
+          {step === 'activating-key' && selectedRole && (
             <motion.div
               key="activating-key"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className={cn(
-                "relative w-20 h-20 rounded-2xl mx-auto mb-8 flex items-center justify-center",
-                ROLE_OPTIONS.find(r => r.role === selectedRole)?.gradient || 'gradient-base'
-              )}>
+              <motion.div
+                className={cn("w-20 h-20 mx-auto mb-8 rounded-2xl flex items-center justify-center",
+                  ROLE_OPTIONS.find(r => r.role === selectedRole)?.gradient
+                )}
+                animate={{ rotate: [0, 5, -5, 0] }}
+                transition={{ duration: 2, repeat: Infinity }}
+              >
                 <Key className="h-10 w-10 text-white" />
-                <div className="absolute inset-0 -m-2">
-                  <motion.div
-                    className={cn(
-                      "w-24 h-24 rounded-full border-4 border-transparent",
-                      selectedRole === 'activator' && "border-t-seed",
-                      selectedRole === 'trustee' && "border-t-trust",
-                      selectedRole === 'envoy' && "border-t-envoy"
-                    )}
-                    style={{ borderTopColor: 'currentColor' }}
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
-                  />
-                </div>
-              </div>
+              </motion.div>
               
-              <h2 className="text-2xl font-bold mb-2">
-                Activating your {ROLE_OPTIONS.find(r => r.role === selectedRole)?.keyType}
+              <h2 className="text-xl font-semibold mb-2">
+                Activating {ROLE_OPTIONS.find(r => r.role === selectedRole)?.keyType}
               </h2>
-              <p className="text-muted-foreground mb-8">
-                {KEY_ACTIVATION_STEPS[creationStep]?.label || 'Confirming...'}
-              </p>
               
               {/* Progress bar */}
-              <div className="w-full h-2 bg-muted rounded-full overflow-hidden">
+              <div className="w-full h-2 bg-muted rounded-full overflow-hidden mb-6">
                 <motion.div
-                  className={cn(
-                    "h-full",
-                    ROLE_OPTIONS.find(r => r.role === selectedRole)?.gradient || 'gradient-base'
-                  )}
-                  style={{ width: `${creationProgress}%` }}
+                  className={cn(ROLE_OPTIONS.find(r => r.role === selectedRole)?.gradient, "h-full")}
+                  initial={{ width: 0 }}
+                  animate={{ width: `${creationProgress}%` }}
                 />
+              </div>
+              
+              {/* Console-style status lines */}
+              <div className="space-y-2 text-left bg-muted/50 rounded-xl p-4 font-mono text-sm">
+                {KEY_ACTIVATION_STEPS.map((ks, i) => (
+                  <motion.div
+                    key={ks.label}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ 
+                      opacity: creationStep >= i ? 1 : 0.3,
+                      x: 0 
+                    }}
+                    transition={{ delay: i * 0.1 }}
+                    className="flex items-center gap-2"
+                  >
+                    {creationStep > i ? (
+                      <Check className="h-3 w-3 text-seed" />
+                    ) : creationStep === i ? (
+                      <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                    ) : (
+                      <div className="w-3 h-3" />
+                    )}
+                    <span className={creationStep >= i ? 'text-foreground' : 'text-muted-foreground'}>
+                      {ks.label}
+                    </span>
+                  </motion.div>
+                ))}
               </div>
             </motion.div>
           )}
 
           {/* Key Reveal Step */}
-          {step === 'key-reveal' && selectedRole && pendingUser && (
+          {step === 'key-reveal' && pendingUser && selectedRole && (
             <motion.div
               key="key-reveal"
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
@@ -834,58 +1024,85 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', delay: 0.2 }}
                 className={cn(
-                  "w-20 h-20 rounded-2xl mx-auto mb-6 flex items-center justify-center",
+                  "w-20 h-20 mx-auto mb-6 rounded-2xl flex items-center justify-center",
                   ROLE_OPTIONS.find(r => r.role === selectedRole)?.gradient
                 )}
               >
-                <Key className="h-10 w-10 text-white" />
+                <Sparkles className="h-10 w-10 text-white" />
               </motion.div>
               
-              <h2 className="text-2xl font-bold mb-2">
+              <h2 className="text-xl font-semibold mb-2">
                 {ROLE_OPTIONS.find(r => r.role === selectedRole)?.keyType} Activated!
               </h2>
               <p className="text-muted-foreground mb-6">
-                You're now a {ROLE_OPTIONS.find(r => r.role === selectedRole)?.title}
+                You're ready to {selectedRole === 'activator' ? 'plant seeds' : selectedRole === 'trustee' ? 'govern your Seedbase' : 'execute missions'}
               </p>
               
-              {/* Key Card */}
-              <div className="bg-card rounded-2xl border border-border/50 p-4 mb-6">
-                <div className="flex items-center justify-between mb-3">
-                  <span className="text-sm text-muted-foreground">Key ID</span>
-                  <span className="px-2 py-1 rounded-full bg-seed/10 text-seed text-xs font-medium flex items-center gap-1">
-                    <Check className="h-3 w-3" />
-                    Active
-                  </span>
+              {/* Key ID with typewriter effect */}
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="bg-muted rounded-xl p-4 mb-6"
+              >
+                <p className="text-xs text-muted-foreground mb-2">Key ID</p>
+                <div className="flex items-center justify-center gap-2">
+                  <TypewriterText 
+                    text={pendingUser.keyDisplayId || makeHexId(16)} 
+                    className="font-mono text-lg" 
+                  />
+                  <button onClick={handleCopyKey} className="p-1.5 hover:bg-muted-foreground/10 rounded-lg">
+                    <Copy className="h-4 w-4 text-muted-foreground" />
+                  </button>
                 </div>
-                <div className="flex items-center gap-2">
-                  <code className="flex-1 text-lg font-mono font-medium truncate">
-                    {truncateHexId(pendingUser.keyDisplayId || '')}
-                  </code>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleCopyKey}
-                    className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </motion.button>
-                </div>
-              </div>
+              </motion.div>
               
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={handleComplete}
-                className={cn(
-                  "w-full py-4 rounded-2xl text-white font-semibold flex items-center justify-center gap-2",
-                  ROLE_OPTIONS.find(r => r.role === selectedRole)?.gradient
-                )}
+                className="w-full py-4 gradient-seed text-white rounded-2xl font-semibold flex items-center justify-center gap-2"
               >
                 Enter Seedbase
-                <ArrowRight className="h-5 w-5" />
+                <Sparkles className="h-5 w-5" />
               </motion.button>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
     </motion.div>
+  );
+}
+
+// Typewriter text component for wallet/key ID reveal
+function TypewriterText({ text, className }: { text: string; className?: string }) {
+  const [displayText, setDisplayText] = useState('');
+  
+  useEffect(() => {
+    if (!text) return;
+    
+    let i = 0;
+    const interval = setInterval(() => {
+      if (i <= text.length) {
+        setDisplayText(text.slice(0, i));
+        i++;
+      } else {
+        clearInterval(interval);
+      }
+    }, 50);
+    
+    return () => clearInterval(interval);
+  }, [text]);
+  
+  return (
+    <span className={className}>
+      {displayText}
+      {displayText.length < text.length && (
+        <motion.span
+          animate={{ opacity: [1, 0] }}
+          transition={{ duration: 0.5, repeat: Infinity }}
+          className="inline-block w-0.5 h-5 bg-primary ml-0.5 align-middle"
+        />
+      )}
+    </span>
   );
 }
