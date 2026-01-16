@@ -18,8 +18,8 @@ const roleTabs = {
 };
 
 export default function SeedbasePage() {
-  const { activeRole, isKeyActive } = useUser();
-  const tabs = roleTabs[activeRole];
+  const { viewRole, isKeyActive } = useUser();
+  const tabs = roleTabs[viewRole];
   const [activeTab, setActiveTab] = useState(0);
 
   const keyForRole = {
@@ -37,7 +37,7 @@ export default function SeedbasePage() {
             <div>
               <h1 className="text-xl font-bold">SeedBase Hub</h1>
               <p className="text-sm text-muted-foreground capitalize">
-                {activeRole} View
+                {viewRole} View
               </p>
             </div>
             <motion.button
@@ -45,16 +45,16 @@ export default function SeedbasePage() {
               whileTap={{ scale: 0.98 }}
               className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-medium",
-                activeRole === 'activator' && "gradient-seed",
-                activeRole === 'trustee' && "gradient-trust",
-                activeRole === 'envoy' && "gradient-envoy"
+                viewRole === 'activator' && "gradient-seed",
+                viewRole === 'trustee' && "gradient-trust",
+                viewRole === 'envoy' && "gradient-envoy"
               )}
             >
               <Plus className="h-4 w-4" />
               <span>
-                {activeRole === 'activator' && 'Commit Seed'}
-                {activeRole === 'trustee' && 'Launch Mission'}
-                {activeRole === 'envoy' && 'Submit Update'}
+                {viewRole === 'activator' && 'Commit Seed'}
+                {viewRole === 'trustee' && 'Launch Mission'}
+                {viewRole === 'envoy' && 'Submit Update'}
               </span>
             </motion.button>
           </div>
@@ -71,15 +71,15 @@ export default function SeedbasePage() {
       <div className="px-4 py-4">
         <AnimatePresence mode="wait">
           <motion.div
-            key={`${activeRole}-${activeTab}`}
+            key={`${viewRole}-${activeTab}`}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
             className="space-y-4"
           >
-            {activeRole === 'activator' && <ActivatorContent tab={activeTab} />}
-            {activeRole === 'trustee' && <TrusteeContent tab={activeTab} />}
-            {activeRole === 'envoy' && <EnvoyContent tab={activeTab} />}
+            {viewRole === 'activator' && <ActivatorContent tab={activeTab} />}
+            {viewRole === 'trustee' && <TrusteeContent tab={activeTab} />}
+            {viewRole === 'envoy' && <EnvoyContent tab={activeTab} />}
           </motion.div>
         </AnimatePresence>
       </div>
