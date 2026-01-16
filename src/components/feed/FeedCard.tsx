@@ -6,6 +6,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { EmbeddedCard } from './EmbeddedCard';
 import { ImpactDrawer } from './ImpactDrawer';
+import seedbaseIcon from '@/assets/seedbase-icon.png';
 
 interface FeedCardProps {
   item: FeedItem;
@@ -67,7 +68,13 @@ export function FeedCard({ item, index }: FeedCardProps) {
             <div className="flex items-start gap-3">
               {/* Avatar with Follow Button */}
               <div className="relative">
-                {item.author?.avatar ? (
+                {item.author?.avatar === 'official' || item.author?.handle === 'seedfeed' ? (
+                  <img
+                    src={seedbaseIcon}
+                    alt="SeedFeed"
+                    className="w-11 h-11 rounded-full object-cover"
+                  />
+                ) : item.author?.avatar ? (
                   item.author.avatar.startsWith('http') ? (
                     <img
                       src={item.author.avatar}

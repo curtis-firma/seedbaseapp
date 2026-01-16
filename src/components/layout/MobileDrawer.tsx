@@ -1,12 +1,14 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, Layers, Wallet, MessageCircle, BarChart3, 
-  Radio, Rocket, Settings, X, Sprout, ChevronRight,
+  Radio, Rocket, Settings, X, ChevronRight,
   ChevronDown, Eye, EyeOff
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
+import seedbaseIcon from '@/assets/seedbase-icon.png';
+import seedbaseWordmark from '@/assets/seedbase-wordmark.svg';
 
 const menuNav = [
   { icon: MessageCircle, label: 'OneAccord', path: '/oneaccord', description: 'Messages & transfers' },
@@ -27,7 +29,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
   const { activeRole, setActiveRole, walkthroughMode, setWalkthroughMode } = useUser();
 
   const roleConfig = {
-    activator: { label: 'Activator', icon: Sprout, color: 'text-seed', gradient: 'gradient-seed', description: 'Commit capital & grow' },
+    activator: { label: 'Activator', icon: Home, color: 'text-seed', gradient: 'gradient-seed', description: 'Commit capital & grow' },
     trustee: { label: 'Trustee', icon: Layers, color: 'text-trust', gradient: 'gradient-trust', description: 'Govern & launch' },
     envoy: { label: 'Envoy', icon: Rocket, color: 'text-envoy', gradient: 'gradient-envoy', description: 'Execute & report' },
   };
@@ -63,10 +65,8 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
             {/* Header */}
             <div className="p-6 flex items-center justify-between border-b border-border/50">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl gradient-seed flex items-center justify-center shadow-glow">
-                  <Sprout className="h-5 w-5 text-white" />
-                </div>
-                <span className="font-bold text-xl">Seedbase</span>
+                <img src={seedbaseIcon} alt="Seedbase" className="w-10 h-10" />
+                <img src={seedbaseWordmark} alt="Seedbase" className="h-5" />
               </div>
               <motion.button
                 whileTap={{ scale: 0.95 }}

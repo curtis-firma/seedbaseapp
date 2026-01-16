@@ -165,7 +165,7 @@ export const mockFeedItems: FeedItem[] = [
     content: 'The SeedFeed network just hit a major milestone! Together, we\'re proving that commitment creates capacity. 🎉',
     author: {
       name: 'SeedFeed',
-      avatar: '🌱',
+      avatar: 'official',
       role: 'trustee',
       handle: 'seedfeed',
       isVerified: true,
@@ -264,7 +264,7 @@ export const mockFeedItems: FeedItem[] = [
     content: 'Weekly transparency report is live! All fund movements are verified on-chain. This is what radical transparency looks like. 📊',
     author: {
       name: 'SeedFeed',
-      avatar: '🌱',
+      avatar: 'official',
       role: 'trustee',
       handle: 'seedfeed',
       isVerified: true,
@@ -298,7 +298,7 @@ export const forYouItems: FeedItem[] = [
     content: 'Based on your interests, we think you\'ll love this mission! The Mobile Classrooms Initiative is making incredible progress. 🚐📚',
     author: {
       name: 'SeedFeed',
-      avatar: '🌱',
+      avatar: 'official',
       role: 'trustee',
       handle: 'seedfeed',
       isVerified: true,
@@ -333,7 +333,7 @@ export const forYouItems: FeedItem[] = [
     content: 'You\'re 80% toward your quarterly commitment goal! 🎯 Commit 1,000 more USDC to unlock Activator+ status.',
     author: {
       name: 'SeedFeed',
-      avatar: '🌱',
+      avatar: 'official',
       role: 'trustee',
       handle: 'seedfeed',
       isVerified: true,
