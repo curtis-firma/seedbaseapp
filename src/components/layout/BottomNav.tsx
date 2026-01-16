@@ -1,12 +1,12 @@
 import { motion } from 'framer-motion';
-import { Home, Layers, Wallet } from 'lucide-react';
+import { Home, Layers, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/' },
-  { icon: Layers, label: 'SeedBase', path: '/seedbase' },
-  { icon: Wallet, label: 'Wallet', path: '/wallet' },
+  { icon: Layers, label: 'Seedbase', path: '/seedbase' },
+  { icon: User, label: 'User', path: '/wallet' },
 ];
 
 export function BottomNav() {
@@ -19,7 +19,7 @@ export function BottomNav() {
       animate={{ y: 0 }}
       className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
     >
-      <div className="glass-strong border-t border-border/50 px-4 pb-safe-bottom">
+      <div className="bg-card/95 backdrop-blur-xl border-t border-border/50 px-4 pb-safe-bottom">
         <div className="flex items-center justify-around py-2">
           {navItems.map((item) => {
             const isActive = location.pathname === item.path || 
@@ -47,6 +47,12 @@ export function BottomNav() {
                 >
                   {item.label}
                 </span>
+                {isActive && (
+                  <motion.div
+                    layoutId="bottomNavIndicator"
+                    className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1 h-1 rounded-full bg-primary"
+                  />
+                )}
               </motion.button>
             );
           })}

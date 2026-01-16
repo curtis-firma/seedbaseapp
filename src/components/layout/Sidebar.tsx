@@ -1,19 +1,20 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Home, Layers, Wallet, MessageCircle, BarChart3, 
-  Radio, Rocket, Settings, Users, ChevronLeft, ChevronRight
+  Home, Layers, User, MessageCircle, BarChart3, 
+  Radio, Rocket, Settings, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import seedbaseIcon from '@/assets/seedbase-icon.png';
 import seedbaseWordmark from '@/assets/seedbase-wordmark.svg';
+import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
 
 const primaryNav = [
   { icon: Home, label: 'Home', path: '/' },
-  { icon: Layers, label: 'SeedBase', path: '/seedbase' },
-  { icon: Wallet, label: 'Wallet', path: '/wallet' },
+  { icon: Layers, label: 'Seedbase', path: '/seedbase' },
+  { icon: User, label: 'User', path: '/wallet' },
 ];
 
 const secondaryNav = [
@@ -28,21 +29,12 @@ export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const location = useLocation();
   const navigate = useNavigate();
-  const { activeRole, setActiveRole } = useUser();
-
-  const roleConfig = {
-    activator: { label: 'Activator', icon: Home, color: 'text-seed' },
-    trustee: { label: 'Trustee', icon: Layers, color: 'text-trust' },
-    envoy: { label: 'Envoy', icon: Rocket, color: 'text-envoy' },
-  };
-
-  const currentRole = roleConfig[activeRole];
 
   return (
     <motion.aside
       initial={false}
       animate={{ width: isCollapsed ? 80 : 260 }}
-      className="hidden md:flex flex-col h-screen fixed left-0 top-0 glass-strong border-r border-border/50 z-40"
+      className="hidden md:flex flex-col h-screen fixed left-0 top-0 bg-card/90 backdrop-blur-xl border-r border-border/50 z-40"
     >
       {/* Logo */}
       <div className="p-6 flex items-center gap-3">
@@ -55,7 +47,7 @@ export function Sidebar() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
-              className="h-6"
+              className="h-6 dark:invert"
             />
           )}
         </AnimatePresence>
@@ -139,7 +131,7 @@ export function Sidebar() {
         </div>
       </nav>
 
-      {/* Role Switcher */}
+      {/* View Role Switcher + Collapse */}
       <div className="p-3">
         <AnimatePresence>
           {!isCollapsed && (
@@ -149,25 +141,9 @@ export function Sidebar() {
               exit={{ opacity: 0 }}
               className="mb-3"
             >
-              <p className="px-4 text-xs font-medium text-muted-foreground mb-2">Switch Role</p>
-              <div className="flex gap-1 px-2">
-                {(['activator', 'trustee', 'envoy'] as const).map((role) => {
-                  const config = roleConfig[role];
-                  return (
-                    <button
-                      key={role}
-                      onClick={() => setActiveRole(role)}
-                      className={cn(
-                        "flex-1 py-2 rounded-lg text-xs font-medium transition-all",
-                        activeRole === role
-                          ? `${config.color} bg-muted`
-                          : "text-muted-foreground hover:text-foreground"
-                      )}
-                    >
-                      {config.label}
-                    </button>
-                  );
-                })}
+              <p className="px-4 text-xs font-medium text-muted-foreground mb-2">View As</p>
+              <div className="px-2">
+                <ViewRoleBadge variant="full" className="w-full" />
               </div>
             </motion.div>
           )}
