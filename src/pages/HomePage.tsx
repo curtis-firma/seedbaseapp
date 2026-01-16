@@ -1,10 +1,11 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { Bell, Search, Sprout, HelpCircle } from 'lucide-react';
+import { Bell, Search, HelpCircle } from 'lucide-react';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { FeedCard } from '@/components/feed/FeedCard';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
+import seedbaseIcon from '@/assets/seedbase-icon.png';
 
 const tabs = ['Network', 'For You'];
 
@@ -41,9 +42,7 @@ export default function HomePage() {
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl gradient-seed flex items-center justify-center shadow-glow md:hidden">
-                <Sprout className="h-5 w-5 text-white" />
-              </div>
+              <img src={seedbaseIcon} alt="Seedbase" className="w-10 h-10 md:hidden" />
               <div>
                 <h1 className="text-xl font-bold">Seedfeed</h1>
                 <p className="text-sm text-muted-foreground">Commitment creates capacity.</p>

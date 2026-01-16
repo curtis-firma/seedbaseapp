@@ -2,12 +2,13 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, Layers, Wallet, MessageCircle, BarChart3, 
-  Radio, Rocket, Settings, Users, ChevronLeft, ChevronRight,
-  Sprout
+  Radio, Rocket, Settings, Users, ChevronLeft, ChevronRight
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
+import seedbaseIcon from '@/assets/seedbase-icon.png';
+import seedbaseWordmark from '@/assets/seedbase-wordmark.svg';
 
 const primaryNav = [
   { icon: Home, label: 'Home', path: '/' },
@@ -30,7 +31,7 @@ export function Sidebar() {
   const { activeRole, setActiveRole } = useUser();
 
   const roleConfig = {
-    activator: { label: 'Activator', icon: Sprout, color: 'text-seed' },
+    activator: { label: 'Activator', icon: Home, color: 'text-seed' },
     trustee: { label: 'Trustee', icon: Layers, color: 'text-trust' },
     envoy: { label: 'Envoy', icon: Rocket, color: 'text-envoy' },
   };
@@ -45,19 +46,17 @@ export function Sidebar() {
     >
       {/* Logo */}
       <div className="p-6 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-xl gradient-seed flex items-center justify-center shadow-glow">
-          <Sprout className="h-5 w-5 text-white" />
-        </div>
+        <img src={seedbaseIcon} alt="Seedbase" className="w-10 h-10" />
         <AnimatePresence>
           {!isCollapsed && (
-            <motion.span
+            <motion.img
+              src={seedbaseWordmark}
+              alt="Seedbase"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
-              className="font-bold text-xl"
-            >
-              Seedbase
-            </motion.span>
+              className="h-6"
+            />
           )}
         </AnimatePresence>
       </div>

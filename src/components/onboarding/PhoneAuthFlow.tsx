@@ -12,6 +12,7 @@ import {
   type DemoUser 
 } from '@/lib/demoAuth';
 import { toast } from 'sonner';
+import seedbaseIcon from '@/assets/seedbase-icon.png';
 
 interface PhoneAuthFlowProps {
   isOpen: boolean;
@@ -359,9 +360,14 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="w-20 h-20 rounded-2xl gradient-seed mx-auto mb-6 flex items-center justify-center">
-                <Wallet className="h-10 w-10 text-white" />
-              </div>
+              <motion.img
+                src={seedbaseIcon}
+                alt="Seedbase"
+                className="w-20 h-20 mx-auto mb-6"
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', delay: 0.1 }}
+              />
               <h2 className="text-2xl font-bold mb-2">Welcome to Seedbase</h2>
               <p className="text-muted-foreground mb-8">
                 Enter your phone to create or access your Seed Wallet
@@ -460,8 +466,21 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
               exit={{ opacity: 0, scale: 0.95 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="w-20 h-20 rounded-2xl gradient-base mx-auto mb-8 flex items-center justify-center">
-                <Loader2 className="h-10 w-10 text-white animate-spin" />
+              <div className="relative w-20 h-20 mx-auto mb-8">
+                <motion.img
+                  src={seedbaseIcon}
+                  alt="Seedbase"
+                  className="w-20 h-20"
+                  animate={{ scale: [1, 1.05, 1] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                />
+                <div className="absolute inset-0 -m-2">
+                  <motion.div
+                    className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary"
+                    animate={{ rotate: 360 }}
+                    transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
+                  />
+                </div>
               </div>
               
               <h2 className="text-2xl font-bold mb-2">Creating your Seed Wallet</h2>
