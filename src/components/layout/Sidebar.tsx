@@ -77,19 +77,12 @@ export function Sidebar() {
                 className={cn(
                   "relative w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors",
                   isActive 
-                    ? "text-primary" 
+                    ? "text-primary bg-primary/10" 
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
                 whileHover={{ x: 4 }}
                 whileTap={{ scale: 0.98 }}
               >
-                {isActive && (
-                  <motion.div
-                    layoutId="sidebar-indicator"
-                    className="absolute inset-0 rounded-xl gradient-base opacity-10"
-                    transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
                 <Icon className="h-5 w-5 flex-shrink-0" />
                 <AnimatePresence>
                   {!isCollapsed && (
