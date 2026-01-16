@@ -1,45 +1,55 @@
 import { motion } from 'framer-motion';
 import { 
   Settings as SettingsIcon, User, Bell, Shield, Palette, 
-  HelpCircle, FileText, LogOut, ChevronRight, Moon, Sun, Play
+  HelpCircle, FileText, LogOut, ChevronRight, Moon, Sun, Play,
+  Trash2, Bug, ChevronDown
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
-
-const settingsGroups = [
-  {
-    title: 'Account',
-    items: [
-      { icon: User, label: 'Profile', description: 'Manage your identity' },
-      { icon: Bell, label: 'Notifications', description: 'Alerts & updates' },
-      { icon: Shield, label: 'Security', description: 'Keys & authentication' },
-    ],
-  },
-  {
-    title: 'Preferences',
-    items: [
-      { icon: Palette, label: 'Appearance', description: 'Theme & display', hasToggle: true },
-    ],
-  },
-  {
-    title: 'Demo',
-    items: [
-      { icon: Play, label: 'Demo Mode', description: 'Replay onboarding experience', isDemoButton: true },
-    ],
-  },
-  {
-    title: 'Support',
-    items: [
-      { icon: HelpCircle, label: 'Help Center', description: 'FAQs & guides' },
-      { icon: FileText, label: 'Terms & Privacy', description: 'Legal documents' },
-    ],
-  },
-];
+import { clearAllDemoData, getSessionPhone, loadUserByPhone, listUsers, truncateHexId } from '@/lib/demoAuth';
+import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const [isDark, setIsDark] = useState(false);
-  const { logout, startDemo } = useUser();
+  const [showDebug, setShowDebug] = useState(false);
+  const { logout, startDemo, isAuthenticated, username, displayName, activeRole, walletDisplayId, keyType, keyDisplayId, demoMode, phoneNumber } = useUser();
+
+  const handleResetDemo = () => {
+    clearAllDemoData();
+    logout();
+    toast.success('All demo data cleared. Refresh to start fresh.');
+  };
+
+  const settingsGroups = [
+    {
+      title: 'Account',
+      items: [
+        { icon: User, label: 'Profile', description: 'Manage your identity' },
+        { icon: Bell, label: 'Notifications', description: 'Alerts & updates' },
+        { icon: Shield, label: 'Security', description: 'Keys & authentication' },
+      ],
+    },
+    {
+      title: 'Preferences',
+      items: [
+        { icon: Palette, label: 'Appearance', description: 'Theme & display', hasToggle: true },
+      ],
+    },
+    {
+      title: 'Demo',
+      items: [
+        { icon: Play, label: 'Demo Mode', description: 'Replay onboarding experience', isDemoButton: true },
+      ],
+    },
+    {
+      title: 'Support',
+      items: [
+        { icon: HelpCircle, label: 'Help Center', description: 'FAQs & guides' },
+        { icon: FileText, label: 'Terms & Privacy', description: 'Legal documents' },
+      ],
+    },
+  ];
 
   return (
     <div className="min-h-screen pb-8">
@@ -130,11 +140,118 @@ export default function SettingsPage() {
           </motion.div>
         ))}
 
+        {/* Developer Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <h3 className="text-sm font-medium text-muted-foreground mb-2 px-1">
+            Developer
+          </h3>
+          <div className="bg-card rounded-2xl border border-border/50 divide-y divide-border/50">
+            {/* Reset Demo Data */}
+            <motion.button
+              whileTap={{ scale: 0.99 }}
+              onClick={handleResetDemo}
+              className="w-full p-4 flex items-center gap-4 text-left"
+            >
+              <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
+                <Trash2 className="h-5 w-5 text-destructive" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium text-destructive">Reset Demo Data</p>
+                <p className="text-sm text-muted-foreground">Clear all users & transfers</p>
+              </div>
+            </motion.button>
+
+            {/* Debug Panel Toggle */}
+            <motion.button
+              whileTap={{ scale: 0.99 }}
+              onClick={() => setShowDebug(!showDebug)}
+              className="w-full p-4 flex items-center gap-4 text-left"
+            >
+              <div className="w-10 h-10 rounded-xl bg-yellow-500/10 flex items-center justify-center">
+                <Bug className="h-5 w-5 text-yellow-500" />
+              </div>
+              <div className="flex-1">
+                <p className="font-medium">Debug Panel</p>
+                <p className="text-sm text-muted-foreground">View session & storage state</p>
+              </div>
+              <ChevronDown className={cn(
+                "h-5 w-5 text-muted-foreground transition-transform",
+                showDebug && "rotate-180"
+              )} />
+            </motion.button>
+
+            {/* Debug Panel Content */}
+            {showDebug && (
+              <motion.div
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="p-4 bg-muted/50 font-mono text-xs space-y-2"
+              >
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">isAuthenticated:</span>
+                  <span className={isAuthenticated ? 'text-green-500' : 'text-red-500'}>
+                    {String(isAuthenticated)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">demoMode:</span>
+                  <span className={demoMode ? 'text-yellow-500' : 'text-muted-foreground'}>
+                    {String(demoMode)}
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Phone:</span>
+                  <span>{phoneNumber || '(none)'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Username:</span>
+                  <span>{username ? `@${username}` : '(none)'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Display:</span>
+                  <span>{displayName || '(none)'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Role:</span>
+                  <span className="text-primary">{activeRole}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Key Type:</span>
+                  <span>{keyType || '(none)'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Key ID:</span>
+                  <span>{keyDisplayId ? truncateHexId(keyDisplayId) : '(none)'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Wallet ID:</span>
+                  <span>{walletDisplayId ? truncateHexId(walletDisplayId) : '(none)'}</span>
+                </div>
+                <div className="border-t border-border pt-2 mt-2">
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">localStorage users:</span>
+                    <span>{listUsers().length} registered</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Session phone:</span>
+                    <span className="truncate max-w-[150px]">{getSessionPhone() || '(none)'}</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </div>
+        </motion.div>
+
         {/* Logout */}
         <motion.button
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.5 }}
           whileTap={{ scale: 0.99 }}
           onClick={logout}
           className="w-full bg-card rounded-2xl border border-destructive/30 p-4 flex items-center gap-4"
@@ -149,7 +266,7 @@ export default function SettingsPage() {
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ delay: 0.6 }}
           className="text-center text-xs text-muted-foreground py-4"
         >
           Seedbase v2.0.0 • Built with 💚
