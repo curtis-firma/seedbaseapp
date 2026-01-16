@@ -15,14 +15,19 @@ interface AppLayoutProps {
 export function AppLayout({ children }: AppLayoutProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
-  const { isAuthenticated } = useUser();
+  const [forceDemo, setForceDemo] = useState(false);
+  const { isAuthenticated, demoMode } = useUser();
 
-  // Show auth on first visit if not authenticated
+  // Show auth on first visit if not authenticated, or if demo mode triggered
   useEffect(() => {
     if (!isAuthenticated) {
       setShowAuth(true);
     }
-  }, [isAuthenticated]);
+    if (demoMode && !isAuthenticated) {
+      setForceDemo(true);
+      setShowAuth(true);
+    }
+  }, [isAuthenticated, demoMode]);
 
   // Swipe handlers for opening drawer
   const swipeHandlers = useSwipeable({
@@ -38,6 +43,7 @@ export function AppLayout({ children }: AppLayoutProps) {
 
   const handleAuthComplete = () => {
     setShowAuth(false);
+    setForceDemo(false);
   };
 
   return (
@@ -61,7 +67,7 @@ export function AppLayout({ children }: AppLayoutProps) {
       <QuickActionButton />
       
       {/* Phone Auth Flow */}
-      <PhoneAuthFlow isOpen={showAuth} onComplete={handleAuthComplete} />
+      <PhoneAuthFlow isOpen={showAuth} onComplete={handleAuthComplete} forceDemo={forceDemo} />
     </div>
   );
 }
