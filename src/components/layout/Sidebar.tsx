@@ -36,9 +36,9 @@ export function Sidebar() {
       animate={{ width: isCollapsed ? 80 : 260 }}
       className="hidden md:flex flex-col h-screen fixed left-0 top-0 bg-card/90 backdrop-blur-xl border-r border-border/50 z-40"
     >
-      {/* Logo */}
+      {/* Logo - Larger */}
       <div className="p-6 flex items-center gap-3">
-        <img src={seedbaseIcon} alt="Seedbase" className="w-10 h-10" />
+        <img src={seedbaseIcon} alt="Seedbase" className="w-12 h-12" />
         <AnimatePresence>
           {!isCollapsed && (
             <motion.img
@@ -47,7 +47,7 @@ export function Sidebar() {
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
-              className="h-6 dark:invert"
+              className="h-8 dark:invert"
             />
           )}
         </AnimatePresence>

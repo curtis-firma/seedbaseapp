@@ -5,6 +5,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
+import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
 import seedbaseIcon from '@/assets/seedbase-icon.png';
 import seedbaseWordmark from '@/assets/seedbase-wordmark.svg';
 
@@ -24,7 +25,7 @@ interface MobileDrawerProps {
 export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { walkthroughMode, setWalkthroughMode, username, displayName, activeRole } = useUser();
+  const { username, displayName, activeRole } = useUser();
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -57,11 +58,11 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed left-0 top-0 bottom-0 w-[300px] bg-card border-r border-border/50 z-50 flex flex-col"
           >
-            {/* Header */}
+            {/* Header with larger logo */}
             <div className="p-6 flex items-center justify-between border-b border-border/50">
               <div className="flex items-center gap-3">
-                <img src={seedbaseIcon} alt="Seedbase" className="w-10 h-10" />
-                <img src={seedbaseWordmark} alt="Seedbase" className="h-5 dark:invert" />
+                <img src={seedbaseIcon} alt="Seedbase" className="w-12 h-12" />
+                <img src={seedbaseWordmark} alt="Seedbase" className="h-8 dark:invert" />
               </div>
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -79,6 +80,12 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
                 <p className="text-sm text-muted-foreground">@{username} · {activeRole}</p>
               </div>
             )}
+
+            {/* View Role Switcher - Colorful Buttons */}
+            <div className="px-6 py-4 border-b border-border/50">
+              <p className="text-xs font-medium text-muted-foreground mb-3">VIEW AS</p>
+              <ViewRoleBadge variant="compact" className="w-full" />
+            </div>
 
             {/* Navigation */}
             <div className="flex-1 overflow-y-auto p-4">
