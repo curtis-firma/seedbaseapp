@@ -3,12 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Wallet as WalletIcon, Lock, Clock, ArrowDownRight, ArrowUpRight,
   Key, CheckCircle2, XCircle, Sprout, Shield, Rocket, ChevronRight,
-  Layers, PiggyBank, Receipt, Users, Vote, AlertCircle
+  Layers, PiggyBank, Receipt, Users, Vote, AlertCircle, Plus, Banknote
 } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { trusteeWallets, pendingTransfers } from '@/data/mockData';
+import { AddFundsModal } from '@/components/wallet/AddFundsModal';
+import { WithdrawModal } from '@/components/wallet/WithdrawModal';
 
 export default function WalletPage() {
   const { user, activeRole, isKeyActive } = useUser();
@@ -63,6 +65,11 @@ export default function WalletPage() {
 }
 
 function PersonalWalletView({ user }: { user: any }) {
+  const [showAddFunds, setShowAddFunds] = useState(false);
+  const [showWithdraw, setShowWithdraw] = useState(false);
+  const { activeRole } = useUser();
+  const isActivator = activeRole === 'activator';
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -76,31 +83,70 @@ function PersonalWalletView({ user }: { user: any }) {
         animate={{ opacity: 1, y: 0 }}
         className="bg-gradient-to-br from-primary to-base-glow rounded-2xl p-5 text-white"
       >
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center gap-2 mb-1">
           <WalletIcon className="h-5 w-5 opacity-80" />
-          <span className="text-sm opacity-80">Available Balance</span>
+          <span className="text-sm opacity-80">Personal Balance</span>
         </div>
-        <p className="text-3xl font-bold mb-4">
+        <p className="text-3xl font-bold mb-1">
           ${user.walletBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
         </p>
         
-        <div className="flex gap-3">
+        {/* Activator sees distributions received */}
+        {isActivator && (
+          <div className="flex items-center gap-2 mb-3 text-sm opacity-90">
+            <ArrowDownRight className="h-4 w-4" />
+            <span>Distributions Received: $1,247.50</span>
+          </div>
+        )}
+        
+        {/* Action Buttons */}
+        <div className="grid grid-cols-2 gap-2 mb-3">
           <motion.button
             whileTap={{ scale: 0.98 }}
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-white/20 backdrop-blur-sm rounded-xl font-medium"
+            onClick={() => setShowAddFunds(true)}
+            className="flex items-center justify-center gap-2 py-3 bg-white/25 backdrop-blur-sm rounded-xl font-medium"
+          >
+            <Plus className="h-4 w-4" />
+            Add Funds
+          </motion.button>
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            onClick={() => setShowWithdraw(true)}
+            className="flex items-center justify-center gap-2 py-3 bg-white/25 backdrop-blur-sm rounded-xl font-medium"
+          >
+            <Banknote className="h-4 w-4" />
+            Withdraw
+          </motion.button>
+        </div>
+        
+        <div className="flex gap-2">
+          <motion.button
+            whileTap={{ scale: 0.98 }}
+            className="flex-1 flex items-center justify-center gap-2 py-3 bg-white/15 backdrop-blur-sm rounded-xl font-medium text-sm"
           >
             <ArrowDownRight className="h-4 w-4" />
             Receive
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.98 }}
-            className="flex-1 flex items-center justify-center gap-2 py-3 bg-white/20 backdrop-blur-sm rounded-xl font-medium"
+            className="flex-1 flex items-center justify-center gap-2 py-3 bg-white/15 backdrop-blur-sm rounded-xl font-medium text-sm"
           >
             <ArrowUpRight className="h-4 w-4" />
             Send
           </motion.button>
         </div>
       </motion.div>
+
+      {/* Modals */}
+      <AddFundsModal 
+        isOpen={showAddFunds} 
+        onClose={() => setShowAddFunds(false)} 
+      />
+      <WithdrawModal 
+        isOpen={showWithdraw} 
+        onClose={() => setShowWithdraw(false)}
+        balance={user.walletBalance}
+      />
 
       {/* Pending Transfers */}
       {pendingTransfers.length > 0 && (
