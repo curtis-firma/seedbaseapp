@@ -1,8 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Home, Layers, Wallet, MessageCircle, BarChart3, 
-  Radio, Rocket, Settings, X, ChevronRight,
-  ChevronDown, Eye, EyeOff
+  MessageCircle, BarChart3, Radio, Rocket, Settings, X, HelpCircle
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
@@ -26,19 +24,16 @@ interface MobileDrawerProps {
 export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { activeRole, setActiveRole, walkthroughMode, setWalkthroughMode } = useUser();
-
-  const roleConfig = {
-    activator: { label: 'Activator', icon: Home, color: 'text-seed', gradient: 'gradient-seed', description: 'Commit capital & grow' },
-    trustee: { label: 'Trustee', icon: Layers, color: 'text-trust', gradient: 'gradient-trust', description: 'Govern & launch' },
-    envoy: { label: 'Envoy', icon: Rocket, color: 'text-envoy', gradient: 'gradient-envoy', description: 'Execute & report' },
-  };
-
-  const currentRole = roleConfig[activeRole];
+  const { walkthroughMode, setWalkthroughMode, username, displayName, activeRole } = useUser();
 
   const handleNavigate = (path: string) => {
     navigate(path);
     onClose();
+  };
+
+  const handleShowWalkthrough = () => {
+    localStorage.removeItem('seedbase-onboarding-seen');
+    window.location.reload();
   };
 
   return (
@@ -66,7 +61,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
             <div className="p-6 flex items-center justify-between border-b border-border/50">
               <div className="flex items-center gap-3">
                 <img src={seedbaseIcon} alt="Seedbase" className="w-10 h-10" />
-                <img src={seedbaseWordmark} alt="Seedbase" className="h-5" />
+                <img src={seedbaseWordmark} alt="Seedbase" className="h-5 dark:invert" />
               </div>
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -77,9 +72,17 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
               </motion.button>
             </div>
 
+            {/* User Info */}
+            {username && (
+              <div className="px-6 py-4 border-b border-border/50">
+                <p className="font-semibold">{displayName || username}</p>
+                <p className="text-sm text-muted-foreground">@{username} · {activeRole}</p>
+              </div>
+            )}
+
             {/* Navigation */}
             <div className="flex-1 overflow-y-auto p-4">
-              <p className="text-xs font-medium text-muted-foreground mb-3">MENU</p>
+              <p className="text-xs font-medium text-muted-foreground mb-3 px-1">MENU</p>
               <div className="space-y-1">
                 {menuNav.map((item) => {
                   const isActive = location.pathname === item.path;
@@ -108,55 +111,19 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
               </div>
             </div>
 
-            {/* Footer - Role Switcher + Walkthrough */}
-            <div className="p-4 border-t border-border/50 space-y-4">
-              {/* Walkthrough Toggle */}
+            {/* Footer */}
+            <div className="p-4 border-t border-border/50 space-y-3">
+              {/* Walkthrough Button */}
               <motion.button
-                onClick={() => setWalkthroughMode(!walkthroughMode)}
+                onClick={handleShowWalkthrough}
                 className="w-full flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center gap-3">
-                  {walkthroughMode ? (
-                    <Eye className="h-5 w-5 text-primary" />
-                  ) : (
-                    <EyeOff className="h-5 w-5 text-muted-foreground" />
-                  )}
-                  <span className="font-medium text-sm">Walkthrough</span>
+                  <HelpCircle className="h-5 w-5 text-primary" />
+                  <span className="font-medium text-sm">Show Walkthrough</span>
                 </div>
-                <span className={cn(
-                  "text-xs px-2 py-1 rounded-full font-medium",
-                  walkthroughMode ? "bg-primary/10 text-primary" : "bg-muted text-muted-foreground"
-                )}>
-                  {walkthroughMode ? 'ON' : 'OFF'}
-                </span>
               </motion.button>
-
-              {/* Role Switcher - Colorful Buttons */}
-              <div>
-                <p className="text-xs font-medium text-muted-foreground mb-2">SWITCH ROLE</p>
-                <div className="flex gap-2">
-                  {(['activator', 'trustee', 'envoy'] as const).map((role) => {
-                    const config = roleConfig[role];
-                    const isActive = activeRole === role;
-                    return (
-                      <motion.button
-                        key={role}
-                        onClick={() => setActiveRole(role)}
-                        className={cn(
-                          "flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all",
-                          isActive
-                            ? `${config.gradient} text-white shadow-lg`
-                            : `bg-muted/50 ${config.color} hover:bg-muted`
-                        )}
-                        whileTap={{ scale: 0.95 }}
-                      >
-                        {config.label}
-                      </motion.button>
-                    );
-                  })}
-                </div>
-              </div>
 
               <p className="text-xs text-muted-foreground text-center italic pt-2">
                 "Commitment creates capacity."

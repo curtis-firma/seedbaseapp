@@ -10,6 +10,8 @@ interface UserContextType {
   user: User;
   activeRole: UserRole;
   setActiveRole: (role: UserRole) => void;
+  viewRole: UserRole;
+  setViewRole: (role: UserRole) => void;
   hasKey: (keyType: KeyType) => boolean;
   isKeyActive: (keyType: KeyType) => boolean;
   walkthroughMode: boolean;
@@ -33,6 +35,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 export function UserProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User>(mockUser);
   const [activeRole, setActiveRole] = useState<UserRole>(mockUser.activeRole);
+  const [viewRole, setViewRole] = useState<UserRole>(mockUser.activeRole);
   const [walkthroughMode, setWalkthroughMode] = useState(false);
   
   // Auth state
@@ -69,7 +72,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const handleSetActiveRole = (role: UserRole) => {
     setActiveRole(role);
+    setViewRole(role); // Sync viewRole when activeRole changes
     setUser(prev => ({ ...prev, activeRole: role }));
+  };
+
+  const handleSetViewRole = (role: UserRole) => {
+    setViewRole(role);
   };
 
   // Simple login (legacy, for backwards compatibility)
@@ -92,11 +100,13 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(true);
     setDemoMode(demoUser.phone.startsWith('demo:'));
     
+    const userRole = demoUser.role || 'activator';
+    
     // Update user object with new data
     setUser(prev => ({
       ...prev,
       name: demoUser.displayName || demoUser.username,
-      activeRole: demoUser.role || 'activator',
+      activeRole: userRole,
       walletBalance: demoUser.wallet?.balance ?? 25.00,
       keys: prev.keys.map(k => ({
         ...k,
@@ -104,7 +114,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       }))
     }));
     
-    setActiveRole(demoUser.role || 'activator');
+    setActiveRole(userRole);
+    setViewRole(userRole);
   };
 
   const logout = () => {
@@ -116,6 +127,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setKeyDisplayId(null);
     setKeyType(null);
     setDemoMode(false);
+    setViewRole('activator');
     clearSession();
   };
 
@@ -130,6 +142,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
       user,
       activeRole,
       setActiveRole: handleSetActiveRole,
+      viewRole,
+      setViewRole: handleSetViewRole,
       hasKey,
       isKeyActive,
       walkthroughMode,
