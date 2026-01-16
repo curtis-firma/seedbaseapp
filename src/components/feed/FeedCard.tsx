@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Share2, MoreHorizontal, TrendingUp, Users, Droplets, CheckCircle2 } from 'lucide-react';
+import { Heart, MessageCircle, Share2, MoreHorizontal, TrendingUp, Users, Droplets, CheckCircle2, ArrowRight, Sprout } from 'lucide-react';
 import { FeedItem } from '@/types/seedbase';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -135,8 +135,63 @@ export function FeedCard({ item, index }: FeedCardProps) {
         </div>
       )}
 
+      {/* Impact Flow Indicator */}
+      {item.impactFlow && (
+        <div className="px-4 py-3 bg-gradient-to-r from-seed/5 via-primary/5 to-trust/5 border-y border-border/30">
+          <div className="flex items-center gap-2 mb-2">
+            <Sprout className="h-4 w-4 text-seed" />
+            <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Impact Flow</span>
+          </div>
+          
+          {/* Flow visualization */}
+          <div className="flex items-center gap-2 text-sm mb-3">
+            {item.impactFlow.fromSeedbase && (
+              <>
+                <span className="px-2 py-1 bg-seed/10 text-seed rounded-lg font-medium text-xs">
+                  {item.impactFlow.fromSeedbase}
+                </span>
+                <ArrowRight className="h-3 w-3 text-muted-foreground" />
+              </>
+            )}
+            {item.impactFlow.toMission && (
+              <span className="px-2 py-1 bg-trust/10 text-trust rounded-lg font-medium text-xs">
+                {item.impactFlow.toMission}
+              </span>
+            )}
+            {item.impactFlow.amount && (
+              <>
+                <ArrowRight className="h-3 w-3 text-muted-foreground" />
+                <span className="font-bold text-foreground">${item.impactFlow.amount.toLocaleString()}</span>
+              </>
+            )}
+          </div>
+
+          {/* Fractional impact metrics */}
+          <div className="flex items-center gap-4 flex-wrap">
+            {item.impactFlow.yourImpact !== undefined && (
+              <div className="flex items-center gap-1.5">
+                <div className="w-6 h-6 rounded-full gradient-seed flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-white">You</span>
+                </div>
+                <div className="text-xs">
+                  <span className="font-semibold text-seed">{item.impactFlow.yourImpact}%</span>
+                  <span className="text-muted-foreground ml-1">of this impact</span>
+                </div>
+              </div>
+            )}
+            {item.impactFlow.peopleReached && (
+              <div className="flex items-center gap-1.5 text-xs">
+                <Users className="h-4 w-4 text-primary" />
+                <span className="font-semibold">{item.impactFlow.peopleReached.toLocaleString()}</span>
+                <span className="text-muted-foreground">people reached</span>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
       {/* Mission/Seedbase Tag */}
-      {(item.mission || item.seedbase) && (
+      {(item.mission || item.seedbase) && !item.impactFlow && (
         <div className="px-4 py-2">
           <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-primary/5 rounded-full">
             {item.seedbase && (

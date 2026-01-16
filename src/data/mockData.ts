@@ -114,6 +114,13 @@ export const mockFeedItems: FeedItem[] = [
     timestamp: new Date(Date.now() - 1000 * 60 * 30),
     likes: 124,
     comments: 18,
+    impactFlow: {
+      fromSeedbase: 'Clean Water Initiative',
+      toMission: 'Solar-Powered Wells',
+      amount: 4500,
+      yourImpact: 3.2,
+      peopleReached: 300,
+    },
   },
   {
     id: 'feed-2',
@@ -164,16 +171,26 @@ export const mockFeedItems: FeedItem[] = [
       avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Sarah',
       role: 'envoy',
     },
+    mission: { id: 'mission-1', name: 'Solar-Powered Wells' },
+    seedbase: { id: 'sb-1', name: 'Clean Water Initiative' },
     media: { type: 'image' },
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 24),
     likes: 234,
     comments: 28,
+    impactFlow: {
+      fromSeedbase: 'Clean Water Initiative',
+      toMission: 'Solar-Powered Wells',
+      yourImpact: 3.2,
+      peopleReached: 2400,
+    },
   },
   {
     id: 'feed-6',
     type: 'distribution',
     title: 'Distribution Completed',
     content: 'Healthcare Access Seedbase distributed 8,000 USDC to Medical Supplies mission. 100% verified.',
+    seedbase: { id: 'sb-3', name: 'Healthcare Access' },
+    mission: { id: 'mission-3', name: 'Medical Supplies' },
     metrics: [
       { label: 'Amount', value: '$8,000' },
       { label: 'Recipient', value: 'Medical Supplies Mission' },
@@ -181,6 +198,13 @@ export const mockFeedItems: FeedItem[] = [
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 36),
     likes: 56,
     comments: 4,
+    impactFlow: {
+      fromSeedbase: 'Healthcare Access',
+      toMission: 'Medical Supplies',
+      amount: 8000,
+      yourImpact: 1.8,
+      peopleReached: 520,
+    },
   },
 ];
 
