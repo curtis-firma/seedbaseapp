@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Wallet as WalletIcon, Lock, Clock, ArrowDownRight, ArrowUpRight,
   Key, CheckCircle2, XCircle, Sprout, Shield, Rocket, ChevronRight,
-  Layers, PiggyBank, Receipt, Users, Vote, AlertCircle, Plus, Banknote
+  Layers, PiggyBank, Receipt, Users, Vote, AlertCircle, Plus, Banknote, Copy
 } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
@@ -11,36 +11,92 @@ import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { trusteeWallets, pendingTransfers } from '@/data/mockData';
 import { AddFundsModal } from '@/components/wallet/AddFundsModal';
 import { WithdrawModal } from '@/components/wallet/WithdrawModal';
+import { truncateHexId } from '@/lib/demoAuth';
+import { toast } from 'sonner';
 
 export default function WalletPage() {
-  const { user, activeRole, isKeyActive } = useUser();
+  const { user, activeRole, isKeyActive, walletDisplayId, keyDisplayId, keyType } = useUser();
   const [activeTab, setActiveTab] = useState(0);
   
   const isTrustee = activeRole === 'trustee' && isKeyActive('BaseKey');
   const tabs = isTrustee ? ['Personal', 'Missions', 'Provision'] : ['Wallet', 'Keys'];
+
+  const handleCopyWallet = () => {
+    if (walletDisplayId) {
+      navigator.clipboard.writeText(walletDisplayId);
+      toast.success('Wallet address copied!');
+    }
+  };
 
   return (
     <div className="min-h-screen pb-8">
       {/* Header */}
       <header className="glass-strong border-b border-border/50">
         <div className="px-4 py-6">
-          <div className="flex items-center gap-4 mb-6">
+          <div className="flex items-center gap-4 mb-4">
             <img
               src={user.avatar}
               alt={user.name}
               className="w-16 h-16 rounded-2xl bg-muted"
             />
-            <div>
+            <div className="flex-1">
               <h1 className="text-xl font-bold">{user.name}</h1>
               <p className="text-sm text-muted-foreground capitalize">{activeRole} since Jan 2024</p>
             </div>
           </div>
 
-          <SwipeTabs 
-            tabs={tabs} 
-            activeTab={activeTab} 
-            onTabChange={setActiveTab} 
-          />
+          {/* Wallet Address Display */}
+          {walletDisplayId && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-muted/50 rounded-xl p-3 mb-4 flex items-center justify-between"
+            >
+              <div className="flex items-center gap-2">
+                <WalletIcon className="h-4 w-4 text-muted-foreground" />
+                <code className="text-sm font-mono">{truncateHexId(walletDisplayId)}</code>
+              </div>
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleCopyWallet}
+                className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+              >
+                <Copy className="h-4 w-4 text-muted-foreground" />
+              </motion.button>
+            </motion.div>
+          )}
+
+          {/* Active Key Badge */}
+          {keyType && keyDisplayId && (
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="flex items-center gap-2"
+            >
+              <div className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5",
+                keyType === 'SeedKey' && "bg-seed/10 text-seed",
+                keyType === 'BaseKey' && "bg-trust/10 text-trust",
+                keyType === 'MissionKey' && "bg-envoy/10 text-envoy"
+              )}>
+                <Key className="h-3 w-3" />
+                {keyType}
+                <CheckCircle2 className="h-3 w-3" />
+              </div>
+              <code className="text-xs text-muted-foreground font-mono">
+                {truncateHexId(keyDisplayId)}
+              </code>
+            </motion.div>
+          )}
+
+          <div className="mt-4">
+            <SwipeTabs 
+              tabs={tabs} 
+              activeTab={activeTab} 
+              onTabChange={setActiveTab} 
+            />
+          </div>
         </div>
       </header>
 

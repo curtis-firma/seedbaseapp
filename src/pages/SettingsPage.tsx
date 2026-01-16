@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
 import { 
   Settings as SettingsIcon, User, Bell, Shield, Palette, 
-  HelpCircle, FileText, LogOut, ChevronRight, Moon, Sun
+  HelpCircle, FileText, LogOut, ChevronRight, Moon, Sun, Play
 } from 'lucide-react';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/contexts/UserContext';
 
 const settingsGroups = [
   {
@@ -22,6 +23,12 @@ const settingsGroups = [
     ],
   },
   {
+    title: 'Demo',
+    items: [
+      { icon: Play, label: 'Demo Mode', description: 'Replay onboarding experience', isDemoButton: true },
+    ],
+  },
+  {
     title: 'Support',
     items: [
       { icon: HelpCircle, label: 'Help Center', description: 'FAQs & guides' },
@@ -32,6 +39,7 @@ const settingsGroups = [
 
 export default function SettingsPage() {
   const [isDark, setIsDark] = useState(false);
+  const { logout, startDemo } = useUser();
 
   return (
     <div className="min-h-screen pb-8">
@@ -62,20 +70,31 @@ export default function SettingsPage() {
               {group.title}
             </h3>
             <div className="bg-card rounded-2xl border border-border/50 divide-y divide-border/50">
-              {group.items.map((item, i) => (
+              {group.items.map((item) => (
                 <motion.button
                   key={item.label}
                   whileTap={{ scale: 0.99 }}
+                  onClick={() => {
+                    if ((item as any).isDemoButton) {
+                      startDemo();
+                    }
+                  }}
                   className="w-full p-4 flex items-center gap-4 text-left"
                 >
-                  <div className="w-10 h-10 rounded-xl bg-muted flex items-center justify-center">
-                    <item.icon className="h-5 w-5 text-foreground" />
+                  <div className={cn(
+                    "w-10 h-10 rounded-xl flex items-center justify-center",
+                    (item as any).isDemoButton ? "bg-primary/10" : "bg-muted"
+                  )}>
+                    <item.icon className={cn(
+                      "h-5 w-5",
+                      (item as any).isDemoButton ? "text-primary" : "text-foreground"
+                    )} />
                   </div>
                   <div className="flex-1">
                     <p className="font-medium">{item.label}</p>
                     <p className="text-sm text-muted-foreground">{item.description}</p>
                   </div>
-                  {item.hasToggle ? (
+                  {(item as any).hasToggle ? (
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
@@ -98,6 +117,10 @@ export default function SettingsPage() {
                         )}
                       </motion.div>
                     </button>
+                  ) : (item as any).isDemoButton ? (
+                    <div className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium">
+                      Start
+                    </div>
                   ) : (
                     <ChevronRight className="h-5 w-5 text-muted-foreground" />
                   )}
@@ -113,6 +136,7 @@ export default function SettingsPage() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.4 }}
           whileTap={{ scale: 0.99 }}
+          onClick={logout}
           className="w-full bg-card rounded-2xl border border-destructive/30 p-4 flex items-center gap-4"
         >
           <div className="w-10 h-10 rounded-xl bg-destructive/10 flex items-center justify-center">
