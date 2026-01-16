@@ -94,7 +94,7 @@ export function ViewingAsBadge() {
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -10 }}
-      className="fixed top-4 left-1/2 -translate-x-1/2 z-50 md:left-[calc(260px+50%)] md:-translate-x-1/2"
+      className="fixed top-4 left-1/2 -translate-x-1/2 z-40 md:left-[calc(260px+50%)] md:-translate-x-1/2"
     >
       <div className={cn(
         "flex items-center gap-2 px-4 py-2 rounded-full border shadow-card",

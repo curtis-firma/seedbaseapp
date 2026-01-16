@@ -17,7 +17,7 @@ export function QuickActionButton() {
   const [recipient, setRecipient] = useState('');
   const [postContent, setPostContent] = useState('');
   const [postType, setPostType] = useState<'update' | 'testimony' | 'harvest'>('update');
-  const { activeRole } = useUser();
+  const { viewRole } = useUser();
 
   const handleClose = () => {
     setIsOpen(false);
@@ -31,7 +31,7 @@ export function QuickActionButton() {
 
   // Role-specific actions
   const getActionsForRole = () => {
-    switch (activeRole) {
+    switch (viewRole) {
       case 'activator':
         return [
           { 
@@ -125,9 +125,9 @@ export function QuickActionButton() {
         className={cn(
           "fixed z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-elevated",
           "bottom-24 right-4 md:bottom-8 md:right-8",
-          activeRole === 'activator' && "gradient-seed",
-          activeRole === 'trustee' && "gradient-trust",
-          activeRole === 'envoy' && "gradient-envoy"
+          viewRole === 'activator' && "gradient-seed",
+          viewRole === 'trustee' && "gradient-trust",
+          viewRole === 'envoy' && "gradient-envoy"
         )}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
@@ -171,7 +171,7 @@ export function QuickActionButton() {
                       {mode === 'testimony' && 'Share Testimony'}
                     </h2>
                     <p className="text-sm text-muted-foreground capitalize">
-                      {mode === 'menu' ? `${activeRole} actions` : 'Share with the network'}
+                      {mode === 'menu' ? `${viewRole} actions` : 'Share with the network'}
                     </p>
                   </div>
                   <motion.button
@@ -304,7 +304,7 @@ export function QuickActionButton() {
                         className="space-y-4"
                       >
                         {/* Post Type for Envoys */}
-                        {activeRole === 'envoy' && mode === 'new-post' && (
+                        {viewRole === 'envoy' && mode === 'new-post' && (
                           <div>
                             <label className="text-sm font-medium mb-2 block">Post Type</label>
                             <div className="flex gap-2">
@@ -373,7 +373,7 @@ export function QuickActionButton() {
                           whileTap={{ scale: 0.98 }}
                           className={cn(
                             "w-full py-4 rounded-xl text-white font-semibold flex items-center justify-center gap-2",
-                            activeRole === 'envoy' ? "gradient-envoy" : "gradient-base"
+                            viewRole === 'envoy' ? "gradient-envoy" : "gradient-base"
                           )}
                         >
                           <FileText className="h-5 w-5" />
