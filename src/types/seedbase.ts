@@ -4,6 +4,10 @@ export type KeyType = 'SeedKey' | 'BaseKey' | 'MissionKey';
 
 export type UserRole = 'activator' | 'trustee' | 'envoy';
 
+export type RoleBadge = 'Steward' | 'Recipient' | 'Official' | 'Envoy' | 'Activator';
+
+export type PostType = 'testimony' | 'surplus' | 'recipient' | 'milestone' | 'deployment' | 'announcement' | 'mission_update' | 'harvest' | 'commitment' | 'distribution' | 'transparency';
+
 export interface UserKey {
   type: KeyType;
   isActive: boolean;
@@ -70,16 +74,44 @@ export interface ImpactFlow {
   peopleReached?: number;
 }
 
+export interface ImpactCategory {
+  name: string;
+  description?: string;
+  amount: number;
+  percentage: number;
+  icon: string;
+}
+
+export interface EmbeddedCard {
+  type: 'testimony' | 'surplus' | 'recipient' | 'milestone' | 'deployment' | 'stats';
+  title?: string;
+  content?: string;
+  fromEntity?: string;
+  toEntity?: string;
+  amount?: number;
+  imageUrl?: string;
+  stats?: { label: string; value: string | number; icon?: string }[];
+  fundingProgress?: number;
+  fundingGoal?: number;
+  impactCategories?: ImpactCategory[];
+  missionName?: string;
+  badge?: string;
+}
+
 export interface FeedItem {
   id: string;
   type: 'mission_update' | 'harvest' | 'testimony' | 'commitment' | 'distribution' | 'transparency' | 'milestone';
+  postType?: PostType;
   title: string;
   content: string;
   author?: {
     name: string;
     avatar: string;
     role: UserRole;
+    handle?: string;
+    isVerified?: boolean;
   };
+  roleBadge?: RoleBadge;
   mission?: {
     id: string;
     name: string;
@@ -98,6 +130,11 @@ export interface FeedItem {
   timestamp: Date;
   likes: number;
   comments: number;
+  // New fields for enhanced feed
+  totalRaised?: number;
+  yourSeed?: number;
+  yourImpactPercentage?: number;
+  embeddedCard?: EmbeddedCard;
 }
 
 export interface Message {
