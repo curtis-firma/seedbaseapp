@@ -290,8 +290,8 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
       saveUser(localUser);
       setSessionPhone(localUser.phone);
       
-      // Login and complete
-      loginWithUser(localUser);
+      // Login with the database user
+      loginWithUser(dbUser, wallet, key);
       toast.success(`Welcome back, @${dbUser.username}!`);
       onComplete();
     };
@@ -490,7 +490,10 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
     saveUser(finalUser);
     setSessionPhone(finalUser.phone);
     
-    loginWithUser(finalUser);
+    // Login with the database user
+    if (dbUser) {
+      loginWithUser(dbUser, wallet, key);
+    }
     toast.success(`Welcome to Seedbase, @${username}!`);
     onComplete();
     
