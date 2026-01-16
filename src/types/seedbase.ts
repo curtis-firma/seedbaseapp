@@ -62,6 +62,14 @@ export interface Seedbase {
   category: string;
 }
 
+export interface ImpactFlow {
+  fromSeedbase?: string;
+  toMission?: string;
+  amount?: number;
+  yourImpact?: number; // Fractional contribution percentage
+  peopleReached?: number;
+}
+
 export interface FeedItem {
   id: string;
   type: 'mission_update' | 'harvest' | 'testimony' | 'commitment' | 'distribution' | 'transparency' | 'milestone';
@@ -86,6 +94,7 @@ export interface FeedItem {
     data?: any;
   };
   metrics?: ImpactMetric[];
+  impactFlow?: ImpactFlow;
   timestamp: Date;
   likes: number;
   comments: number;
