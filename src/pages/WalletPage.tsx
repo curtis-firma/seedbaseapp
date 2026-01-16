@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Wallet as WalletIcon, Lock, Clock, ArrowDownRight, ArrowUpRight,
@@ -17,6 +17,7 @@ import { getWalletByUserId, updateWalletBalance } from '@/lib/supabase/demoApi';
 import { getPendingTransfers, getTransfersForUser, type DemoTransfer } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
+import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 
 export default function WalletPage() {
   const { user, activeRole, isKeyActive, walletDisplayId, keyDisplayId, keyType } = useUser();
@@ -45,6 +46,20 @@ export default function WalletPage() {
   useEffect(() => {
     loadWalletData();
   }, []);
+
+  // Subscribe to realtime transfer updates
+  useRealtimeTransfers({
+    userId: getCurrentUserId(),
+    onInsert: (transfer) => {
+      if (transfer.to_user_id === getCurrentUserId()) {
+        toast.info('New transfer received!');
+      }
+      loadWalletData();
+    },
+    onUpdate: () => {
+      loadWalletData();
+    },
+  });
 
   const loadWalletData = async () => {
     const userId = getCurrentUserId();
