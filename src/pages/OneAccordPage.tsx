@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Send, Check, X, DollarSign, Inbox, RefreshCw, Plus } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -14,6 +14,7 @@ import {
 } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
 import { SendModal } from '@/components/wallet/SendModal';
+import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 
 export default function OneAccordPage() {
   const [pendingTransfers, setPendingTransfers] = useState<DemoTransfer[]>([]);
@@ -60,6 +61,22 @@ export default function OneAccordPage() {
   useEffect(() => {
     loadTransfers();
   }, []);
+
+  // Subscribe to realtime transfer updates
+  useRealtimeTransfers({
+    userId: getCurrentUserId(),
+    onInsert: (transfer) => {
+      // New transfer received - show toast and reload
+      if (transfer.to_user_id === getCurrentUserId()) {
+        toast.info('New transfer received!');
+      }
+      loadTransfers();
+    },
+    onUpdate: () => {
+      // Transfer status changed - reload
+      loadTransfers();
+    },
+  });
 
   const handleAccept = async (transfer: DemoTransfer) => {
     const updated = await acceptTransfer(transfer.id);
