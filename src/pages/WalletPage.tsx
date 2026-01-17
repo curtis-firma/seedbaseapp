@@ -14,7 +14,7 @@ import { WithdrawModal } from '@/components/wallet/WithdrawModal';
 import { SendModal } from '@/components/wallet/SendModal';
 import { truncateDisplayId } from '@/lib/supabase/demoApi';
 import { getWalletByUserId, updateWalletBalance } from '@/lib/supabase/demoApi';
-import { getPendingTransfers, getTransfersForUser, type DemoTransfer } from '@/lib/supabase/transfersApi';
+import { getPendingTransfers, getTransfersForUser, recordDeposit, recordWithdrawal, type DemoTransfer } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
@@ -90,12 +90,33 @@ export default function WalletPage() {
     }
   };
 
-  const handleAddFundsSuccess = async (amount: number) => {
-    if (walletId) {
+  const handleAddFundsSuccess = async (amount: number, method: string) => {
+    const userId = getCurrentUserId();
+    if (walletId && userId) {
       const newBalance = walletBalance + amount;
       await updateWalletBalance(walletId, newBalance);
       setWalletBalance(newBalance);
-      toast.success(`Added $${amount.toFixed(2)} to your wallet (Demo)`);
+      
+      // Record deposit transaction
+      await recordDeposit(userId, amount, method);
+      
+      toast.success(`Added $${amount.toFixed(2)} via ${method}`);
+      loadWalletData(); // Refresh to show transaction
+    }
+  };
+
+  const handleWithdrawSuccess = async (amount: number, bankName: string) => {
+    const userId = getCurrentUserId();
+    if (walletId && userId) {
+      const newBalance = walletBalance - amount;
+      await updateWalletBalance(walletId, newBalance);
+      setWalletBalance(newBalance);
+      
+      // Record withdrawal transaction
+      await recordWithdrawal(userId, amount, bankName);
+      
+      toast.success(`Withdrew $${amount.toFixed(2)} to ${bankName}`);
+      loadWalletData(); // Refresh to show transaction
     }
   };
 
@@ -184,6 +205,7 @@ export default function WalletPage() {
                   recentTransfers={recentTransfers}
                   onRefresh={loadWalletData} 
                   onAddFundsSuccess={handleAddFundsSuccess}
+                  onWithdrawSuccess={handleWithdrawSuccess}
                 />
               )}
               {activeTab === 1 && <MissionsWalletView key="missions" />}
@@ -200,6 +222,7 @@ export default function WalletPage() {
                   recentTransfers={recentTransfers} 
                   onRefresh={loadWalletData}
                   onAddFundsSuccess={handleAddFundsSuccess}
+                  onWithdrawSuccess={handleWithdrawSuccess}
                 />
               )}
               {activeTab === 1 && <KeysView key="keys" user={user} />}
@@ -217,14 +240,16 @@ function PersonalWalletView({
   pendingTransfers, 
   recentTransfers,
   onRefresh,
-  onAddFundsSuccess
+  onAddFundsSuccess,
+  onWithdrawSuccess
 }: { 
   balance: number; 
   walletId: string | null;
   pendingTransfers: DemoTransfer[]; 
   recentTransfers: DemoTransfer[];
   onRefresh: () => void;
-  onAddFundsSuccess: (amount: number) => void;
+  onAddFundsSuccess: (amount: number, method: string) => void;
+  onWithdrawSuccess: (amount: number, bankName: string) => void;
 }) {
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
@@ -325,6 +350,7 @@ function PersonalWalletView({
         isOpen={showWithdraw} 
         onClose={() => setShowWithdraw(false)}
         balance={balance}
+        onSuccess={onWithdrawSuccess}
       />
       <SendModal
         isOpen={showSend}
