@@ -2,7 +2,7 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, ArrowRight } from "lucide-react";
 import SeedFeedCard from "@/components/cards/SeedFeedCard";
 import SeedFeedCardPeek from "@/components/cards/SeedFeedCardPeek";
 import SeedFeedCardPeekAlt from "@/components/cards/SeedFeedCardPeekAlt";
@@ -17,6 +17,8 @@ import WalletCard from "@/components/cards/WalletCard";
 import seedbaseWordmark from "@/assets/seedbase-wordmark.svg";
 import poweredByCik from "@/assets/powered-by-cik-text.png";
 import generositySpread from "@/assets/generosity-spread.png";
+import LoginModal from "@/components/sections/LoginModal";
+import { SeedbaseLoader } from "@/components/shared/SeedbaseLoader";
 import {
   Dialog,
   DialogContent,
@@ -71,6 +73,8 @@ const sections = [{
 
 const ScrollingLandingPage = () => {
   const [showLearnMore, setShowLearnMore] = useState(false);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const desktopSectionsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -81,6 +85,16 @@ const ScrollingLandingPage = () => {
     } else {
       window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
     }
+  };
+
+  const handleLoginComplete = (isNewUser?: boolean) => {
+    setShowLoginModal(false);
+    setIsTransitioning(true);
+    
+    // Show loader for smooth transition
+    setTimeout(() => {
+      navigate('/app');
+    }, 1500);
   };
 
   const renderCard = (cardType: string, sectionId: string, compact = false) => {
@@ -131,11 +145,16 @@ const ScrollingLandingPage = () => {
     }
   };
 
+  // Show transition loader
+  if (isTransitioning) {
+    return <SeedbaseLoader message="Entering SeedBase..." />;
+  }
+
   return (
     <div className="min-h-screen bg-white overflow-x-hidden">
       <div className="flex flex-col lg:flex-row">
         {/* Left - Fixed Hero Text Column */}
-        <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-4 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
+        <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-8 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
           {/* Seedbase wordmark logo at top */}
           <img 
             src={seedbaseWordmark} 
@@ -165,19 +184,21 @@ const ScrollingLandingPage = () => {
                 
                 {/* CTA Buttons */}
                 <nav className="flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
-                  <PrimaryButton 
-                    onClick={() => navigate('/login?demo=1')}
-                    className="py-5 sm:py-6 text-base sm:text-lg font-medium"
-                    aria-label="Launch demo of SeedBase"
+                  {/* Enter App - Primary with glow */}
+                  <button 
+                    onClick={() => setShowLoginModal(true)}
+                    className="w-full py-6 rounded-full font-semibold text-base sm:text-lg gradient-seed text-white flex items-center justify-center gap-2 glow-ring hover:shadow-xl transition-all"
+                    aria-label="Enter SeedBase app"
                   >
-                    Launch Demo
-                  </PrimaryButton>
+                    Enter App
+                    <ArrowRight className="w-5 h-5" />
+                  </button>
                   
                   {/* Mobile: open modal */}
                   <Button 
                     variant="outline"
                     onClick={() => setShowLearnMore(true)}
-                    className="lg:hidden rounded-xl py-5 sm:py-6 text-base sm:text-lg font-medium border-border hover:bg-muted min-h-[44px]"
+                    className="lg:hidden rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]"
                     aria-label="Learn more about SeedBase"
                   >
                     Learn More
@@ -188,21 +209,21 @@ const ScrollingLandingPage = () => {
                   <Button 
                     variant="outline"
                     onClick={scrollToContent}
-                    className="hidden lg:inline-flex rounded-xl py-5 sm:py-6 text-base sm:text-lg font-medium border-border hover:bg-muted min-h-[44px]"
+                    className="hidden lg:inline-flex rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]"
                     aria-label="Learn more about SeedBase"
                   >
                     Learn More
                     <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
                   </Button>
                   
-                  <Button 
-                    variant="ghost"
-                    onClick={() => navigate('/login')}
-                    className="rounded-xl py-4 text-base font-medium text-muted-foreground hover:text-foreground min-h-[44px]"
+                  {/* Sign In - Plain text link */}
+                  <button 
+                    onClick={() => setShowLoginModal(true)}
+                    className="py-4 text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
                     aria-label="Sign in to SeedBase"
                   >
                     Sign In
-                  </Button>
+                  </button>
                 </nav>
                 
                 {/* Powered by CIK */}
@@ -216,7 +237,53 @@ const ScrollingLandingPage = () => {
               </div>
             </div>
           </div>
+
+          {/* Mobile Footer */}
+          <footer className="lg:hidden mt-8 mb-8 flex flex-col items-center gap-5 w-full">
+            {/* Divider */}
+            <div className="w-full h-px bg-gray-200" />
+            
+            {/* Copyright */}
+            <p className="text-muted-foreground text-sm">
+              © 2026 Seedbase. All rights reserved.
+            </p>
+            
+            {/* Built on Base */}
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <span>Built on</span>
+              <div className="flex items-center gap-1">
+                <div className="w-4 h-4 bg-blue-600 rounded-sm" />
+                <span className="font-semibold text-foreground">base</span>
+              </div>
+            </div>
+            
+            {/* Links */}
+            <div className="flex items-center gap-4 text-muted-foreground text-sm">
+              <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
+              <span>•</span>
+              <a href="#" className="hover:text-foreground transition-colors">Terms</a>
+              <span>•</span>
+              <a href="#" className="hover:text-foreground transition-colors">Contact</a>
+            </div>
+            
+            {/* Network pill */}
+            <a 
+              href="https://seedbase.network" 
+              target="_blank"
+              rel="noopener noreferrer"
+              className="px-6 py-3 bg-gray-100 rounded-full text-foreground font-medium text-sm hover:bg-gray-200 transition-colors"
+            >
+              seedbase.network
+            </a>
+          </footer>
         </header>
+
+        {/* Login Modal */}
+        <LoginModal 
+          isOpen={showLoginModal} 
+          onClose={() => setShowLoginModal(false)}
+          onComplete={handleLoginComplete}
+        />
 
         {/* Learn More Modal (Mobile) */}
         <Dialog open={showLearnMore} onOpenChange={setShowLearnMore}>
@@ -247,7 +314,7 @@ const ScrollingLandingPage = () => {
                       <PrimaryButton 
                         onClick={() => {
                           setShowLearnMore(false);
-                          navigate('/login?demo=1');
+                          setShowLoginModal(true);
                         }}
                         className="w-full"
                       >

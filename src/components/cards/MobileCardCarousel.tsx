@@ -30,26 +30,32 @@ const MobileCardCarousel = () => {
     switch (card.style) {
       case "square":
         return (
-          <div className="w-[280px] h-[280px] flex items-center justify-center scale-[0.85] origin-center">
-            {card.component}
+          <div className="w-[260px] h-[260px] rounded-2xl overflow-hidden shadow-lg bg-white">
+            <div className="w-full h-full">
+              {card.component}
+            </div>
           </div>
         );
       case "wide":
         return (
-          <div className="w-[340px] h-[260px] flex items-center justify-center scale-[0.85] origin-center">
-            {card.component}
+          <div className="w-[320px] h-[240px] rounded-2xl overflow-hidden shadow-lg bg-white">
+            <div className="w-full h-full">
+              {card.component}
+            </div>
           </div>
         );
       case "crop":
         return (
-          <div className="w-[280px] h-[320px] flex items-start justify-center scale-[0.85] origin-top overflow-hidden">
-            {card.component}
+          <div className="w-[260px] h-[300px] rounded-2xl overflow-hidden shadow-lg bg-white">
+            <div className="w-full overflow-hidden">
+              {card.component}
+            </div>
           </div>
         );
       case "fit":
       default:
         return (
-          <div className="flex items-center justify-center scale-[0.85] origin-center">
+          <div className="rounded-2xl overflow-hidden shadow-lg bg-white">
             {card.component}
           </div>
         );
@@ -57,7 +63,7 @@ const MobileCardCarousel = () => {
   };
 
   return (
-    <div className="w-full overflow-hidden py-8">
+    <div className="w-full overflow-hidden py-8 -ml-4 pl-4">
       <div 
         className="flex gap-6 animate-scroll-cards"
         style={{
