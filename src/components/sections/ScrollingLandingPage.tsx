@@ -323,7 +323,7 @@ const ScrollingLandingPage = () => {
             top: 0,
             behavior: 'smooth'
           })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg" aria-label="Scroll back to top of page">
-              <img alt="SeedBase" className="w-[700px] max-w-[95vw] h-auto opacity-80 hover:opacity-100 transition-opacity duration-300" src="/lovable-uploads/5a45fcb7-88b5-46ce-85d2-9d32748b4fb8.png" />
+              <img alt="SeedBase" className="w-[700px] max-w-[95vw] h-auto transition-opacity duration-300 opacity-100" src="/lovable-uploads/5a45fcb7-88b5-46ce-85d2-9d32748b4fb8.png" />
             </button>
           </section>
         </main>
