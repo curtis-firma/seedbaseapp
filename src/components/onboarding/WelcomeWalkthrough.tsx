@@ -70,6 +70,8 @@ export function WelcomeWalkthrough({ isOpen, onComplete }: WelcomeWalkthroughPro
     if (currentSlide < slides.length - 1) {
       setCurrentSlide(currentSlide + 1);
     } else {
+      // Dispatch event to trigger tooltip on Quick Action button
+      window.dispatchEvent(new CustomEvent('welcome-walkthrough-complete'));
       onComplete(false);
     }
   };

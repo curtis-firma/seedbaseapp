@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, X, Send, FileText, Sprout, DollarSign, 
@@ -22,8 +22,37 @@ export function QuickActionButton() {
   const [postContent, setPostContent] = useState('');
   const [postType, setPostType] = useState<'update' | 'testimony' | 'harvest'>('update');
   const [showSendModal, setShowSendModal] = useState(false);
+  const [showTooltip, setShowTooltip] = useState(false);
   const { isOpen: isComingSoonOpen, featureName, showComingSoon, hideComingSoon } = useComingSoon();
   const { viewRole } = useUser();
+
+  // Listen for welcome walkthrough completion to show tooltip
+  useEffect(() => {
+    const handleWelcomeComplete = () => {
+      // Only show if not already dismissed
+      if (!localStorage.getItem('seedbase-quickaction-tooltip-seen')) {
+        setShowTooltip(true);
+      }
+    };
+
+    window.addEventListener('welcome-walkthrough-complete', handleWelcomeComplete);
+    return () => window.removeEventListener('welcome-walkthrough-complete', handleWelcomeComplete);
+  }, []);
+
+  // Auto-dismiss tooltip after 8 seconds
+  useEffect(() => {
+    if (showTooltip) {
+      const timer = setTimeout(() => {
+        dismissTooltip();
+      }, 8000);
+      return () => clearTimeout(timer);
+    }
+  }, [showTooltip]);
+
+  const dismissTooltip = () => {
+    setShowTooltip(false);
+    localStorage.setItem('seedbase-quickaction-tooltip-seen', 'true');
+  };
 
   const handleClose = () => {
     setIsOpen(false);
@@ -172,9 +201,63 @@ export function QuickActionButton() {
 
   return (
     <>
+      {/* Tooltip Highlight */}
+      <AnimatePresence>
+        {showTooltip && (
+          <motion.div
+            initial={{ opacity: 0, y: 10, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.9 }}
+            transition={{ type: 'spring', damping: 20, stiffness: 300 }}
+            className="fixed z-50 bottom-40 right-4 md:bottom-24 md:right-8"
+          >
+            <div className="relative bg-card border border-border/50 rounded-2xl p-4 shadow-elevated max-w-[200px]">
+              {/* Arrow pointing to button */}
+              <div className="absolute -bottom-2 right-6 w-4 h-4 bg-card border-r border-b border-border/50 rotate-45" />
+              
+              <button
+                onClick={dismissTooltip}
+                className="absolute -top-2 -right-2 w-6 h-6 bg-muted rounded-full flex items-center justify-center hover:bg-muted/80"
+              >
+                <X className="h-3 w-3" />
+              </button>
+              
+              <div className="flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg gradient-seed flex items-center justify-center flex-shrink-0">
+                  <Plus className="h-4 w-4 text-white" />
+                </div>
+                <div>
+                  <p className="font-semibold text-sm">Start here!</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    Tap to send, post, or commit your first seed.
+                  </p>
+                </div>
+              </div>
+            </div>
+            
+            {/* Pulsing ring around the actual button */}
+            <motion.div
+              className="absolute -bottom-[72px] right-0 w-14 h-14 rounded-2xl border-2 border-primary pointer-events-none"
+              animate={{ 
+                scale: [1, 1.15, 1],
+                opacity: [0.8, 0.4, 0.8]
+              }}
+              transition={{ 
+                duration: 1.5, 
+                repeat: Infinity,
+                ease: 'easeInOut'
+              }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       {/* Floating Button */}
       <motion.button
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          dismissTooltip();
+          setIsOpen(true);
+        }}
         className={cn(
           "fixed z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-elevated",
           "bottom-24 right-4 md:bottom-8 md:right-8",
