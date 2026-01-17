@@ -134,7 +134,7 @@ const ScrollingLandingPage = () => {
         <div 
           className="mx-auto relative"
           style={{ 
-            maxWidth: '1200px', 
+            maxWidth: '1328px', 
             paddingLeft: '64px', 
             paddingRight: '64px', 
             paddingTop: '72px' 
