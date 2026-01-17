@@ -17,6 +17,7 @@ import WalletCard from "@/components/cards/WalletCard";
 import seedbaseWordmark from "@/assets/seedbase-wordmark.svg";
 import poweredByCik from "@/assets/powered-by-cik-text.png";
 import generositySpread from "@/assets/generosity-spread.png";
+import baseLogo from "@/assets/base-logo.png";
 import LoginModal from "@/components/sections/LoginModal";
 import { SeedbaseLoader } from "@/components/shared/SeedbaseLoader";
 import {
@@ -184,10 +185,10 @@ const ScrollingLandingPage = () => {
                 
                 {/* CTA Buttons */}
                 <nav className="flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
-                  {/* Enter App - Primary with glow */}
+                  {/* Enter App - Blue with white ring glow */}
                   <button 
                     onClick={() => setShowLoginModal(true)}
-                    className="w-full py-6 rounded-full font-semibold text-base sm:text-lg gradient-seed text-white flex items-center justify-center gap-2 glow-ring hover:shadow-xl transition-all"
+                    className="relative w-full py-6 rounded-full font-semibold text-base sm:text-lg bg-[hsl(221,83%,53%)] text-white flex items-center justify-center gap-2 hover:bg-[hsl(221,83%,48%)] transition-all shadow-[0_0_0_4px_white,0_0_20px_rgba(59,130,246,0.5)]"
                     aria-label="Enter SeedBase app"
                   >
                     Enter App
@@ -215,15 +216,6 @@ const ScrollingLandingPage = () => {
                     Learn More
                     <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
                   </Button>
-                  
-                  {/* Sign In - Plain text link */}
-                  <button 
-                    onClick={() => setShowLoginModal(true)}
-                    className="py-4 text-base font-medium text-muted-foreground hover:text-foreground transition-colors"
-                    aria-label="Sign in to SeedBase"
-                  >
-                    Sign In
-                  </button>
                 </nav>
                 
                 {/* Powered by CIK */}
@@ -251,10 +243,7 @@ const ScrollingLandingPage = () => {
             {/* Built on Base */}
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <span>Built on</span>
-              <div className="flex items-center gap-1">
-                <div className="w-4 h-4 bg-blue-600 rounded-sm" />
-                <span className="font-semibold text-foreground">base</span>
-              </div>
+              <img src={baseLogo} alt="Base" className="h-5 w-auto" />
             </div>
             
             {/* Links */}
