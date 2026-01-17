@@ -7,17 +7,22 @@ import { MobileDrawer } from './MobileDrawer';
 import { QuickActionButton } from '@/components/shared/QuickActionButton';
 import { ProfileMenuTrigger } from '@/components/shared/ProfileMenuTrigger';
 import { PhoneAuthFlow } from '@/components/onboarding/PhoneAuthFlow';
+import { WelcomeWalkthrough } from '@/components/onboarding/WelcomeWalkthrough';
+import { OnboardingModal } from '@/components/shared/OnboardingModal';
 import { ViewingAsBadge } from '@/components/shared/ViewRoleBadge';
 import { useUser } from '@/contexts/UserContext';
 
 interface AppLayoutProps {
   children: ReactNode;
+  onShowWalkthrough?: () => void;
 }
 
-export function AppLayout({ children }: AppLayoutProps) {
+export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [forceDemo, setForceDemo] = useState(false);
+  const [showWelcome, setShowWelcome] = useState(false);
+  const [showWalkthrough, setShowWalkthrough] = useState(false);
   const { isAuthenticated, demoMode } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
@@ -33,6 +38,16 @@ export function AppLayout({ children }: AppLayoutProps) {
     }
   }, [isAuthenticated, demoMode]);
 
+  // Listen for walkthrough trigger from other components (e.g., HomePage HelpCircle)
+  useEffect(() => {
+    const handleShowWalkthroughEvent = () => {
+      setShowWalkthrough(true);
+    };
+    
+    window.addEventListener('show-walkthrough', handleShowWalkthroughEvent);
+    return () => window.removeEventListener('show-walkthrough', handleShowWalkthroughEvent);
+  }, []);
+
   // Swipe handlers for opening drawer
   const swipeHandlers = useSwipeable({
     onSwipedRight: (eventData) => {
@@ -45,19 +60,47 @@ export function AppLayout({ children }: AppLayoutProps) {
     trackTouch: true,
   });
 
-  const handleAuthComplete = () => {
+  const handleAuthComplete = (isNewUser?: boolean) => {
     setShowAuth(false);
     setForceDemo(false);
+    
+    // Auto-show welcome walkthrough for NEW users who haven't seen it
+    if (isNewUser && !localStorage.getItem('seedbase-welcome-seen')) {
+      setShowWelcome(true);
+    }
+    
     // Always navigate to Home/Seedfeed after auth
     if (location.pathname !== '/') {
       navigate('/');
     }
   };
 
+  const handleWelcomeComplete = (showFull?: boolean) => {
+    localStorage.setItem('seedbase-welcome-seen', 'true');
+    setShowWelcome(false);
+    
+    // If user clicked "Learn More", show full walkthrough
+    if (showFull) {
+      setShowWalkthrough(true);
+    }
+  };
+
+  const handleShowWalkthrough = () => {
+    setShowWalkthrough(true);
+  };
+
+  const handleCloseWalkthrough = () => {
+    setShowWalkthrough(false);
+  };
+
   return (
     <div {...swipeHandlers} className="min-h-screen bg-background">
       <Sidebar />
-      <MobileDrawer isOpen={isDrawerOpen} onClose={() => setIsDrawerOpen(false)} />
+      <MobileDrawer 
+        isOpen={isDrawerOpen} 
+        onClose={() => setIsDrawerOpen(false)} 
+        onShowWalkthrough={handleShowWalkthrough}
+      />
       
       {/* View Role Badge */}
       <ViewingAsBadge />
@@ -79,6 +122,12 @@ export function AppLayout({ children }: AppLayoutProps) {
       
       {/* Phone Auth Flow */}
       <PhoneAuthFlow isOpen={showAuth} onComplete={handleAuthComplete} forceDemo={forceDemo} />
+      
+      {/* Welcome Walkthrough (first login - auto) */}
+      <WelcomeWalkthrough isOpen={showWelcome} onComplete={handleWelcomeComplete} />
+      
+      {/* Full Onboarding Modal (manual / help mode) */}
+      <OnboardingModal isOpen={showWalkthrough} onClose={handleCloseWalkthrough} />
     </div>
   );
 }

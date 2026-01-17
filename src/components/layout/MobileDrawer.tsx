@@ -20,9 +20,10 @@ const menuNav = [
 interface MobileDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  onShowWalkthrough?: () => void;
 }
 
-export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
+export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawerProps) {
   const location = useLocation();
   const navigate = useNavigate();
   const { username, displayName, activeRole } = useUser();
@@ -32,9 +33,9 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
     onClose();
   };
 
-  const handleShowWalkthrough = () => {
-    localStorage.removeItem('seedbase-onboarding-seen');
-    window.location.reload();
+  const handleShowWalkthroughClick = () => {
+    onClose();
+    onShowWalkthrough?.();
   };
 
   return (
@@ -122,7 +123,7 @@ export function MobileDrawer({ isOpen, onClose }: MobileDrawerProps) {
             <div className="p-4 border-t border-border/50 space-y-3">
               {/* Walkthrough Button */}
               <motion.button
-                onClick={handleShowWalkthrough}
+                onClick={handleShowWalkthroughClick}
                 className="w-full flex items-center justify-between p-3 rounded-xl bg-muted/50 hover:bg-muted transition-colors"
                 whileTap={{ scale: 0.98 }}
               >

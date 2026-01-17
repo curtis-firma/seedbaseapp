@@ -30,7 +30,7 @@ import seedbaseIcon from '@/assets/seedbase-icon.png';
 
 interface PhoneAuthFlowProps {
   isOpen: boolean;
-  onComplete: () => void;
+  onComplete: (isNewUser?: boolean) => void;
   forceDemo?: boolean;
 }
 
@@ -293,7 +293,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
       // Login with the database user
       loginWithUser(dbUser, wallet, key);
       toast.success(`Welcome back, @${dbUser.username}!`);
-      onComplete();
+      onComplete(false); // Returning user
     };
     
     runRestore();
@@ -495,7 +495,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
       loginWithUser(dbUser, wallet, key);
     }
     toast.success(`Welcome to Seedbase, @${username}!`);
-    onComplete();
+    onComplete(true); // New user - show welcome walkthrough
     
     // Reset for next time
     setTimeout(resetFlow, 500);

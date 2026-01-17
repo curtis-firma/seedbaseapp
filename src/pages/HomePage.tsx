@@ -133,10 +133,11 @@ export default function HomePage() {
   // Use DB posts for Network tab, mock for For You
   const currentFeed = activeTab === 0 ? posts : forYouItems;
 
-  // Trigger onboarding again
+  // Note: Walkthrough is now triggered via AppLayout
+  // This button is kept for legacy but could be removed
   const handleShowHelp = () => {
-    localStorage.removeItem('seedbase-onboarding-seen');
-    window.location.reload();
+    // Dispatch custom event for AppLayout to handle
+    window.dispatchEvent(new CustomEvent('show-walkthrough'));
   };
 
   const handleRefresh = async () => {
