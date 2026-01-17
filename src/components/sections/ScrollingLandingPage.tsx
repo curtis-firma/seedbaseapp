@@ -145,7 +145,7 @@ const ScrollingLandingPage = () => {
         {/* Left - Fixed Hero Text Column */}
         <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-8 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
           {/* Seedbase wordmark logo at top */}
-          <img src={seedbaseWordmark} alt="Seedbase - Transparent Network of Generosity" className="w-32 lg:w-40 xl:w-48 h-auto mb-2 lg:mb-0" />
+          <img alt="Seedbase - Transparent Network of Generosity" className="w-32 lg:w-40 xl:w-48 h-auto mb-2 lg:mb-0" src="/lovable-uploads/52edf2f7-f6a7-464b-b0ff-d0e5d962e4d6.png" />
           
           <div className="max-w-sm flex flex-col flex-1">
             {/* Hero content centered vertically on desktop */}
@@ -323,7 +323,7 @@ const ScrollingLandingPage = () => {
             top: 0,
             behavior: 'smooth'
           })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg" aria-label="Scroll back to top of page">
-              <img alt="SeedBase" className="w-[700px] max-w-[95vw] h-auto opacity-80 hover:opacity-100 transition-opacity duration-300" src="/lovable-uploads/7b746661-ea47-4c60-bd3b-dc573bcd924b.png" />
+              <img alt="SeedBase" className="w-[700px] max-w-[95vw] h-auto opacity-80 hover:opacity-100 transition-opacity duration-300" src="/lovable-uploads/5a45fcb7-88b5-46ce-85d2-9d32748b4fb8.png" />
             </button>
           </section>
         </main>
