@@ -69,10 +69,8 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
       setShowWelcome(true);
     }
     
-    // Always navigate to Home/Seedfeed after auth
-    if (location.pathname !== '/') {
-      navigate('/');
-    }
+    // User is already at /app/* route - no navigation needed
+    // They stay on the current page after auth
   };
 
   const handleWelcomeComplete = (showFull?: boolean) => {
