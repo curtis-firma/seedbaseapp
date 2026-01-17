@@ -1,52 +1,109 @@
 import { Church, Globe, Heart, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+
+interface Allocation {
+  icon: typeof Church;
+  label: string;
+  percentage: number;
+  amount: string;
+  color: string;
+  bgColor: string;
+}
+
+const allocations: Allocation[] = [
+  { icon: Globe, label: "Missions", percentage: 40, amount: "$200", color: "bg-blue-500", bgColor: "bg-blue-100" },
+  { icon: Church, label: "Operations", percentage: 25, amount: "$125", color: "bg-emerald-500", bgColor: "bg-emerald-100" },
+  { icon: Heart, label: "Reserve", percentage: 15, amount: "$75", color: "bg-amber-500", bgColor: "bg-amber-100" },
+  { icon: Users, label: "Community", percentage: 20, amount: "$100", color: "bg-purple-500", bgColor: "bg-purple-100" },
+];
 
 const TitheAllocationCard = () => {
-  const allocations = [
-    { icon: Church, label: "Local Church", percentage: 40, amount: "$200", color: "bg-blue-500" },
-    { icon: Globe, label: "Missions", percentage: 30, amount: "$150", color: "bg-emerald-500" },
-    { icon: Heart, label: "Mercy Fund", percentage: 20, amount: "$100", color: "bg-rose-500" },
-    { icon: Users, label: "Community", percentage: 10, amount: "$50", color: "bg-amber-500" },
-  ];
+  const [animatedWidths, setAnimatedWidths] = useState<number[]>(allocations.map(() => 0));
+  const [isGlowing, setIsGlowing] = useState(false);
+
+  // Animate progress bars on mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setAnimatedWidths(allocations.map(a => a.percentage));
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Pulsing glow effect
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setIsGlowing(prev => !prev);
+    }, 2000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const totalPercentage = allocations.reduce((sum, a) => sum + a.percentage, 0);
 
   return (
-    <div className="w-[380px] bg-white rounded-3xl p-5 shadow-lg border border-gray-100">
+    <div className="w-[340px] bg-white rounded-3xl p-5 shadow-lg border border-gray-100">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-gray-900">Tithe Allocation</h3>
-        <div className="text-right">
-          <p className="text-xs text-gray-500">Your Monthly</p>
-          <p className="font-bold text-lg text-gray-900">$500</p>
+      <div className="flex items-center gap-3 mb-5">
+        <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+          <Church className="w-5 h-5 text-white" />
+        </div>
+        <div>
+          <h3 className="font-bold text-gray-900">Tithe Allocation</h3>
+          <p className="text-xs text-gray-500">Christ is King Community</p>
         </div>
       </div>
 
-      {/* Allocations */}
+      {/* Multi-segment Progress Bar */}
+      <div 
+        className={`h-3 rounded-full overflow-hidden flex mb-5 transition-shadow duration-500 ${
+          isGlowing ? 'shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'shadow-[0_0_8px_rgba(59,130,246,0.2)]'
+        }`}
+      >
+        {allocations.map((item, i) => (
+          <div
+            key={i}
+            className={`${item.color} transition-all duration-1000 ease-out relative overflow-hidden`}
+            style={{ width: `${(animatedWidths[i] / totalPercentage) * 100}%` }}
+          >
+            {/* Shimmer effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
+          </div>
+        ))}
+      </div>
+
+      {/* Allocations List */}
       <div className="space-y-3">
         {allocations.map((item, i) => (
-          <div key={i} className="flex items-center gap-3">
-            <div className={`w-8 h-8 rounded-lg ${item.color} flex items-center justify-center`}>
-              <item.icon className="w-4 h-4 text-white" />
-            </div>
+          <div 
+            key={i} 
+            className="flex items-center gap-3 group"
+            style={{ animationDelay: `${i * 0.1}s` }}
+          >
+            <div className={`w-3 h-3 rounded-full ${item.color} animate-progress-pulse`} 
+              style={{ animationDelay: `${i * 0.2}s` }}
+            />
             <div className="flex-1">
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700">{item.label}</span>
-                <span className="text-sm text-gray-500">{item.percentage}%</span>
-              </div>
-              <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-                <div 
-                  className={`h-full ${item.color} rounded-full transition-all duration-500`}
-                  style={{ width: `${item.percentage}%` }}
-                />
+                <span className="text-sm font-semibold text-gray-900">{item.percentage}%</span>
               </div>
             </div>
-            <span className="text-sm font-semibold text-gray-900 w-14 text-right">{item.amount}</span>
+            <span className="text-sm font-medium text-gray-500 w-14 text-right">{item.amount}</span>
           </div>
         ))}
       </div>
 
       {/* Footer */}
-      <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
-        <span className="text-xs text-gray-500">Held In</span>
-        <span className="text-sm font-medium text-primary">USDC</span>
+      <div className="mt-5 pt-4 border-t border-gray-100 flex items-center justify-between">
+        <div>
+          <p className="text-xs text-gray-400 uppercase tracking-wide">Your Monthly</p>
+          <p className="font-bold text-xl text-gray-900">$500</p>
+        </div>
+        <div className="text-right">
+          <p className="text-xs text-gray-400">Held in</p>
+          <p className="text-sm font-semibold text-primary">USDC</p>
+        </div>
       </div>
     </div>
   );
