@@ -59,55 +59,53 @@ const WalletCard = () => {
   }, [isSent]);
 
   return (
-    <div className="w-[300px] bg-white rounded-3xl p-6 shadow-xl">
+    <div className="w-full h-full bg-white p-5 flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">
           {/* Blue circle with $ */}
-          <div className="w-11 h-11 rounded-full bg-[#3B82F6] flex items-center justify-center">
-            <span className="text-white text-lg font-bold">$</span>
+          <div className="w-10 h-10 rounded-full bg-[#3B82F6] flex items-center justify-center">
+            <span className="text-white text-base font-bold">$</span>
           </div>
           <div>
-            <p className="font-semibold text-gray-900 text-lg leading-tight">Send</p>
-            <div className="flex items-center gap-1 text-gray-500 text-sm">
+            <p className="font-semibold text-gray-900 text-base leading-tight">Send</p>
+            <div className="flex items-center gap-1 text-gray-500 text-xs">
               <span>USDC</span>
-              <ChevronDown className="w-3.5 h-3.5" />
+              <ChevronDown className="w-3 h-3" />
             </div>
           </div>
         </div>
-        <ChevronRight className="w-5 h-5 text-gray-400" />
+        <ChevronRight className="w-4 h-4 text-gray-400" />
       </div>
 
       {/* Labels Row */}
-      <div className="flex items-center justify-between mb-3 px-1">
-        <div className="flex items-center gap-1 text-gray-500 text-sm">
+      <div className="flex items-center justify-between mb-2 px-0.5">
+        <div className="flex items-center gap-1 text-gray-500 text-xs">
           <span>Send to</span>
-          <ChevronRight className="w-3.5 h-3.5" />
+          <ChevronRight className="w-3 h-3" />
         </div>
-        <div className="flex items-center gap-1 text-gray-500 text-sm">
+        <div className="flex items-center gap-1 text-gray-500 text-xs">
           <span>Total</span>
-          <Info className="w-3.5 h-3.5" />
+          <Info className="w-3 h-3" />
         </div>
       </div>
 
       {/* Recipient Row */}
-      <div className="flex items-center gap-3 mb-6">
+      <div className="flex items-center gap-3 mb-auto">
         {/* Avatar */}
-        <div className="w-11 h-11 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center overflow-hidden">
-          <div className="w-full h-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center">
-            <span className="text-white text-xs font-medium">👤</span>
-          </div>
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-amber-600 to-amber-800 flex items-center justify-center overflow-hidden">
+          <span className="text-white text-xs">👤</span>
         </div>
         <div className="flex-1">
-          <p className="font-medium text-gray-900">callie.base.eth</p>
+          <p className="font-medium text-gray-900 text-sm">callie.base.eth</p>
         </div>
-        <p className="font-bold text-xl text-gray-900">$10.00</p>
+        <p className="font-bold text-lg text-gray-900">$10.00</p>
       </div>
 
       {/* Slide to Send - Gray track with blue button */}
       <div 
         ref={containerRef}
-        className={`relative h-[56px] rounded-2xl overflow-hidden transition-all duration-300 ${
+        className={`relative h-12 rounded-xl overflow-hidden transition-all duration-300 mt-4 ${
           isSent 
             ? 'bg-emerald-500' 
             : 'bg-gray-100'
@@ -115,7 +113,7 @@ const WalletCard = () => {
       >
         {/* Slider Button - Blue rounded square with dots */}
         <div
-          className={`absolute top-1 left-1 w-12 h-12 rounded-xl flex items-center justify-center cursor-grab active:cursor-grabbing transition-all ${
+          className={`absolute top-1 left-1 w-10 h-10 rounded-lg flex items-center justify-center cursor-grab active:cursor-grabbing transition-all ${
             isSent ? 'bg-white' : 'bg-[#3B82F6]'
           } ${isDragging ? 'scale-95' : ''}`}
           style={{ 
@@ -127,18 +125,18 @@ const WalletCard = () => {
           onClick={isSent ? resetSlider : undefined}
         >
           {isSent ? (
-            <Check className="w-5 h-5 text-emerald-500" />
+            <Check className="w-4 h-4 text-emerald-500" />
           ) : (
             /* Two dots icon */
-            <div className="flex gap-1">
-              <div className="w-2 h-2 rounded-full bg-white" />
-              <div className="w-2 h-2 rounded-full bg-white/60" />
+            <div className="flex gap-0.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-white" />
+              <div className="w-1.5 h-1.5 rounded-full bg-white/60" />
             </div>
           )}
         </div>
 
         {/* Label */}
-        <div className={`absolute inset-0 flex items-center justify-center font-medium pointer-events-none ${
+        <div className={`absolute inset-0 flex items-center justify-center font-medium text-sm pointer-events-none ${
           isSent ? 'text-white' : 'text-gray-900'
         }`}>
           {isSent ? 'Sent!' : 'Slide to Send'}
