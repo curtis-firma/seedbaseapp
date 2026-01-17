@@ -2,7 +2,6 @@ import * as React from "react";
 import { ArrowRight } from "lucide-react";
 import { Button, ButtonProps } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import whiteRing from "@/assets/white-ring.png";
 
 interface PrimaryButtonProps extends Omit<ButtonProps, 'variant'> {
   /** Show the white ring animation on the left (default: true) */
