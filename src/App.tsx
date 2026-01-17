@@ -10,6 +10,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import HomePage from "./pages/HomePage";
 import SeedbasePage from "./pages/SeedbasePage";
 import WalletPage from "./pages/WalletPage";
+import TransactionHistoryPage from "./pages/TransactionHistoryPage";
 import OneAccordPage from "./pages/OneAccordPage";
 import VaultPage from "./pages/VaultPage";
 import SeededPage from "./pages/SeededPage";
@@ -44,6 +45,7 @@ const App = () => (
               <Route path="/" element={<HomePage />} />
               <Route path="/seedbase" element={<SeedbasePage />} />
               <Route path="/wallet" element={<WalletPage />} />
+              <Route path="/wallet/history" element={<TransactionHistoryPage />} />
               <Route path="/oneaccord" element={<OneAccordPage />} />
               <Route path="/vault" element={<VaultPage />} />
               <Route path="/seeded" element={<SeededPage />} />

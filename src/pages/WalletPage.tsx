@@ -1,9 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 import { 
   Wallet as WalletIcon, Lock, Clock, ArrowDownRight, ArrowUpRight,
   Key, CheckCircle2, XCircle, Sprout, Shield, Rocket, ChevronRight,
-  Layers, PiggyBank, Receipt, Users, Vote, AlertCircle, Plus, Banknote, Copy
+  Layers, PiggyBank, Receipt, Users, Vote, AlertCircle, Plus, Banknote, Copy, History
 } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
@@ -395,57 +396,10 @@ function PersonalWalletView({
       )}
 
       {/* Recent Activity */}
-      {recentTransfers.filter(t => t.status !== 'pending').length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <h2 className="font-semibold text-lg mb-3">Recent Activity</h2>
-          
-          <div className="bg-card rounded-2xl border border-border/50 divide-y divide-border/50">
-            {recentTransfers.filter(t => t.status !== 'pending').slice(0, 5).map((tx, i) => {
-              const isIncoming = tx.to_user_id === currentUserId;
-              const isAccepted = tx.status === 'accepted';
-              
-              return (
-                <div key={tx.id} className="p-4 flex items-center gap-4">
-                  <div className={cn(
-                    "w-10 h-10 rounded-xl flex items-center justify-center",
-                    isIncoming && isAccepted ? "bg-seed/10" : "bg-primary/10"
-                  )}>
-                    {isIncoming ? (
-                      <ArrowDownRight className={cn(
-                        "h-5 w-5",
-                        isAccepted ? "text-seed" : "text-muted-foreground"
-                      )} />
-                    ) : (
-                      <ArrowUpRight className="h-5 w-5 text-primary" />
-                    )}
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">
-                      {isIncoming ? `From @${tx.from_user?.username || 'user'}` : `To @${tx.to_user?.username || 'user'}`}
-                    </p>
-                    <p className="text-sm text-muted-foreground capitalize">{tx.status}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className={cn(
-                      "font-semibold",
-                      isIncoming && isAccepted ? "text-seed" : "text-foreground"
-                    )}>
-                      {isIncoming ? '+' : '-'}${tx.amount.toFixed(2)}
-                    </p>
-                    <p className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </motion.div>
-      )}
+      <RecentActivitySection 
+        recentTransfers={recentTransfers} 
+        currentUserId={currentUserId} 
+      />
 
       <motion.p
         initial={{ opacity: 0 }}
@@ -455,6 +409,92 @@ function PersonalWalletView({
       >
         "USDC in. USDC out. Value stays."
       </motion.p>
+    </motion.div>
+  );
+}
+
+function RecentActivitySection({ 
+  recentTransfers, 
+  currentUserId 
+}: { 
+  recentTransfers: DemoTransfer[]; 
+  currentUserId: string | null;
+}) {
+  const navigate = useNavigate();
+  const completedTransfers = recentTransfers.filter(t => t.status !== 'pending');
+  
+  if (completedTransfers.length === 0) return null;
+  
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: 0.2 }}
+    >
+      <div className="flex items-center justify-between mb-3">
+        <h2 className="font-semibold text-lg">Recent Activity</h2>
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={() => navigate('/wallet/history')}
+          className="flex items-center gap-1 text-sm text-primary font-medium"
+        >
+          <History className="h-4 w-4" />
+          View All
+        </motion.button>
+      </div>
+      
+      <div className="bg-card rounded-2xl border border-border/50 divide-y divide-border/50">
+        {completedTransfers.slice(0, 5).map((tx) => {
+          const isIncoming = tx.to_user_id === currentUserId;
+          const isDeposit = !tx.from_user_id && tx.to_user_id === currentUserId;
+          const isWithdrawal = tx.from_user_id === currentUserId && !tx.to_user_id;
+          const isAccepted = tx.status === 'accepted';
+          
+          let label = '';
+          if (isDeposit) {
+            label = 'Deposit';
+          } else if (isWithdrawal) {
+            label = 'Withdrawal';
+          } else if (isIncoming) {
+            label = `From @${tx.from_user?.username || 'user'}`;
+          } else {
+            label = `To @${tx.to_user?.username || 'user'}`;
+          }
+          
+          return (
+            <div key={tx.id} className="p-4 flex items-center gap-4">
+              <div className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center",
+                (isIncoming || isDeposit) && isAccepted ? "bg-seed/10" : "bg-primary/10"
+              )}>
+                {isIncoming || isDeposit ? (
+                  <ArrowDownRight className={cn(
+                    "h-5 w-5",
+                    isAccepted ? "text-seed" : "text-muted-foreground"
+                  )} />
+                ) : (
+                  <ArrowUpRight className="h-5 w-5 text-primary" />
+                )}
+              </div>
+              <div className="flex-1">
+                <p className="font-medium">{label}</p>
+                <p className="text-sm text-muted-foreground capitalize">{tx.status}</p>
+              </div>
+              <div className="text-right">
+                <p className={cn(
+                  "font-semibold",
+                  (isIncoming || isDeposit) && isAccepted ? "text-seed" : "text-foreground"
+                )}>
+                  {isIncoming || isDeposit ? '+' : '-'}${tx.amount.toFixed(2)}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatDistanceToNow(new Date(tx.created_at), { addSuffix: true })}
+                </p>
+              </div>
+            </div>
+          );
+        })}
+      </div>
     </motion.div>
   );
 }
