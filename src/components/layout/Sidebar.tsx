@@ -12,17 +12,17 @@ import seedbaseWordmark from '@/assets/seedbase-wordmark.svg';
 import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
 
 const primaryNav = [
-  { icon: Home, label: 'Home', path: '/' },
-  { icon: Layers, label: 'Seedbase', path: '/seedbase' },
-  { icon: User, label: 'User', path: '/wallet' },
+  { icon: Home, label: 'Home', path: '/app' },
+  { icon: Layers, label: 'Seedbase', path: '/app/seedbase' },
+  { icon: User, label: 'User', path: '/app/wallet' },
 ];
 
 const secondaryNav = [
-  { icon: MessageCircle, label: 'OneAccord', path: '/oneaccord' },
-  { icon: BarChart3, label: 'Vault', path: '/vault' },
-  { icon: Radio, label: 'Seeded', path: '/seeded' },
-  { icon: Rocket, label: 'Launcher', path: '/launcher' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord' },
+  { icon: BarChart3, label: 'Vault', path: '/app/vault' },
+  { icon: Radio, label: 'Seeded', path: '/app/seeded' },
+  { icon: Rocket, label: 'Launcher', path: '/app/launcher' },
+  { icon: Settings, label: 'Settings', path: '/app/settings' },
 ];
 
 export function Sidebar() {

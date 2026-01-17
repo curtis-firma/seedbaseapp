@@ -7,6 +7,8 @@ import { useEffect } from "react";
 import { UserProvider } from "@/contexts/UserContext";
 import { seedDemoDataIfEmpty } from "@/lib/supabase/seedDemoData";
 import { AppLayout } from "@/components/layout/AppLayout";
+
+// Pages
 import HomePage from "./pages/HomePage";
 import SeedbasePage from "./pages/SeedbasePage";
 import WalletPage from "./pages/WalletPage";
@@ -17,6 +19,9 @@ import SeededPage from "./pages/SeededPage";
 import LauncherPage from "./pages/LauncherPage";
 import SettingsPage from "./pages/SettingsPage";
 import NotFound from "./pages/NotFound";
+
+// Landing Page (outside AppLayout)
+import ScrollingLandingPage from "./components/sections/ScrollingLandingPage";
 
 const queryClient = new QueryClient();
 
@@ -40,20 +45,24 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <AppLayout>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/seedbase" element={<SeedbasePage />} />
-              <Route path="/wallet" element={<WalletPage />} />
-              <Route path="/wallet/history" element={<TransactionHistoryPage />} />
-              <Route path="/oneaccord" element={<OneAccordPage />} />
-              <Route path="/vault" element={<VaultPage />} />
-              <Route path="/seeded" element={<SeededPage />} />
-              <Route path="/launcher" element={<LauncherPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AppLayout>
+          <Routes>
+            {/* Landing Page - NO AppLayout */}
+            <Route path="/" element={<ScrollingLandingPage />} />
+            
+            {/* Demo App - WITH AppLayout */}
+            <Route path="/app" element={<AppLayout><HomePage /></AppLayout>} />
+            <Route path="/app/seedbase" element={<AppLayout><SeedbasePage /></AppLayout>} />
+            <Route path="/app/wallet" element={<AppLayout><WalletPage /></AppLayout>} />
+            <Route path="/app/wallet/history" element={<AppLayout><TransactionHistoryPage /></AppLayout>} />
+            <Route path="/app/oneaccord" element={<AppLayout><OneAccordPage /></AppLayout>} />
+            <Route path="/app/vault" element={<AppLayout><VaultPage /></AppLayout>} />
+            <Route path="/app/seeded" element={<AppLayout><SeededPage /></AppLayout>} />
+            <Route path="/app/launcher" element={<AppLayout><LauncherPage /></AppLayout>} />
+            <Route path="/app/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+            
+            {/* 404 */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </UserProvider>

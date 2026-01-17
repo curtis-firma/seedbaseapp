@@ -4,9 +4,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { icon: Home, label: 'Home', path: '/' },
-  { icon: Layers, label: 'Seedbase', path: '/seedbase' },
-  { icon: User, label: 'User', path: '/wallet' },
+  { icon: Home, label: 'Home', path: '/app' },
+  { icon: Layers, label: 'Seedbase', path: '/app/seedbase' },
+  { icon: User, label: 'User', path: '/app/wallet' },
 ];
 
 export function BottomNav() {
