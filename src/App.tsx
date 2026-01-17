@@ -11,6 +11,7 @@ import ScrollingLandingPage from "./components/sections/ScrollingLandingPage";
 import HomePage from "./pages/HomePage";
 import SeedbasePage from "./pages/SeedbasePage";
 import WalletPage from "./pages/WalletPage";
+import TransactionHistoryPage from "./pages/TransactionHistoryPage";
 import OneAccordPage from "./pages/OneAccordPage";
 import VaultPage from "./pages/VaultPage";
 import SeededPage from "./pages/SeededPage";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/app" element={<AppLayout><HomePage /></AppLayout>} />
             <Route path="/seedbase" element={<AppLayout><SeedbasePage /></AppLayout>} />
             <Route path="/wallet" element={<AppLayout><WalletPage /></AppLayout>} />
+            <Route path="/wallet/history" element={<AppLayout><TransactionHistoryPage /></AppLayout>} />
             <Route path="/oneaccord" element={<AppLayout><OneAccordPage /></AppLayout>} />
             <Route path="/vault" element={<AppLayout><VaultPage /></AppLayout>} />
             <Route path="/seeded" element={<AppLayout><SeededPage /></AppLayout>} />
