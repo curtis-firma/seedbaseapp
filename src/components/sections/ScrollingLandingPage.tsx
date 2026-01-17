@@ -75,6 +75,7 @@ const sections = [{
 
 const ScrollingLandingPage = () => {
   const [showLearnMore, setShowLearnMore] = useState(false);
+  const [showComingSoon, setShowComingSoon] = useState(false);
   const contentRef = useRef<HTMLDivElement>(null);
   const desktopSectionsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -171,7 +172,7 @@ const ScrollingLandingPage = () => {
                 {/* CTA Buttons */}
                 <nav className="flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
                   <PrimaryButton 
-                    onClick={() => navigate('/login?demo=1')}
+                    onClick={() => setShowComingSoon(true)}
                     className="py-5 sm:py-6 text-base sm:text-lg font-medium"
                     aria-label="Launch demo of SeedBase"
                   >
@@ -211,7 +212,7 @@ const ScrollingLandingPage = () => {
                   
                   <Button 
                     variant="ghost"
-                    onClick={() => navigate('/login')}
+                    onClick={() => setShowComingSoon(true)}
                     className="rounded-xl py-4 text-base font-medium text-muted-foreground hover:text-foreground min-h-[44px]"
                     aria-label="Sign in to SeedBase"
                   >
@@ -263,13 +264,51 @@ const ScrollingLandingPage = () => {
                       <PrimaryButton 
                         onClick={() => {
                           setShowLearnMore(false);
-                          navigate('/login?demo=1');
+                          setShowComingSoon(true);
                         }}
                         className="w-full"
                       >
                         Get Started
                       </PrimaryButton>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Coming Soon Modal */}
+        <Dialog open={showComingSoon} onOpenChange={setShowComingSoon}>
+          <DialogContent className="sm:max-w-[420px] p-0 border-0 bg-transparent overflow-hidden">
+            <div className="bg-gradient-to-br from-blue-400 to-indigo-500 rounded-3xl p-4">
+              <div className="bg-white rounded-2xl p-6 shadow-xl">
+                <div className="flex justify-center mb-4">
+                  <img 
+                    src={seedbaseCircleLogo} 
+                    alt="SeedBase" 
+                    className="w-16 h-16"
+                  />
+                </div>
+                <DialogHeader>
+                  <DialogTitle className="text-xl font-semibold text-center mb-2">
+                    Coming Soon
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-2">
+                  <p className="text-muted-foreground leading-relaxed text-center">
+                    This feature is not yet available. Click "Enter Demo" to explore the demo app.
+                  </p>
+                  <div className="pt-4">
+                    <PrimaryButton 
+                      onClick={() => {
+                        setShowComingSoon(false);
+                        navigate('/app');
+                      }}
+                      className="w-full"
+                    >
+                      Enter Demo
+                    </PrimaryButton>
                   </div>
                 </div>
               </div>

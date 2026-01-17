@@ -7,6 +7,7 @@ import { useEffect } from "react";
 import { UserProvider } from "@/contexts/UserContext";
 import { seedDemoDataIfEmpty } from "@/lib/supabase/seedDemoData";
 import { AppLayout } from "@/components/layout/AppLayout";
+import ScrollingLandingPage from "./components/sections/ScrollingLandingPage";
 import HomePage from "./pages/HomePage";
 import SeedbasePage from "./pages/SeedbasePage";
 import WalletPage from "./pages/WalletPage";
@@ -39,19 +40,27 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <AppLayout>
-            <Routes>
-              <Route path="/" element={<HomePage />} />
-              <Route path="/seedbase" element={<SeedbasePage />} />
-              <Route path="/wallet" element={<WalletPage />} />
-              <Route path="/oneaccord" element={<OneAccordPage />} />
-              <Route path="/vault" element={<VaultPage />} />
-              <Route path="/seeded" element={<SeededPage />} />
-              <Route path="/launcher" element={<LauncherPage />} />
-              <Route path="/settings" element={<SettingsPage />} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </AppLayout>
+          <Routes>
+            {/* Landing page without AppLayout */}
+            <Route path="/" element={<ScrollingLandingPage />} />
+            
+            {/* Demo app routes with AppLayout */}
+            <Route path="/*" element={
+              <AppLayout>
+                <Routes>
+                  <Route path="/app" element={<HomePage />} />
+                  <Route path="/seedbase" element={<SeedbasePage />} />
+                  <Route path="/wallet" element={<WalletPage />} />
+                  <Route path="/oneaccord" element={<OneAccordPage />} />
+                  <Route path="/vault" element={<VaultPage />} />
+                  <Route path="/seeded" element={<SeededPage />} />
+                  <Route path="/launcher" element={<LauncherPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </AppLayout>
+            } />
+          </Routes>
         </BrowserRouter>
       </TooltipProvider>
     </UserProvider>
