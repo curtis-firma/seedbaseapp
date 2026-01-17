@@ -42,7 +42,7 @@ const TitheAllocationCard = () => {
   const totalPercentage = allocations.reduce((sum, a) => sum + a.percentage, 0);
 
   return (
-    <div className="w-[340px] bg-white rounded-3xl p-5 shadow-lg border border-gray-100">
+    <div className="w-[320px] bg-white rounded-[20px] p-5 shadow-xl">
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
@@ -55,34 +55,21 @@ const TitheAllocationCard = () => {
       </div>
 
       {/* Multi-segment Progress Bar */}
-      <div 
-        className={`h-3 rounded-full overflow-hidden flex mb-5 transition-shadow duration-500 ${
-          isGlowing ? 'shadow-[0_0_15px_rgba(59,130,246,0.4)]' : 'shadow-[0_0_8px_rgba(59,130,246,0.2)]'
-        }`}
-      >
+      <div className="h-3 rounded-full overflow-hidden flex mb-5">
         {allocations.map((item, i) => (
           <div
             key={i}
-            className={`${item.color} transition-all duration-1000 ease-out relative overflow-hidden`}
+            className={`${item.color} transition-all duration-1000 ease-out`}
             style={{ width: `${(animatedWidths[i] / totalPercentage) * 100}%` }}
-          >
-            {/* Shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-          </div>
+          />
         ))}
       </div>
 
       {/* Allocations List */}
       <div className="space-y-3">
         {allocations.map((item, i) => (
-          <div 
-            key={i} 
-            className="flex items-center gap-3 group"
-            style={{ animationDelay: `${i * 0.1}s` }}
-          >
-            <div className={`w-3 h-3 rounded-full ${item.color} animate-progress-pulse`} 
-              style={{ animationDelay: `${i * 0.2}s` }}
-            />
+          <div key={i} className="flex items-center gap-3">
+            <div className={`w-3 h-3 rounded-full ${item.color}`} />
             <div className="flex-1">
               <div className="flex items-center justify-between">
                 <span className="text-sm font-medium text-gray-700">{item.label}</span>
