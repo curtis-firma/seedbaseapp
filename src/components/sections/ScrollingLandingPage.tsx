@@ -180,24 +180,26 @@ interface SectionProps {
 
 const Section = ({ headline, subtext, card, islandColor, reverse = false, hasWaterTexture = false }: SectionProps) => {
   return (
-    <div className={`grid grid-cols-2 gap-0 items-stretch min-h-[500px] ${reverse ? '' : ''}`}>
+    <div className="grid grid-cols-[1fr_1fr] items-stretch min-h-[560px]">
       {/* Text Column */}
-      <div className={`flex flex-col justify-center px-8 xl:px-12 ${reverse ? 'order-2' : 'order-1'}`}>
-        <h2 className="text-4xl xl:text-[42px] font-bold text-foreground leading-tight mb-4">
+      <div className={`flex flex-col justify-center px-10 xl:px-16 ${reverse ? 'order-2' : 'order-1'}`}>
+        <h2 className="text-[36px] xl:text-[40px] font-semibold text-foreground leading-[1.15] mb-5 tracking-[-0.01em]">
           {headline}
         </h2>
-        <div className="text-muted-foreground text-base xl:text-lg leading-relaxed space-y-1">
+        <div className="text-muted-foreground text-[17px] leading-[1.6] space-y-1">
           {subtext}
         </div>
       </div>
       
-      {/* Island Column - extends to right edge */}
-      <div className={`${reverse ? 'order-1' : 'order-2'}`}>
+      {/* Island Column - extends to viewport edge */}
+      <div className={`${reverse ? 'order-1' : 'order-2'} relative`}>
         <div 
-          className={`${islandColor} ${reverse ? 'rounded-r-[2.5rem]' : 'rounded-l-[2.5rem]'} h-full min-h-[500px] flex items-center justify-center px-8 xl:px-12 relative overflow-hidden`}
+          className={`${islandColor} ${reverse ? 'rounded-r-[40px] ml-0' : 'rounded-l-[40px] mr-0'} h-full min-h-[560px] flex items-center justify-center px-10 xl:px-16 relative overflow-hidden`}
           style={{ 
-            marginRight: reverse ? undefined : '-2rem',
-            marginLeft: reverse ? '-2rem' : undefined
+            marginRight: reverse ? undefined : 'calc(-50vw + 50%)',
+            marginLeft: reverse ? 'calc(-50vw + 50%)' : undefined,
+            paddingRight: reverse ? undefined : 'calc(50vw - 50% + 40px)',
+            paddingLeft: reverse ? 'calc(50vw - 50% + 40px)' : undefined
           }}
         >
           {/* Water caustics texture for cyan sections */}
@@ -233,25 +235,25 @@ const ScrollingLandingPage = () => {
       {/* Desktop Layout */}
       <div className="hidden lg:flex min-h-screen">
         {/* Left Sticky Sidebar */}
-        <div className="w-[38%] xl:w-[35%] sticky top-0 h-screen flex flex-col justify-between p-10 xl:p-14 border-r border-border/30">
+        <div className="w-[420px] xl:w-[480px] flex-shrink-0 sticky top-0 h-screen flex flex-col justify-between py-12 px-12 xl:px-16">
           {/* Top Content */}
-          <div className="space-y-8">
+          <div className="space-y-10">
             {/* Logo */}
             <img 
               src={seedbaseWordmark} 
               alt="Seedbase" 
-              className="h-8"
+              className="h-7"
             />
 
             {/* Headline */}
-            <h1 className="text-5xl xl:text-6xl font-extrabold text-foreground leading-[1.05] tracking-tight">
+            <h1 className="text-[52px] xl:text-[60px] font-black text-foreground leading-[1.0] tracking-[-0.02em]">
               Where<br />
               Generosity<br />
               Grows.
             </h1>
 
             {/* Subtext */}
-            <div className="space-y-0.5 text-base text-muted-foreground">
+            <div className="space-y-0.5 text-[15px] text-muted-foreground leading-relaxed">
               <p>Seed digital dollars.</p>
               <p>Lock and watch it grow.</p>
               <p>Track your impact—live.</p>
@@ -259,19 +261,19 @@ const ScrollingLandingPage = () => {
             </div>
 
             {/* CTAs */}
-            <div className="space-y-3 pt-2 max-w-xs">
+            <div className="space-y-3 pt-2">
               <Button
                 onClick={handleEnterApp}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl py-6 text-base font-semibold shadow-lg shadow-primary/20"
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-full h-14 text-base font-semibold"
               >
                 Enter App
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               
               <Button
-                variant="ghost"
+                variant="outline"
                 onClick={scrollToContent}
-                className="w-full rounded-xl py-6 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-transparent"
+                className="w-full rounded-full h-14 text-base font-medium border-gray-200 bg-white hover:bg-gray-50 text-foreground"
               >
                 Learn More
                 <ChevronDown className="w-5 h-5 ml-2" />
@@ -280,7 +282,7 @@ const ScrollingLandingPage = () => {
           </div>
 
           {/* Bottom - Powered by CIK */}
-          <div className="text-sm font-medium text-foreground">
+          <div className="text-sm font-semibold text-foreground">
             Powered by CIK
           </div>
         </div>
@@ -291,13 +293,13 @@ const ScrollingLandingPage = () => {
           <Section 
             headline="A wallet built for giving"
             subtext={
-              <>
+              <div className="space-y-1">
                 <p>Sign in with email or phone.</p>
                 <p>Give instantly.</p>
                 <p>Withdraw to your bank.</p>
                 <p>Spend with a card.</p>
-                <p className="pt-2 font-semibold text-foreground">No crypto required.</p>
-              </>
+                <p className="pt-3">No crypto required.</p>
+              </div>
             }
             card={<WalletCard />}
             islandColor="bg-[#6B9CFA]"
