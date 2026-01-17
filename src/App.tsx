@@ -45,21 +45,15 @@ const App = () => (
             <Route path="/" element={<ScrollingLandingPage />} />
             
             {/* Demo app routes with AppLayout */}
-            <Route path="/*" element={
-              <AppLayout>
-                <Routes>
-                  <Route path="/app" element={<HomePage />} />
-                  <Route path="/seedbase" element={<SeedbasePage />} />
-                  <Route path="/wallet" element={<WalletPage />} />
-                  <Route path="/oneaccord" element={<OneAccordPage />} />
-                  <Route path="/vault" element={<VaultPage />} />
-                  <Route path="/seeded" element={<SeededPage />} />
-                  <Route path="/launcher" element={<LauncherPage />} />
-                  <Route path="/settings" element={<SettingsPage />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </AppLayout>
-            } />
+            <Route path="/app" element={<AppLayout><HomePage /></AppLayout>} />
+            <Route path="/seedbase" element={<AppLayout><SeedbasePage /></AppLayout>} />
+            <Route path="/wallet" element={<AppLayout><WalletPage /></AppLayout>} />
+            <Route path="/oneaccord" element={<AppLayout><OneAccordPage /></AppLayout>} />
+            <Route path="/vault" element={<AppLayout><VaultPage /></AppLayout>} />
+            <Route path="/seeded" element={<AppLayout><SeededPage /></AppLayout>} />
+            <Route path="/launcher" element={<AppLayout><LauncherPage /></AppLayout>} />
+            <Route path="/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+            <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
       </TooltipProvider>
