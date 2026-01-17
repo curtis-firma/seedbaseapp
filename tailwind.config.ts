@@ -91,12 +91,42 @@ export default {
           to: { transform: "translateY(0)", opacity: "1" },
         },
         "fade-in": {
-          from: { opacity: "0" },
-          to: { opacity: "1" },
+          from: { opacity: "0", transform: "translateY(20px)" },
+          to: { opacity: "1", transform: "translateY(0)" },
         },
         "scale-in": {
           from: { transform: "scale(0.95)", opacity: "0" },
           to: { transform: "scale(1)", opacity: "1" },
+        },
+        "scroll-cards": {
+          "0%": { transform: "translateX(0)" },
+          "100%": { transform: "translateX(-50%)" },
+        },
+        "scroll-feed": {
+          "0%": { transform: "translateY(0)" },
+          "100%": { transform: "translateY(-50%)" },
+        },
+        "gentle-bounce": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-3px)" },
+        },
+        "subtle-pulse": {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.7" },
+        },
+        "number-tick": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "10%": { transform: "translateY(-2px)" },
+          "20%": { transform: "translateY(0)" },
+        },
+        "icon-wiggle": {
+          "0%, 100%": { transform: "rotate(0deg)" },
+          "25%": { transform: "rotate(-3deg)" },
+          "75%": { transform: "rotate(3deg)" },
+        },
+        "progress-pulse": {
+          "0%, 100%": { opacity: "1", transform: "scaleX(1)" },
+          "50%": { opacity: "0.85", transform: "scaleX(1.02)" },
         },
       },
       animation: {
@@ -104,8 +134,15 @@ export default {
         "accordion-up": "accordion-up 0.2s ease-out",
         "slide-up": "slide-up 0.4s ease-out",
         "slide-down": "slide-down 0.4s ease-out",
-        "fade-in": "fade-in 0.3s ease-out",
+        "fade-in": "fade-in 0.6s ease-out forwards",
         "scale-in": "scale-in 0.2s ease-out",
+        "scroll-cards": "scroll-cards 30s linear infinite",
+        "scroll-feed": "scroll-feed 20s linear infinite",
+        "gentle-bounce": "gentle-bounce 2s ease-in-out infinite",
+        "subtle-pulse": "subtle-pulse 3s ease-in-out infinite",
+        "number-tick": "number-tick 2s ease-in-out infinite",
+        "icon-wiggle": "icon-wiggle 3s ease-in-out infinite",
+        "progress-pulse": "progress-pulse 2s ease-in-out infinite",
       },
       spacing: {
         "safe-bottom": "env(safe-area-inset-bottom)",
