@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, CreditCard, Smartphone, Building2, Check, ChevronRight } from 'lucide-react';
+import { X, CreditCard, Smartphone, Check, ChevronRight, Lock, ScanFace } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface AddFundsModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSuccess?: (amount: number) => void;
+  onSuccess?: (amount: number, method: string) => void;
 }
 
 const paymentMethods = [
@@ -14,21 +14,21 @@ const paymentMethods = [
     id: 'apple-pay', 
     name: 'Apple Pay', 
     icon: Smartphone, 
-    description: 'Instant transfer',
+    description: 'Instant • Face ID',
     gradient: 'bg-gradient-to-br from-gray-900 to-gray-700'
   },
   { 
     id: 'debit', 
     name: 'Debit Card', 
     icon: CreditCard, 
-    description: 'No fees',
+    description: 'No fees • Instant',
     gradient: 'bg-gradient-to-br from-primary to-base-glow'
   },
   { 
     id: 'credit', 
     name: 'Credit Card', 
     icon: CreditCard, 
-    description: '2.9% fee',
+    description: '2.9% fee • Instant',
     gradient: 'bg-gradient-to-br from-trust to-purple-400'
   },
 ];
@@ -36,32 +36,69 @@ const paymentMethods = [
 const quickAmounts = [25, 50, 100, 250, 500, 1000];
 
 export function AddFundsModal({ isOpen, onClose, onSuccess }: AddFundsModalProps) {
-  const [step, setStep] = useState<'amount' | 'method' | 'processing' | 'success'>('amount');
+  const [step, setStep] = useState<'amount' | 'method' | 'card' | 'biometric' | 'processing' | 'success'>('amount');
   const [selectedAmount, setSelectedAmount] = useState<number | null>(null);
   const [customAmount, setCustomAmount] = useState('');
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  
+  // Card form state
+  const [cardNumber, setCardNumber] = useState('');
+  const [cardExpiry, setCardExpiry] = useState('');
+  const [cardCvv, setCardCvv] = useState('');
 
   const amount = selectedAmount || Number(customAmount) || 0;
 
+  const formatCardNumber = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 16);
+    return digits.replace(/(\d{4})(?=\d)/g, '$1 ');
+  };
+
+  const formatExpiry = (value: string) => {
+    const digits = value.replace(/\D/g, '').slice(0, 4);
+    if (digits.length >= 2) {
+      return digits.slice(0, 2) + '/' + digits.slice(2);
+    }
+    return digits;
+  };
+
   const handleSelectMethod = (methodId: string) => {
     setSelectedMethod(methodId);
-    setStep('processing');
-    
-    // Simulate processing
-    setTimeout(() => {
-      setStep('success');
-    }, 2000);
+    if (methodId === 'apple-pay') {
+      setStep('biometric');
+      // Auto-proceed after Face ID animation
+      setTimeout(() => {
+        setStep('processing');
+        setTimeout(() => setStep('success'), 1500);
+      }, 2000);
+    } else {
+      setStep('card');
+    }
+  };
+
+  const handleCardSubmit = () => {
+    if (cardNumber.replace(/\s/g, '').length >= 15 && cardExpiry.length >= 5 && cardCvv.length >= 3) {
+      setStep('processing');
+      setTimeout(() => setStep('success'), 2000);
+    }
   };
 
   const handleClose = () => {
     if (step === 'success' && onSuccess) {
-      onSuccess(amount);
+      onSuccess(amount, selectedMethod || 'card');
     }
+    // Reset state
     setStep('amount');
     setSelectedAmount(null);
     setCustomAmount('');
     setSelectedMethod(null);
+    setCardNumber('');
+    setCardExpiry('');
+    setCardCvv('');
     onClose();
+  };
+
+  const getMethodName = () => {
+    return paymentMethods.find(m => m.id === selectedMethod)?.name || 'Card';
   };
 
   return (
@@ -210,6 +247,131 @@ export function AddFundsModal({ isOpen, onClose, onSuccess }: AddFundsModalProps
                   </motion.div>
                 )}
 
+                {step === 'card' && (
+                  <motion.div
+                    key="card"
+                    initial={{ opacity: 0, x: 20 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -20 }}
+                    className="space-y-6"
+                  >
+                    <div className="text-center mb-4">
+                      <p className="text-sm text-muted-foreground">Pay with {getMethodName()}</p>
+                      <p className="text-2xl font-bold">${amount.toLocaleString()}</p>
+                    </div>
+
+                    {/* Card Preview */}
+                    <div className="bg-gradient-to-br from-gray-800 to-gray-900 rounded-2xl p-5 text-white">
+                      <div className="flex justify-between items-start mb-8">
+                        <CreditCard className="h-8 w-8 opacity-60" />
+                        <div className="text-right text-xs opacity-60">
+                          {selectedMethod === 'credit' ? 'CREDIT' : 'DEBIT'}
+                        </div>
+                      </div>
+                      <p className="font-mono text-lg tracking-wider mb-4">
+                        {cardNumber || '•••• •••• •••• ••••'}
+                      </p>
+                      <div className="flex justify-between text-sm">
+                        <span className="opacity-60">{cardExpiry || 'MM/YY'}</span>
+                        <span className="opacity-60">•••</span>
+                      </div>
+                    </div>
+
+                    {/* Card Inputs */}
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm text-muted-foreground mb-1 block">Card Number</label>
+                        <input
+                          type="text"
+                          value={cardNumber}
+                          onChange={(e) => setCardNumber(formatCardNumber(e.target.value))}
+                          placeholder="1234 5678 9012 3456"
+                          className="w-full p-4 bg-muted rounded-xl text-lg font-mono outline-none focus:ring-2 focus:ring-primary"
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="text-sm text-muted-foreground mb-1 block">Expiry</label>
+                          <input
+                            type="text"
+                            value={cardExpiry}
+                            onChange={(e) => setCardExpiry(formatExpiry(e.target.value))}
+                            placeholder="MM/YY"
+                            className="w-full p-4 bg-muted rounded-xl text-lg font-mono outline-none focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-sm text-muted-foreground mb-1 block">CVV</label>
+                          <input
+                            type="password"
+                            value={cardCvv}
+                            onChange={(e) => setCardCvv(e.target.value.replace(/\D/g, '').slice(0, 4))}
+                            placeholder="•••"
+                            className="w-full p-4 bg-muted rounded-xl text-lg font-mono outline-none focus:ring-2 focus:ring-primary"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground justify-center">
+                      <Lock className="h-3 w-3" />
+                      <span>Secured with 256-bit encryption (Demo)</span>
+                    </div>
+
+                    <motion.button
+                      whileTap={{ scale: 0.98 }}
+                      onClick={handleCardSubmit}
+                      disabled={cardNumber.replace(/\s/g, '').length < 15 || cardExpiry.length < 5 || cardCvv.length < 3}
+                      className={cn(
+                        "w-full py-4 rounded-2xl font-semibold text-lg transition-all",
+                        cardNumber.replace(/\s/g, '').length >= 15 && cardExpiry.length >= 5 && cardCvv.length >= 3
+                          ? "gradient-seed text-white"
+                          : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      Pay ${amount.toLocaleString()}
+                    </motion.button>
+
+                    <button
+                      onClick={() => setStep('method')}
+                      className="w-full py-3 text-sm text-muted-foreground hover:text-foreground"
+                    >
+                      Back
+                    </button>
+                  </motion.div>
+                )}
+
+                {step === 'biometric' && (
+                  <motion.div
+                    key="biometric"
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.95 }}
+                    className="py-12 text-center"
+                  >
+                    <motion.div
+                      animate={{ 
+                        scale: [1, 1.1, 1],
+                        opacity: [0.5, 1, 0.5]
+                      }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="w-24 h-24 mx-auto mb-6 rounded-3xl bg-gradient-to-br from-gray-900 to-gray-700 flex items-center justify-center"
+                    >
+                      <ScanFace className="h-12 w-12 text-white" />
+                    </motion.div>
+                    <p className="text-lg font-semibold mb-2">Confirm with Face ID</p>
+                    <p className="text-sm text-muted-foreground">
+                      Authenticate to pay ${amount.toLocaleString()} via Apple Pay
+                    </p>
+                    <motion.div
+                      initial={{ width: 0 }}
+                      animate={{ width: '100%' }}
+                      transition={{ duration: 2 }}
+                      className="h-1 bg-primary rounded-full mt-6 mx-auto max-w-[200px]"
+                    />
+                  </motion.div>
+                )}
+
                 {step === 'processing' && (
                   <motion.div
                     key="processing"
@@ -223,8 +385,10 @@ export function AddFundsModal({ isOpen, onClose, onSuccess }: AddFundsModalProps
                       transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
                       className="w-16 h-16 mx-auto mb-6 rounded-full border-4 border-primary border-t-transparent"
                     />
-                    <p className="text-lg font-semibold">Processing...</p>
-                    <p className="text-sm text-muted-foreground mt-2">This is a demo transaction</p>
+                    <p className="text-lg font-semibold">Processing Payment...</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Confirming ${amount.toLocaleString()} via {getMethodName()}
+                    </p>
                   </motion.div>
                 )}
 
@@ -244,12 +408,12 @@ export function AddFundsModal({ isOpen, onClose, onSuccess }: AddFundsModalProps
                     >
                       <Check className="h-10 w-10 text-white" />
                     </motion.div>
-                    <p className="text-2xl font-bold mb-2">Funds Added!</p>
+                    <p className="text-2xl font-bold mb-2">Payment Complete!</p>
                     <p className="text-muted-foreground mb-2">
-                      ${amount.toLocaleString()} USDC added to your wallet
+                      ${amount.toLocaleString()} USDC added via {getMethodName()}
                     </p>
                     <p className="text-xs text-muted-foreground mb-6">
-                      (Demo mode - no real transaction)
+                      Transaction ID: {Math.random().toString(36).substring(2, 10).toUpperCase()}
                     </p>
 
                     <motion.button

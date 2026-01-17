@@ -253,3 +253,57 @@ export async function getTransferById(transferId: string): Promise<DemoTransfer 
     to_user: toUser || undefined,
   };
 }
+
+// Record a deposit (add funds from external source)
+export async function recordDeposit(
+  userId: string,
+  amount: number,
+  method: string
+): Promise<DemoTransfer | null> {
+  const { data, error } = await supabase
+    .from('demo_transfers')
+    .insert({
+      from_user_id: null, // External deposit
+      to_user_id: userId,
+      amount,
+      purpose: `Deposit via ${method}`,
+      status: 'accepted',
+      responded_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+  
+  if (error) {
+    console.error('Error recording deposit:', error);
+    return null;
+  }
+  
+  return castToDemoTransfer(data);
+}
+
+// Record a withdrawal (send to external bank)
+export async function recordWithdrawal(
+  userId: string,
+  amount: number,
+  bankName: string
+): Promise<DemoTransfer | null> {
+  const { data, error } = await supabase
+    .from('demo_transfers')
+    .insert({
+      from_user_id: userId,
+      to_user_id: null, // External withdrawal
+      amount,
+      purpose: `Withdrawal to ${bankName}`,
+      status: 'accepted',
+      responded_at: new Date().toISOString(),
+    })
+    .select()
+    .single();
+  
+  if (error) {
+    console.error('Error recording withdrawal:', error);
+    return null;
+  }
+  
+  return castToDemoTransfer(data);
+}
