@@ -20,13 +20,7 @@ import generositySpread from "@/assets/generosity-spread.png";
 import baseLogo from "@/assets/base-logo.png";
 import LoginModal from "@/components/sections/LoginModal";
 import { SeedbaseLoader } from "@/components/shared/SeedbaseLoader";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 const sections = [{
   id: "wallet",
   headline: "A wallet built for giving",
@@ -71,7 +65,6 @@ const sections = [{
   card: "growth",
   bgColor: "bg-cyan-400"
 }];
-
 const ScrollingLandingPage = () => {
   const [showLearnMore, setShowLearnMore] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -79,50 +72,47 @@ const ScrollingLandingPage = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const desktopSectionsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
   const scrollToContent = () => {
     if (desktopSectionsRef.current) {
-      desktopSectionsRef.current.scrollIntoView({ behavior: "smooth", block: "start" });
+      desktopSectionsRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start"
+      });
     } else {
-      window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+      window.scrollTo({
+        top: window.innerHeight,
+        behavior: 'smooth'
+      });
     }
   };
-
   const handleLoginComplete = (isNewUser?: boolean) => {
     setShowLoginModal(false);
     setIsTransitioning(true);
-    
+
     // Show loader for smooth transition
     setTimeout(() => {
       navigate('/app');
     }, 1500);
   };
-
   const renderCard = (cardType: string, sectionId: string, compact = false) => {
     // Special scrolling social feed for impact section (desktop)
     if (sectionId === "impact" && !compact) {
-      return (
-        <div className="relative w-full h-full overflow-hidden flex justify-center">
+      return <div className="relative w-full h-full overflow-hidden flex justify-center">
           <div className={`animate-scroll-feed flex flex-col gap-3 pt-4 w-full max-w-sm`}>
             <SeedCommitmentCard />
             <SeedFeedCard />
             <SeedCommitmentCard />
             <SeedFeedCard />
           </div>
-        </div>
-      );
+        </div>;
     }
-    
     switch (cardType) {
       case "feed":
         return <div className={`aspect-square w-full ${compact ? 'max-w-xs' : 'max-w-sm'} rounded-2xl bg-white/20 border-2 border-white/40`} />;
       case "campaign":
-        return (
-          <div 
-            className={`${compact ? 'max-w-xs' : 'max-w-sm'} w-full aspect-square rounded-2xl bg-cover bg-center flex items-center justify-center overflow-hidden`}
-            style={{ backgroundImage: `url(${generositySpread})` }}
-          />
-        );
+        return <div className={`${compact ? 'max-w-xs' : 'max-w-sm'} w-full aspect-square rounded-2xl bg-cover bg-center flex items-center justify-center overflow-hidden`} style={{
+          backgroundImage: `url(${generositySpread})`
+        }} />;
       case "commitment":
         return <SeedCommitmentCard />;
       case "ledger":
@@ -150,18 +140,12 @@ const ScrollingLandingPage = () => {
   if (isTransitioning) {
     return <SeedbaseLoader message="Entering SeedBase..." />;
   }
-
-  return (
-    <div className="min-h-screen bg-white overflow-x-hidden">
+  return <div className="min-h-screen bg-white overflow-x-hidden">
       <div className="flex flex-col lg:flex-row">
         {/* Left - Fixed Hero Text Column */}
         <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-8 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
           {/* Seedbase wordmark logo at top */}
-          <img 
-            src={seedbaseWordmark} 
-            alt="Seedbase - Transparent Network of Generosity" 
-            className="w-32 lg:w-40 xl:w-48 h-auto mb-2 lg:mb-0" 
-          />
+          <img src={seedbaseWordmark} alt="Seedbase - Transparent Network of Generosity" className="w-32 lg:w-40 xl:w-48 h-auto mb-2 lg:mb-0" />
           
           <div className="max-w-sm flex flex-col flex-1">
             {/* Hero content centered vertically on desktop */}
@@ -186,33 +170,19 @@ const ScrollingLandingPage = () => {
                 {/* CTA Buttons */}
                 <nav className="flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
                   {/* Enter App - Blue with white ring glow */}
-                  <button 
-                    onClick={() => setShowLoginModal(true)}
-                    className="relative w-full py-6 rounded-full font-semibold text-base sm:text-lg bg-[hsl(221,83%,53%)] text-white flex items-center justify-center gap-2 hover:bg-[hsl(221,83%,48%)] transition-all shadow-[0_0_0_4px_white,0_0_20px_rgba(59,130,246,0.5)]"
-                    aria-label="Enter SeedBase app"
-                  >
+                  <button onClick={() => setShowLoginModal(true)} className="relative w-full py-6 rounded-full font-semibold text-base sm:text-lg bg-[hsl(221,83%,53%)] text-white flex items-center justify-center gap-2 hover:bg-[hsl(221,83%,48%)] transition-all shadow-[0_0_0_4px_white,0_0_20px_rgba(59,130,246,0.5)]" aria-label="Enter SeedBase app">
                     Enter App
                     <ArrowRight className="w-5 h-5" />
                   </button>
                   
                   {/* Mobile: open modal */}
-                  <Button 
-                    variant="outline"
-                    onClick={() => setShowLearnMore(true)}
-                    className="lg:hidden rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]"
-                    aria-label="Learn more about SeedBase"
-                  >
+                  <Button variant="outline" onClick={() => setShowLearnMore(true)} className="lg:hidden rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]" aria-label="Learn more about SeedBase">
                     Learn More
                     <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
                   </Button>
                   
                   {/* Desktop: scroll to content */}
-                  <Button 
-                    variant="outline"
-                    onClick={scrollToContent}
-                    className="hidden lg:inline-flex rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]"
-                    aria-label="Learn more about SeedBase"
-                  >
+                  <Button variant="outline" onClick={scrollToContent} className="hidden lg:inline-flex rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]" aria-label="Learn more about SeedBase">
                     Learn More
                     <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
                   </Button>
@@ -220,11 +190,7 @@ const ScrollingLandingPage = () => {
                 
                 {/* Powered by CIK */}
                 <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-sm flex justify-center lg:justify-start mt-3">
-                  <img 
-                    src={poweredByCik} 
-                    alt="Powered by Christ is King" 
-                    className="h-4 opacity-0 animate-fade-in-stagger-5"
-                  />
+                  <img src={poweredByCik} alt="Powered by Christ is King" className="h-4 opacity-0 animate-fade-in-stagger-5" />
                 </div>
               </div>
             </div>
@@ -256,23 +222,14 @@ const ScrollingLandingPage = () => {
             </div>
             
             {/* Network pill */}
-            <a 
-              href="https://seedbase.network" 
-              target="_blank"
-              rel="noopener noreferrer"
-              className="px-6 py-3 bg-gray-100 rounded-full text-foreground font-medium text-sm hover:bg-gray-200 transition-colors"
-            >
+            <a href="https://seedbase.network" target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-gray-100 rounded-full text-foreground font-medium text-sm hover:bg-gray-200 transition-colors">
               seedbase.network
             </a>
           </footer>
         </header>
 
         {/* Login Modal */}
-        <LoginModal 
-          isOpen={showLoginModal} 
-          onClose={() => setShowLoginModal(false)}
-          onComplete={handleLoginComplete}
-        />
+        <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onComplete={handleLoginComplete} />
 
         {/* Learn More Modal (Mobile) */}
         <Dialog open={showLearnMore} onOpenChange={setShowLearnMore}>
@@ -300,13 +257,10 @@ const ScrollingLandingPage = () => {
                       It's a live feed of global blessing where every dollar is tracked and every seed grows.
                     </p>
                     <div className="pt-4">
-                      <PrimaryButton 
-                        onClick={() => {
-                          setShowLearnMore(false);
-                          setShowLoginModal(true);
-                        }}
-                        className="w-full"
-                      >
+                      <PrimaryButton onClick={() => {
+                      setShowLearnMore(false);
+                      setShowLoginModal(true);
+                    }} className="w-full">
                         Get Started
                       </PrimaryButton>
                     </div>
@@ -338,8 +292,7 @@ const ScrollingLandingPage = () => {
 
           {/* Scrolling Content Sections */}
           <div ref={desktopSectionsRef} className="scroll-mt-8" />
-          {sections.map(section => (
-            <div key={section.id} className="flex items-start py-16 px-8 pointer-events-auto">
+          {sections.map(section => <div key={section.id} className="flex items-start py-16 px-8 pointer-events-auto">
               <div className="flex flex-row gap-12 w-full">
                 {/* Topic Text - Left side */}
                 <div className="w-[45%] pt-16">
@@ -355,39 +308,26 @@ const ScrollingLandingPage = () => {
                 
                 {/* Card - Right side */}
                 <div className="flex justify-end flex-shrink-0">
-                  <div 
-                    className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex-shrink-0 flex justify-center min-w-[560px] w-[560px] min-h-[560px] h-[560px] overflow-hidden ${
-                      section.id === 'impact' ? 'items-start p-0' :
-                      'items-center p-8'
-                    } ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}
-                  >
+                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex-shrink-0 flex justify-center min-w-[560px] w-[560px] min-h-[560px] h-[560px] overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center p-8'} ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
                     <div className={`transform hover:scale-[1.01] transition-transform duration-300 flex items-center justify-center ${section.id === 'wallet' ? 'animate-scale-in' : ''}`}>
                       {renderCard(section.card, section.id)}
                     </div>
                   </div>
                 </div>
               </div>
-            </div>
-          ))}
+            </div>)}
 
           {/* Closing Logo Section */}
           <section className="py-32 px-8 flex items-center justify-center pointer-events-auto" aria-label="Return to top">
-            <button
-              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-              className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg"
-              aria-label="Scroll back to top of page"
-            >
-              <img 
-                src={seedbaseWordmark} 
-                alt="SeedBase" 
-                className="w-[700px] max-w-[95vw] h-auto opacity-80 hover:opacity-100 transition-opacity duration-300" 
-              />
+            <button onClick={() => window.scrollTo({
+            top: 0,
+            behavior: 'smooth'
+          })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg" aria-label="Scroll back to top of page">
+              <img alt="SeedBase" className="w-[700px] max-w-[95vw] h-auto opacity-80 hover:opacity-100 transition-opacity duration-300" src="/lovable-uploads/7b746661-ea47-4c60-bd3b-dc573bcd924b.png" />
             </button>
           </section>
         </main>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default ScrollingLandingPage;
