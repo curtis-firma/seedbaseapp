@@ -128,6 +128,20 @@ export default {
           "0%, 100%": { opacity: "1", transform: "scaleX(1)" },
           "50%": { opacity: "0.85", transform: "scaleX(1.02)" },
         },
+        "glow-pulse": {
+          "0%, 100%": { 
+            boxShadow: "0 0 10px rgba(59,130,246,0.3)",
+            opacity: "1" 
+          },
+          "50%": { 
+            boxShadow: "0 0 20px rgba(59,130,246,0.6)",
+            opacity: "0.9" 
+          },
+        },
+        "fill-bar": {
+          "0%": { width: "0%" },
+          "100%": { width: "var(--target-width)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",

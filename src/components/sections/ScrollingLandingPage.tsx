@@ -1,11 +1,9 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRef, useState, useEffect, useCallback, ReactNode } from "react";
 
 // Card Components
-import SeedFeedCard from "@/components/cards/SeedFeedCard";
-import SeedFeedCardPeek from "@/components/cards/SeedFeedCardPeek";
 import SeedCommitmentCard from "@/components/cards/SeedCommitmentCard";
 import DashboardCard from "@/components/cards/DashboardCard";
 import WalletCard from "@/components/cards/WalletCard";
@@ -13,6 +11,7 @@ import ImpactStatsCard from "@/components/cards/ImpactStatsCard";
 import LedgerCard from "@/components/cards/LedgerCard";
 import GrowthReportCard from "@/components/cards/GrowthReportCard";
 import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
+import FeedCard from "@/components/cards/FeedCard";
 
 // Assets
 import seedbaseWordmark from "@/assets/seedbase-wordmark.svg";
@@ -27,45 +26,45 @@ interface CarouselCard {
 // Card data for mobile carousel
 const carouselCards: CarouselCard[] = [
   {
-    id: "commitment",
-    component: <SeedCommitmentCard />,
-    bgColor: "bg-emerald-400",
-    label: "See your impact"
-  },
-  {
-    id: "impact",
-    component: <ImpactStatsCard />,
-    bgColor: "bg-emerald-400",
-    label: "Generosity spreads"
-  },
-  {
     id: "wallet",
     component: <WalletCard />,
-    bgColor: "bg-blue-500",
+    bgColor: "bg-[#6B9CFA]",
     label: "Built for giving"
   },
   {
-    id: "dashboard",
-    component: <DashboardCard />,
-    bgColor: "bg-violet-500",
-    label: "Steward together"
+    id: "commitment",
+    component: <SeedCommitmentCard />,
+    bgColor: "bg-[#4ADE80]",
+    label: "See your impact"
+  },
+  {
+    id: "feed",
+    component: <FeedCard />,
+    bgColor: "bg-[#67E8F9]",
+    label: "Generosity spreads"
   },
   {
     id: "ledger",
     component: <LedgerCard />,
-    bgColor: "bg-yellow-400",
+    bgColor: "bg-[#FBBF24]",
     label: "Shared ledgers"
+  },
+  {
+    id: "dashboard",
+    component: <DashboardCard />,
+    bgColor: "bg-[#A78BFA]",
+    label: "Steward together"
   },
   {
     id: "tithe",
     component: <TitheAllocationCard />,
-    bgColor: "bg-amber-400",
+    bgColor: "bg-[#FBBF24]",
     label: "Transparent tithing"
   },
   {
     id: "growth",
     component: <GrowthReportCard />,
-    bgColor: "bg-cyan-500",
+    bgColor: "bg-[#67E8F9]",
     label: "Built by generosity"
   }
 ];
@@ -75,9 +74,8 @@ const MobileCarousel = ({ cards }: { cards: CarouselCard[] }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [isPaused, setIsPaused] = useState(false);
   const [activeIndex, setActiveIndex] = useState(0);
-  const cardWidth = 296; // 280px card + 16px gap
+  const cardWidth = 296;
   
-  // Auto-scroll effect
   useEffect(() => {
     if (isPaused) return;
     
@@ -98,7 +96,6 @@ const MobileCarousel = ({ cards }: { cards: CarouselCard[] }) => {
     return () => clearInterval(interval);
   }, [isPaused, activeIndex, cards.length]);
   
-  // Handle scroll to update active index
   const handleScroll = useCallback(() => {
     if (scrollRef.current) {
       const scrollPosition = scrollRef.current.scrollLeft;
@@ -109,7 +106,6 @@ const MobileCarousel = ({ cards }: { cards: CarouselCard[] }) => {
     }
   }, [activeIndex, cards.length]);
   
-  // Scroll to specific card
   const scrollToCard = (index: number) => {
     if (scrollRef.current) {
       const scrollPosition = index * cardWidth;
@@ -129,7 +125,6 @@ const MobileCarousel = ({ cards }: { cards: CarouselCard[] }) => {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {/* Scrollable cards */}
       <div 
         ref={scrollRef}
         onScroll={handleScroll}
@@ -145,8 +140,8 @@ const MobileCarousel = ({ cards }: { cards: CarouselCard[] }) => {
               opacity: activeIndex === index ? 1 : 0.7
             }}
           >
-            <div className={`${card.bgColor} rounded-3xl p-4 w-[280px] h-[360px] flex items-center justify-center shadow-lg`}>
-              <div className="transform scale-[0.75] origin-center">
+            <div className={`${card.bgColor} rounded-3xl p-4 w-[280px] h-[400px] flex items-center justify-center shadow-lg`}>
+              <div className="transform scale-[0.8] origin-center">
                 {card.component}
               </div>
             </div>
@@ -155,7 +150,6 @@ const MobileCarousel = ({ cards }: { cards: CarouselCard[] }) => {
         ))}
       </div>
       
-      {/* Dot indicators */}
       <div className="flex justify-center gap-2 mt-4">
         {cards.map((_, index) => (
           <button
@@ -174,21 +168,74 @@ const MobileCarousel = ({ cards }: { cards: CarouselCard[] }) => {
   );
 };
 
+// Section component for desktop
+interface SectionProps {
+  headline: string;
+  subtext: React.ReactNode;
+  card: ReactNode;
+  islandColor: string;
+  reverse?: boolean;
+  hasWaterTexture?: boolean;
+}
+
+const Section = ({ headline, subtext, card, islandColor, reverse = false, hasWaterTexture = false }: SectionProps) => {
+  return (
+    <div className={`grid grid-cols-2 gap-0 items-stretch min-h-[500px] ${reverse ? '' : ''}`}>
+      {/* Text Column */}
+      <div className={`flex flex-col justify-center px-8 xl:px-12 ${reverse ? 'order-2' : 'order-1'}`}>
+        <h2 className="text-4xl xl:text-[42px] font-bold text-foreground leading-tight mb-4">
+          {headline}
+        </h2>
+        <div className="text-muted-foreground text-base xl:text-lg leading-relaxed space-y-1">
+          {subtext}
+        </div>
+      </div>
+      
+      {/* Island Column - extends to right edge */}
+      <div className={`${reverse ? 'order-1' : 'order-2'}`}>
+        <div 
+          className={`${islandColor} ${reverse ? 'rounded-r-[2.5rem]' : 'rounded-l-[2.5rem]'} h-full min-h-[500px] flex items-center justify-center px-8 xl:px-12 relative overflow-hidden`}
+          style={{ 
+            marginRight: reverse ? undefined : '-2rem',
+            marginLeft: reverse ? '-2rem' : undefined
+          }}
+        >
+          {/* Water caustics texture for cyan sections */}
+          {hasWaterTexture && (
+            <div className="absolute inset-0 opacity-20">
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(255,255,255,0.3)_0%,_transparent_70%)] animate-pulse-slow" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,_rgba(255,255,255,0.2)_0%,_transparent_50%)] animate-float" />
+              <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_rgba(255,255,255,0.2)_0%,_transparent_50%)] animate-float" style={{ animationDelay: '2s' }} />
+            </div>
+          )}
+          <div className="relative z-10">
+            {card}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const ScrollingLandingPage = () => {
   const navigate = useNavigate();
 
-  const handleDemoLogin = () => {
+  const handleEnterApp = () => {
     navigate('/app');
+  };
+
+  const scrollToContent = () => {
+    window.scrollTo({ top: window.innerHeight * 0.5, behavior: 'smooth' });
   };
 
   return (
     <div className="min-h-screen bg-background">
       {/* Desktop Layout */}
       <div className="hidden lg:flex min-h-screen">
-        {/* Left Sticky Column */}
-        <div className="w-[40%] xl:w-[35%] sticky top-0 h-screen flex flex-col justify-between p-10 xl:p-16">
+        {/* Left Sticky Sidebar */}
+        <div className="w-[38%] xl:w-[35%] sticky top-0 h-screen flex flex-col justify-between p-10 xl:p-14 border-r border-border/30">
           {/* Top Content */}
-          <div className="space-y-6">
+          <div className="space-y-8">
             {/* Logo */}
             <img 
               src={seedbaseWordmark} 
@@ -197,7 +244,7 @@ const ScrollingLandingPage = () => {
             />
 
             {/* Headline */}
-            <h1 className="text-5xl xl:text-6xl font-bold text-foreground leading-[1.1]">
+            <h1 className="text-5xl xl:text-6xl font-extrabold text-foreground leading-[1.05] tracking-tight">
               Where<br />
               Generosity<br />
               Grows.
@@ -212,21 +259,22 @@ const ScrollingLandingPage = () => {
             </div>
 
             {/* CTAs */}
-            <div className="space-y-3 pt-2 max-w-sm">
+            <div className="space-y-3 pt-2 max-w-xs">
               <Button
-                onClick={handleDemoLogin}
-                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl py-6 text-base font-semibold"
+                onClick={handleEnterApp}
+                className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl py-6 text-base font-semibold shadow-lg shadow-primary/20"
               >
-                Continue as Demo King
+                Enter App
                 <ArrowRight className="w-5 h-5 ml-2" />
               </Button>
               
               <Button
-                variant="outline"
-                onClick={handleDemoLogin}
-                className="w-full rounded-xl py-6 text-base font-medium border-border hover:bg-muted"
+                variant="ghost"
+                onClick={scrollToContent}
+                className="w-full rounded-xl py-6 text-base font-medium text-muted-foreground hover:text-foreground hover:bg-transparent"
               >
-                Sign in as someone else
+                Learn More
+                <ChevronDown className="w-5 h-5 ml-2" />
               </Button>
             </div>
           </div>
@@ -238,134 +286,136 @@ const ScrollingLandingPage = () => {
         </div>
 
         {/* Right Scrollable Column */}
-        <div className="flex-1 overflow-y-auto py-8 pr-8">
-          {/* Section 1 - Yellow Island with SeedFeed */}
-          <div className="mb-8">
-            <div className="bg-yellow-400 rounded-[2.5rem] p-8 xl:p-12 min-h-[600px] flex items-start justify-center relative overflow-hidden">
-              <div className="relative z-10 pt-4">
-                <SeedFeedCard />
-              </div>
-              {/* Peek card at bottom */}
-              <div className="absolute bottom-4 left-8 right-8">
-                <SeedFeedCardPeek />
-              </div>
-            </div>
-          </div>
-
-          {/* Section 2 - Wallet */}
-          <div className="mb-8 grid grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <h2 className="text-4xl font-bold text-foreground">
-                A wallet built for giving
-              </h2>
-              <div className="text-muted-foreground space-y-0.5">
+        <div className="flex-1 overflow-y-auto">
+          {/* Section 1 - Wallet (Blue) */}
+          <Section 
+            headline="A wallet built for giving"
+            subtext={
+              <>
                 <p>Sign in with email or phone.</p>
                 <p>Give instantly.</p>
                 <p>Withdraw to your bank.</p>
                 <p>Spend with a card.</p>
-                <p className="pt-2 font-medium text-foreground">No crypto required.</p>
-              </div>
-            </div>
-            <div className="bg-blue-500 rounded-[2.5rem] p-8 flex items-center justify-center min-h-[400px]">
-              <WalletCard />
-            </div>
-          </div>
+                <p className="pt-2 font-semibold text-foreground">No crypto required.</p>
+              </>
+            }
+            card={<WalletCard />}
+            islandColor="bg-[#6B9CFA]"
+          />
 
-          {/* Section 3 - Impact */}
-          <div className="mb-8 grid grid-cols-2 gap-8 items-center">
-            <div className="bg-emerald-400 rounded-[2.5rem] p-8 flex items-center justify-center min-h-[400px]">
-              <SeedCommitmentCard />
-            </div>
-            <div className="space-y-4">
-              <h2 className="text-4xl font-bold text-foreground">
-                See your impact as it happens
-              </h2>
-              <p className="text-muted-foreground">
-                A live social feed shows generosity in motion.
-              </p>
-            </div>
-          </div>
+          {/* Section 2 - Impact Feed (Green) */}
+          <Section 
+            headline="See your impact as it happens"
+            subtext={
+              <p>A live social feed shows generosity in motion.</p>
+            }
+            card={<SeedCommitmentCard />}
+            islandColor="bg-[#4ADE80]"
+            reverse
+          />
 
-          {/* Section 4 - Generosity Spreads */}
-          <div className="mb-8 grid grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <h2 className="text-4xl font-bold text-foreground">
-                See generosity spread
-              </h2>
-              <p className="text-muted-foreground">
-                Watch surplus move across people, places, and missions.
-              </p>
-            </div>
-            <div className="bg-teal-400 rounded-[2.5rem] p-8 flex items-center justify-center min-h-[400px]">
-              <ImpactStatsCard />
-            </div>
-          </div>
+          {/* Section 3 - Generosity Spreads (Cyan with water texture) */}
+          <Section 
+            headline="See generosity spread"
+            subtext={
+              <p>Watch surplus move across people, places, and missions.</p>
+            }
+            card={<FeedCard />}
+            islandColor="bg-[#67E8F9]"
+            hasWaterTexture
+          />
 
-          {/* Section 5 - Ledger */}
-          <div className="mb-8 grid grid-cols-2 gap-8 items-center">
-            <div className="bg-yellow-400 rounded-[2.5rem] p-8 flex items-center justify-center min-h-[400px]">
-              <LedgerCard />
-            </div>
-            <div className="space-y-4">
-              <h2 className="text-4xl font-bold text-foreground">
-                Built on shared ledgers
-              </h2>
-              <div className="text-muted-foreground space-y-1">
+          {/* Section 4 - Shared Ledgers (Yellow) */}
+          <Section 
+            headline="Built on shared ledgers"
+            subtext={
+              <>
                 <p>Every seed. Every surplus. Every deployment.</p>
-                <p className="font-medium text-foreground">Trust you can see.</p>
-              </div>
-            </div>
-          </div>
+                <p className="font-semibold text-foreground">Trust you can see.</p>
+              </>
+            }
+            card={<LedgerCard />}
+            islandColor="bg-[#FBBF24]"
+            reverse
+          />
 
-          {/* Section 6 - Dashboard */}
-          <div className="mb-8 grid grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <h2 className="text-4xl font-bold text-foreground">
-                Communities steward together
-              </h2>
-              <div className="text-muted-foreground space-y-0.5">
+          {/* Section 5 - Community Dashboard (Purple) */}
+          <Section 
+            headline="Communities steward together"
+            subtext={
+              <>
                 <p>Ministries and teams run seedbases.</p>
                 <p>Steward seed. Track tithes. Vote on missions.</p>
-                <p className="font-medium text-foreground">Same numbers. Shared clarity.</p>
-              </div>
-            </div>
-            <div className="bg-violet-500 rounded-[2.5rem] p-8 flex items-center justify-center min-h-[400px]">
-              <DashboardCard />
-            </div>
-          </div>
+                <p className="font-semibold text-foreground">Same numbers. Shared clarity.</p>
+              </>
+            }
+            card={<DashboardCard />}
+            islandColor="bg-[#A78BFA]"
+          />
 
-          {/* Section 7 - Tithe */}
-          <div className="mb-8 grid grid-cols-2 gap-8 items-center">
-            <div className="bg-amber-400 rounded-[2.5rem] p-8 flex items-center justify-center min-h-[400px]">
-              <TitheAllocationCard />
-            </div>
-            <div className="space-y-4">
-              <h2 className="text-4xl font-bold text-foreground">
-                Transparent tithing
-              </h2>
-              <div className="text-muted-foreground space-y-0.5">
+          {/* Section 6 - Tithe Allocation (Yellow) */}
+          <Section 
+            headline="Transparent tithing"
+            subtext={
+              <>
                 <p>Tithes go directly to a seedbase.</p>
                 <p>See allocations. Vote on priorities. Track impact.</p>
-                <p className="font-medium text-foreground">Held in USDC or CIK.</p>
-              </div>
-            </div>
-          </div>
+                <p className="font-semibold text-foreground">Held in USDC or CIK.</p>
+              </>
+            }
+            card={<TitheAllocationCard />}
+            islandColor="bg-[#FBBF24]"
+            reverse
+          />
 
-          {/* Section 8 - Growth */}
-          <div className="mb-8 grid grid-cols-2 gap-8 items-center">
-            <div className="space-y-4">
-              <h2 className="text-4xl font-bold text-foreground">
-                Built by generosity
-              </h2>
-              <div className="text-muted-foreground space-y-1">
+          {/* Section 7 - Growth Report (Cyan with water texture) */}
+          <Section 
+            headline="Built by generosity"
+            subtext={
+              <>
                 <p>Every seed. Every surplus. Every deployment.</p>
-                <p className="font-medium text-foreground">Trust you can see.</p>
+                <p className="font-semibold text-foreground">Trust you can see.</p>
+              </>
+            }
+            card={
+              <div className="space-y-4">
+                <GrowthReportCard />
+                <ImpactStatsCard />
+              </div>
+            }
+            islandColor="bg-[#67E8F9]"
+            hasWaterTexture
+          />
+
+          {/* Footer within scrollable area */}
+          <footer className="py-20 px-8 xl:px-16">
+            <div className="max-w-xl space-y-8">
+              <button 
+                onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                className="cursor-pointer hover:scale-105 transition-transform duration-300"
+              >
+                <img 
+                  src={seedbaseWordmark} 
+                  alt="Seedbase" 
+                  className="h-12"
+                />
+              </button>
+
+              <p className="text-sm text-muted-foreground">
+                © 2026 Seedbase. All rights reserved.
+              </p>
+
+              <p className="text-sm text-muted-foreground flex items-center gap-1">
+                Built on <span className="font-medium text-foreground">■ base</span>
+              </p>
+
+              <div className="flex gap-6 text-sm text-muted-foreground">
+                <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
+                <a href="#" className="hover:text-foreground transition-colors">Terms</a>
+                <a href="#" className="hover:text-foreground transition-colors">Contact</a>
               </div>
             </div>
-            <div className="bg-cyan-500 rounded-[2.5rem] p-8 flex items-center justify-center min-h-[400px]">
-              <GrowthReportCard />
-            </div>
-          </div>
+          </footer>
         </div>
       </div>
 
@@ -379,7 +429,7 @@ const ScrollingLandingPage = () => {
         />
 
         {/* Headline */}
-        <h1 className="text-4xl sm:text-5xl font-bold text-foreground leading-[1.1] mb-4">
+        <h1 className="text-4xl sm:text-5xl font-extrabold text-foreground leading-[1.05] tracking-tight mb-4">
           Where Generosity Grows.
         </h1>
 
@@ -397,19 +447,19 @@ const ScrollingLandingPage = () => {
         {/* CTAs */}
         <div className="space-y-3 mt-auto">
           <Button
-            onClick={handleDemoLogin}
-            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl py-6 text-base font-semibold"
+            onClick={handleEnterApp}
+            className="w-full bg-primary text-primary-foreground hover:bg-primary/90 rounded-xl py-6 text-base font-semibold shadow-lg shadow-primary/20"
           >
-            Continue as Demo King
+            Enter App
             <ArrowRight className="w-5 h-5 ml-2" />
           </Button>
           
           <Button
             variant="outline"
-            onClick={handleDemoLogin}
+            onClick={handleEnterApp}
             className="w-full rounded-xl py-6 text-base font-medium border-border hover:bg-muted"
           >
-            Sign in as someone else
+            Sign in
           </Button>
         </div>
 
@@ -419,17 +469,17 @@ const ScrollingLandingPage = () => {
         </div>
       </div>
 
-      {/* Footer */}
-      <footer className="bg-background py-16 px-6 border-t border-border">
-        <div className="max-w-4xl mx-auto text-center space-y-6">
+      {/* Mobile Footer */}
+      <footer className="lg:hidden bg-background py-12 px-6 border-t border-border">
+        <div className="text-center space-y-4">
           <button 
             onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-            className="cursor-pointer hover:scale-105 transition-transform duration-300 mx-auto block"
+            className="cursor-pointer mx-auto block"
           >
             <img 
               src={seedbaseWordmark} 
               alt="Seedbase" 
-              className="h-10 mx-auto"
+              className="h-8 mx-auto"
             />
           </button>
 

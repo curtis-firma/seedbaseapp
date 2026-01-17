@@ -1,38 +1,71 @@
-import { Heart, Church, Users, TreePine, Utensils, Droplets, Home } from "lucide-react";
+import { Heart, Zap, TrendingUp, Target } from "lucide-react";
+import { useEffect, useState } from "react";
 
 const ImpactStatsCard = () => {
-  const stats = [
-    { icon: Church, value: "12", label: "Churches", color: "text-blue-400" },
-    { icon: Users, value: "48.5K", label: "People", color: "text-emerald-400" },
-    { icon: TreePine, value: "2.3K", label: "Trees", color: "text-green-400" },
-    { icon: Utensils, value: "125.6K", label: "Meals", color: "text-amber-400" },
-    { icon: Droplets, value: "34", label: "Water", color: "text-cyan-400" },
-    { icon: Home, value: "156", label: "Families", color: "text-purple-400" },
-  ];
+  const [displayValue, setDisplayValue] = useState(0);
+
+  // Counting animation
+  useEffect(() => {
+    const target = 85000;
+    const duration = 2000;
+    const steps = 60;
+    const stepDuration = duration / steps;
+
+    let currentStep = 0;
+    const interval = setInterval(() => {
+      currentStep++;
+      const progress = currentStep / steps;
+      const easeOut = 1 - Math.pow(1 - progress, 3);
+      setDisplayValue(Math.floor(target * easeOut));
+
+      if (currentStep >= steps) {
+        clearInterval(interval);
+        setDisplayValue(target);
+      }
+    }, stepDuration);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const formatCurrency = (value: number) => {
+    return `$${value.toLocaleString()}`;
+  };
 
   return (
     <div className="w-[320px] bg-white rounded-3xl p-5 shadow-lg border border-gray-100">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
-        <div>
-          <p className="text-xs text-gray-500">Total Seeded</p>
-          <p className="font-bold text-2xl text-gray-900">$85,000</p>
-        </div>
-        <div className="flex items-center gap-1 text-rose-500">
-          <Heart className="w-4 h-4 fill-current" />
-          <span className="text-sm font-medium">Kingdom Impact</span>
+      <div className="flex items-center justify-between mb-5">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+            <Zap className="w-5 h-5 text-white" />
+          </div>
+          <div>
+            <p className="text-xs text-gray-500">Total Seeded</p>
+            <p className="font-bold text-2xl text-gray-900">{formatCurrency(displayValue)}</p>
+          </div>
         </div>
       </div>
 
-      {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-3">
-        {stats.map((stat, i) => (
-          <div key={i} className="text-center p-2 bg-gray-50 rounded-xl">
-            <stat.icon className={`w-5 h-5 mx-auto mb-2 ${stat.color}`} />
-            <p className="font-bold text-lg text-gray-900">{stat.value}</p>
-            <p className="text-xs text-gray-500">{stat.label}</p>
-          </div>
-        ))}
+      {/* Kingdom Impact Label */}
+      <div className="flex items-center gap-2 mb-5">
+        <Heart className="w-4 h-4 text-rose-500 fill-current animate-subtle-pulse" />
+        <span className="text-xs font-semibold text-gray-400 tracking-wider uppercase">Kingdom Impact</span>
+      </div>
+
+      {/* Action Buttons */}
+      <div className="flex items-center gap-3">
+        <button className="flex-1 flex items-center justify-center gap-2 py-3 px-4 border-2 border-emerald-200 rounded-xl text-emerald-600 font-medium hover:bg-emerald-50 transition-colors group">
+          <TrendingUp className="w-5 h-5 group-hover:animate-icon-wiggle" />
+          <span className="text-sm">Growth</span>
+        </button>
+        <button className="flex-1 flex items-center justify-center gap-2 py-3 px-4 border-2 border-emerald-200 rounded-xl text-emerald-600 font-medium hover:bg-emerald-50 transition-colors group">
+          <Target className="w-5 h-5 group-hover:animate-icon-wiggle" />
+          <span className="text-sm">Goals</span>
+        </button>
+        <button className="flex-1 flex items-center justify-center gap-2 py-3 px-4 border-2 border-emerald-200 rounded-xl text-emerald-600 font-medium hover:bg-emerald-50 transition-colors group">
+          <Heart className="w-5 h-5 group-hover:animate-icon-wiggle" />
+          <span className="text-sm">Impact</span>
+        </button>
       </div>
     </div>
   );
