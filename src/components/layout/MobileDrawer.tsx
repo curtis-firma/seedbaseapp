@@ -10,11 +10,11 @@ import seedbaseIcon from '@/assets/seedbase-icon.png';
 import seedbaseWordmark from '@/assets/seedbase-wordmark.svg';
 
 const menuNav = [
-  { icon: MessageCircle, label: 'OneAccord', path: '/oneaccord', description: 'Messages & transfers' },
-  { icon: BarChart3, label: 'Vault', path: '/vault', description: 'Analytics & data' },
-  { icon: Radio, label: 'Seeded', path: '/seeded', description: 'Community hub' },
-  { icon: Rocket, label: 'Launcher', path: '/launcher', description: 'Create new' },
-  { icon: Settings, label: 'Settings', path: '/settings', description: 'Preferences' },
+  { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages & transfers' },
+  { icon: BarChart3, label: 'Vault', path: '/app/vault', description: 'Analytics & data' },
+  { icon: Radio, label: 'Seeded', path: '/app/seeded', description: 'Community hub' },
+  { icon: Rocket, label: 'Launcher', path: '/app/launcher', description: 'Create new' },
+  { icon: Settings, label: 'Settings', path: '/app/settings', description: 'Preferences' },
 ];
 
 interface MobileDrawerProps {
