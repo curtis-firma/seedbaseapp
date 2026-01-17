@@ -133,7 +133,7 @@ const ScrollingLandingPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-white overflow-x-hidden">
       <div className="flex flex-col lg:flex-row">
         {/* Left - Fixed Hero Text Column */}
         <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-4 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
@@ -160,7 +160,7 @@ const ScrollingLandingPage = () => {
                 </div>
                 
                 {/* Mobile Card Carousel - between tagline and buttons */}
-                <div className="lg:hidden">
+                <div className="lg:hidden w-full overflow-hidden">
                   <MobileCardCarousel />
                 </div>
                 
