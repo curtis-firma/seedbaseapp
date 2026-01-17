@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useRef, useState, useEffect, useCallback, ReactNode } from "react";
 
 // Card Components
 import SeedFeedCard from "@/components/cards/SeedFeedCard";
@@ -16,8 +17,15 @@ import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
 // Assets
 import seedbaseWordmark from "@/assets/seedbase-wordmark.svg";
 
+interface CarouselCard {
+  id: string;
+  component: ReactNode;
+  bgColor: string;
+  label: string;
+}
+
 // Card data for mobile carousel
-const carouselCards = [
+const carouselCards: CarouselCard[] = [
   {
     id: "commitment",
     component: <SeedCommitmentCard />,
@@ -61,6 +69,110 @@ const carouselCards = [
     label: "Built by generosity"
   }
 ];
+
+// Mobile Carousel Component with auto-scroll
+const MobileCarousel = ({ cards }: { cards: CarouselCard[] }) => {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(0);
+  const cardWidth = 296; // 280px card + 16px gap
+  
+  // Auto-scroll effect
+  useEffect(() => {
+    if (isPaused) return;
+    
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        const nextIndex = (activeIndex + 1) % cards.length;
+        const scrollPosition = nextIndex * cardWidth;
+        
+        scrollRef.current.scrollTo({
+          left: scrollPosition,
+          behavior: 'smooth'
+        });
+        
+        setActiveIndex(nextIndex);
+      }
+    }, 3500);
+    
+    return () => clearInterval(interval);
+  }, [isPaused, activeIndex, cards.length]);
+  
+  // Handle scroll to update active index
+  const handleScroll = useCallback(() => {
+    if (scrollRef.current) {
+      const scrollPosition = scrollRef.current.scrollLeft;
+      const newIndex = Math.round(scrollPosition / cardWidth);
+      if (newIndex !== activeIndex && newIndex >= 0 && newIndex < cards.length) {
+        setActiveIndex(newIndex);
+      }
+    }
+  }, [activeIndex, cards.length]);
+  
+  // Scroll to specific card
+  const scrollToCard = (index: number) => {
+    if (scrollRef.current) {
+      const scrollPosition = index * cardWidth;
+      scrollRef.current.scrollTo({
+        left: scrollPosition,
+        behavior: 'smooth'
+      });
+      setActiveIndex(index);
+    }
+  };
+  
+  return (
+    <div 
+      className="flex-1 mb-6"
+      onTouchStart={() => setIsPaused(true)}
+      onTouchEnd={() => setTimeout(() => setIsPaused(false), 5000)}
+      onMouseEnter={() => setIsPaused(true)}
+      onMouseLeave={() => setIsPaused(false)}
+    >
+      {/* Scrollable cards */}
+      <div 
+        ref={scrollRef}
+        onScroll={handleScroll}
+        className="flex gap-4 overflow-x-auto px-6 pb-4 snap-x snap-mandatory scrollbar-hide scroll-smooth"
+        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+      >
+        {cards.map((card, index) => (
+          <div 
+            key={card.id} 
+            className="flex-shrink-0 snap-center transition-transform duration-300"
+            style={{ 
+              transform: activeIndex === index ? 'scale(1)' : 'scale(0.95)',
+              opacity: activeIndex === index ? 1 : 0.7
+            }}
+          >
+            <div className={`${card.bgColor} rounded-3xl p-4 w-[280px] h-[360px] flex items-center justify-center shadow-lg`}>
+              <div className="transform scale-[0.75] origin-center">
+                {card.component}
+              </div>
+            </div>
+            <p className="text-center text-sm text-muted-foreground mt-3 font-medium">{card.label}</p>
+          </div>
+        ))}
+      </div>
+      
+      {/* Dot indicators */}
+      <div className="flex justify-center gap-2 mt-4">
+        {cards.map((_, index) => (
+          <button
+            key={index}
+            onClick={() => scrollToCard(index)}
+            className={`w-2 h-2 rounded-full transition-all duration-300 ${
+              activeIndex === index 
+                ? 'bg-primary w-6' 
+                : 'bg-muted-foreground/30 hover:bg-muted-foreground/50'
+            }`}
+            aria-label={`Go to card ${index + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
 
 const ScrollingLandingPage = () => {
   const navigate = useNavigate();
@@ -280,20 +392,7 @@ const ScrollingLandingPage = () => {
         </div>
 
         {/* Mobile Card Carousel */}
-        <div className="flex-1 mb-8 -mx-6">
-          <div className="flex gap-4 overflow-x-auto px-6 pb-4 snap-x snap-mandatory scrollbar-hide">
-            {carouselCards.map((card) => (
-              <div key={card.id} className="flex-shrink-0 snap-center">
-                <div className={`${card.bgColor} rounded-3xl p-4 w-[280px] h-[360px] flex items-center justify-center`}>
-                  <div className="transform scale-[0.75] origin-center">
-                    {card.component}
-                  </div>
-                </div>
-                <p className="text-center text-sm text-muted-foreground mt-3">{card.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+        <MobileCarousel cards={carouselCards} />
 
         {/* CTAs */}
         <div className="space-y-3 mt-auto">
