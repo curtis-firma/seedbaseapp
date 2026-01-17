@@ -190,7 +190,7 @@ const ScrollingLandingPage = () => {
                 
                 {/* Powered by CIK */}
                 <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-sm flex justify-center lg:justify-start mt-3">
-                  <img src={poweredByCik} alt="Powered by Christ is King" className="h-4 opacity-0 animate-fade-in-stagger-5" />
+                  <img alt="Powered by Christ is King" className="h-4 opacity-0 animate-fade-in-stagger-5 object-contain" src="/lovable-uploads/77b981db-2bff-491e-bbe7-64c8bb64864f.png" />
                 </div>
               </div>
             </div>
