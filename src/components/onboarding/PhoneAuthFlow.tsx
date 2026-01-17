@@ -32,6 +32,7 @@ interface PhoneAuthFlowProps {
   isOpen: boolean;
   onComplete: (isNewUser?: boolean) => void;
   forceDemo?: boolean;
+  asModal?: boolean;
 }
 
 type Step = 
@@ -94,7 +95,7 @@ const ROLE_OPTIONS = [
   },
 ];
 
-export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAuthFlowProps) {
+export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal = false }: PhoneAuthFlowProps) {
   const [step, setStep] = useState<Step>('welcome');
   const [phoneNumber, setPhoneNumber] = useState('');
   const [isDemo, setIsDemo] = useState(forceDemo);
@@ -519,11 +520,16 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-background z-50 flex flex-col"
+      className={cn(
+        "flex flex-col",
+        asModal 
+          ? "bg-white rounded-3xl min-h-[500px]" 
+          : "fixed inset-0 bg-background z-50"
+      )}
     >
       {/* Progress dots - hide during animations */}
       {step !== 'creating-wallet' && step !== 'activating-key' && step !== 'verifying' && step !== 'restoring' && (
-        <div className="p-6 flex justify-center">
+        <div className={cn("flex justify-center", asModal ? "pt-6 pb-2" : "p-6")}>
           <div className="flex gap-2">
             {progressSteps.map((s, i) => (
               <div
@@ -539,7 +545,10 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
         </div>
       )}
 
-      <div className="flex-1 flex flex-col items-center justify-center px-6 pb-12">
+      <div className={cn(
+        "flex-1 flex flex-col items-center justify-center",
+        asModal ? "px-6 py-8" : "px-6 pb-12"
+      )}>
         <AnimatePresence mode="wait">
           {/* Welcome / Phone Input Step */}
           {step === 'welcome' && (
@@ -563,56 +572,64 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false }: PhoneAu
                 Enter your phone to create or access your Seed Wallet
               </p>
               
-              <div className="mb-4">
-                <input
-                  type="tel"
-                  value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
-                  placeholder="(555) 123-4567"
-                  className="w-full text-center text-xl font-medium bg-muted rounded-2xl py-4 outline-none focus:ring-2 ring-primary/50"
-                  autoFocus
-                />
-              </div>
+              {/* Form container with subtle background */}
+              <div className="bg-gray-50/50 rounded-3xl p-6 space-y-4 mb-4">
+                {/* Phone input with visible border */}
+                <div className="bg-white border-2 border-gray-200 rounded-2xl shadow-sm hover:border-gray-300 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all">
+                  <input
+                    type="tel"
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
+                    placeholder="(555) 123-4567"
+                    className="w-full text-center text-2xl font-semibold bg-transparent py-5 px-4 outline-none placeholder:text-gray-400"
+                    autoFocus
+                  />
+                </div>
 
-              {/* Returning user badge */}
-              {isCheckingUser && phoneNumber.length >= 10 && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 p-3 bg-muted rounded-xl flex items-center gap-2 justify-center"
-                >
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  <span className="text-sm text-muted-foreground">Checking...</span>
-                </motion.div>
-              )}
-              
-              {returningUserPreview && !isCheckingUser && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mb-4 p-3 bg-seed/10 border border-seed/30 rounded-xl flex items-center gap-2 justify-center"
-                >
-                  <CheckCircle2 className="h-4 w-4 text-seed" />
-                  <span className="text-sm font-medium text-seed">
-                    Welcome back, @{returningUserPreview.username}!
-                  </span>
-                </motion.div>
-              )}
-              
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={handlePhoneSubmit}
-                disabled={phoneNumber.length < 10}
-                className={cn(
-                  "w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all mb-4",
-                  phoneNumber.length >= 10 
-                    ? "gradient-seed text-white" 
-                    : "bg-muted text-muted-foreground"
+                {/* Returning user badge - enhanced */}
+                {isCheckingUser && phoneNumber.length >= 10 && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-3 bg-gray-100 rounded-xl flex items-center gap-2 justify-center"
+                  >
+                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">Checking...</span>
+                  </motion.div>
                 )}
-              >
-                Continue
-                <ArrowRight className="h-5 w-5" />
-              </motion.button>
+                
+                {returningUserPreview && !isCheckingUser && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl flex items-center gap-3"
+                  >
+                    <div className="w-10 h-10 rounded-full gradient-seed flex items-center justify-center flex-shrink-0">
+                      <CheckCircle2 className="h-5 w-5 text-white" />
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm font-semibold text-emerald-800">Welcome back!</p>
+                      <p className="text-sm text-emerald-600">@{returningUserPreview.username}</p>
+                    </div>
+                  </motion.div>
+                )}
+                
+                {/* Continue button with shadow */}
+                <motion.button
+                  whileTap={{ scale: 0.98 }}
+                  onClick={handlePhoneSubmit}
+                  disabled={phoneNumber.length < 10}
+                  className={cn(
+                    "w-full py-5 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all",
+                    phoneNumber.length >= 10 
+                      ? "gradient-seed text-white shadow-lg shadow-primary/25 hover:shadow-xl" 
+                      : "bg-gray-100 border border-gray-200 text-gray-400"
+                  )}
+                >
+                  Continue
+                  <ArrowRight className="h-5 w-5" />
+                </motion.button>
+              </div>
               
               {/* Secondary "Try demo" link */}
               <button
