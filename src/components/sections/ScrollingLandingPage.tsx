@@ -15,6 +15,8 @@ import ImpactStatsCard from "@/components/cards/ImpactStatsCard";
 import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
 import WalletCard from "@/components/cards/WalletCard";
 import seedbaseWordmark from "@/assets/seedbase-wordmark.svg";
+import poweredByCik from "@/assets/powered-by-cik-text.png";
+import generositySpread from "@/assets/generosity-spread.png";
 import {
   Dialog,
   DialogContent,
@@ -101,13 +103,10 @@ const ScrollingLandingPage = () => {
         return <div className={`aspect-square w-full ${compact ? 'max-w-xs' : 'max-w-sm'} rounded-2xl bg-white/20 border-2 border-white/40`} />;
       case "campaign":
         return (
-          <div className={`${compact ? 'max-w-xs' : 'max-w-sm'} w-full aspect-square rounded-2xl bg-gradient-to-br from-teal-100 to-emerald-100 flex items-center justify-center`}>
-            <div className="text-center p-8">
-              <div className="text-6xl mb-4">🌍</div>
-              <p className="text-lg font-medium text-teal-800">Generosity Spreading</p>
-              <p className="text-sm text-teal-600 mt-2">Kenya • Tanzania • Uganda</p>
-            </div>
-          </div>
+          <div 
+            className={`${compact ? 'max-w-xs' : 'max-w-sm'} w-full aspect-square rounded-2xl bg-cover bg-center flex items-center justify-center overflow-hidden`}
+            style={{ backgroundImage: `url(${generositySpread})` }}
+          />
         );
       case "commitment":
         return <SeedCommitmentCard />;
@@ -208,9 +207,11 @@ const ScrollingLandingPage = () => {
                 
                 {/* Powered by CIK */}
                 <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-sm flex justify-center lg:justify-start mt-3">
-                  <span className="text-sm text-muted-foreground opacity-0 animate-fade-in-stagger-5">
-                    Powered by Christ is King
-                  </span>
+                  <img 
+                    src={poweredByCik} 
+                    alt="Powered by Christ is King" 
+                    className="h-4 opacity-0 animate-fade-in-stagger-5"
+                  />
                 </div>
               </div>
             </div>
