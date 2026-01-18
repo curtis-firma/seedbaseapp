@@ -2,23 +2,79 @@ import { motion } from 'framer-motion';
 import { 
   Settings as SettingsIcon, User, Bell, Shield, Palette, 
   HelpCircle, FileText, LogOut, ChevronRight, Moon, Sun, Play,
-  Trash2, Bug, ChevronDown
+  Trash2, Bug, ChevronDown, Camera, Check
 } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
-import { clearAllDemoData, getSessionPhone, loadUserByPhone, listUsers, truncateHexId } from '@/lib/demoAuth';
+import { clearAllDemoData, getSessionPhone, loadUserByPhone, listUsers, truncateHexId, saveUser } from '@/lib/demoAuth';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
   const [isDark, setIsDark] = useState(false);
   const [showDebug, setShowDebug] = useState(false);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { logout, startDemo, isAuthenticated, username, displayName, activeRole, walletDisplayId, keyType, keyDisplayId, demoMode, phoneNumber } = useUser();
 
   const handleResetDemo = () => {
     clearAllDemoData();
     logout();
     toast.success('All demo data cleared. Refresh to start fresh.');
+  };
+
+  // Get current user avatar
+  const getCurrentAvatarUrl = () => {
+    if (phoneNumber) {
+      const user = loadUserByPhone(phoneNumber);
+      return user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
+    }
+    return `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
+  };
+
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image too large. Max 5MB.');
+        return;
+      }
+      setAvatarFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => setAvatarPreview(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSaveAvatar = async () => {
+    if (!avatarPreview || !phoneNumber) return;
+    
+    setIsUploadingAvatar(true);
+    try {
+      // For demo, we store the data URL directly in localStorage
+      const user = loadUserByPhone(phoneNumber);
+      if (user) {
+        user.avatarUrl = avatarPreview;
+        saveUser(user);
+        toast.success('Profile photo updated!');
+        setAvatarFile(null);
+        // Keep preview showing new avatar
+      }
+    } catch (err) {
+      toast.error('Failed to update photo');
+    } finally {
+      setIsUploadingAvatar(false);
+    }
+  };
+
+  const handleCancelAvatar = () => {
+    setAvatarFile(null);
+    setAvatarPreview(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const settingsGroups = [
