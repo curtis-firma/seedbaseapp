@@ -2,8 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   X, ChevronRight, ChevronLeft, Sprout, Layers, Rocket, 
-  Shield, DollarSign, Users, BarChart3, Lock, Heart,
-  CheckCircle2
+  Shield, DollarSign, Users, Lock, Heart, TrendingUp,
+  CheckCircle2, FileText, Network
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -14,84 +14,117 @@ interface OnboardingModalProps {
 
 const slides = [
   {
-    id: 'welcome',
-    title: 'Welcome to Seedbase',
-    subtitle: 'A social network for committed generosity',
-    content: 'Seedbase turns committed capital into measurable, accountable real-world impact. This isn\'t charity or speculation—it\'s governed generosity.',
-    icon: Sprout,
+    id: 'usdc-flow',
+    title: 'USDC → Vault → $CIK → Ledger',
+    subtitle: 'The complete flow',
+    content: 'Your USDC purchases $CIK tokens which are locked in the Vault. The Ledger tracks your ownership and distributions. You never hold tokens—the protocol manages everything.',
+    icon: DollarSign,
     gradient: 'gradient-seed',
-    quote: '"Locked value. Living impact."',
+    flow: [
+      { step: 1, label: 'Commit USDC', icon: DollarSign },
+      { step: 2, label: 'USDC purchases $CIK', icon: Sprout },
+      { step: 3, label: '$CIK locked in Vault', icon: Lock },
+      { step: 4, label: 'Ledger tracks your share', icon: Layers },
+    ],
   },
   {
-    id: 'roles',
-    title: 'Three Roles, One Mission',
-    subtitle: 'Everyone has a part to play',
+    id: 'no-tokens',
+    title: 'You Never Hold Tokens',
+    subtitle: 'Simpler. Safer. Smarter.',
+    content: 'Unlike crypto wallets, you never touch tokens directly. The $CIK you purchase is immediately locked in the Vault. The smart contract handles all conversions and distributions automatically.',
+    icon: Shield,
+    gradient: 'gradient-trust',
+    features: [
+      'No wallet management required',
+      'No gas fees or token transfers',
+      'Automatic distribution to your account',
+      'Principle blocked until commitment ends',
+    ],
+  },
+  {
+    id: 'vault-vs-ledger',
+    title: 'Vault vs. Ledger',
+    subtitle: 'Two systems, one truth',
+    content: 'The Vault holds locked $CIK (purchased with your USDC). The Ledger tracks your share and pending distributions. Both are transparent and verifiable on-chain.',
+    icon: Layers,
+    gradient: 'gradient-base',
+    comparison: [
+      { 
+        title: 'The Vault', 
+        icon: Lock,
+        points: ['Holds locked $CIK tokens', 'Enforces supply control', 'No human access to locked seed', 'Creates value through scarcity']
+      },
+      { 
+        title: 'The Ledger', 
+        icon: FileText,
+        points: ['Tracks your ownership %', 'Records distributions', 'Calculates your surplus share', 'Verifiable history']
+      },
+    ],
+  },
+  {
+    id: 'roles-explained',
+    title: 'Activator / Trustee / Envoy',
+    subtitle: 'Three roles, one mission',
     content: null,
     roles: [
       {
         name: 'Activator',
         icon: Sprout,
         gradient: 'gradient-seed',
-        description: 'Commit capital, activate generosity, grow the network.',
-        forWho: 'Great for individuals who want to commit funds and track impact',
+        description: 'Commit USDC, lock $CIK, activate generosity. Your locked value grows the network.',
       },
       {
         name: 'Trustee',
         icon: Shield,
         gradient: 'gradient-trust',
-        description: 'Govern Seedbases, launch missions, approve Envoys.',
-        forWho: 'Great for nonprofit, church, or ministry leaders',
+        description: 'Govern Seedbases, approve missions, ensure accountability. Stewards of the community.',
       },
       {
         name: 'Envoy',
         icon: Rocket,
         gradient: 'gradient-envoy',
-        description: 'Execute missions, receive distributions, report outcomes.',
-        forWho: 'Great for teams executing missions on the ground',
+        description: 'Execute missions on the ground, receive distributions, report verified outcomes.',
       },
     ],
   },
   {
-    id: 'keys',
-    title: 'Power Comes From Keys',
-    subtitle: 'Not profiles—Keys unlock abilities',
-    content: 'In Seedbase, your role doesn\'t automatically grant power. You need the corresponding Key to take action. Keys are earned, not given.',
-    keys: [
-      { name: 'SeedKey', gradient: 'gradient-seed', description: 'Commit capital to activate' },
-      { name: 'BaseKey', gradient: 'gradient-trust', description: 'Apply to govern a Seedbase' },
-      { name: 'MissionKey', gradient: 'gradient-envoy', description: 'Get approved to execute missions' },
-    ],
-    quote: '"Governed by rules, not people."',
-  },
-  {
-    id: 'flow',
-    title: 'How Money Flows',
-    subtitle: 'Transparent, accountable, on-chain',
-    content: null,
-    flow: [
-      { step: 1, label: 'Activators commit USDC', icon: DollarSign },
-      { step: 2, label: 'Capital is locked in Seedbases', icon: Lock },
-      { step: 3, label: 'Trustees launch missions', icon: Layers },
-      { step: 4, label: 'Envoys execute & report', icon: Rocket },
-      { step: 5, label: 'Distributions flow to impact', icon: Heart },
-    ],
-    quote: '"USDC in. USDC out. Value stays."',
-  },
-  {
-    id: 'demo',
-    title: 'This is Demo Mode',
-    subtitle: 'Explore freely, learn the system',
-    content: 'In this demo, all roles are unlocked so you can explore. In production, Trustees and Envoys require approval. Activators can join by committing capital.',
+    id: 'surplus',
+    title: 'How Surplus is Calculated',
+    subtitle: 'Your share of the growth',
+    content: 'When the Vault generates yield, surplus is calculated based on your locked commitment. Larger commitments = larger distributions. Surplus flows to missions you support.',
+    icon: TrendingUp,
+    gradient: 'gradient-seed',
     features: [
-      'Switch between roles using the sidebar',
-      'Explore the social feed (Seedfeed)',
-      'See how missions and distributions work',
-      'Accept transfers in OneAccord',
-      'View analytics in the Vault',
+      'Yield generated from locked $CIK',
+      'Your share = your locked % of total',
+      'Automatic distribution to missions',
+      'Transparent calculation on-chain',
     ],
-    icon: CheckCircle2,
+    quote: '"Commitment creates capacity."',
+  },
+  {
+    id: 'harvests',
+    title: 'Harvests & Transparency Days',
+    subtitle: 'Real outcomes, real accountability',
+    content: 'Envoys submit weekly Harvest reports with verified impact metrics. Trustees review and approve. On Transparency Days, all fund flows are published for community review.',
+    icon: FileText,
+    gradient: 'gradient-envoy',
+    features: [
+      'Weekly impact reports from the field',
+      'Photos, metrics, and testimonies',
+      'Trustee verification required',
+      'Monthly transparency publications',
+    ],
+  },
+  {
+    id: 'network',
+    title: 'Your Seed Flows Through the Network',
+    subtitle: 'Connected generosity',
+    content: 'Every seed you plant connects to missions across the network. Your locked $CIK value helps fund real impact—tracked, verified, and transparent.',
+    icon: Network,
     gradient: 'gradient-base',
     cta: 'Start Exploring',
+    quote: '"Locked value. Living impact."',
   },
 ];
 
@@ -186,50 +219,74 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                       <p className="text-foreground/80 mb-6 leading-relaxed">{slide.content}</p>
                     )}
 
+                    {/* Flow */}
+                    {slide.flow && (
+                      <div className="space-y-3 mb-6">
+                        {slide.flow.map((step, i) => (
+                          <motion.div
+                            key={step.step}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="flex items-center gap-3"
+                          >
+                            <div className="w-8 h-8 rounded-full gradient-base text-white text-sm font-bold flex items-center justify-center">
+                              {step.step}
+                            </div>
+                            <step.icon className="h-5 w-5 text-muted-foreground" />
+                            <span className="text-sm">{step.label}</span>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Comparison */}
+                    {slide.comparison && (
+                      <div className="grid grid-cols-2 gap-3 mb-6">
+                        {slide.comparison.map((item, i) => (
+                          <motion.div
+                            key={item.title}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="bg-muted/50 rounded-xl p-4"
+                          >
+                            <div className="flex items-center gap-2 mb-3">
+                              <item.icon className="h-5 w-5 text-primary" />
+                              <span className="font-semibold text-sm">{item.title}</span>
+                            </div>
+                            <ul className="space-y-1">
+                              {item.points.map((point, j) => (
+                                <li key={j} className="text-xs text-muted-foreground flex items-start gap-1">
+                                  <span className="text-primary mt-0.5">•</span>
+                                  <span>{point}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </motion.div>
+                        ))}
+                      </div>
+                    )}
+
                     {/* Roles */}
                     {slide.roles && (
                       <div className="space-y-3 mb-6">
-                        {slide.roles.map((role) => (
-                          <div key={role.name} className="bg-muted/50 rounded-xl p-4">
+                        {slide.roles.map((role, i) => (
+                          <motion.div
+                            key={role.name}
+                            initial={{ opacity: 0, y: 10 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            transition={{ delay: i * 0.1 }}
+                            className="bg-muted/50 rounded-xl p-4"
+                          >
                             <div className="flex items-center gap-3 mb-2">
                               <div className={cn("w-10 h-10 rounded-xl flex items-center justify-center", role.gradient)}>
                                 <role.icon className="h-5 w-5 text-white" />
                               </div>
                               <span className="font-semibold">{role.name}</span>
                             </div>
-                            <p className="text-sm text-foreground/80 mb-1">{role.description}</p>
-                            <p className="text-xs text-muted-foreground italic">{role.forWho}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Keys */}
-                    {slide.keys && (
-                      <div className="flex gap-3 mb-6">
-                        {slide.keys.map((key) => (
-                          <div key={key.name} className="flex-1 text-center">
-                            <div className={cn("w-12 h-12 rounded-xl flex items-center justify-center mx-auto mb-2", key.gradient)}>
-                              <Lock className="h-5 w-5 text-white" />
-                            </div>
-                            <p className="font-medium text-sm">{key.name}</p>
-                            <p className="text-xs text-muted-foreground">{key.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Flow */}
-                    {slide.flow && (
-                      <div className="space-y-3 mb-6">
-                        {slide.flow.map((step, i) => (
-                          <div key={step.step} className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-full gradient-base text-white text-sm font-bold flex items-center justify-center">
-                              {step.step}
-                            </div>
-                            <step.icon className="h-5 w-5 text-muted-foreground" />
-                            <span className="text-sm">{step.label}</span>
-                          </div>
+                            <p className="text-sm text-foreground/80">{role.description}</p>
+                          </motion.div>
                         ))}
                       </div>
                     )}
@@ -238,10 +295,16 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                     {slide.features && (
                       <div className="space-y-2 mb-6">
                         {slide.features.map((feature, i) => (
-                          <div key={i} className="flex items-center gap-2">
+                          <motion.div
+                            key={i}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: i * 0.05 }}
+                            className="flex items-center gap-2"
+                          >
                             <CheckCircle2 className="h-4 w-4 text-seed flex-shrink-0" />
                             <span className="text-sm">{feature}</span>
-                          </div>
+                          </motion.div>
                         ))}
                       </div>
                     )}
@@ -277,7 +340,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                   className="flex items-center gap-2 px-6 py-3 gradient-base rounded-xl text-white font-medium"
                 >
                   {currentSlide === slides.length - 1 ? (
-                    slide.cta || 'Get Started'
+                    slide.cta || 'Start Exploring'
                   ) : (
                     <>
                       Next

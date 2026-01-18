@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  X, ChevronRight, ChevronLeft, Wallet, Sprout, 
-  BarChart3, Sparkles, ArrowRight
+  X, ChevronRight, ChevronLeft, Sprout, 
+  BarChart3, Sparkles, ArrowRight, Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import seedbaseIcon from '@/assets/seedbase-icon.png';
@@ -14,47 +14,56 @@ interface WelcomeWalkthroughProps {
 
 const slides = [
   {
-    id: 'wallet-ready',
-    title: 'Your Seed Wallet is Ready!',
-    subtitle: 'You\'re all set to start',
-    content: 'You now have a digital wallet powered by USDC. This is where your generosity journey begins.',
-    icon: Wallet,
-    gradient: 'gradient-base',
-    emoji: '🎉',
+    id: 'intro',
+    title: 'Plant Generosity. Watch Impact Grow.',
+    subtitle: 'Welcome to Seedbase',
+    content: 'A new way to give—with commitment, transparency, and real outcomes.',
+    icon: Sprout,
+    gradient: 'gradient-seed',
+    emoji: '🌱',
   },
   {
     id: 'how-it-works',
-    title: 'Digital Dollars In, Impact Out',
-    subtitle: 'Simple, transparent, powerful',
-    content: 'Digital dollars go in. Locked seeds come out. Your commitment creates real-world impact—tracked in real time.',
+    title: 'How Seeding Works',
+    subtitle: 'Commit → Lock → Distribute',
+    content: 'Commit USDC → Locked as value → Surplus distributed to missions.',
     icon: Sprout,
     gradient: 'gradient-seed',
     visual: [
-      { label: 'USDC', emoji: '💵' },
+      { label: 'Commit USDC', emoji: '💵' },
       { label: '→', emoji: '' },
-      { label: 'Locked Seeds', emoji: '🌱' },
+      { label: 'Value Locked', emoji: '🔒' },
       { label: '→', emoji: '' },
-      { label: 'Impact', emoji: '🌍' },
+      { label: 'Impact Created', emoji: '🌍' },
     ],
   },
   {
-    id: 'transparency',
-    title: 'Track Everything',
-    subtitle: 'One shared ledger, full transparency',
-    content: 'Watch your impact grow in real time. Every transaction, every mission, every outcome—all on one transparent ledger.',
+    id: 'follow',
+    title: 'Follow Your Impact',
+    subtitle: 'Track where your seed flows',
+    content: 'Follow missions. See real-time updates. Know exactly where your generosity goes.',
     icon: BarChart3,
     gradient: 'gradient-trust',
     features: [
-      'See where your capital flows',
-      'Track mission outcomes',
-      'View distributions in real time',
+      'Real-time mission updates',
+      'Verified impact reports',
+      'Transparent fund flow',
     ],
   },
   {
+    id: 'join-cik',
+    title: 'Join Christ is King Seedbase',
+    subtitle: 'Your first seedbase is ready',
+    content: 'Start your generosity journey with a community committed to lasting change.',
+    icon: Users,
+    gradient: 'gradient-base',
+    emoji: '⛪',
+  },
+  {
     id: 'ready',
-    title: 'Ready to Explore?',
-    subtitle: 'Switch roles, discover missions, make impact',
-    content: 'Explore the feed, switch between roles, and see how Seedbase turns commitment into lasting change.',
+    title: 'Ready to Plant Your First Seed?',
+    subtitle: 'Your wallet is set up and ready',
+    content: 'Explore the feed, discover missions, and commit your first seed.',
     icon: Sparkles,
     gradient: 'gradient-envoy',
     cta: "Let's Go",
