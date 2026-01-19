@@ -26,7 +26,8 @@ import {
   type DemoKey,
 } from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
-import { Logo, seeddropIconLight } from '@/components/shared/Logo';
+import { Logo } from '@/components/shared/Logo';
+import seedbasePfp from '@/assets/seedbase-pfp.png';
 
 interface PhoneAuthFlowProps {
   isOpen: boolean;
@@ -583,7 +584,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', delay: 0.1 }}
               >
-                <Logo variant="full" size="lg" />
+                <Logo variant="icon" size="xl" />
               </motion.div>
               <h2 className="text-2xl font-bold mb-2">Welcome to Seedbase</h2>
               <p className="text-muted-foreground mb-8">
@@ -673,13 +674,13 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="relative mx-auto mb-8 flex items-center justify-center w-24 h-24">
+              <div className="relative mx-auto mb-8 flex items-center justify-center w-28 h-28">
                 <motion.div
-                  className="flex items-center justify-center"
+                  className="w-16 h-16 rounded-full overflow-hidden"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
-                  <Logo variant="icon" size="xl" />
+                  <img src={seedbasePfp} alt="Seedbase" className="w-full h-full object-cover" />
                 </motion.div>
                 <motion.div
                   className="absolute w-24 h-24 rounded-full border-2 border-primary"
@@ -701,13 +702,13 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="relative mx-auto mb-8 flex items-center justify-center w-24 h-24">
+              <div className="relative mx-auto mb-8 flex items-center justify-center w-28 h-28">
                 <motion.div
-                  className="flex items-center justify-center"
+                  className="w-16 h-16 rounded-full overflow-hidden"
                   animate={{ rotate: [0, 5, -5, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >
-                  <Logo variant="icon" size="xl" />
+                  <img src={seedbasePfp} alt="Seedbase" className="w-full h-full object-cover" />
                 </motion.div>
                 <motion.div
                   className="absolute w-24 h-24 rounded-full border-2 border-primary"

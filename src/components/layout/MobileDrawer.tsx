@@ -67,7 +67,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
           >
             {/* Header - Full Logo on LEFT, Close on RIGHT */}
             <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
-              <Logo variant="full" size="sm" />
+              <Logo variant="wordmark" size="sm" />
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
