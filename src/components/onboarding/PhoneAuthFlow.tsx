@@ -26,7 +26,7 @@ import {
   type DemoKey,
 } from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
-import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
+import { Logo, seeddropIconDark } from '@/components/shared/Logo';
 
 interface PhoneAuthFlowProps {
   isOpen: boolean;
@@ -577,14 +577,14 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <motion.img
-                src={seedbaseLeaf}
-                alt="Seedbase"
-                className="h-16 w-auto mx-auto mb-6"
+              <motion.div
+                className="mx-auto mb-6"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', delay: 0.1 }}
-              />
+              >
+                <Logo variant="icon" size="xl" />
+              </motion.div>
               <h2 className="text-2xl font-bold mb-2">Welcome to Seedbase</h2>
               <p className="text-muted-foreground mb-8">
                 Enter your phone to create or access your Seed Wallet
@@ -674,13 +674,12 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               className="w-full max-w-sm text-center"
             >
               <div className="relative mx-auto mb-8 flex items-center justify-center">
-                <motion.img
-                  src={seedbaseLeaf}
-                  alt="Seedbase"
-                  className="h-20 w-auto"
+                <motion.div
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
-                />
+                >
+                  <Logo variant="icon" size="xl" />
+                </motion.div>
                 <motion.div
                   className="absolute w-24 h-24 rounded-full border-2 border-primary"
                   animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
@@ -702,13 +701,12 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               className="w-full max-w-sm text-center"
             >
               <div className="relative mx-auto mb-8 flex items-center justify-center">
-                <motion.img
-                  src={seedbaseLeaf}
-                  alt="Seedbase"
-                  className="h-20 w-auto"
+                <motion.div
                   animate={{ rotate: [0, 5, -5, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
-                />
+                >
+                  <Logo variant="icon" size="xl" />
+                </motion.div>
                 <motion.div
                   className="absolute w-24 h-24 rounded-full border-2 border-primary"
                   animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0, 0.6] }}

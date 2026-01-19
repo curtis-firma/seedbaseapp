@@ -7,7 +7,7 @@ import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
+import { Logo } from '@/components/shared/Logo';
 
 const menuNav = [
   { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages & transfers' },
@@ -67,7 +67,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
           >
             {/* Header - Logo on LEFT, Close on RIGHT */}
             <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
-              <img src={seedbaseLeaf} alt="Seedbase" className="h-10 w-auto" />
+              <Logo variant="icon" size="md" />
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}

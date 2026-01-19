@@ -383,7 +383,7 @@ export default function SettingsPage() {
           transition={{ delay: 0.6 }}
           className="text-center text-xs text-muted-foreground py-4"
         >
-          Seedbase v2.0.0 • Built with 💚
+          SeedDrop v2.0.0 • Built with 💚
         </motion.p>
       </div>
     </div>
