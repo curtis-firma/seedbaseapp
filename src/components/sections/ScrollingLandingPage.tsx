@@ -292,7 +292,7 @@ const ScrollingLandingPage = () => {
           </section>
 
           {/* Footer Section */}
-          <footer className="py-16 px-8 flex flex-col items-center gap-8 pointer-events-auto border-t border-gray-200">
+          <footer className="py-8 px-8 flex flex-col items-center gap-6 pointer-events-auto border-t border-gray-200">
             {/* Powered by CIK - Top of footer */}
             <img alt="Powered by Christ is King" className="h-12 object-contain" src={poweredByCik} />
             
