@@ -15,7 +15,7 @@ const STATES = [
   { id: 'brand', Component: BrandMomentState },
 ];
 
-const STATE_DURATION = 5000; // 5 seconds per state
+const STATE_DURATION = 8000; // 8 seconds per state
 
 const HeroVisualCanvas = () => {
   const [activeState, setActiveState] = useState(0);
