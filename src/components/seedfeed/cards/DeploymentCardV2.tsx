@@ -75,15 +75,16 @@ export function DeploymentCardV2({
             )}
           </div>
           <motion.button
-            whileTap={{ scale: 0.95 }}
+            whileTap={{ scale: 0.98 }}
             onClick={() => navigate('/app/seedbase')}
             className="
-              flex items-center gap-1 px-3 py-1.5
-              text-sm font-medium text-primary
-              hover:bg-primary/10 rounded-lg transition-colors
+              flex items-center gap-1.5 px-4 py-2
+              text-sm font-medium text-white
+              bg-primary hover:bg-primary/90 rounded-xl transition-colors
+              shadow-sm
             "
           >
-            View
+            View Mission
             <ArrowRight className="w-4 h-4" />
           </motion.button>
         </div>

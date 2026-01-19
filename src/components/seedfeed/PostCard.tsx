@@ -80,7 +80,6 @@ export function PostCard({
           timestamp={timestamp}
           badge={badge}
           badgeVariant={badgeVariant}
-          isOfficial={isOfficial}
         />
       </div>
 
