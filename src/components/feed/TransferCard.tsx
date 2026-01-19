@@ -29,8 +29,8 @@ export function TransferCard({
       animate={{ opacity: 1, y: 0 }}
       className={cn(
         "rounded-xl border p-4",
-        status === 'pending' && isIncoming ? "bg-seed/5 border-seed/30" :
-        status === 'accepted' ? "bg-seed/5 border-seed/30" :
+        status === 'pending' && isIncoming ? "bg-primary/5 border-primary/30" :
+        status === 'accepted' ? "bg-primary/5 border-primary/30" :
         status === 'declined' ? "bg-destructive/5 border-destructive/30" :
         "bg-muted/50 border-border/50"
       )}
@@ -38,13 +38,13 @@ export function TransferCard({
       <div className="flex items-center gap-3 mb-3">
         <div className={cn(
           "w-10 h-10 rounded-xl flex items-center justify-center",
-          status === 'accepted' ? "bg-seed/10" :
+          status === 'accepted' ? "bg-primary/10" :
           status === 'declined' ? "bg-destructive/10" :
           "bg-primary/10"
         )}>
           <DollarSign className={cn(
             "h-5 w-5",
-            status === 'accepted' ? "text-seed" :
+            status === 'accepted' ? "text-primary" :
             status === 'declined' ? "text-destructive" :
             "text-primary"
           )} />
@@ -58,7 +58,7 @@ export function TransferCard({
         
         <span className={cn(
           "text-lg font-bold",
-          status === 'accepted' ? "text-seed" :
+          status === 'accepted' ? "text-primary" :
           status === 'declined' ? "text-destructive" :
           "text-foreground"
         )}>
@@ -74,7 +74,7 @@ export function TransferCard({
         <span className={cn(
           "text-xs font-medium px-2 py-1 rounded-full capitalize",
           status === 'pending' ? "bg-primary/10 text-primary" :
-          status === 'accepted' ? "bg-seed/10 text-seed" :
+          status === 'accepted' ? "bg-primary/10 text-primary" :
           "bg-destructive/10 text-destructive"
         )}>
           {status}
@@ -93,7 +93,7 @@ export function TransferCard({
             <motion.button
               whileTap={{ scale: 0.95 }}
               onClick={onAccept}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-seed text-white text-sm font-medium"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-lg bg-primary text-white text-sm font-medium"
             >
               <Check className="h-4 w-4" />
               Accept

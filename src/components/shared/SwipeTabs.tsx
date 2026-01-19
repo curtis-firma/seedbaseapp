@@ -18,7 +18,7 @@ export function SwipeTabs({ tabs, activeTab, onTabChange, className }: SwipeTabs
           className={cn(
             "relative flex-1 py-2.5 px-4 rounded-lg text-sm font-medium transition-colors",
             activeTab === index
-              ? "text-foreground"
+              ? "text-primary font-semibold"
               : "text-muted-foreground hover:text-foreground"
           )}
           whileTap={{ scale: 0.98 }}
@@ -26,7 +26,7 @@ export function SwipeTabs({ tabs, activeTab, onTabChange, className }: SwipeTabs
           {activeTab === index && (
             <motion.div
               layoutId="active-tab"
-              className="absolute inset-0 bg-background rounded-lg shadow-sm"
+              className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-lg shadow-sm"
               transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
             />
           )}

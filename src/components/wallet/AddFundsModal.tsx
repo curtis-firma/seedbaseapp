@@ -174,7 +174,7 @@ export function AddFundsModal({ isOpen, onClose, onSuccess }: AddFundsModalProps
                           className={cn(
                             "py-3 rounded-xl font-medium transition-all",
                             selectedAmount === amt
-                              ? "gradient-seed text-white"
+                              ? "bg-primary text-white"
                               : "bg-muted hover:bg-muted/80"
                           )}
                         >
@@ -190,7 +190,7 @@ export function AddFundsModal({ isOpen, onClose, onSuccess }: AddFundsModalProps
                       className={cn(
                         "w-full py-4 rounded-2xl font-semibold text-lg flex items-center justify-center gap-2 transition-all",
                         amount > 0
-                          ? "gradient-seed text-white"
+                          ? "bg-primary hover:bg-primary/90 text-white"
                           : "bg-muted text-muted-foreground"
                       )}
                     >
@@ -325,7 +325,7 @@ export function AddFundsModal({ isOpen, onClose, onSuccess }: AddFundsModalProps
                       className={cn(
                         "w-full py-4 rounded-2xl font-semibold text-lg transition-all",
                         cardNumber.replace(/\s/g, '').length >= 15 && cardExpiry.length >= 5 && cardCvv.length >= 3
-                          ? "gradient-seed text-white"
+                          ? "bg-primary hover:bg-primary/90 text-white"
                           : "bg-muted text-muted-foreground"
                       )}
                     >
@@ -404,7 +404,7 @@ export function AddFundsModal({ isOpen, onClose, onSuccess }: AddFundsModalProps
                       initial={{ scale: 0 }}
                       animate={{ scale: 1 }}
                       transition={{ type: "spring", delay: 0.2 }}
-                      className="w-20 h-20 mx-auto mb-6 rounded-full gradient-seed flex items-center justify-center"
+                      className="w-20 h-20 mx-auto mb-6 rounded-full bg-primary flex items-center justify-center"
                     >
                       <Check className="h-10 w-10 text-white" />
                     </motion.div>
@@ -419,7 +419,7 @@ export function AddFundsModal({ isOpen, onClose, onSuccess }: AddFundsModalProps
                     <motion.button
                       whileTap={{ scale: 0.98 }}
                       onClick={handleClose}
-                      className="w-full py-4 gradient-seed text-white rounded-2xl font-semibold"
+                      className="w-full py-4 bg-primary hover:bg-primary/90 text-white rounded-2xl font-semibold"
                     >
                       Done
                     </motion.button>
