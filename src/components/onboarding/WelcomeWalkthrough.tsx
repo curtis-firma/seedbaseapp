@@ -123,7 +123,7 @@ export function WelcomeWalkthrough({ isOpen, onComplete }: WelcomeWalkthroughPro
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border/50">
                 <div className="flex items-center gap-2">
-                  <img src={seedbaseLeaf} alt="Seedbase" className="w-6 h-6" />
+                  <img src={seedbaseLeaf} alt="Seedbase" className="h-6 w-auto" />
                   <span className="text-sm font-medium text-muted-foreground">Welcome</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -243,7 +243,7 @@ export function WelcomeWalkthrough({ isOpen, onComplete }: WelcomeWalkthroughPro
                     <motion.button
                       whileTap={{ scale: 0.98 }}
                       onClick={handleNext}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 gradient-base rounded-xl text-white font-medium"
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 rounded-xl text-white font-medium shadow-lg"
                     >
                       {slide.cta}
                       <ChevronRight className="h-4 w-4" />
@@ -251,7 +251,7 @@ export function WelcomeWalkthrough({ isOpen, onComplete }: WelcomeWalkthroughPro
                     <motion.button
                       whileTap={{ scale: 0.98 }}
                       onClick={handleLearnMore}
-                      className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-muted hover:bg-muted/80 rounded-xl font-medium transition-colors"
+                      className="w-full flex items-center justify-center gap-2 px-6 py-3 border border-border hover:bg-muted/50 rounded-xl font-medium transition-colors"
                     >
                       {slide.secondaryCta}
                     </motion.button>
@@ -263,7 +263,7 @@ export function WelcomeWalkthrough({ isOpen, onComplete }: WelcomeWalkthroughPro
                       onClick={handlePrev}
                       disabled={currentSlide === 0}
                       className={cn(
-                        "flex items-center gap-2 px-4 py-2 rounded-xl transition-colors",
+                        "flex items-center gap-2 px-4 py-2 rounded-lg transition-colors",
                         currentSlide === 0 ? "opacity-0 pointer-events-none" : "hover:bg-muted"
                       )}
                     >
@@ -274,7 +274,7 @@ export function WelcomeWalkthrough({ isOpen, onComplete }: WelcomeWalkthroughPro
                     <motion.button
                       whileTap={{ scale: 0.98 }}
                       onClick={handleNext}
-                      className="flex items-center gap-2 px-6 py-3 gradient-base rounded-xl text-white font-medium"
+                      className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 rounded-xl text-white font-medium shadow-lg"
                     >
                       Next
                       <ChevronRight className="h-4 w-4" />
