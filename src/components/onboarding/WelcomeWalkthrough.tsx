@@ -5,7 +5,7 @@ import {
   BarChart3, Sparkles, ArrowRight, Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
+import seedbaseLogoFull from '@/assets/seedbase-logo-full.png';
 
 interface WelcomeWalkthroughProps {
   isOpen: boolean;
@@ -123,8 +123,7 @@ export function WelcomeWalkthrough({ isOpen, onComplete }: WelcomeWalkthroughPro
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border/50">
                 <div className="flex items-center gap-2">
-                  <img src={seedbaseLeaf} alt="Seedbase" className="h-6 w-auto" />
-                  <span className="text-sm font-medium text-muted-foreground">Welcome</span>
+                  <img src={seedbaseLogoFull} alt="Seedbase" className="h-6 w-auto" />
                 </div>
                 <div className="flex items-center gap-3">
                   <div className="flex gap-1.5">

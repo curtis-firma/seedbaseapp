@@ -162,7 +162,7 @@ export default function SettingsPage() {
                     whileTap={{ scale: 0.95 }}
                     onClick={handleSaveAvatar}
                     disabled={isUploadingAvatar}
-                    className="px-4 py-2 rounded-xl gradient-seed text-white text-sm font-medium flex items-center gap-2"
+                    className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-medium flex items-center gap-2"
                   >
                     {isUploadingAvatar ? (
                       <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />

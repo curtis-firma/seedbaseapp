@@ -521,12 +521,30 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       className={cn(
-        "flex flex-col",
+        "flex flex-col relative overflow-hidden",
         asModal 
           ? "bg-white rounded-3xl min-h-[500px]" 
           : "fixed inset-0 bg-background z-50"
       )}
     >
+      {/* Animated gradient background */}
+      {!asModal && (
+        <motion.div
+          className="absolute inset-0 -z-10"
+          style={{
+            background: 'linear-gradient(135deg, hsl(var(--background)) 0%, hsl(221 83% 97%) 25%, hsl(var(--background)) 50%, hsl(221 83% 97%) 75%, hsl(var(--background)) 100%)',
+            backgroundSize: '400% 400%',
+          }}
+          animate={{
+            backgroundPosition: ['0% 50%', '100% 50%', '0% 50%'],
+          }}
+          transition={{
+            duration: 15,
+            repeat: Infinity,
+            ease: 'linear',
+          }}
+        />
+      )}
       {/* Progress dots - hide during animations */}
       {step !== 'creating-wallet' && step !== 'activating-key' && step !== 'verifying' && step !== 'restoring' && (
         <div className={cn("flex justify-center", asModal ? "pt-6 pb-2" : "p-6")}>
@@ -574,14 +592,14 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               
               {/* Clean form - no background container */}
               <div className="space-y-4 mb-6">
-                {/* Phone input - clean outlined rectangle */}
-                <div className="bg-white border border-border rounded-xl hover:border-primary/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
+                {/* Phone input - clean outlined rectangle with autofill override */}
+                <div className="bg-white border border-border rounded-xl hover:border-primary/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all shadow-sm">
                   <input
                     type="tel"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                     placeholder="(555) 123-4567"
-                    className="w-full text-center text-2xl font-semibold bg-transparent py-4 px-4 outline-none placeholder:text-muted-foreground/50"
+                    className="w-full text-center text-2xl font-semibold bg-white py-4 px-4 outline-none placeholder:text-muted-foreground/50 rounded-xl [&:-webkit-autofill]:bg-white [&:-webkit-autofill]:shadow-[0_0_0px_1000px_white_inset] [&:-webkit-autofill:focus]:shadow-[0_0_0px_1000px_white_inset]"
                     autoFocus
                   />
                 </div>
@@ -715,7 +733,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                     className="flex items-center gap-3 text-left"
                   >
                     {restoreStep > i ? (
-                      <Check className="h-4 w-4 text-seed" />
+                      <Check className="h-4 w-4 text-primary" />
                     ) : restoreStep === i ? (
                       <Loader2 className="h-4 w-4 animate-spin text-primary" />
                     ) : (
@@ -743,7 +761,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               className="w-full max-w-sm text-center"
             >
               <motion.div
-                className="w-20 h-20 mx-auto mb-8 gradient-seed rounded-2xl flex items-center justify-center"
+                className="w-20 h-20 mx-auto mb-8 bg-primary rounded-2xl flex items-center justify-center"
                 animate={{ rotate: [0, 5, -5, 0] }}
                 transition={{ duration: 2, repeat: Infinity }}
               >
@@ -755,7 +773,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               {/* Progress bar */}
               <div className="w-full h-2 bg-muted rounded-full overflow-hidden mb-6">
                 <motion.div
-                  className="h-full gradient-seed"
+                  className="h-full bg-primary"
                   initial={{ width: 0 }}
                   animate={{ width: `${creationProgress}%` }}
                 />
@@ -774,8 +792,8 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                     transition={{ delay: i * 0.1 }}
                     className="flex items-center gap-2"
                   >
-                    {creationStep > i ? (
-                      <Check className="h-3 w-3 text-seed" />
+                  {creationStep > i ? (
+                      <Check className="h-3 w-3 text-primary" />
                     ) : creationStep === i ? (
                       <Loader2 className="h-3 w-3 animate-spin text-primary" />
                     ) : (
@@ -803,7 +821,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: 'spring', delay: 0.2 }}
-                className="w-20 h-20 mx-auto mb-6 gradient-seed rounded-2xl flex items-center justify-center"
+                className="w-20 h-20 mx-auto mb-6 bg-primary rounded-2xl flex items-center justify-center"
               >
                 <Check className="h-10 w-10 text-white" />
               </motion.div>
@@ -1015,8 +1033,8 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                     transition={{ delay: i * 0.1 }}
                     className="flex items-center gap-2"
                   >
-                    {creationStep > i ? (
-                      <Check className="h-3 w-3 text-seed" />
+                  {creationStep > i ? (
+                      <Check className="h-3 w-3 text-primary" />
                     ) : creationStep === i ? (
                       <Loader2 className="h-3 w-3 animate-spin text-primary" />
                     ) : (

@@ -361,7 +361,7 @@ export function SendModal({ isOpen, onClose, onSuccess }: SendModalProps) {
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSend}
-                className="w-full py-4 gradient-seed rounded-xl text-white font-semibold flex items-center justify-center gap-2"
+                className="w-full py-4 bg-primary hover:bg-primary/90 rounded-xl text-white font-semibold flex items-center justify-center gap-2"
               >
                 Confirm & Send
                 <ArrowUpRight className="h-5 w-5" />
