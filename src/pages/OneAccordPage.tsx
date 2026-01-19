@@ -16,7 +16,8 @@ import { SendModal } from '@/components/wallet/SendModal';
 import { ComposeMessageModal } from '@/components/oneaccord/ComposeMessageModal';
 import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 import { oneAccordMessages } from '@/data/mockData';
-
+import { Confetti } from '@/components/shared/Confetti';
+import { triggerHaptic } from '@/hooks/useHaptic';
 // Message type icons and styles
 const messageTypeConfig: Record<string, { icon: typeof DollarSign; gradient: string; bgColor: string }> = {
   distribution: { icon: DollarSign, gradient: 'gradient-seed', bgColor: 'bg-seed/10' },
@@ -35,6 +36,8 @@ export default function OneAccordPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showSendModal, setShowSendModal] = useState(false);
   const [showComposeModal, setShowComposeModal] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const [acceptedTransferId, setAcceptedTransferId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Get current user ID from session
@@ -92,8 +95,19 @@ export default function OneAccordPage() {
   const handleAccept = async (transfer: DemoTransfer) => {
     const updated = await acceptTransfer(transfer.id);
     if (updated) {
+      // Show success state with confetti
+      setAcceptedTransferId(transfer.id);
+      setShowConfetti(true);
+      triggerHaptic('success');
+      
       toast.success(`Accepted $${transfer.amount} from @${transfer.from_user?.username || 'user'}`);
-      loadTransfers();
+      
+      // Delay removal to show success animation
+      setTimeout(() => {
+        setShowConfetti(false);
+        setAcceptedTransferId(null);
+        loadTransfers();
+      }, 1500);
     } else {
       toast.error('Failed to accept transfer');
     }
@@ -102,6 +116,7 @@ export default function OneAccordPage() {
   const handleDecline = async (transfer: DemoTransfer) => {
     const updated = await declineTransfer(transfer.id);
     if (updated) {
+      triggerHaptic('light');
       toast.success('Transfer declined');
       loadTransfers();
     } else {
@@ -110,7 +125,10 @@ export default function OneAccordPage() {
   };
 
   const handleDemoAccept = (messageId: string) => {
+    setShowConfetti(true);
+    triggerHaptic('success');
     toast.success('Transfer accepted! Funds added to your wallet.');
+    setTimeout(() => setShowConfetti(false), 2000);
   };
 
   const currentUserId = getCurrentUserId();
@@ -119,6 +137,9 @@ export default function OneAccordPage() {
 
   return (
     <div className="min-h-screen">
+      {/* Confetti Animation */}
+      <Confetti isActive={showConfetti} />
+      
       <AnimatePresence mode="wait">
         {selectedTransfer ? (
           <TransferDetailView
