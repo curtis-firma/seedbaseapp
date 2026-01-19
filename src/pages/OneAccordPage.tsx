@@ -34,6 +34,7 @@ export default function OneAccordPage() {
   const [selectedTransfer, setSelectedTransfer] = useState<DemoTransfer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showSendModal, setShowSendModal] = useState(false);
+  const [showComposeModal, setShowComposeModal] = useState(false);
   const navigate = useNavigate();
 
   // Get current user ID from session
@@ -151,7 +152,7 @@ export default function OneAccordPage() {
                 <div className="flex items-center gap-2">
                   <motion.button
                     whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowSendModal(true)}
+                    onClick={() => setShowComposeModal(true)}
                     className="p-2 rounded-xl gradient-seed text-white"
                   >
                     <Plus className="h-5 w-5" />
@@ -472,6 +473,15 @@ export default function OneAccordPage() {
         isOpen={showSendModal}
         onClose={() => setShowSendModal(false)}
         onSuccess={loadTransfers}
+      />
+
+      <ComposeMessageModal
+        isOpen={showComposeModal}
+        onClose={() => setShowComposeModal(false)}
+        onSuccess={() => {
+          loadTransfers();
+          setShowComposeModal(false);
+        }}
       />
     </div>
   );
