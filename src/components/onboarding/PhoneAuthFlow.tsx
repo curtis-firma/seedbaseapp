@@ -541,7 +541,7 @@ Generosity Network</p>
                 {/* Continue button - blue, rounded rectangle */}
                 <motion.button whileTap={{
               scale: 0.98
-            }} onClick={handlePhoneSubmit} disabled={phoneNumber.length < 10} className={cn("w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all", phoneNumber.length >= 10 ? "bg-primary text-white hover:bg-primary/90 shadow-lg" : "bg-muted text-muted-foreground")}>
+            }} onClick={handlePhoneSubmit} disabled={phoneNumber.length < 10} className={cn("w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all", phoneNumber.length >= 10 ? "bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg shadow-primary/25" : "bg-primary/30 text-primary-foreground/50")}>
                   Continue
                   <ArrowRight className="h-5 w-5" />
                 </motion.button>
