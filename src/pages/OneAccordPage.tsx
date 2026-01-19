@@ -354,7 +354,7 @@ export default function OneAccordPage() {
                       <div className="mb-4">
                         <div className="flex items-center gap-2 mb-3">
                           <h2 className="font-semibold">Pending Transfers</h2>
-                          <span className="px-2 py-0.5 bg-seed/10 text-seed rounded-full text-xs font-medium">
+                          <span className="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
                             {pendingTransfers.length}
                           </span>
                         </div>
@@ -365,7 +365,7 @@ export default function OneAccordPage() {
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: i * 0.05 }}
-                              className="bg-card rounded-2xl border border-seed/30 p-4"
+                              className="bg-card rounded-2xl border border-primary/30 p-4"
                             >
                               <div className="flex items-center gap-3 mb-3">
                                 {transfer.from_user?.avatar_url ? (
@@ -375,7 +375,7 @@ export default function OneAccordPage() {
                                     className="w-10 h-10 rounded-full object-cover"
                                   />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-full gradient-seed flex items-center justify-center">
+                                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
                                     <DollarSign className="h-5 w-5 text-white" />
                                   </div>
                                 )}
@@ -385,7 +385,7 @@ export default function OneAccordPage() {
                                     {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
                                   </p>
                                 </div>
-                                <p className="text-xl font-bold text-seed">${transfer.amount.toFixed(2)}</p>
+                                <p className="text-xl font-bold text-primary">${transfer.amount.toFixed(2)}</p>
                               </div>
                               
                               {transfer.purpose && (
@@ -396,7 +396,7 @@ export default function OneAccordPage() {
                                 <motion.button
                                   whileTap={{ scale: 0.98 }}
                                   onClick={() => handleAccept(transfer)}
-                                  className="flex-1 flex items-center justify-center gap-2 py-3 gradient-seed rounded-xl text-white font-medium"
+                                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary hover:bg-primary/90 rounded-xl text-white font-medium"
                                 >
                                   <Check className="h-4 w-4" />
                                   Accept
@@ -451,7 +451,7 @@ export default function OneAccordPage() {
                                 </div>
                                 <p className={cn(
                                   "font-semibold",
-                                  isIncoming && isAccepted ? "text-seed" : "text-foreground"
+                                  isIncoming && isAccepted ? "text-primary" : "text-foreground"
                                 )}>
                                   {isIncoming ? '+' : '-'}${transfer.amount.toFixed(2)}
                                 </p>
@@ -532,7 +532,7 @@ function TransferDetailView({
         <div className="text-center mb-8">
           <div className={cn(
             "w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center",
-            transfer.status === 'accepted' ? "gradient-seed" : 
+            transfer.status === 'accepted' ? "bg-primary" : 
             transfer.status === 'declined' ? "bg-muted" : "gradient-base"
           )}>
             <DollarSign className={cn(
@@ -565,7 +565,7 @@ function TransferDetailView({
             <span className="text-muted-foreground">Status</span>
             <span className={cn(
               "font-medium capitalize",
-              transfer.status === 'accepted' && "text-seed",
+              transfer.status === 'accepted' && "text-primary",
               transfer.status === 'declined' && "text-destructive"
             )}>
               {transfer.status}
@@ -585,7 +585,7 @@ function TransferDetailView({
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={onAccept}
-              className="w-full py-4 gradient-seed rounded-2xl text-white font-semibold flex items-center justify-center gap-2"
+              className="w-full py-4 bg-primary hover:bg-primary/90 rounded-2xl text-white font-semibold flex items-center justify-center gap-2"
             >
               <Check className="h-5 w-5" />
               Accept Transfer

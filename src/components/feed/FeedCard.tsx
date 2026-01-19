@@ -11,6 +11,7 @@ import { ComingSoonModal, useComingSoon } from '@/components/shared/ComingSoonMo
 import { toast } from 'sonner';
 import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
 import { triggerHaptic } from '@/hooks/useHaptic';
+import { useInView } from '@/hooks/useInView';
 
 interface FeedCardProps {
   item: FeedItem;
@@ -41,6 +42,11 @@ export function FeedCard({ item, index }: FeedCardProps) {
   const [isImpactDrawerOpen, setIsImpactDrawerOpen] = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
   const { isOpen: isComingSoonOpen, featureName, showComingSoon, hideComingSoon } = useComingSoon();
+  const { ref: cardRef, isInView } = useInView<HTMLElement>({
+    threshold: 0.15,
+    rootMargin: '50px',
+    triggerOnce: true,
+  });
 
   const handleLike = () => {
     triggerHaptic(isLiked ? 'light' : 'medium');
@@ -98,9 +104,17 @@ export function FeedCard({ item, index }: FeedCardProps) {
   return (
     <>
       <motion.article
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: index * 0.05, duration: 0.3 }}
+        ref={cardRef}
+        initial={{ opacity: 0, y: 30, scale: 0.98 }}
+        animate={isInView 
+          ? { opacity: 1, y: 0, scale: 1 } 
+          : { opacity: 0, y: 30, scale: 0.98 }
+        }
+        transition={{ 
+          duration: 0.4, 
+          ease: [0.25, 0.46, 0.45, 0.94],
+          delay: Math.min(index * 0.05, 0.2)
+        }}
         className={cn(
           "bg-card rounded-2xl border border-border/50 shadow-card overflow-hidden",
           "border-l-4",

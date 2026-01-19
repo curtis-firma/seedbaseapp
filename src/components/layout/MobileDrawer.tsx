@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
-import seedbaseLogoFull from '@/assets/seedbase-logo-full.png';
+import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
 
 const menuNav = [
   { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages & transfers' },
@@ -60,7 +60,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
           >
             {/* Header with larger logo */}
             <div className="p-6 flex items-center justify-between border-b border-border/50">
-              <img src={seedbaseLogoFull} alt="Seedbase" className="h-10 w-auto" />
+              <img src={seedbaseLeaf} alt="Seedbase" className="h-12 w-auto" />
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}

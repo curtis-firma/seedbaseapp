@@ -673,16 +673,16 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="relative w-16 h-16 mx-auto mb-8">
+              <div className="relative mx-auto mb-8 flex items-center justify-center">
                 <motion.img
                   src={seedbaseLeaf}
                   alt="Seedbase"
-                  className="h-16 w-auto mx-auto"
+                  className="h-20 w-auto"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 />
                 <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-primary"
+                  className="absolute w-24 h-24 rounded-full border-2 border-primary"
                   animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 />
@@ -701,16 +701,16 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="relative w-16 h-16 mx-auto mb-8">
+              <div className="relative mx-auto mb-8 flex items-center justify-center">
                 <motion.img
                   src={seedbaseLeaf}
                   alt="Seedbase"
-                  className="h-16 w-auto mx-auto"
+                  className="h-20 w-auto"
                   animate={{ rotate: [0, 5, -5, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
                 <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-primary"
+                  className="absolute w-24 h-24 rounded-full border-2 border-primary"
                   animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0, 0.6] }}
                   transition={{ duration: 1.2, repeat: Infinity }}
                 />

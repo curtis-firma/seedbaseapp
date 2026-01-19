@@ -45,9 +45,7 @@ export default function SeedbasePage() {
               whileTap={{ scale: 0.98 }}
               className={cn(
                 "flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-medium",
-                viewRole === 'activator' && "gradient-seed",
-                viewRole === 'trustee' && "gradient-trust",
-                viewRole === 'envoy' && "gradient-envoy"
+                "bg-primary hover:bg-primary/90"
               )}
             >
               <Plus className="h-4 w-4" />
@@ -98,7 +96,7 @@ function ActivatorContent({ tab }: { tab: number }) {
           className="bg-card rounded-2xl border border-border/50 shadow-card p-5"
         >
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 rounded-xl gradient-seed flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center">
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
             <div>
@@ -121,7 +119,7 @@ function ActivatorContent({ tab }: { tab: number }) {
           <motion.button
             whileHover={{ scale: 1.01 }}
             whileTap={{ scale: 0.99 }}
-            className="w-full py-3 rounded-xl gradient-seed text-white font-medium"
+            className="w-full py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium"
           >
             Commit More
           </motion.button>
@@ -340,7 +338,7 @@ function StatCard({ label, value, change }: { label: string; value: string; chan
     >
       <p className="text-sm text-muted-foreground mb-1">{label}</p>
       <p className="text-2xl font-bold mb-1">{value}</p>
-      <p className="text-sm text-seed">{change}</p>
+      <p className="text-sm text-primary">{change}</p>
     </motion.div>
   );
 }
@@ -366,7 +364,7 @@ function MissionCard({ mission, index, showProgress = false }: { mission: any; i
         </div>
         <span className={cn(
           "px-2 py-1 rounded-full text-xs font-medium",
-          mission.status === 'active' && "bg-seed/10 text-seed",
+          mission.status === 'active' && "bg-primary/10 text-primary",
           mission.status === 'completed' && "bg-muted text-muted-foreground"
         )}>
           {mission.status}
@@ -395,7 +393,7 @@ function MissionCard({ mission, index, showProgress = false }: { mission: any; i
 
       {/* Milestones */}
       <div className="flex items-center gap-2 text-sm">
-        <CheckCircle2 className="h-4 w-4 text-seed" />
+        <CheckCircle2 className="h-4 w-4 text-primary" />
         <span className="text-muted-foreground">
           {completedMilestones}/{mission.milestones.length} milestones completed
         </span>
