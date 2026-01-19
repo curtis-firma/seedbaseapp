@@ -71,7 +71,7 @@ export function FeedRenderer({ items }: FeedRendererProps) {
             author={author}
             timestamp={item.timestamp}
             badge={item.roleBadge}
-            badgeVariant={item.roleBadge === 'Steward' ? 'steward' : item.roleBadge === 'Envoy' ? 'envoy' : 'activator'}
+            badgeVariant={item.roleBadge === 'Trustee' ? 'trustee' : item.roleBadge === 'Envoy' ? 'envoy' : 'activator'}
             isOfficial={isOfficial}
             commentCount={item.comments}
             likeCount={item.likes}

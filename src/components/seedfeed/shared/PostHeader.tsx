@@ -10,14 +10,14 @@ interface PostHeaderProps {
   };
   timestamp: Date;
   badge?: string;
-  badgeVariant?: 'official' | 'steward' | 'envoy' | 'activator' | 'recipient';
+  badgeVariant?: 'official' | 'trustee' | 'envoy' | 'activator' | 'recipient';
   onMoreClick?: () => void;
   className?: string;
 }
 
 const badgeStyles = {
   official: 'bg-primary/10 text-primary',
-  steward: 'bg-trust/10 text-trust',
+  trustee: 'bg-trust/10 text-trust',
   envoy: 'bg-envoy/10 text-envoy',
   activator: 'bg-seed/10 text-seed',
   recipient: 'bg-base/10 text-base',

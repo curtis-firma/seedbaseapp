@@ -421,6 +421,44 @@ export const mockFeedItems: FeedItem[] = [
     yourSeed: 250,
     yourImpactPercentage: 0.5,
   },
+  // Simple person post - Activator reflection
+  {
+    id: 'simple-1',
+    type: 'commitment',
+    postType: 'commitment',
+    title: '',
+    content: 'Seeing real impact from my contribution. This is what giving should feel like! ✨',
+    author: {
+      name: 'Emma Johnson',
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
+      role: 'activator',
+      handle: 'emma',
+      isVerified: true,
+    },
+    roleBadge: 'Activator',
+    timestamp: new Date(Date.now() - 1000 * 60 * 40),
+    likes: 32,
+    comments: 5,
+  },
+  // Simple person post - Envoy update
+  {
+    id: 'simple-2',
+    type: 'mission_update',
+    postType: 'mission_update',
+    title: '',
+    content: 'Just visited the new classroom site in Tanzania. The foundation is already poured. Can\'t wait to share more updates! 🏗️',
+    author: {
+      name: 'Sarah Kimani',
+      avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&h=100&fit=crop',
+      role: 'envoy',
+      handle: 'sarah',
+      isVerified: true,
+    },
+    roleBadge: 'Envoy',
+    timestamp: new Date(Date.now() - 1000 * 60 * 55),
+    likes: 67,
+    comments: 12,
+  },
   // Position 3: Mission Update - Mobile Classrooms with funding progress
   {
     id: 'nf-2',
@@ -478,7 +516,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'cikseedbase',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'surplus',
@@ -498,6 +536,44 @@ export const mockFeedItems: FeedItem[] = [
     totalRaised: 12500,
     yourSeed: 890,
     yourImpactPercentage: 7.12,
+  },
+  // Simple person post - Trustee reflection
+  {
+    id: 'simple-3',
+    type: 'transparency',
+    postType: 'announcement',
+    title: '',
+    content: 'Just reviewed the Q4 impact reports. Every dollar is making a difference. Grateful to steward this alongside you all. 🙏',
+    author: {
+      name: 'Pastor James',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
+      role: 'trustee',
+      handle: 'pastorjames',
+      isVerified: true,
+    },
+    roleBadge: 'Trustee',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4),
+    likes: 45,
+    comments: 8,
+  },
+  // Simple person post - Activator excitement
+  {
+    id: 'simple-4',
+    type: 'commitment',
+    postType: 'commitment',
+    title: '',
+    content: 'My first seed just got deployed to a real mission! Watching my generosity multiply feels incredible 🌱',
+    author: {
+      name: 'David Kim',
+      avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop',
+      role: 'activator',
+      handle: 'david',
+      isVerified: true,
+    },
+    roleBadge: 'Activator',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6),
+    likes: 78,
+    comments: 15,
   },
   // Position 5: Testimony from water recipient - MOVED UP from position 16
   {
@@ -628,6 +704,44 @@ export const mockFeedItems: FeedItem[] = [
     yourSeed: 400,
     yourImpactPercentage: 1.25,
   },
+  // Simple person post - Envoy gratitude
+  {
+    id: 'simple-5',
+    type: 'mission_update',
+    postType: 'mission_update',
+    title: '',
+    content: 'Every time I see a child drink clean water for the first time, I remember why we do this. Thank you activators! 💧',
+    author: {
+      name: 'Marcus Okonkwo',
+      avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop',
+      role: 'envoy',
+      handle: 'marcus',
+      isVerified: true,
+    },
+    roleBadge: 'Envoy',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 26),
+    likes: 156,
+    comments: 22,
+  },
+  // Simple person post - New activator
+  {
+    id: 'simple-6',
+    type: 'commitment',
+    postType: 'commitment',
+    title: '',
+    content: 'Just signed up as an Activator. Ready to plant my first seed! Who else is new here? 🌱',
+    author: {
+      name: 'Michelle Park',
+      avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
+      role: 'activator',
+      handle: 'michelle',
+      isVerified: false,
+    },
+    roleBadge: 'Activator',
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 30),
+    likes: 89,
+    comments: 34,
+  },
   // Network milestone
   {
     id: 'nf-8',
@@ -676,7 +790,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'hopecity',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     seedbase: { id: 'sb-hc', name: 'Hope City Church' },
     embeddedCard: {
       type: 'surplus',
@@ -879,7 +993,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'waterwellsug',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     seedbase: { id: 'sb-wwu', name: 'Water Wells Uganda' },
     embeddedCard: {
       type: 'surplus',
@@ -945,7 +1059,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'cikseedbase',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     mission: { id: 'm-cik-1', name: 'Guatemala Medical Clinic' },
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
@@ -1081,7 +1195,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'cikseedbase',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'stats',
@@ -1243,7 +1357,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'pastorjames',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     mission: { id: 'm-cik-1', name: 'Guatemala Medical Clinic' },
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
@@ -1301,6 +1415,44 @@ export const forYouItems: FeedItem[] = [
     likes: 123,
     comments: 18,
   },
+  // Simple person post for For You - Activator success
+  {
+    id: 'fy-simple-1',
+    type: 'commitment',
+    postType: 'commitment',
+    title: '',
+    content: 'Just got my first distribution notification! Feels amazing to see the cycle complete. 🌾',
+    author: {
+      name: 'Rachel Torres',
+      avatar: 'https://images.unsplash.com/photo-1494790108755-2616b612b547?w=100&h=100&fit=crop',
+      role: 'activator',
+      handle: 'rachel',
+      isVerified: true,
+    },
+    roleBadge: 'Activator',
+    timestamp: new Date(Date.now() - 1000 * 60 * 25),
+    likes: 54,
+    comments: 9,
+  },
+  // Simple person post for For You - Envoy field update
+  {
+    id: 'fy-simple-2',
+    type: 'mission_update',
+    postType: 'mission_update',
+    title: '',
+    content: 'On the ground in Guatemala. The clinic is buzzing with activity today. Will share photos tonight! 📸',
+    author: {
+      name: 'Sarah Kimani',
+      avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&h=100&fit=crop',
+      role: 'envoy',
+      handle: 'sarah',
+      isVerified: true,
+    },
+    roleBadge: 'Envoy',
+    timestamp: new Date(Date.now() - 1000 * 60 * 35),
+    likes: 98,
+    comments: 16,
+  },
   // Voting notification
   {
     id: 'fy-vote-1',
@@ -1315,7 +1467,7 @@ export const forYouItems: FeedItem[] = [
       handle: 'cikseedbase',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'stats',
@@ -1382,7 +1534,7 @@ export const forYouItems: FeedItem[] = [
       handle: 'pastorjames',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'stats',
@@ -1439,7 +1591,7 @@ export const forYouItems: FeedItem[] = [
       handle: 'cikseedbase',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'stats',
@@ -1562,7 +1714,7 @@ export const forYouItems: FeedItem[] = [
       handle: 'cikseedbase',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'stats',
@@ -1592,7 +1744,7 @@ export const forYouItems: FeedItem[] = [
       handle: 'cikseedbase',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'stats',
@@ -1621,7 +1773,7 @@ export const forYouItems: FeedItem[] = [
       handle: 'hopecity',
       isVerified: true,
     },
-    roleBadge: 'Steward',
+    roleBadge: 'Trustee',
     seedbase: { id: 'sb-hc', name: 'Hope City Church' },
     embeddedCard: {
       type: 'deployment',

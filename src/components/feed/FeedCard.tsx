@@ -96,8 +96,8 @@ export function FeedCard({ item, index }: FeedCardProps) {
   const hasYourSeed = item.yourSeed !== undefined && item.yourSeed > 0;
 
   // Map role badge to variant
-  const getBadgeVariant = (): 'official' | 'steward' | 'envoy' | 'activator' | 'recipient' => {
-    if (item.roleBadge === 'Steward') return 'steward';
+  const getBadgeVariant = (): 'official' | 'trustee' | 'envoy' | 'activator' | 'recipient' => {
+    if (item.roleBadge === 'Trustee') return 'trustee';
     if (item.roleBadge === 'Envoy') return 'envoy';
     if (item.roleBadge === 'Recipient') return 'recipient';
     if (item.roleBadge === 'Official') return 'official';
