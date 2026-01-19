@@ -142,7 +142,7 @@ const ScrollingLandingPage = () => {
         {/* Left - Fixed Hero Text Column */}
         <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-8 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
           {/* Seedbase wordmark logo at top - forceDark for light background */}
-          <div className="w-40 lg:w-48 xl:w-60 h-auto mb-2 lg:mb-0">
+          <div className="w-32 lg:w-40 xl:w-48 h-auto mb-2 lg:mb-0">
             <img src={seeddropTypeLight} alt="Seedbase - Transparent Network of Generosity" className="w-full h-auto" />
           </div>
           
@@ -150,7 +150,7 @@ const ScrollingLandingPage = () => {
             {/* Hero content centered vertically on desktop */}
             <div className="flex-1 flex items-center lg:justify-center">
               <div>
-                <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-4 lg:mb-6 text-foreground leading-[1.05]">Where Generosity Compounds.</h1>
+                <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-4 lg:mb-6 text-foreground leading-[1.05]">Where Generosity Grows.</h1>
                 
                 <div className="text-lg text-muted-foreground mb-3 lg:mb-8 leading-snug">
                   <span className="block opacity-0 animate-fade-in-stagger-1">Commit seed</span>
@@ -162,13 +162,13 @@ const ScrollingLandingPage = () => {
                 {/* CTA Buttons - Desktop only in header */}
                 <nav className="hidden lg:flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
                   {/* Enter App - Solid Blue Rectangle */}
-                  <button onClick={() => setShowLoginModal(true)} className="relative w-full py-5 rounded-xl font-semibold text-lg bg-[#0000ff] text-white flex items-center justify-center gap-2 hover:bg-[#0000ff]/90 transition-all" aria-label="Enter SeedBase app">
+                  <button onClick={() => setShowLoginModal(true)} className="relative w-full py-5 rounded-xl font-semibold text-lg bg-primary text-white flex items-center justify-center gap-2 hover:bg-primary/90 transition-all" aria-label="Enter SeedBase app">
                     Enter App
                     <ArrowRight className="w-5 h-5" />
                   </button>
                   
                   {/* Desktop: scroll to content - Solid Blue Rectangle Outline */}
-                  <Button variant="outline" onClick={scrollToContent} className="rounded-xl py-5 h-auto text-lg font-semibold border-2 border-[#0000ff] text-[#0000ff] hover:bg-[#0000ff] hover:text-white min-h-[44px]" aria-label="Learn more about SeedBase">
+                  <Button variant="outline" onClick={scrollToContent} className="rounded-xl py-5 h-auto text-lg font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-white min-h-[44px]" aria-label="Learn more about SeedBase">
                     Learn More
                     <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
                   </Button>
@@ -229,15 +229,28 @@ const ScrollingLandingPage = () => {
 
         {/* Right - Scrolling Content (desktop only) */}
         <main className="hidden lg:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
-          {/* Hero Card Section - FIXED RECTANGLE */}
-          <section className="flex items-start pt-[32px] pl-0 pr-8 pointer-events-auto">
-            <div className="bg-[#FDDE02] rounded-[48px] w-[600px] h-[450px] flex-shrink-0 flex items-center justify-center relative overflow-hidden animate-content-reveal">
-              <div className="animate-scroll-feed flex flex-col items-center gap-3 w-[340px]">
-                <SeedFeedCard />
-                <SeedFeedCardPeek />
-                <SeedFeedCardPeekAlt />
-                <SeedFeedCard />
-                <SeedFeedCardPeek />
+          {/* Hero Card Section - Yellow with scrolling cards */}
+          <section className="h-[620px] flex items-start pt-[32px] pl-0 pr-8 pointer-events-auto">
+            <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full h-full flex items-start justify-center relative overflow-hidden animate-content-reveal">
+              <div className="animate-scroll-feed flex flex-col items-center gap-3 pt-4 w-full max-w-md">
+                <div className="w-full">
+                  <SeedFeedCard />
+                </div>
+                <div className="w-full">
+                  <SeedFeedCardPeek />
+                </div>
+                <div className="w-full">
+                  <SeedFeedCardPeekAlt />
+                </div>
+                <div className="w-full">
+                  <SeedFeedCard />
+                </div>
+                <div className="w-full">
+                  <SeedFeedCardPeek />
+                </div>
+                <div className="w-full">
+                  <SeedFeedCardPeekAlt />
+                </div>
               </div>
             </div>
           </section>
@@ -258,11 +271,10 @@ const ScrollingLandingPage = () => {
                   </div>
                 </div>
                 
-                {/* Card - Right side - FIXED SQUARE */}
+                {/* Card - Right side */}
                 <div className="flex justify-end flex-shrink-0">
-                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex-shrink-0 flex justify-center w-[500px] h-[500px] overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center'}`}>
-                    {/* FIXED SIZE CARD */}
-                    <div className={`w-[340px] h-[340px] rounded-2xl overflow-hidden bg-white shadow-lg flex-shrink-0 transform hover:scale-[1.01] transition-transform duration-300 ${section.id === 'impact' ? 'mt-0 rounded-none w-full h-full' : ''}`}>
+                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex-shrink-0 flex justify-center min-w-[560px] w-[560px] min-h-[560px] h-[560px] overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center p-10'} ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
+                    <div className={`w-full max-w-md transform hover:scale-[1.01] transition-transform duration-300 ${section.id === 'wallet' ? 'animate-scale-in h-full' : ''}`}>
                       {renderCard(section.card, section.id)}
                     </div>
                   </div>
