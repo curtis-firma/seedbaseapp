@@ -3,7 +3,7 @@ import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { Search, HelpCircle, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
-import { FeedCard } from '@/components/feed/FeedCard';
+import { FeedRenderer } from '@/components/seedfeed/FeedRenderer';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
@@ -276,9 +276,7 @@ export default function HomePage() {
               </>
             ) : (
               <>
-                {currentFeed.map((item, index) => (
-                  <FeedCard key={item.id} item={item} index={index} />
-                ))}
+                <FeedRenderer items={currentFeed} />
 
                 {/* Infinite Scroll Load More Trigger */}
                 <div ref={loadMoreRef} className="py-6">
