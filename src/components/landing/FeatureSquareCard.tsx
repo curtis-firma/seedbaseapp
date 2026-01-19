@@ -30,13 +30,12 @@ const FeatureSquareCard = ({
       className={cn(
         // LOCKED ASPECT RATIO - prevents distortion
         "aspect-square",
-        // FIXED SIZE with min/max constraints - consistent padding at all breakpoints
+        // RESPONSIVE SIZE - scales down on small screens
         "w-full",
-        "max-w-[344px] min-w-[344px]",
-        "md:max-w-[484px] md:min-w-[484px]",
-        "lg:max-w-[404px] lg:min-w-[404px]",
-        // Prevent flex shrink - critical for desktop grid layouts
-        "flex-none shrink-0",
+        "max-w-[300px]",
+        "sm:max-w-[344px]",
+        "md:max-w-[484px]",
+        "lg:max-w-[404px]",
         // Outer styling
         "rounded-3xl md:rounded-[32px]",
         "flex items-center justify-center",

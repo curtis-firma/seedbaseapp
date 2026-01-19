@@ -18,11 +18,15 @@ const InnerCard = ({ children, className }: InnerCardProps) => {
   return (
     <div 
       className={cn(
-        // SIZE ONLY - no background/shadow styling (children own that)
-        // Consistent padding ratio across all breakpoints
-        "w-[280px] h-[280px]",           // Mobile default
-        "md:w-[420px] md:h-[420px]",     // Tablet - scaled up
-        "lg:w-[340px] lg:h-[340px]",     // Desktop
+        // RESPONSIVE SIZE - scales with parent container
+        "w-[85%] h-[85%]",
+        // Minimum size for readability on very small screens
+        "min-w-[220px] min-h-[220px]",
+        // Maximum sizes per breakpoint
+        "max-w-[280px] max-h-[280px]",
+        "sm:max-w-[280px] sm:max-h-[280px]",
+        "md:max-w-[420px] md:max-h-[420px]",
+        "lg:max-w-[340px] lg:max-h-[340px]",
         // Prevent compression and clip content
         "flex-shrink-0 overflow-hidden rounded-2xl",
         className
