@@ -9,19 +9,19 @@ interface InnerCardProps {
  * InnerCard - Canonical sizing container for landing page cards
  * TRANSPARENT - only controls size, children provide their own styling
  * 
- * Sizing tokens:
- * - Mobile: 280×280px
- * - Tablet: 400×400px (LARGER to match rectangle width)
- * - Desktop: 340×340px
+ * Sizing tokens (consistent ~32px padding from outer to inner):
+ * - Mobile: 280×280px (outer 344 - 64 = 280)
+ * - Tablet: 420×420px (outer 484 - 64 = 420) - Scaled up proportionally
+ * - Desktop: 340×340px (outer 404 - 64 = 340)
  */
 const InnerCard = ({ children, className }: InnerCardProps) => {
   return (
     <div 
       className={cn(
         // SIZE ONLY - no background/shadow styling (children own that)
-        // Tablet: larger to fill the full-width square container
+        // Consistent padding ratio across all breakpoints
         "w-[280px] h-[280px]",           // Mobile default
-        "md:w-[420px] md:h-[420px]",     // Tablet - fills full-width container
+        "md:w-[420px] md:h-[420px]",     // Tablet - scaled up
         "lg:w-[340px] lg:h-[340px]",     // Desktop
         // Prevent compression and clip content
         "flex-shrink-0 overflow-hidden rounded-2xl",
