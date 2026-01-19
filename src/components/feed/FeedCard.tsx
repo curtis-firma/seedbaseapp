@@ -138,8 +138,8 @@ export function FeedCard({ item, index }: FeedCardProps) {
                 {item.author?.avatar === 'official' || item.author?.handle === 'seedfeed' ? (
                   <img
                     src={seeddropIconLight}
-                    alt="SeedDrop"
-                    className="w-11 h-11 rounded-full object-cover"
+                    alt="Seedbase"
+                    className="w-11 h-11 object-contain"
                   />
                 ) : item.author?.avatar ? (
                   item.author.avatar.startsWith('http') ? (

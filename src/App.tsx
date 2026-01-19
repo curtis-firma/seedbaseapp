@@ -3,10 +3,12 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { AnimatePresence } from "framer-motion";
 import { UserProvider } from "@/contexts/UserContext";
 import { seedDemoDataIfEmpty } from "@/lib/supabase/seedDemoData";
 import { AppLayout } from "@/components/layout/AppLayout";
+import { AppSplashScreen } from "@/components/shared/AppSplashScreen";
 
 // Pages
 import HomePage from "./pages/HomePage";
@@ -37,6 +39,32 @@ function ScrollToTop() {
   return null;
 }
 
+// Initial splash screen on first app visit
+function InitialSplash() {
+  const [showSplash, setShowSplash] = useState(() => {
+    // Only show splash on initial app routes, not landing page
+    const isAppRoute = window.location.pathname.startsWith('/app');
+    const hasSeenSplash = sessionStorage.getItem('seedbase-splash-shown');
+    return isAppRoute && !hasSeenSplash;
+  });
+
+  useEffect(() => {
+    if (showSplash) {
+      const timer = setTimeout(() => {
+        setShowSplash(false);
+        sessionStorage.setItem('seedbase-splash-shown', 'true');
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [showSplash]);
+
+  return (
+    <AnimatePresence>
+      {showSplash && <AppSplashScreen />}
+    </AnimatePresence>
+  );
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <UserProvider>
@@ -45,6 +73,7 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
+          <InitialSplash />
           <Routes>
             {/* Landing Page - NO AppLayout */}
             <Route path="/" element={<ScrollingLandingPage />} />
