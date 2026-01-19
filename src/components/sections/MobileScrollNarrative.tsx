@@ -44,34 +44,34 @@ const AnimatedSection = ({ section, index }: { section: MobileSection; index: nu
       }`}
       style={{ transitionDelay: `${index * 50}ms` }}
     >
-      {/* Section title and description */}
-      <div className={`space-y-2 transition-all duration-500 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-           style={{ transitionDelay: `${index * 50 + 100}ms` }}>
-        <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
-          {section.title}
-        </h2>
-        <p className="text-base text-muted-foreground leading-relaxed">
-          {section.description}
-        </p>
-      </div>
-
-      {/* Card with colored background - FIXED SQUARE */}
+      {/* Card with colored background - FIRST (on top) */}
       <div 
-        className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl aspect-square w-full max-w-[400px] mx-auto flex items-center justify-center bg-cover bg-center transition-all duration-700 ${
+        className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl aspect-square w-full flex items-center justify-center bg-cover bg-center transition-all duration-700 ${
           isInView ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
         style={{ 
           backgroundImage: section.bgImage ? `url(${section.bgImage})` : undefined,
-          transitionDelay: `${index * 50 + 200}ms`
+          transitionDelay: `${index * 50 + 100}ms`
         }}
       >
         {/* FIXED SIZE CARD - doesn't scale */}
         <div className={`w-[280px] h-[280px] rounded-2xl overflow-hidden shadow-lg bg-white flex-shrink-0 transition-all duration-500 ${
           isInView ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
         }`}
-             style={{ transitionDelay: `${index * 50 + 300}ms` }}>
+             style={{ transitionDelay: `${index * 50 + 200}ms` }}>
           {section.card}
         </div>
+      </div>
+
+      {/* Section title and description - SECOND (below card, left-aligned) */}
+      <div className={`space-y-2 text-left transition-all duration-500 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+           style={{ transitionDelay: `${index * 50 + 300}ms` }}>
+        <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+          {section.title}
+        </h2>
+        <p className="text-base text-muted-foreground leading-relaxed">
+          {section.description}
+        </p>
       </div>
     </section>
   );
@@ -165,8 +165,8 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         </Button>
       </div>
 
-      {/* Yellow Hero Card Section - FIXED RECTANGLE */}
-      <div className="bg-[#FDDE02] rounded-3xl p-6 overflow-hidden flex items-center justify-center h-[450px]">
+      {/* Yellow Hero Card Section - Full width rectangle matching square alignment */}
+      <div className="bg-[#FDDE02] rounded-3xl p-6 overflow-hidden flex items-center justify-center aspect-[4/3]">
         <div className="animate-scroll-feed flex flex-col gap-3 w-full max-w-md">
           <SeedFeedCard />
           <SeedFeedCardPeek />
