@@ -209,7 +209,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         {/* Built on Base - larger logo matching text size */}
         <div className="flex items-center gap-2 text-muted-foreground text-lg">
           <span>Built on</span>
-          <img src={baseLogo} alt="Base" className="h-6 w-auto" />
+          <img src={baseLogo} alt="Base" className="h-3 w-auto" />
         </div>
 
         {/* Copyright */}
