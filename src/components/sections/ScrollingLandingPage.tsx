@@ -145,7 +145,7 @@ const ScrollingLandingPage = () => {
         {/* Left - Fixed Hero Text Column */}
         <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-8 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
           {/* Seedbase wordmark logo at top - forceDark for light background */}
-          <div className="w-32 lg:w-40 xl:w-48 h-auto mb-2 lg:mb-0">
+          <div className="w-[130px] lg:w-[162px] xl:w-[195px] h-auto mb-2 lg:mb-0">
             <img src={seeddropTypeLight} alt="Seedbase - Transparent Network of Generosity" className="w-full h-auto" />
           </div>
           
