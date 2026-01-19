@@ -1,9 +1,11 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { AnimatePresence } from 'framer-motion';
 import { BottomNav } from './BottomNav';
 import { Sidebar } from './Sidebar';
 import { MobileDrawer } from './MobileDrawer';
+import { PageTransition } from './PageTransition';
 import { QuickActionButton } from '@/components/shared/QuickActionButton';
 import { ProfileMenuTrigger } from '@/components/shared/ProfileMenuTrigger';
 import { PhoneAuthFlow } from '@/components/onboarding/PhoneAuthFlow';
@@ -113,7 +115,11 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
       </div>
       
       <main className="md:ml-[260px] pt-16 md:pt-0 pb-24 md:pb-0">
-        {children}
+        <AnimatePresence mode="wait">
+          <PageTransition key={location.pathname}>
+            {children}
+          </PageTransition>
+        </AnimatePresence>
       </main>
       <BottomNav />
       <QuickActionButton />
