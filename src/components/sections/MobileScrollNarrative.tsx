@@ -151,8 +151,10 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
               className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl p-4 flex items-center justify-center aspect-square bg-cover bg-center`}
               style={section.bgImage ? { backgroundImage: `url(${section.bgImage})` } : undefined}
             >
-              <div className="w-full max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white">
-                {section.card}
+              <div className="aspect-square w-full max-w-[85%] rounded-2xl overflow-hidden shadow-lg bg-white flex items-center justify-center">
+                <div className="w-full h-full overflow-hidden">
+                  {section.card}
+                </div>
               </div>
             </div>
           </section>
