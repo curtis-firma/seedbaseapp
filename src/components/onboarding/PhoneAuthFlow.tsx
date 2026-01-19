@@ -499,8 +499,7 @@ export function PhoneAuthFlow({
                 <Logo variant="full" size="lg" />
               </motion.div>
               <h2 className="text-2xl font-bold mb-2">Welcome to Seedbase</h2>
-              <p className="text-muted-foreground mb-8">Welcome to the
-Generosity Network</p>
+              <p className="text-xl font-bold text-muted-foreground mb-8">Welcome to the Generosity Network</p>
               
               {/* Clean form - no background container */}
               <div className="space-y-4 mb-6">
