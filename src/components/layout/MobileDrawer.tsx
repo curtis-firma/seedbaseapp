@@ -60,8 +60,8 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
             className="fixed left-0 top-0 bottom-0 w-[300px] bg-card border-r border-border/50 z-50 flex flex-col"
           >
             {/* Header - Logo on LEFT, Close on RIGHT */}
-            <div className="p-4 flex items-center justify-between border-b border-border/50">
-              <img src={seedbaseLeaf} alt="Seedbase" className="h-12 w-auto" />
+            <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
+              <img src={seedbaseLeaf} alt="Seedbase" className="h-10 w-auto" />
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
@@ -89,9 +89,9 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
               </div>
             )}
 
-            {/* View Role Switcher - Full Buttons with Labels */}
-            <div className="px-6 py-4 border-b border-border/50">
-              <p className="text-xs font-medium text-muted-foreground mb-3">VIEW AS</p>
+            {/* View Role Switcher */}
+            <div className="px-4 py-3 border-b border-border/50">
+              <p className="text-xs font-medium text-muted-foreground mb-2">VIEW AS</p>
               <ViewRoleBadge variant="full" className="w-full" />
             </div>
 

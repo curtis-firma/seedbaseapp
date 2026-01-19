@@ -61,18 +61,16 @@ export function ViewRoleBadge({ variant = 'compact', className }: ViewRoleBadgeP
             whileTap={{ scale: 0.95 }}
             onClick={() => setViewRole(role)}
             className={cn(
-              "flex items-center gap-2 px-3 py-2 rounded-xl transition-all flex-1",
+              "flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl transition-all flex-1 min-w-0",
               isSelected 
                 ? `${config.gradient} text-white shadow-md` 
                 : `${config.bgClass} ${config.textClass} hover:opacity-80`
             )}
           >
             <Icon className="h-4 w-4 flex-shrink-0" />
-            {variant === 'full' && (
-              <span className="text-sm font-medium truncate">
-                {config.label}
-              </span>
-            )}
+            <span className="text-xs font-medium truncate">
+              {config.label}
+            </span>
           </motion.button>
         );
       })}
