@@ -186,6 +186,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
 
         <div className="flex flex-col gap-3 w-full max-w-sm">
           <EnterAppButton onClick={onEnterApp} fullWidth />
+          <LearnMoreButton onClick={scrollToSections} fullWidth variant="blue" />
         </div>
 
         {/* Powered by CIK */}
