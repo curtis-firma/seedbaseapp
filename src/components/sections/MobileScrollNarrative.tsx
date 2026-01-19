@@ -196,15 +196,15 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
+
+        {/* Powered by CIK */}
+        <img alt="Powered by Christ is King" className="h-12 object-contain" src={poweredByCik} />
       </section>
 
       {/* Footer */}
       <footer className="flex flex-col items-center gap-4 pt-4">
         {/* Divider */}
         <div className="w-full h-px bg-gray-200" />
-
-        {/* Powered by CIK - 3x bigger */}
-        <img alt="Powered by Christ is King" className="h-12 object-contain" src={poweredByCik} />
 
         {/* Built on Base - larger logo matching text size */}
         <div className="flex items-center gap-2 text-muted-foreground text-lg">
