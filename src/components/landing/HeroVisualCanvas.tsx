@@ -1,16 +1,18 @@
 import { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import FeedScrollState from './hero-states/FeedScrollState';
 import MissionVideoState from './hero-states/MissionVideoState';
 import NetworkFlowState from './hero-states/NetworkFlowState';
 import LiveDataState from './hero-states/LiveDataState';
 import BrandMomentState from './hero-states/BrandMomentState';
 import StaticBrandState from './hero-states/StaticBrandState';
+import SocialVideoState from './hero-states/SocialVideoState';
 
 const STATES = [
   { id: 'feed', Component: FeedScrollState },
   { id: 'video', Component: MissionVideoState },
   { id: 'network', Component: NetworkFlowState },
+  { id: 'social', Component: SocialVideoState },
   { id: 'live', Component: LiveDataState },
   { id: 'brand', Component: BrandMomentState },
 ];
@@ -31,7 +33,7 @@ const HeroVisualCanvas = () => {
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Rotate states every 5 seconds
+  // Rotate states every 8 seconds
   useEffect(() => {
     if (prefersReducedMotion) return;
     
@@ -45,7 +47,7 @@ const HeroVisualCanvas = () => {
   // Reduced motion fallback: show static brand state
   if (prefersReducedMotion) {
     return (
-      <div className="relative w-full h-[360px] md:h-[420px] lg:h-[500px] bg-[#FDDE02] rounded-[32px] lg:rounded-[48px] overflow-hidden">
+      <div className="relative w-full h-[280px] md:h-[340px] lg:h-[420px] bg-[#FDDE02] rounded-[24px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
         <StaticBrandState />
       </div>
     );
@@ -54,26 +56,22 @@ const HeroVisualCanvas = () => {
   const ActiveComponent = STATES[activeState].Component;
 
   return (
-    <div className="relative w-full h-[360px] md:h-[420px] lg:h-[500px] bg-[#FDDE02] rounded-[32px] lg:rounded-[48px] overflow-hidden">
-      <AnimatePresence mode="wait">
-        <motion.div
+    <div className="relative w-full h-[280px] md:h-[340px] lg:h-[420px] bg-[#FDDE02] rounded-[24px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
+      <AnimatePresence mode="sync">
+        <div
           key={activeState}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
           className="absolute inset-0"
         >
           <ActiveComponent />
-        </motion.div>
+        </div>
       </AnimatePresence>
       
       {/* State indicators (subtle dots) */}
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+      <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 z-20">
         {STATES.map((_, index) => (
           <div
             key={index}
-            className={`w-1.5 h-1.5 rounded-full transition-all duration-500 ${
+            className={`w-1 h-1 md:w-1.5 md:h-1.5 rounded-full transition-all duration-300 ${
               index === activeState 
                 ? 'bg-black/40 scale-125' 
                 : 'bg-black/15'
