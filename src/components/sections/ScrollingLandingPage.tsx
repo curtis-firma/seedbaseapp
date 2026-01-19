@@ -26,12 +26,12 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 const sections = [{
   id: "wallet",
   headline: "A wallet built for giving",
-  description: "Sign in with email or phone.\nGive instantly.\nWithdraw to your bank.\nSpend with a card.\n\nNo crypto required.",
+  description: "Sign in with email or phone. Give instantly. Withdraw to your bank.",
   card: "wallet",
   bgColor: "bg-blue-400"
 }, {
   id: "impact",
-  headline: "See your impact as it happens",
+  headline: "See your impact",
   description: "A live social feed shows generosity in motion.",
   card: "impact",
   bgColor: "bg-emerald-400"
@@ -45,25 +45,25 @@ const sections = [{
 }, {
   id: "ledger",
   headline: "Built on shared ledgers",
-  description: "Every seed. Every surplus. Every deployment.\n\nTrust you can see.",
+  description: "Every seed. Every surplus. Every deployment. Trust you can see.",
   card: "ledger",
   bgColor: "bg-[#FDDE02]"
 }, {
   id: "seedbases",
   headline: "Communities steward together",
-  description: "Ministries and teams run seedbases.\n\nSteward seed. Track tithes. Vote on missions.\n\nSame numbers. Shared clarity.",
+  description: "Ministries and teams run seedbases. Same numbers. Shared clarity.",
   card: "dashboard",
   bgColor: "bg-violet-400"
 }, {
   id: "tithing",
   headline: "Transparent tithing",
-  description: "Tithes go directly to a seedbase.\n\nSee allocations. Vote on priorities. Track impact.\n\nHeld in USDC or CIK.",
+  description: "See allocations. Vote on priorities. Track impact.",
   card: "transparency",
   bgColor: "bg-amber-400"
 }, {
   id: "movement",
   headline: "Built by generosity",
-  description: "Every seed. Every surplus. Every deployment.\n\nTrust you can see.",
+  description: "Every seed grows. Every surplus spreads. Trust rewards come back.",
   card: "growth",
   bgColor: "bg-cyan-400"
 }];
@@ -162,13 +162,13 @@ const ScrollingLandingPage = () => {
                 {/* CTA Buttons - Desktop only in header */}
                 <nav className="hidden lg:flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
                   {/* Enter App - Solid Blue Rectangle */}
-                  <button onClick={() => setShowLoginModal(true)} className="relative w-full py-5 rounded-xl font-semibold text-lg bg-primary text-white flex items-center justify-center gap-2 hover:bg-primary/90 transition-all" aria-label="Enter SeedBase app">
+                  <button onClick={() => setShowLoginModal(true)} className="relative w-full py-5 rounded-xl font-semibold text-lg bg-[#0000ff] text-white flex items-center justify-center gap-2 hover:bg-[#0000ff]/90 transition-all" aria-label="Enter SeedBase app">
                     Enter App
                     <ArrowRight className="w-5 h-5" />
                   </button>
                   
                   {/* Desktop: scroll to content - Solid Blue Rectangle Outline */}
-                  <Button variant="outline" onClick={scrollToContent} className="rounded-xl py-5 h-auto text-lg font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-white min-h-[44px]" aria-label="Learn more about SeedBase">
+                  <Button variant="outline" onClick={scrollToContent} className="rounded-xl py-5 h-auto text-lg font-semibold border-2 border-[#0000ff] text-[#0000ff] hover:bg-[#0000ff] hover:text-white min-h-[44px]" aria-label="Learn more about SeedBase">
                     Learn More
                     <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
                   </Button>
@@ -230,8 +230,8 @@ const ScrollingLandingPage = () => {
         {/* Right - Scrolling Content (desktop only) */}
         <main className="hidden lg:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
           {/* Hero Card Section - Yellow with scrolling cards */}
-          <section className="h-[620px] flex items-start pt-[32px] pl-0 pr-8 pointer-events-auto">
-            <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full h-full flex items-start justify-center relative overflow-hidden animate-content-reveal">
+          <section className="h-[620px] flex items-start justify-end pt-[32px] px-8 pointer-events-auto">
+            <div className="bg-[#FDDE02] rounded-[48px] p-8 w-[560px] h-full flex items-start justify-center relative overflow-hidden animate-content-reveal">
               <div className="animate-scroll-feed flex flex-col items-center gap-3 pt-4 w-full max-w-md">
                 <div className="w-full">
                   <SeedFeedCard />
