@@ -26,7 +26,10 @@ interface MobileDrawerProps {
 export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawerProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { username, displayName, activeRole, user, logout, isAuthenticated } = useUser();
+  const { username, displayName, activeRole, user, logout, isAuthenticated, avatarUrl } = useUser();
+  
+  // Use avatarUrl from context for synced avatar
+  const displayAvatar = avatarUrl || user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -82,7 +85,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
               <div className="px-6 py-4 border-b border-border/50">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-14 w-14 border-2 border-primary/20">
-                    <AvatarImage src={user?.avatar} alt={displayName || username} />
+                    <AvatarImage src={displayAvatar} alt={displayName || username} />
                     <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
                       {(displayName || username || 'U').charAt(0).toUpperCase()}
                     </AvatarFallback>

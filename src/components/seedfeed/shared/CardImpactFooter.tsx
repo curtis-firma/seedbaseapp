@@ -42,35 +42,35 @@ export function CardImpactFooter({
         </div>
       </div>
 
-      {/* Your Seed - Now Interactive Button */}
+      {/* Your Seed Impact - Now Interactive Button with emphasis */}
       {yourSeed !== undefined && (
         <motion.button
-          whileHover={{ scale: 1.02 }}
+          whileHover={{ scale: 1.03 }}
           whileTap={{ scale: 0.97 }}
           onClick={onYourSeedClick}
           className="
-            flex items-center gap-2 px-3 py-2
-            bg-seed/10 hover:bg-seed/20 
-            border border-seed/20 hover:border-seed/40
+            flex items-center gap-2 px-4 py-2.5
+            bg-primary/10 hover:bg-primary/20 
+            border-2 border-primary/40 hover:border-primary/60
             rounded-xl cursor-pointer
             transition-all duration-200
-            shadow-sm hover:shadow-md
+            shadow-md hover:shadow-lg
             group
           "
         >
-          <Sparkles className="w-4 h-4 text-seed" />
+          <Sparkles className="w-4 h-4 text-primary" />
           <div className="flex flex-col items-start">
-            <span className="text-xs text-muted-foreground">Your Seed</span>
+            <span className="text-xs text-primary font-medium">Your Seed Impact</span>
             <div className="flex items-center gap-1">
-              <span className="text-sm font-bold text-seed">${yourSeed.toLocaleString()}</span>
+              <span className="text-sm font-bold text-primary">${yourSeed.toLocaleString()}</span>
               {yourPercentage !== undefined && (
-                <span className="text-xs text-muted-foreground">
+                <span className="text-xs text-primary/70">
                   ({yourPercentage.toFixed(1)}%)
                 </span>
               )}
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-seed/60 group-hover:text-seed group-hover:translate-x-0.5 transition-all ml-1" />
+          <ChevronRight className="w-4 h-4 text-primary/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all ml-1" />
         </motion.button>
       )}
     </motion.div>
