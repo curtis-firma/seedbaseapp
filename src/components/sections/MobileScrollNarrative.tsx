@@ -16,6 +16,8 @@ import SeedFeedCard from "@/components/cards/SeedFeedCard";
 import SeedFeedCardPeek from "@/components/cards/SeedFeedCardPeek";
 import SeedFeedCardPeekAlt from "@/components/cards/SeedFeedCardPeekAlt";
 import { useInView } from "@/hooks/useInView";
+import InnerCard from "@/components/landing/InnerCard";
+import FeatureSquareCard from "@/components/landing/FeatureSquareCard";
 
 interface MobileSection {
   id: string;
@@ -44,23 +46,20 @@ const AnimatedSection = ({ section, index }: { section: MobileSection; index: nu
       }`}
       style={{ transitionDelay: `${index * 50}ms` }}
     >
-      {/* Card with colored background - FIRST (on top) */}
+      {/* Card with colored background - Using canonical FeatureSquareCard */}
       <div 
-        className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl aspect-square w-full flex items-center justify-center bg-cover bg-center transition-all duration-700 ${
+        className={`flex items-center justify-center transition-all duration-700 ${
           isInView ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
         }`}
-        style={{ 
-          backgroundImage: section.bgImage ? `url(${section.bgImage})` : undefined,
-          transitionDelay: `${index * 50 + 100}ms`
-        }}
+        style={{ transitionDelay: `${index * 50 + 100}ms` }}
       >
-        {/* FIXED SIZE CARD - doesn't scale */}
-        <div className={`w-[280px] h-[280px] rounded-2xl overflow-hidden shadow-lg bg-white flex-shrink-0 transition-all duration-500 ${
-          isInView ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
-        }`}
-             style={{ transitionDelay: `${index * 50 + 200}ms` }}>
+        <FeatureSquareCard 
+          bgColor={section.bgColor} 
+          bgImage={section.bgImage}
+          animate
+        >
           {section.card}
-        </div>
+        </FeatureSquareCard>
       </div>
 
       {/* Section title and description - SECOND (below card, left-aligned) */}
@@ -165,14 +164,14 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         </Button>
       </div>
 
-      {/* Yellow Hero Card Section - Fixed height rectangle */}
+      {/* Yellow Hero Card Section - Fixed height rectangle with canonical InnerCards */}
       <div className="bg-[#FDDE02] rounded-3xl p-6 overflow-hidden flex items-center justify-center h-[360px]">
         <div className="animate-scroll-feed flex flex-col items-center gap-3">
-          <div className="w-[280px]"><SeedFeedCard /></div>
-          <div className="w-[280px]"><SeedFeedCardPeek /></div>
-          <div className="w-[280px]"><SeedFeedCardPeekAlt /></div>
-          <div className="w-[280px]"><SeedFeedCard /></div>
-          <div className="w-[280px]"><SeedFeedCardPeek /></div>
+          <InnerCard><SeedFeedCard /></InnerCard>
+          <InnerCard><SeedFeedCardPeek /></InnerCard>
+          <InnerCard><SeedFeedCardPeekAlt /></InnerCard>
+          <InnerCard><SeedFeedCard /></InnerCard>
+          <InnerCard><SeedFeedCardPeek /></InnerCard>
         </div>
       </div>
 

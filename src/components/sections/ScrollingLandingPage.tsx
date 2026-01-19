@@ -23,6 +23,9 @@ import baseLogo from "@/assets/base-logo.png";
 import LoginModal from "@/components/sections/LoginModal";
 import { SeedbaseLoader } from "@/components/shared/SeedbaseLoader";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import InnerCard from "@/components/landing/InnerCard";
+import FeatureSquareCard from "@/components/landing/FeatureSquareCard";
+import waterBackground from "@/assets/water-background.png";
 const sections = [{
   id: "wallet",
   headline: "A wallet built for giving",
@@ -227,28 +230,16 @@ const ScrollingLandingPage = () => {
 
         {/* Right - Scrolling Content (desktop only) */}
         <main className="hidden lg:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
-          {/* Hero Card Section - Yellow with scrolling cards */}
+          {/* Hero Card Section - Yellow with scrolling cards using canonical InnerCards */}
           <section className="flex items-start pt-[32px] px-8 pointer-events-auto">
             <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full h-[500px] flex items-center justify-center relative overflow-hidden animate-content-reveal">
               <div className="animate-scroll-feed flex flex-col items-center gap-3">
-                <div className="w-[340px]">
-                  <SeedFeedCard />
-                </div>
-                <div className="w-[340px]">
-                  <SeedFeedCardPeek />
-                </div>
-                <div className="w-[340px]">
-                  <SeedFeedCardPeekAlt />
-                </div>
-                <div className="w-[340px]">
-                  <SeedFeedCard />
-                </div>
-                <div className="w-[340px]">
-                  <SeedFeedCardPeek />
-                </div>
-                <div className="w-[340px]">
-                  <SeedFeedCardPeekAlt />
-                </div>
+                <InnerCard><SeedFeedCard /></InnerCard>
+                <InnerCard><SeedFeedCardPeek /></InnerCard>
+                <InnerCard><SeedFeedCardPeekAlt /></InnerCard>
+                <InnerCard><SeedFeedCard /></InnerCard>
+                <InnerCard><SeedFeedCardPeek /></InnerCard>
+                <InnerCard><SeedFeedCardPeekAlt /></InnerCard>
               </div>
             </div>
           </section>
@@ -256,28 +247,26 @@ const ScrollingLandingPage = () => {
           {/* Scrolling Content Sections */}
           <div ref={desktopSectionsRef} className="scroll-mt-8" />
           {sections.map(section => <div key={section.id} className="flex items-start py-16 px-8 pointer-events-auto">
-              <div className="flex flex-row gap-12 w-full">
+              <div className="flex flex-row gap-12 w-full items-center">
                 {/* Topic Text - Left side */}
-                <div className="w-[45%] pt-16">
-                  <div className="max-w-md">
-                    <h2 className="font-heading text-3xl xl:text-4xl font-medium tracking-tight mb-6 text-foreground leading-[1.1]">
-                      {section.headline}
-                    </h2>
-                    <p className="text-lg text-muted-foreground leading-snug whitespace-pre-line">
-                      {section.description}
-                    </p>
-                  </div>
+                <div className="flex-1 max-w-md">
+                  <h2 className="font-heading text-3xl xl:text-4xl font-medium tracking-tight mb-6 text-foreground leading-[1.1]">
+                    {section.headline}
+                  </h2>
+                  <p className="text-lg text-muted-foreground leading-snug whitespace-pre-line">
+                    {section.description}
+                  </p>
                 </div>
                 
-                {/* Card - Right side - Fixed size inner card locked to outer square */}
-                <div className="flex-1">
-                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex items-center justify-center w-full aspect-square overflow-hidden ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
-                    {/* FIXED SIZE CARD - locked to outer square */}
-                    <div className="w-[340px] h-[340px] rounded-2xl overflow-hidden shadow-lg bg-white flex-shrink-0 transform hover:scale-[1.01] transition-transform duration-300">
-                      {renderCard(section.card, section.id)}
-                    </div>
-                  </div>
-                </div>
+                {/* Card - Right side - Using canonical FeatureSquareCard */}
+                <FeatureSquareCard 
+                  bgColor={section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor}
+                  bgImage={section.bgImage ? waterBackground : undefined}
+                  animate
+                  className={section.id === 'wallet' ? 'animate-fade-in' : ''}
+                >
+                  {renderCard(section.card, section.id)}
+                </FeatureSquareCard>
               </div>
             </div>)}
 
