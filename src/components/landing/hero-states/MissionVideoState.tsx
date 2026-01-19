@@ -5,17 +5,12 @@ import missionVideo from '@/assets/mission-video.mp4';
 const MissionVideoState = () => {
   const [videoError, setVideoError] = useState(false);
 
-  // Fallback image if video fails
   const fallbackImage = "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&q=80";
 
   return (
     <div className="relative w-full h-full overflow-hidden">
-      {/* Video or fallback image - NO gradient overlay, crisp edges */}
       {!videoError ? (
-        <motion.video
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
+        <video
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
           muted
@@ -24,19 +19,16 @@ const MissionVideoState = () => {
           onError={() => setVideoError(true)}
         >
           <source src={missionVideo} type="video/mp4" />
-        </motion.video>
+        </video>
       ) : (
-        <motion.img
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
+        <img
           src={fallbackImage}
           alt="Mission impact"
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
 
-      {/* Impact statistics overlays */}
+      {/* Centered impact statistics */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
@@ -68,7 +60,7 @@ const MissionVideoState = () => {
         </div>
       </motion.div>
 
-      {/* Subtle bottom tagline */}
+      {/* Centered bottom tagline */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
