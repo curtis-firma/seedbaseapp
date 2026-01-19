@@ -9,6 +9,7 @@ import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
 import { FeedItem } from '@/types/seedbase';
 import seedbaseLogoFull from '@/assets/seedbase-logo-full.png';
+import { useHaptic } from '@/hooks/useHaptic';
 
 const tabs = ['Network', 'For You'];
 
@@ -42,6 +43,23 @@ function postToFeedItem(post: DemoPost): FeedItem {
   };
 }
 
+// Generate infinite mock data by cycling through existing items
+function generateMoreMockItems(existingCount: number, count: number): FeedItem[] {
+  const allMockItems = [...mockFeedItems, ...forYouItems];
+  const newItems: FeedItem[] = [];
+  
+  for (let i = 0; i < count; i++) {
+    const sourceItem = allMockItems[(existingCount + i) % allMockItems.length];
+    newItems.push({
+      ...sourceItem,
+      id: `generated-${existingCount + i}-${Date.now()}`,
+      timestamp: new Date(Date.now() - (existingCount + i) * 3600000), // Offset by hours
+    });
+  }
+  
+  return newItems;
+}
+
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -50,8 +68,11 @@ export default function HomePage() {
   const [posts, setPosts] = useState<FeedItem[]>([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
+  const [forYouPosts, setForYouPosts] = useState<FeedItem[]>(forYouItems);
   const loadMoreRef = useRef<HTMLDivElement>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const haptic = useHaptic();
 
   const POSTS_PER_PAGE = 10;
 
@@ -77,23 +98,43 @@ export default function HomePage() {
         } else {
           setPosts(mockFeedItems);
         }
+        setHasMore(true);
       } else {
-        setPosts(prev => [...prev, ...feedItems]);
+        // If no more DB posts, generate mock items for infinite scroll feel
+        if (feedItems.length === 0) {
+          const moreMockItems = generateMoreMockItems(posts.length, POSTS_PER_PAGE);
+          setPosts(prev => [...prev, ...moreMockItems]);
+          // Keep hasMore true for infinite feel, but slow down after many pages
+          setHasMore(page < 10);
+        } else {
+          setPosts(prev => [...prev, ...feedItems]);
+          setHasMore(feedItems.length === POSTS_PER_PAGE);
+        }
       }
       
-      setHasMore(feedItems.length === POSTS_PER_PAGE);
       if (!reset) setPage(prev => prev + 1);
     } catch (err) {
       console.error('Error loading posts:', err);
       // Fall back to mock data on error
       if (reset) {
         setPosts(mockFeedItems);
+      } else {
+        // Generate more mock items for infinite scroll
+        const moreMockItems = generateMoreMockItems(posts.length, POSTS_PER_PAGE);
+        setPosts(prev => [...prev, ...moreMockItems]);
       }
+      setHasMore(page < 10);
     } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
   };
+
+  // Load more for "For You" tab
+  const loadMoreForYou = useCallback(() => {
+    const moreItems = generateMoreMockItems(forYouPosts.length, 5);
+    setForYouPosts(prev => [...prev, ...moreItems]);
+  }, [forYouPosts.length]);
 
   // Initial load
   useEffect(() => {
@@ -102,49 +143,61 @@ export default function HomePage() {
 
   // Infinite scroll observer
   useEffect(() => {
-    if (!loadMoreRef.current || activeTab !== 0) return;
+    if (!loadMoreRef.current) return;
 
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting && hasMore && !isLoadingMore && !isLoading) {
-          loadPosts(false);
+          if (activeTab === 0) {
+            loadPosts(false);
+          } else {
+            loadMoreForYou();
+          }
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1, rootMargin: '100px' }
     );
 
     observer.observe(loadMoreRef.current);
     return () => observer.disconnect();
-  }, [hasMore, isLoadingMore, isLoading, activeTab]);
+  }, [hasMore, isLoadingMore, isLoading, activeTab, loadMoreForYou]);
 
   const handleTabChange = (index: number) => {
+    haptic.selection();
     setActiveTab(index);
   };
 
   const handleDragEnd = useCallback((event: any, info: PanInfo) => {
     const threshold = 50;
     if (info.offset.x < -threshold && activeTab < tabs.length - 1) {
+      haptic.light();
       setActiveTab(activeTab + 1);
     } else if (info.offset.x > threshold && activeTab > 0) {
+      haptic.light();
       setActiveTab(activeTab - 1);
     }
-  }, [activeTab]);
+  }, [activeTab, haptic]);
 
   // Network shows mockFeedItems + any DB posts, For You shows personalized items
   const networkFeed = [...mockFeedItems, ...posts.filter(p => !mockFeedItems.some(m => m.id === p.id))];
-  const currentFeed = activeTab === 0 ? networkFeed : forYouItems;
+  const currentFeed = activeTab === 0 ? networkFeed : forYouPosts;
 
   // Note: Walkthrough is now triggered via AppLayout
-  // This button is kept for legacy but could be removed
   const handleShowHelp = () => {
-    // Dispatch custom event for AppLayout to handle
+    haptic.light();
     window.dispatchEvent(new CustomEvent('show-walkthrough'));
   };
 
   const handleRefresh = async () => {
+    haptic.medium();
     setIsRefreshing(true);
     await loadPosts(true);
     setIsRefreshing(false);
+    haptic.success();
+  };
+
+  const handleButtonTap = () => {
+    haptic.light();
   };
 
   return (
@@ -160,21 +213,23 @@ export default function HomePage() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleShowHelp}
-                className="p-2.5 hover:bg-muted rounded-xl transition-colors"
+                onTouchStart={handleButtonTap}
+                className="p-2.5 hover:bg-muted rounded-xl transition-colors active:bg-muted/80"
                 title="Show walkthrough"
               >
                 <HelpCircle className="h-5 w-5 text-muted-foreground" />
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                className="p-2.5 hover:bg-muted rounded-xl transition-colors"
+                onTouchStart={handleButtonTap}
+                className="p-2.5 hover:bg-muted rounded-xl transition-colors active:bg-muted/80"
               >
                 <Search className="h-5 w-5 text-muted-foreground" />
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/app/oneaccord')}
-                className="relative p-2.5 hover:bg-muted rounded-xl transition-colors"
+                onClick={() => { haptic.light(); navigate('/app/oneaccord'); }}
+                className="relative p-2.5 hover:bg-muted rounded-xl transition-colors active:bg-muted/80"
                 title="Messages & Transfers"
               >
                 <PenSquare className="h-5 w-5 text-muted-foreground" />
@@ -220,33 +275,45 @@ export default function HomePage() {
                   <FeedCard key={item.id} item={item} index={index} />
                 ))}
 
-                {/* Load More Trigger */}
-                {activeTab === 0 && hasMore && (
-                  <div ref={loadMoreRef} className="py-4">
-                    {isLoadingMore && (
-                      <div className="flex justify-center">
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                          className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full"
-                        />
-                      </div>
-                    )}
-                  </div>
-                )}
+                {/* Infinite Scroll Load More Trigger */}
+                <div ref={loadMoreRef} className="py-6">
+                  {isLoadingMore && (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex flex-col items-center gap-2"
+                    >
+                      <motion.div
+                        animate={{ rotate: 360 }}
+                        transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
+                        className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full"
+                      />
+                      <span className="text-xs text-muted-foreground">Loading more...</span>
+                    </motion.div>
+                  )}
+                  {!isLoadingMore && hasMore && (
+                    <div className="h-20" /> // Invisible trigger area
+                  )}
+                </div>
               </>
             )}
 
-            {/* Tagline Footer */}
+            {/* End of Feed Message - only show when truly at the end */}
             {!isLoading && !hasMore && (
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
-                className="text-center py-8"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3 }}
+                className="text-center py-12"
               >
-                <p className="text-sm text-muted-foreground italic">
+                <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-muted mb-4">
+                  <span className="text-2xl">🌱</span>
+                </div>
+                <p className="text-sm text-muted-foreground italic mb-2">
                   "Locked value. Living impact."
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  You've seen it all! Pull down to refresh.
                 </p>
               </motion.div>
             )}

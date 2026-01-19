@@ -10,6 +10,7 @@ import { SendModal } from '@/components/wallet/SendModal';
 import { ComingSoonModal, useComingSoon } from '@/components/shared/ComingSoonModal';
 import { toast } from 'sonner';
 import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
+import { triggerHaptic } from '@/hooks/useHaptic';
 
 interface FeedCardProps {
   item: FeedItem;
@@ -42,11 +43,13 @@ export function FeedCard({ item, index }: FeedCardProps) {
   const { isOpen: isComingSoonOpen, featureName, showComingSoon, hideComingSoon } = useComingSoon();
 
   const handleLike = () => {
+    triggerHaptic(isLiked ? 'light' : 'medium');
     setIsLiked(!isLiked);
     setLikeCount(prev => isLiked ? prev - 1 : prev + 1);
   };
 
   const handleShare = async () => {
+    triggerHaptic('light');
     const shareData = {
       title: `${item.author?.name || 'Seedbase'} post`,
       text: item.content,
@@ -56,6 +59,7 @@ export function FeedCard({ item, index }: FeedCardProps) {
     if (navigator.share) {
       try {
         await navigator.share(shareData);
+        triggerHaptic('success');
       } catch (err) {
         // User cancelled or share failed
         navigator.clipboard.writeText(window.location.href);
@@ -68,11 +72,18 @@ export function FeedCard({ item, index }: FeedCardProps) {
   };
 
   const handleComment = () => {
+    triggerHaptic('light');
     showComingSoon('Comments');
   };
 
   const handleFollow = () => {
+    triggerHaptic('light');
     showComingSoon('Follow');
+  };
+
+  const handleGive = () => {
+    triggerHaptic('medium');
+    setShowSendModal(true);
   };
 
   const hasYourSeed = item.yourSeed !== undefined && item.yourSeed > 0;
@@ -284,8 +295,8 @@ export function FeedCard({ item, index }: FeedCardProps) {
           {/* Give Button */}
           <motion.button
             whileTap={{ scale: 0.95 }}
-            onClick={() => setShowSendModal(true)}
-            className="w-9 h-9 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center shadow-lg"
+            onClick={handleGive}
+            className="w-9 h-9 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center shadow-lg active:bg-primary/80"
           >
             <DollarSign className="h-4 w-4 text-white" />
           </motion.button>
