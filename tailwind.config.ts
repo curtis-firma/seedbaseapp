@@ -186,6 +186,10 @@ export default {
           "0%": { width: "0%" },
           "100%": { width: "var(--target-width)" },
         },
+        "bounce-subtle": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(4px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -201,6 +205,7 @@ export default {
         "number-tick": "number-tick 2s ease-in-out infinite",
         "icon-wiggle": "icon-wiggle 3s ease-in-out infinite",
         "progress-pulse": "progress-pulse 2s ease-in-out infinite",
+        "bounce-subtle": "bounce-subtle 0.6s ease-in-out infinite",
       },
       spacing: {
         "safe-bottom": "env(safe-area-inset-bottom)",

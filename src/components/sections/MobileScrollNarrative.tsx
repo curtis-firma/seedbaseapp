@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight, ChevronDown } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import EnterAppButton from "@/components/ui/EnterAppButton";
+import LearnMoreButton from "@/components/ui/LearnMoreButton";
 import WalletCard from "@/components/cards/WalletCard";
 import GrowthReportCard from "@/components/cards/GrowthReportCard";
 import LedgerCard from "@/components/cards/LedgerCard";
@@ -140,25 +140,8 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
     <div className="flex flex-col gap-8 py-8">
       {/* CTA Buttons - After hero */}
       <div className="flex flex-col gap-3 w-full">
-        {/* Enter App - Solid Blue Rectangle */}
-        <button
-          onClick={onEnterApp}
-          className="w-full py-5 rounded-xl font-semibold text-lg bg-[#0000ff] text-white flex items-center justify-center gap-2 hover:bg-[#0000ff]/90 transition-all"
-          aria-label="Enter SeedBase app"
-        >
-          Enter App
-          <ArrowRight className="w-5 h-5" />
-        </button>
-
-        {/* Learn More - Solid Blue Outline */}
-        <Button
-          variant="outline"
-          onClick={scrollToSections}
-          className="w-full rounded-xl py-5 h-auto text-lg font-semibold border-2 border-[#0000ff] text-[#0000ff] hover:bg-[#0000ff] hover:text-white"
-        >
-          Learn More
-          <ChevronDown className="w-5 h-5 ml-2" />
-        </Button>
+        <EnterAppButton onClick={onEnterApp} fullWidth />
+        <LearnMoreButton onClick={scrollToSections} fullWidth variant="blue" />
       </div>
 
       {/* Yellow Hero Card Section - same looping rectangle as desktop */}
@@ -202,15 +185,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         </div>
 
         <div className="flex flex-col gap-3 w-full max-w-sm">
-          {/* Primary CTA - Enter App - Solid Blue Rectangle */}
-          <button
-            onClick={onEnterApp}
-            className="w-full py-5 rounded-xl font-semibold text-lg bg-[#0000ff] text-white flex items-center justify-center gap-2 hover:bg-[#0000ff]/90 transition-all"
-            aria-label="Enter SeedBase app"
-          >
-            Enter the App
-            <ArrowRight className="w-5 h-5" />
-          </button>
+          <EnterAppButton onClick={onEnterApp} fullWidth />
         </div>
 
         {/* Powered by CIK */}
