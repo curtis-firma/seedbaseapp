@@ -6,8 +6,8 @@ interface InnerCardProps {
 }
 
 /**
- * InnerCard - Canonical white inner card component
- * Single source of truth for card styling across all landing page sections
+ * InnerCard - Canonical sizing container for landing page cards
+ * TRANSPARENT - only controls size, children provide their own styling
  * 
  * Sizing tokens:
  * - Mobile: 280×280px
@@ -18,14 +18,12 @@ const InnerCard = ({ children, className }: InnerCardProps) => {
   return (
     <div 
       className={cn(
-        // Core styling - SINGLE SOURCE OF TRUTH
-        "bg-white rounded-2xl overflow-hidden shadow-lg",
-        // Fixed sizing tokens per breakpoint
+        // SIZE ONLY - no background/shadow styling (children own that)
         "w-[280px] h-[280px]",           // Mobile default
         "md:w-[320px] md:h-[320px]",     // Tablet
         "lg:w-[340px] lg:h-[340px]",     // Desktop
-        // Prevent compression
-        "flex-shrink-0",
+        // Prevent compression and clip content
+        "flex-shrink-0 overflow-hidden rounded-2xl",
         className
       )}
     >

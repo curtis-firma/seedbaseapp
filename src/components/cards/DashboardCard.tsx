@@ -40,7 +40,7 @@ const DashboardCard = () => {
   };
 
   return (
-    <div className="w-full h-full bg-white rounded-[20px] p-4 sm:p-5 shadow-xl flex flex-col justify-between">
+    <div className="w-full h-full bg-white rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col justify-between">
       {/* Header */}
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-bold text-gray-900 text-sm sm:text-base">Grace Community Seedbase</h3>

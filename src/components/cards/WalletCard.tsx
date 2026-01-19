@@ -69,7 +69,7 @@ const WalletCard = () => {
   }, [isSent]);
 
   return (
-    <div className="w-full h-full bg-white p-4 sm:p-5 flex flex-col rounded-2xl justify-between">
+    <div className="w-full h-full bg-white p-4 sm:p-5 flex flex-col rounded-2xl shadow-lg justify-between">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-3">

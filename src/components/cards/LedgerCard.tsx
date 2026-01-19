@@ -40,7 +40,7 @@ const LedgerCard = () => {
   }, []);
 
   return (
-    <div className="w-full h-full bg-white rounded-[20px] p-4 sm:p-5 shadow-xl flex flex-col">
+    <div className="w-full h-full bg-white rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col">
       {/* Header */}
       <h3 className="text-sm font-semibold text-gray-400 tracking-wider mb-3">SHARED LEDGER</h3>
 
