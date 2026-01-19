@@ -7,7 +7,7 @@ import SeedFeedCard from "@/components/cards/SeedFeedCard";
 import SeedFeedCardPeek from "@/components/cards/SeedFeedCardPeek";
 import SeedFeedCardPeekAlt from "@/components/cards/SeedFeedCardPeekAlt";
 import SeedCommitmentCard from "@/components/cards/SeedCommitmentCard";
-import MobileCardCarousel from "@/components/cards/MobileCardCarousel";
+import MobileScrollNarrative from "@/components/sections/MobileScrollNarrative";
 import DashboardCard from "@/components/cards/DashboardCard";
 import LedgerCard from "@/components/cards/LedgerCard";
 import GrowthReportCard from "@/components/cards/GrowthReportCard";
@@ -164,71 +164,34 @@ const ScrollingLandingPage = () => {
                   <span className="block opacity-0 animate-fade-in-stagger-4">Connect with others.</span>
                 </div>
                 
-                {/* Mobile Card Carousel - between tagline and buttons */}
-                <div className="lg:hidden w-full overflow-hidden">
-                  <MobileCardCarousel />
-                </div>
-                
-                {/* CTA Buttons */}
-                <nav className="flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
+                {/* CTA Buttons - Desktop only in header */}
+                <nav className="hidden lg:flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
                   {/* Enter App - Blue with white ring glow */}
                   <button onClick={() => setShowLoginModal(true)} className="relative w-full py-6 rounded-full font-semibold text-base sm:text-lg bg-[hsl(221,83%,53%)] text-white flex items-center justify-center gap-2 hover:bg-[hsl(221,83%,48%)] transition-all shadow-[0_0_0_4px_white,0_0_20px_rgba(59,130,246,0.5)]" aria-label="Enter SeedBase app">
                     Enter App
                     <ArrowRight className="w-5 h-5" />
                   </button>
                   
-                  {/* Mobile: open modal */}
-                  <Button variant="outline" onClick={() => setShowLearnMore(true)} className="lg:hidden rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]" aria-label="Learn more about SeedBase">
-                    Learn More
-                    <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
-                  </Button>
-                  
                   {/* Desktop: scroll to content */}
-                  <Button variant="outline" onClick={scrollToContent} className="hidden lg:inline-flex rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]" aria-label="Learn more about SeedBase">
+                  <Button variant="outline" onClick={scrollToContent} className="rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]" aria-label="Learn more about SeedBase">
                     Learn More
                     <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
                   </Button>
                 </nav>
                 
-                {/* Powered by CIK */}
-                <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-sm flex justify-center lg:justify-start mt-3">
+                {/* Powered by CIK - Desktop only in header */}
+                <div className="hidden lg:flex w-full max-w-[calc(100vw-2rem)] sm:max-w-sm justify-start mt-3">
                   <img alt="Powered by Christ is King" className="h-4 opacity-0 animate-fade-in-stagger-5 object-contain" src="/lovable-uploads/77b981db-2bff-491e-bbe7-64c8bb64864f.png" />
                 </div>
               </div>
             </div>
           </div>
-
-          {/* Mobile Footer */}
-          <footer className="lg:hidden mt-8 mb-8 flex flex-col items-center gap-5 w-full">
-            {/* Divider */}
-            <div className="w-full h-px bg-gray-200" />
-            
-            {/* Copyright */}
-            <p className="text-muted-foreground text-sm">
-              © 2026 Seedbase. All rights reserved.
-            </p>
-            
-            {/* Built on Base */}
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <span>Built on</span>
-              <img src={baseLogo} alt="Base" className="h-5 w-auto" />
-            </div>
-            
-            {/* Links */}
-            <div className="flex items-center gap-4 text-muted-foreground text-sm">
-              <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-              <span>•</span>
-              <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-              <span>•</span>
-              <a href="#" className="hover:text-foreground transition-colors">Contact</a>
-            </div>
-            
-            {/* Network pill */}
-            <a href="https://seedbase.network" target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-gray-100 rounded-full text-foreground font-medium text-sm hover:bg-gray-200 transition-colors">
-              seedbase.network
-            </a>
-          </footer>
         </header>
+
+        {/* Mobile Scroll Narrative - replaces carousel */}
+        <div className="lg:hidden px-4 sm:px-6">
+          <MobileScrollNarrative onEnterApp={() => setShowLoginModal(true)} />
+        </div>
 
         {/* Login Modal */}
         <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onComplete={handleLoginComplete} />
