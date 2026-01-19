@@ -289,18 +289,14 @@ const ScrollingLandingPage = () => {
             </div>)}
 
           {/* Footer Section */}
-          <footer className="py-16 px-8 flex flex-col items-center gap-8 pointer-events-auto border-t border-gray-200 mt-16">
-            {/* Powered by CIK - 3x */}
-            <div className="flex items-center gap-8">
-              <img alt="Powered by Christ is King" className="h-4 object-contain opacity-60" src={poweredByCik} />
-              <img alt="Powered by Christ is King" className="h-4 object-contain opacity-60" src={poweredByCik} />
-              <img alt="Powered by Christ is King" className="h-4 object-contain opacity-60" src={poweredByCik} />
-            </div>
+          <footer className="py-16 px-8 flex flex-col items-center gap-6 pointer-events-auto border-t border-gray-200 mt-16">
+            {/* Powered by CIK - Single, larger */}
+            <img alt="Powered by Christ is King" className="h-8 object-contain" src={poweredByCik} />
             
-            {/* Built on Base */}
+            {/* Built on Base - logo same size as text */}
             <div className="flex items-center gap-2 text-muted-foreground text-sm">
               <span>Built on</span>
-              <img src={baseLogo} alt="Base" className="h-5 w-auto" />
+              <img src={baseLogo} alt="Base" className="h-3.5 w-auto" />
             </div>
             
             {/* Copyright */}

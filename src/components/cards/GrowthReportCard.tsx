@@ -37,7 +37,7 @@ const GrowthReportCard = () => {
   }, []);
 
   return (
-    <div className="w-full max-w-[320px] bg-gradient-to-br from-gray-900 to-gray-800 rounded-3xl p-4 sm:p-5 shadow-lg text-white">
+    <div className="w-full bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-4 shadow-lg text-white">
       {/* Milestone Banner */}
       <div className="flex items-center gap-2 mb-3 bg-emerald-500/20 rounded-xl px-3 py-2">
         <PartyPopper className="w-4 h-4 text-emerald-400 animate-icon-wiggle flex-shrink-0" />
@@ -47,10 +47,10 @@ const GrowthReportCard = () => {
       </div>
 
       {/* Header */}
-      <h3 className="font-bold text-base mb-3 text-white/90">Weekly Growth Report</h3>
+      <h3 className="font-bold text-base mb-2 text-white/90">Weekly Growth Report</h3>
 
       {/* Main Stat */}
-      <div className="mb-3">
+      <div className="mb-2">
         <p 
           className={`text-3xl font-bold text-emerald-400 transition-all duration-500 ${
             isGlowing 
@@ -64,7 +64,7 @@ const GrowthReportCard = () => {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-1.5 mb-3">
+      <div className="grid grid-cols-3 gap-1.5 mb-2">
         <div className="bg-white/5 rounded-lg p-1.5 text-center hover:bg-white/10 transition-colors">
           <p className="font-bold text-sm animate-number-tick">156</p>
           <p className="text-[10px] text-gray-400 leading-tight">missions</p>
@@ -80,7 +80,7 @@ const GrowthReportCard = () => {
       </div>
 
       {/* Footer */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2">
+      <div className="flex items-center justify-between">
         <p className="text-[10px] text-gray-400">Verified on Base L2</p>
         <button className="flex items-center gap-1 text-primary text-xs font-medium hover:underline group whitespace-nowrap">
           See dashboard

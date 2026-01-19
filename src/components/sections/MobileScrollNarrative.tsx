@@ -11,6 +11,7 @@ import CampaignCard from "@/components/cards/CampaignCard";
 import { Logo, seeddropTypeLight } from "@/components/shared/Logo";
 import baseLogo from "@/assets/base-logo.png";
 import poweredByCik from "@/assets/powered-by-cik-text.png";
+import waterBackground from "@/assets/water-background.png";
 import SeedFeedCard from "@/components/cards/SeedFeedCard";
 import SeedFeedCardPeek from "@/components/cards/SeedFeedCardPeek";
 import SeedFeedCardPeekAlt from "@/components/cards/SeedFeedCardPeekAlt";
@@ -20,6 +21,7 @@ interface MobileSection {
   title: string;
   description: string;
   bgColor: string;
+  bgImage?: string;
   card: React.ReactNode;
 }
 
@@ -57,6 +59,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       title: "See generosity spread",
       description: "Watch surplus move across people, places, and missions.",
       bgColor: "bg-teal-400",
+      bgImage: waterBackground,
       card: <CampaignCard />,
     },
     {
@@ -114,9 +117,9 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         </Button>
       </div>
 
-      {/* Yellow Hero Card Section - with scrolling cards */}
-      <div className="bg-[#FDDE02] rounded-3xl p-4 overflow-hidden h-[400px]">
-        <div className="animate-scroll-feed flex flex-col gap-3 pt-2">
+      {/* Yellow Hero Card Section - with scrolling cards - SQUARE */}
+      <div className="bg-[#FDDE02] rounded-3xl p-4 overflow-hidden aspect-square flex items-center justify-center">
+        <div className="animate-scroll-feed flex flex-col gap-3 w-full max-w-sm">
           <SeedFeedCard />
           <SeedFeedCardPeek />
           <SeedFeedCardPeekAlt />
@@ -143,8 +146,11 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
               </p>
             </div>
 
-            {/* Card with colored background */}
-            <div className={`${section.bgColor} rounded-3xl p-4 flex items-center justify-center`}>
+            {/* Card with colored background - SQUARE aspect ratio */}
+            <div 
+              className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl p-4 flex items-center justify-center aspect-square bg-cover bg-center`}
+              style={section.bgImage ? { backgroundImage: `url(${section.bgImage})` } : undefined}
+            >
               <div className="w-full max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white">
                 {section.card}
               </div>
@@ -174,59 +180,27 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
             Enter the App
             <ArrowRight className="w-5 h-5" />
           </button>
-
-          {/* Secondary CTA - Create Account - Blue Outline */}
-          <Button
-            variant="outline"
-            onClick={onEnterApp}
-            className="w-full rounded-xl py-5 h-auto text-lg font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-white"
-          >
-            Create an Account
-          </Button>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="flex flex-col items-center gap-5 pt-4">
+      <footer className="flex flex-col items-center gap-4 pt-4">
         {/* Divider */}
         <div className="w-full h-px bg-gray-200" />
 
-        {/* Powered by CIK - 3x */}
-        <div className="flex items-center gap-4 flex-wrap justify-center">
-          <img alt="Powered by Christ is King" className="h-3 object-contain opacity-60" src={poweredByCik} />
-          <img alt="Powered by Christ is King" className="h-3 object-contain opacity-60" src={poweredByCik} />
-          <img alt="Powered by Christ is King" className="h-3 object-contain opacity-60" src={poweredByCik} />
-        </div>
+        {/* Powered by CIK - Single, 3x bigger */}
+        <img alt="Powered by Christ is King" className="h-8 object-contain" src={poweredByCik} />
 
-        {/* Built on Base */}
+        {/* Built on Base - logo same size as text */}
         <div className="flex items-center gap-2 text-muted-foreground text-sm">
           <span>Built on</span>
-          <img src={baseLogo} alt="Base" className="h-5 w-auto" />
+          <img src={baseLogo} alt="Base" className="h-3.5 w-auto" />
         </div>
 
         {/* Copyright */}
         <p className="text-muted-foreground text-sm text-center">
           © 2026 Christ is King Labs. All rights reserved.
         </p>
-
-        {/* Links */}
-        <div className="flex items-center gap-4 text-muted-foreground text-sm">
-          <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-          <span>•</span>
-          <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-          <span>•</span>
-          <a href="#" className="hover:text-foreground transition-colors">Contact</a>
-        </div>
-
-        {/* Network pill */}
-        <a
-          href="https://seedbase.network"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="px-6 py-3 bg-gray-100 rounded-full text-foreground font-medium text-sm hover:bg-gray-200 transition-colors"
-        >
-          seedbase.network
-        </a>
       </footer>
     </div>
   );
