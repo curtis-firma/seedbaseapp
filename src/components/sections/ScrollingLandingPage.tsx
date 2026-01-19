@@ -282,7 +282,7 @@ const ScrollingLandingPage = () => {
             </section>)}
 
           {/* Full-width Seedbase Logo Above Footer */}
-          <section className="py-12 px-8 flex justify-center pointer-events-auto">
+          <section className="py-6 px-8 flex justify-center pointer-events-auto">
             <button onClick={() => window.scrollTo({
             top: 0,
             behavior: 'smooth'
@@ -292,9 +292,9 @@ const ScrollingLandingPage = () => {
           </section>
 
           {/* Footer Section */}
-          <footer className="py-8 px-8 flex flex-col items-center gap-6 pointer-events-auto border-t border-gray-200">
+          <footer className="py-6 px-8 flex flex-col items-center gap-4 pointer-events-auto border-t border-gray-200">
             {/* Powered by CIK - Top of footer */}
-            <img alt="Powered by Christ is King" className="h-12 object-contain" src={poweredByCik} />
+            <img alt="Powered by Christ is King" className="h-5 object-contain" src={poweredByCik} />
             
             {/* Desktop: Built on Base (left) + Copyright (right) on same line */}
             {/* Mobile: Stacked vertically, centered */}
