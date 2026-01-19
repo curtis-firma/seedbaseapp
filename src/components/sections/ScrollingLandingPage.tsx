@@ -172,8 +172,8 @@ const ScrollingLandingPage = () => {
                     <ArrowRight className="w-5 h-5" />
                   </button>
                   
-                  {/* Desktop: scroll to content - Solid Blue Rectangle Outline */}
-                  <Button variant="outline" onClick={scrollToContent} className="rounded-xl py-5 h-auto text-lg font-semibold border-2 border-[#0000ff] text-[#0000ff] hover:bg-[#0000ff] hover:text-white min-h-[44px]" aria-label="Learn more about SeedBase">
+                  {/* Desktop: scroll to content - Black Rectangle Outline */}
+                  <Button variant="outline" onClick={scrollToContent} className="rounded-xl py-5 h-auto text-lg font-semibold border-2 border-black text-black hover:bg-black hover:text-white min-h-[44px]" aria-label="Learn more about SeedBase">
                     Learn More
                     <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
                   </Button>
