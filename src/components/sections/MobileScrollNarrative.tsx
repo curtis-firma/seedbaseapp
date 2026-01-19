@@ -165,14 +165,14 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         </Button>
       </div>
 
-      {/* Yellow Hero Card Section - Full width rectangle matching square alignment */}
-      <div className="bg-[#FDDE02] rounded-3xl p-6 overflow-hidden flex items-center justify-center aspect-[4/3]">
-        <div className="animate-scroll-feed flex flex-col gap-3 w-full max-w-md">
-          <SeedFeedCard />
-          <SeedFeedCardPeek />
-          <SeedFeedCardPeekAlt />
-          <SeedFeedCard />
-          <SeedFeedCardPeek />
+      {/* Yellow Hero Card Section - Fixed height rectangle */}
+      <div className="bg-[#FDDE02] rounded-3xl p-6 overflow-hidden flex items-center justify-center h-[360px]">
+        <div className="animate-scroll-feed flex flex-col items-center gap-3">
+          <div className="w-[280px]"><SeedFeedCard /></div>
+          <div className="w-[280px]"><SeedFeedCardPeek /></div>
+          <div className="w-[280px]"><SeedFeedCardPeekAlt /></div>
+          <div className="w-[280px]"><SeedFeedCard /></div>
+          <div className="w-[280px]"><SeedFeedCardPeek /></div>
         </div>
       </div>
 
