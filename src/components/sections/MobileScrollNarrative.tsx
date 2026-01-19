@@ -167,11 +167,11 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       {/* Yellow Hero Card Section - Fixed height rectangle with canonical InnerCards */}
       <div className="bg-[#FDDE02] rounded-3xl p-6 overflow-hidden flex items-center justify-center h-[360px]">
         <div className="animate-scroll-feed flex flex-col items-center gap-3">
-          <InnerCard><SeedFeedCard /></InnerCard>
-          <InnerCard><SeedFeedCardPeek /></InnerCard>
-          <InnerCard><SeedFeedCardPeekAlt /></InnerCard>
-          <InnerCard><SeedFeedCard /></InnerCard>
-          <InnerCard><SeedFeedCardPeek /></InnerCard>
+          <SeedFeedCard />
+          <SeedFeedCardPeek />
+          <SeedFeedCardPeekAlt />
+          <SeedFeedCard />
+          <SeedFeedCardPeek />
         </div>
       </div>
 

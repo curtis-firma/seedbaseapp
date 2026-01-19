@@ -234,12 +234,12 @@ const ScrollingLandingPage = () => {
           <section className="flex items-start pt-[32px] px-8 pointer-events-auto">
             <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full h-[500px] flex items-center justify-center relative overflow-hidden animate-content-reveal">
               <div className="animate-scroll-feed flex flex-col items-center gap-3">
-                <InnerCard><SeedFeedCard /></InnerCard>
-                <InnerCard><SeedFeedCardPeek /></InnerCard>
-                <InnerCard><SeedFeedCardPeekAlt /></InnerCard>
-                <InnerCard><SeedFeedCard /></InnerCard>
-                <InnerCard><SeedFeedCardPeek /></InnerCard>
-                <InnerCard><SeedFeedCardPeekAlt /></InnerCard>
+                <SeedFeedCard />
+                <SeedFeedCardPeek />
+                <SeedFeedCardPeekAlt />
+                <SeedFeedCard />
+                <SeedFeedCardPeek />
+                <SeedFeedCardPeekAlt />
               </div>
             </div>
           </section>
