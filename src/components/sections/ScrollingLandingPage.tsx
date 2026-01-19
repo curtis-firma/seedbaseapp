@@ -293,19 +293,23 @@ const ScrollingLandingPage = () => {
 
           {/* Footer Section */}
           <footer className="py-16 px-8 flex flex-col items-center gap-8 pointer-events-auto border-t border-gray-200">
-            {/* Powered by CIK - Scaled for desktop */}
+            {/* Powered by CIK - Top of footer */}
             <img alt="Powered by Christ is King" className="h-12 object-contain" src={poweredByCik} />
             
-            {/* Built on Base - logo scaled to match desktop text */}
-            <div className="flex items-center gap-2 text-muted-foreground text-lg">
-              <span>Built on</span>
-              <img src={baseLogo} alt="Base" className="h-8 w-auto" />
+            {/* Desktop: Built on Base (left) + Copyright (right) on same line */}
+            {/* Mobile: Stacked vertically, centered */}
+            <div className="w-full flex flex-col items-center gap-4 lg:flex-row lg:justify-between lg:items-center">
+              {/* Built on Base - left on desktop */}
+              <div className="flex items-center gap-2 text-muted-foreground text-lg">
+                <span>Built on</span>
+                <img src={baseLogo} alt="Base" className="h-8 w-auto" />
+              </div>
+              
+              {/* Copyright - right on desktop */}
+              <p className="text-muted-foreground text-base">
+                © 2026 Christ is King Labs. All rights reserved.
+              </p>
             </div>
-            
-            {/* Copyright */}
-            <p className="text-muted-foreground text-base">
-              © 2026 Christ is King Labs. All rights reserved.
-            </p>
           </footer>
         </main>
       </div>
