@@ -2,7 +2,8 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { ChevronDown, ArrowRight } from "lucide-react";
+import EnterAppButton from "@/components/ui/EnterAppButton";
+import LearnMoreButton from "@/components/ui/LearnMoreButton";
 import SeedFeedCard from "@/components/cards/SeedFeedCard";
 import HeroVisualCanvas from "@/components/landing/HeroVisualCanvas";
 import SeedCommitmentCard from "@/components/cards/SeedCommitmentCard";
@@ -164,18 +165,9 @@ const ScrollingLandingPage = () => {
                 </div>
                 
                 {/* CTA Buttons - Desktop only in header */}
-                <nav className="hidden lg:flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
-                  {/* Enter App - Solid Blue Rectangle */}
-                  <button onClick={() => setShowLoginModal(true)} className="relative w-full py-5 rounded-xl font-semibold text-lg bg-[#0000ff] text-white flex items-center justify-center gap-2 hover:bg-[#0000ff]/90 transition-all" aria-label="Enter SeedBase app">
-                    Enter App
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                  
-                  {/* Desktop: scroll to content - Black Rectangle Outline */}
-                  <Button variant="outline" onClick={scrollToContent} className="rounded-xl py-5 h-auto text-lg font-semibold border-2 border-black text-black hover:bg-black hover:text-white min-h-[44px]" aria-label="Learn more about SeedBase">
-                    Learn More
-                    <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
-                  </Button>
+                <nav className="hidden lg:flex flex-col gap-3" role="navigation" aria-label="Main actions">
+                  <EnterAppButton onClick={() => setShowLoginModal(true)} />
+                  <LearnMoreButton onClick={scrollToContent} />
                 </nav>
                 
               </div>
@@ -284,21 +276,21 @@ const ScrollingLandingPage = () => {
           </section>
 
           {/* Footer Section */}
-          <footer className="py-6 px-8 flex flex-col items-center gap-2 pointer-events-auto border-t border-gray-200">
+          <footer className="py-8 px-8 flex flex-col items-center gap-4 pointer-events-auto border-t border-gray-200">
             {/* Powered by CIK - Top of footer */}
             <img alt="Powered by Christ is King" className="h-14 object-contain" src={poweredByCik} />
             
             {/* Desktop: Built on Base (left) + Copyright (right) on same line */}
             {/* Mobile: Stacked vertically, centered */}
-            <div className="w-full flex flex-col items-center gap-4 lg:flex-row lg:justify-between lg:items-center">
+            <div className="w-full flex flex-col items-center gap-4 md:flex-row md:justify-between md:items-center">
               {/* Built on Base - left on desktop */}
-              <div className="flex items-center gap-2 text-muted-foreground text-lg">
+              <div className="flex items-center gap-2 text-muted-foreground text-base md:text-lg">
                 <span>Built on</span>
-                <img src={baseLogo} alt="Base" className="h-8 w-auto" />
+                <img src={baseLogo} alt="Base" className="h-6 md:h-8 w-auto" />
               </div>
               
               {/* Copyright - right on desktop */}
-              <p className="text-muted-foreground text-base">
+              <p className="text-muted-foreground text-sm md:text-base">
                 © 2026 Christ is King Labs. All rights reserved.
               </p>
             </div>
