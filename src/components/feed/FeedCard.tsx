@@ -14,6 +14,7 @@ import { getRandomImage, getCategoryFromName } from '@/lib/curatedImages';
 import { PostHeader } from '@/components/seedfeed/shared/PostHeader';
 import { PostActions } from '@/components/seedfeed/shared/PostActions';
 import { CardImpactFooter } from '@/components/seedfeed/shared/CardImpactFooter';
+import seedbaseIconLight from '@/assets/seeddroplogo_lightmode.png';
 
 interface FeedCardProps {
   item: FeedItem;
@@ -103,16 +104,55 @@ export function FeedCard({ item, index }: FeedCardProps) {
     return 'activator';
   };
 
+  // Detect official account
+  const isOfficial = item.author?.handle === 'seedfeedhq' || item.author?.handle === 'seedbase' || item.roleBadge === 'Official';
+
   // Prepare author for PostHeader
   const author = {
     name: item.author?.name || item.seedbase?.name || 'Seedbase Network',
-    avatar: item.author?.avatar || '',
     handle: item.author?.handle,
-    isVerified: item.author?.isVerified,
+    isVerified: item.author?.isVerified || isOfficial,
     role: item.author?.role,
   };
 
-  const isOfficial = author.handle === 'seedfeedhq' || author.handle === 'seedfeed';
+  // Get avatar - use Seedbase logo for official accounts
+  const getAvatarContent = () => {
+    if (isOfficial) {
+      return (
+        <img
+          src={seedbaseIconLight}
+          alt="Seedbase"
+          className="w-11 h-11 rounded-full bg-white object-cover ring-2 ring-primary"
+        />
+      );
+    }
+    
+    const avatar = item.author?.avatar || '';
+    
+    if (avatar && avatar.startsWith('http')) {
+      return (
+        <img
+          src={avatar}
+          alt={author.name}
+          className="w-11 h-11 rounded-full bg-muted object-cover ring-2 ring-border/50"
+        />
+      );
+    }
+    
+    if (avatar && avatar.length <= 4) {
+      return (
+        <div className="w-11 h-11 rounded-full gradient-base flex items-center justify-center text-xl">
+          {avatar}
+        </div>
+      );
+    }
+    
+    return (
+      <div className="w-11 h-11 rounded-full gradient-seed flex items-center justify-center">
+        <Sprout className="h-5 w-5 text-white" />
+      </div>
+    );
+  };
 
   // Default impact categories if not provided
   const defaultImpactCategories = [
@@ -141,60 +181,45 @@ export function FeedCard({ item, index }: FeedCardProps) {
           typeStyles[item.type] || typeStyles[item.postType || 'milestone']
         )}
       >
-        {/* Header - Using Shared PostHeader */}
-        <div className="p-4 pb-0">
-          <div className="flex items-start gap-3">
-            {/* Avatar with Follow Button */}
-            <div className="relative flex-shrink-0">
-              {author.avatar ? (
-                author.avatar.startsWith('http') ? (
-                  <img
-                    src={author.avatar}
-                    alt={author.name}
-                    className="w-11 h-11 rounded-full bg-muted object-cover ring-2 ring-border/50"
-                  />
-                ) : (
-                  <div className="w-11 h-11 rounded-full gradient-base flex items-center justify-center text-xl">
-                    {author.avatar}
-                  </div>
-                )
-              ) : (
-                <div className="w-11 h-11 rounded-full gradient-seed flex items-center justify-center">
-                  <Sprout className="h-5 w-5 text-white" />
-                </div>
+        {/* X-Style Two-Column Layout */}
+        <div className="flex gap-3 p-4">
+          {/* LEFT COLUMN: Avatar + Follow Button */}
+          <div className="flex-shrink-0">
+            <div className="relative">
+              {getAvatarContent()}
+              {/* Follow button overlay - hide for official */}
+              {!isOfficial && (
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={handleFollow}
+                  className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-primary flex items-center justify-center shadow-md"
+                >
+                  <Plus className="h-3 w-3 text-white" />
+                </motion.button>
               )}
-              {/* Follow button overlay */}
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={handleFollow}
-                className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-base flex items-center justify-center shadow-md"
-              >
-                <Plus className="h-3 w-3 text-white" />
-              </motion.button>
-            </div>
-
-            {/* Use PostHeader for rest */}
-            <div className="flex-1 min-w-0">
-              <PostHeader
-                author={author}
-                timestamp={item.timestamp}
-                badge={item.roleBadge}
-                badgeVariant={getBadgeVariant()}
-                isOfficial={isOfficial}
-                className="[&>*:first-child]:hidden" // Hide avatar from PostHeader since we render custom one
-              />
             </div>
           </div>
-        </div>
 
-        {/* Content - Tweet style */}
-        <div className="px-4 py-2">
-          <p className="text-foreground leading-relaxed whitespace-pre-wrap">{item.content}</p>
+          {/* RIGHT COLUMN: Header + Content */}
+          <div className="flex-1 min-w-0">
+            {/* Single-line PostHeader */}
+            <PostHeader
+              author={author}
+              timestamp={item.timestamp}
+              badge={item.roleBadge}
+              badgeVariant={getBadgeVariant()}
+            />
+
+            {/* Content - Tweet style */}
+            <p className="text-foreground leading-relaxed whitespace-pre-wrap mt-2 text-[15px]">
+              {item.content}
+            </p>
+          </div>
         </div>
 
         {/* Embedded Card */}
         {item.embeddedCard && (
-          <div className="px-4">
+          <div className="px-4 pb-3">
             <EmbeddedCard card={item.embeddedCard} />
           </div>
         )}
@@ -252,17 +277,12 @@ export function FeedCard({ item, index }: FeedCardProps) {
         {/* Your Seed Footer - Using Shared CardImpactFooter */}
         {hasYourSeed && item.totalRaised && (
           <div className="px-4 py-3">
-            <motion.div
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setIsImpactDrawerOpen(true)}
-              className="cursor-pointer"
-            >
-              <CardImpactFooter
-                totalAmount={item.totalRaised}
-                yourSeed={item.yourSeed}
-                yourPercentage={item.yourImpactPercentage}
-              />
-            </motion.div>
+            <CardImpactFooter
+              totalAmount={item.totalRaised}
+              yourSeed={item.yourSeed}
+              yourPercentage={item.yourImpactPercentage}
+              onYourSeedClick={() => setIsImpactDrawerOpen(true)}
+            />
           </div>
         )}
 

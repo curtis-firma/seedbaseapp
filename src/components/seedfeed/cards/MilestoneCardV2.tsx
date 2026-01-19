@@ -93,9 +93,10 @@ export function MilestoneCardV2({
           className="
             w-full flex items-center justify-center gap-2
             py-2.5 px-4 rounded-xl
-            bg-seed text-white
+            bg-primary text-white
             font-medium text-sm
-            hover:bg-seed/90 transition-colors
+            hover:bg-primary/90 transition-colors
+            shadow-sm
           "
         >
           See Dashboard
