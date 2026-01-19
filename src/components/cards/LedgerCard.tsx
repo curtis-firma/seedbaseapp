@@ -40,12 +40,12 @@ const LedgerCard = () => {
   }, []);
 
   return (
-    <div className="w-[320px] bg-white rounded-[20px] p-5 shadow-xl">
+    <div className="w-full h-full bg-white rounded-[20px] p-5 shadow-xl flex flex-col">
       {/* Header */}
       <h3 className="text-xs font-semibold text-gray-400 tracking-wider mb-4">SHARED LEDGER</h3>
 
       {/* Table */}
-      <div className="overflow-hidden rounded-xl border border-gray-100">
+      <div className="overflow-hidden rounded-xl border border-gray-100 flex-1">
         <table className="w-full text-sm">
           <thead className="bg-gray-50">
             <tr>

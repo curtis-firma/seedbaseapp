@@ -176,10 +176,6 @@ const ScrollingLandingPage = () => {
                   </Button>
                 </nav>
                 
-                {/* Powered by CIK - Desktop only in header */}
-                <div className="hidden lg:flex w-full max-w-[calc(100vw-2rem)] sm:max-w-sm justify-start mt-3">
-                  <img alt="Powered by Christ is King" className="h-4 opacity-0 animate-fade-in-stagger-5 object-contain" src="/lovable-uploads/77b981db-2bff-491e-bbe7-64c8bb64864f.png" />
-                </div>
               </div>
             </div>
           </div>
@@ -238,7 +234,7 @@ const ScrollingLandingPage = () => {
           {/* Hero Card Section - Yellow with scrolling cards */}
           <section className="h-[620px] flex items-start pt-[32px] pl-0 pr-8 pointer-events-auto">
             <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full h-full flex items-start justify-center relative overflow-hidden animate-content-reveal">
-              <div className="animate-scroll-feed flex flex-col items-center gap-3 pt-4 w-full max-w-sm">
+              <div className="animate-scroll-feed flex flex-col items-center gap-3 pt-4 w-full max-w-md">
                 <div className="w-full">
                   <SeedFeedCard />
                 </div>
@@ -279,8 +275,8 @@ const ScrollingLandingPage = () => {
                 
                 {/* Card - Right side */}
                 <div className="flex justify-end flex-shrink-0">
-                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex-shrink-0 flex justify-center min-w-[560px] w-[560px] min-h-[560px] h-[560px] overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center p-8'} ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
-                    <div className={`transform hover:scale-[1.01] transition-transform duration-300 flex items-center justify-center ${section.id === 'wallet' ? 'animate-scale-in' : ''}`}>
+                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex-shrink-0 flex justify-center min-w-[560px] w-[560px] min-h-[560px] h-[560px] overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center p-10'} ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
+                    <div className={`w-full max-w-md transform hover:scale-[1.01] transition-transform duration-300 ${section.id === 'wallet' ? 'animate-scale-in h-full' : ''}`}>
                       {renderCard(section.card, section.id)}
                     </div>
                   </div>
@@ -288,8 +284,23 @@ const ScrollingLandingPage = () => {
               </div>
             </div>)}
 
+          {/* Full-width Seedbase Logo Above Footer */}
+          <section className="py-12 px-8 flex justify-center pointer-events-auto">
+            <button 
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+              className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg w-full flex justify-center"
+              aria-label="Scroll back to top of page"
+            >
+              <img 
+                alt="Seedbase" 
+                className="w-full max-w-2xl h-auto transition-opacity duration-300 opacity-100" 
+                src={seeddropTypeLight} 
+              />
+            </button>
+          </section>
+
           {/* Footer Section */}
-          <footer className="py-16 px-8 flex flex-col items-center gap-6 pointer-events-auto border-t border-gray-200 mt-16">
+          <footer className="py-12 px-8 flex flex-col items-center gap-6 pointer-events-auto border-t border-gray-200">
             {/* Powered by CIK - Single, larger */}
             <img alt="Powered by Christ is King" className="h-8 object-contain" src={poweredByCik} />
             
@@ -303,14 +314,6 @@ const ScrollingLandingPage = () => {
             <p className="text-muted-foreground text-sm">
               © 2026 Christ is King Labs. All rights reserved.
             </p>
-            
-            {/* Clickable Logo */}
-            <button onClick={() => window.scrollTo({
-              top: 0,
-              behavior: 'smooth'
-            })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg" aria-label="Scroll back to top of page">
-              <img alt="Seedbase" className="w-[400px] max-w-[80vw] h-auto transition-opacity duration-300 opacity-100" src={seeddropTypeLight} />
-            </button>
           </footer>
         </main>
       </div>
