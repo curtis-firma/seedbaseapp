@@ -62,7 +62,7 @@ const CampaignCard = () => {
       <div className="p-4 flex flex-col flex-1">
         {/* Title */}
         <h3 className="font-bold text-base sm:text-lg text-gray-900 mb-0.5 leading-tight">
-          Emergency Relief: Kenya Drought Response
+          Emergency Relief: Philippines Typhoon Response
         </h3>
         <p className="text-xs sm:text-sm text-gray-500 mb-3">
           by Hope Foundation International

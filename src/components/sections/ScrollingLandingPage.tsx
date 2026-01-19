@@ -275,8 +275,8 @@ const ScrollingLandingPage = () => {
                 
                 {/* Card - Right side */}
                 <div className="flex justify-end flex-shrink-0">
-                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex-shrink-0 flex justify-center min-w-[560px] w-[560px] min-h-[560px] h-[560px] overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center p-10'} ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
-                    <div className={`w-full max-w-md transform hover:scale-[1.01] transition-transform duration-300 ${section.id === 'wallet' ? 'animate-scale-in h-full' : ''}`}>
+                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex-shrink-0 flex justify-center w-full aspect-square max-w-[560px] overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center p-10'} ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
+                    <div className={`w-full max-w-md transform hover:scale-[1.01] transition-transform duration-300 ${section.id === 'wallet' ? 'animate-scale-in h-full' : ''} ${section.id === 'impact' ? 'h-full p-8' : ''}`}>
                       {renderCard(section.card, section.id)}
                     </div>
                   </div>
@@ -301,13 +301,13 @@ const ScrollingLandingPage = () => {
 
           {/* Footer Section */}
           <footer className="py-12 px-8 flex flex-col items-center gap-6 pointer-events-auto border-t border-gray-200">
-            {/* Powered by CIK - Single, larger */}
-            <img alt="Powered by Christ is King" className="h-8 object-contain" src={poweredByCik} />
+            {/* Powered by CIK - 3x bigger */}
+            <img alt="Powered by Christ is King" className="h-24 object-contain" src={poweredByCik} />
             
-            {/* Built on Base - logo same size as text */}
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            {/* Built on Base - larger logo matching text size */}
+            <div className="flex items-center gap-2 text-muted-foreground text-lg">
               <span>Built on</span>
-              <img src={baseLogo} alt="Base" className="h-3.5 w-auto" />
+              <img src={baseLogo} alt="Base" className="h-6 w-auto" />
             </div>
             
             {/* Copyright */}

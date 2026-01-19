@@ -183,18 +183,33 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         </div>
       </section>
 
+      {/* Seedbase Logo Above Footer - All Views */}
+      <section className="py-8 flex justify-center">
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+          className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg w-full flex justify-center"
+          aria-label="Scroll back to top of page"
+        >
+          <img 
+            alt="Seedbase" 
+            className="w-full max-w-md h-auto transition-opacity duration-300 opacity-100" 
+            src={seeddropTypeLight} 
+          />
+        </button>
+      </section>
+
       {/* Footer */}
       <footer className="flex flex-col items-center gap-4 pt-4">
         {/* Divider */}
         <div className="w-full h-px bg-gray-200" />
 
-        {/* Powered by CIK - Single, 3x bigger */}
-        <img alt="Powered by Christ is King" className="h-8 object-contain" src={poweredByCik} />
+        {/* Powered by CIK - 3x bigger */}
+        <img alt="Powered by Christ is King" className="h-24 object-contain" src={poweredByCik} />
 
-        {/* Built on Base - logo same size as text */}
-        <div className="flex items-center gap-2 text-muted-foreground text-sm">
+        {/* Built on Base - larger logo matching text size */}
+        <div className="flex items-center gap-2 text-muted-foreground text-lg">
           <span>Built on</span>
-          <img src={baseLogo} alt="Base" className="h-3.5 w-auto" />
+          <img src={baseLogo} alt="Base" className="h-6 w-auto" />
         </div>
 
         {/* Copyright */}
