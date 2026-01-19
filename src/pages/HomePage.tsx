@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { Search, HelpCircle, PenSquare } from 'lucide-react';
+import { Search, HelpCircle, MessageCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { FeedCard } from '@/components/feed/FeedCard';
@@ -237,7 +237,7 @@ export default function HomePage() {
                 className="relative p-2.5 hover:bg-muted rounded-xl transition-colors active:bg-muted/80"
                 title="Messages & Transfers"
               >
-                <PenSquare className="h-5 w-5 text-muted-foreground" />
+                <MessageCircle className="h-5 w-5 text-muted-foreground" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
               </motion.button>
             </div>

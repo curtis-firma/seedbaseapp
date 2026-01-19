@@ -59,25 +59,9 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed left-0 top-0 bottom-0 w-[300px] bg-card border-r border-border/50 z-50 flex flex-col"
           >
-            {/* Header with logo on left */}
+            {/* Header - Logo on LEFT, Close on RIGHT */}
             <div className="p-4 flex items-center justify-between border-b border-border/50">
-              <div className="flex items-center gap-3">
-                <img src={seedbaseLeaf} alt="Seedbase" className="h-10 w-auto" />
-                {username && (
-                  <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 border-2 border-primary/20">
-                      <AvatarImage src={user?.avatar} alt={displayName || username} />
-                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
-                        {(displayName || username || 'U').charAt(0).toUpperCase()}
-                      </AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <p className="font-semibold text-sm">{displayName || username}</p>
-                      <p className="text-xs text-muted-foreground">@{username}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
+              <img src={seedbaseLeaf} alt="Seedbase" className="h-12 w-auto" />
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
@@ -87,10 +71,28 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
               </motion.button>
             </div>
 
-            {/* View Role Switcher - Colorful Buttons */}
+            {/* User Profile Section - Full width below header */}
+            {username && (
+              <div className="px-6 py-4 border-b border-border/50">
+                <div className="flex items-center gap-4">
+                  <Avatar className="h-14 w-14 border-2 border-primary/20">
+                    <AvatarImage src={user?.avatar} alt={displayName || username} />
+                    <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
+                      {(displayName || username || 'U').charAt(0).toUpperCase()}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="font-semibold text-lg">{displayName || username}</p>
+                    <p className="text-sm text-muted-foreground">@{username}</p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* View Role Switcher - Full Buttons with Labels */}
             <div className="px-6 py-4 border-b border-border/50">
               <p className="text-xs font-medium text-muted-foreground mb-3">VIEW AS</p>
-              <ViewRoleBadge variant="compact" className="w-full" />
+              <ViewRoleBadge variant="full" className="w-full" />
             </div>
 
             {/* Navigation */}

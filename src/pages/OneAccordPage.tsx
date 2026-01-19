@@ -18,13 +18,13 @@ import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 import { oneAccordMessages } from '@/data/mockData';
 import { Confetti } from '@/components/shared/Confetti';
 import { triggerHaptic } from '@/hooks/useHaptic';
-// Message type icons and styles
+// Message type icons and styles - Using blue (base) for branding
 const messageTypeConfig: Record<string, { icon: typeof DollarSign; gradient: string; bgColor: string }> = {
-  distribution: { icon: DollarSign, gradient: 'gradient-seed', bgColor: 'bg-seed/10' },
+  distribution: { icon: DollarSign, gradient: 'gradient-base', bgColor: 'bg-base/10' },
   transfer: { icon: Send, gradient: 'gradient-base', bgColor: 'bg-base/10' },
   harvest: { icon: FileText, gradient: 'gradient-envoy', bgColor: 'bg-envoy/10' },
   governance: { icon: Vote, gradient: 'gradient-trust', bgColor: 'bg-trust/10' },
-  milestone: { icon: Sprout, gradient: 'gradient-seed', bgColor: 'bg-seed/10' },
+  milestone: { icon: Sprout, gradient: 'gradient-base', bgColor: 'bg-base/10' },
   system: { icon: Bell, gradient: 'gradient-base', bgColor: 'bg-muted' },
   update: { icon: FileText, gradient: 'gradient-envoy', bgColor: 'bg-envoy/10' },
 };
@@ -38,6 +38,7 @@ export default function OneAccordPage() {
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [acceptedTransferId, setAcceptedTransferId] = useState<string | null>(null);
+  const [acceptedDemoId, setAcceptedDemoId] = useState<string | null>(null);
   const navigate = useNavigate();
 
   // Get current user ID from session
@@ -125,10 +126,14 @@ export default function OneAccordPage() {
   };
 
   const handleDemoAccept = (messageId: string) => {
+    setAcceptedDemoId(messageId);
     setShowConfetti(true);
     triggerHaptic('success');
     toast.success('Transfer accepted! Funds added to your wallet.');
-    setTimeout(() => setShowConfetti(false), 2000);
+    setTimeout(() => {
+      setShowConfetti(false);
+      setAcceptedDemoId(null);
+    }, 2000);
   };
 
   const currentUserId = getCurrentUserId();
@@ -171,10 +176,10 @@ export default function OneAccordPage() {
                   <p className="text-sm text-muted-foreground">Messages & Transfers</p>
                 </div>
                 <div className="flex items-center gap-2">
-                  <motion.button
+                    <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={() => setShowComposeModal(true)}
-                    className="p-2 rounded-xl gradient-seed text-white"
+                    className="p-2 rounded-xl gradient-base text-white"
                   >
                     <Plus className="h-5 w-5" />
                   </motion.button>
@@ -210,7 +215,7 @@ export default function OneAccordPage() {
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
                     <h2 className="font-semibold">Pending</h2>
-                    <span className="px-2 py-0.5 bg-seed/10 text-seed rounded-full text-xs font-medium">
+                    <span className="px-2 py-0.5 bg-base/10 text-base rounded-full text-xs font-medium">
                       {oneAccordMessages.filter(m => !m.isRead && m.hasAcceptButton).length}
                     </span>
                   </div>
@@ -227,7 +232,7 @@ export default function OneAccordPage() {
                           transition={{ delay: i * 0.05 }}
                           className={cn(
                             "bg-card rounded-2xl border p-4",
-                            !message.isRead ? "border-seed/30" : "border-border/50"
+                            !message.isRead ? "border-base/30" : "border-border/50"
                           )}
                         >
                           <div className="flex items-start gap-3 mb-3">
@@ -261,7 +266,7 @@ export default function OneAccordPage() {
                               </p>
                             </div>
                             {message.amount && (
-                              <p className="text-xl font-bold text-seed">${message.amount.toLocaleString()}</p>
+                              <p className="text-xl font-bold text-base">${message.amount.toLocaleString()}</p>
                             )}
                           </div>
                           
@@ -272,20 +277,33 @@ export default function OneAccordPage() {
                           
                           {message.hasAcceptButton && (
                             <div className="flex gap-2">
-                              <motion.button
-                                whileTap={{ scale: 0.98 }}
-                                onClick={() => handleDemoAccept(message.id)}
-                                className="flex-1 flex items-center justify-center gap-2 py-3 gradient-seed rounded-xl text-white font-medium"
-                              >
-                                <Check className="h-4 w-4" />
-                                Accept
-                              </motion.button>
-                              <motion.button
-                                whileTap={{ scale: 0.98 }}
-                                className="px-4 py-3 bg-muted rounded-xl"
-                              >
-                                <X className="h-4 w-4 text-muted-foreground" />
-                              </motion.button>
+                              {acceptedDemoId === message.id ? (
+                                <motion.div
+                                  initial={{ scale: 0.95 }}
+                                  animate={{ scale: [1, 1.05, 1] }}
+                                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-base rounded-xl text-white font-medium"
+                                >
+                                  <Check className="h-5 w-5" />
+                                  Accepted!
+                                </motion.div>
+                              ) : (
+                                <>
+                                  <motion.button
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => handleDemoAccept(message.id)}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 gradient-base rounded-xl text-white font-medium"
+                                  >
+                                    <Check className="h-4 w-4" />
+                                    Accept
+                                  </motion.button>
+                                  <motion.button
+                                    whileTap={{ scale: 0.98 }}
+                                    className="px-4 py-3 bg-muted rounded-xl"
+                                  >
+                                    <X className="h-4 w-4 text-muted-foreground" />
+                                  </motion.button>
+                                </>
+                              )}
                             </div>
                           )}
                         </motion.div>
@@ -332,7 +350,7 @@ export default function OneAccordPage() {
                             <div className="flex items-center gap-2 mb-1">
                               <p className="font-medium truncate">{message.from}</p>
                               {message.status === 'accepted' && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-seed/10 text-seed font-medium">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-base/10 text-base font-medium">
                                   Accepted
                                 </span>
                               )}
@@ -351,7 +369,7 @@ export default function OneAccordPage() {
                           {message.amount && (
                             <p className={cn(
                               "font-semibold text-lg",
-                              message.status === 'accepted' ? "text-seed" : "text-foreground"
+                              message.status === 'accepted' ? "text-base" : "text-foreground"
                             )}>
                               ${message.amount.toLocaleString()}
                             </p>
@@ -414,21 +432,34 @@ export default function OneAccordPage() {
                               )}
                               
                               <div className="flex gap-2">
-                                <motion.button
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => handleAccept(transfer)}
-                                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary hover:bg-primary/90 rounded-xl text-white font-medium"
-                                >
-                                  <Check className="h-4 w-4" />
-                                  Accept
-                                </motion.button>
-                                <motion.button
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => handleDecline(transfer)}
-                                  className="px-4 py-3 bg-muted rounded-xl"
-                                >
-                                  <X className="h-4 w-4 text-muted-foreground" />
-                                </motion.button>
+                                {acceptedTransferId === transfer.id ? (
+                                  <motion.div
+                                    initial={{ scale: 0.95 }}
+                                    animate={{ scale: [1, 1.05, 1] }}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary rounded-xl text-white font-medium"
+                                  >
+                                    <Check className="h-5 w-5" />
+                                    Accepted!
+                                  </motion.div>
+                                ) : (
+                                  <>
+                                    <motion.button
+                                      whileTap={{ scale: 0.98 }}
+                                      onClick={() => handleAccept(transfer)}
+                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary hover:bg-primary/90 rounded-xl text-white font-medium"
+                                    >
+                                      <Check className="h-4 w-4" />
+                                      Accept
+                                    </motion.button>
+                                    <motion.button
+                                      whileTap={{ scale: 0.98 }}
+                                      onClick={() => handleDecline(transfer)}
+                                      className="px-4 py-3 bg-muted rounded-xl"
+                                    >
+                                      <X className="h-4 w-4 text-muted-foreground" />
+                                    </motion.button>
+                                  </>
+                                )}
                               </div>
                             </motion.div>
                           ))}
@@ -455,11 +486,11 @@ export default function OneAccordPage() {
                               >
                                 <div className={cn(
                                   "w-10 h-10 rounded-full flex items-center justify-center",
-                                  isAccepted ? "bg-seed/10" : "bg-muted"
+                                  isAccepted ? "bg-base/10" : "bg-muted"
                                 )}>
                                   <DollarSign className={cn(
                                     "h-5 w-5",
-                                    isAccepted ? "text-seed" : "text-muted-foreground"
+                                    isAccepted ? "text-base" : "text-muted-foreground"
                                   )} />
                                 </div>
                                 <div className="flex-1 min-w-0">
