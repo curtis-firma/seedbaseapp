@@ -125,6 +125,64 @@ export default function SettingsPage() {
       </header>
 
       <div className="px-4 py-4 space-y-6">
+        {/* Profile Photo Upload Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-card rounded-2xl border border-border/50 p-6"
+        >
+          <div className="flex items-center gap-4">
+            {/* Avatar Preview with Camera Overlay */}
+            <div className="relative">
+              <img 
+                src={avatarPreview || getCurrentAvatarUrl()} 
+                alt="Profile"
+                className="w-20 h-20 rounded-full object-cover border-2 border-border"
+              />
+              <label className="absolute bottom-0 right-0 w-8 h-8 bg-primary rounded-full flex items-center justify-center cursor-pointer shadow-lg hover:bg-primary/90 transition-colors">
+                <Camera className="w-4 h-4 text-white" />
+                <input 
+                  ref={fileInputRef}
+                  type="file" 
+                  accept="image/*" 
+                  onChange={handleAvatarChange} 
+                  className="hidden" 
+                />
+              </label>
+            </div>
+            
+            {/* User Info + Save/Cancel */}
+            <div className="flex-1">
+              <p className="font-semibold text-lg">{displayName || username || 'User'}</p>
+              <p className="text-sm text-muted-foreground">@{username || 'username'}</p>
+              
+              {avatarFile && (
+                <div className="flex gap-2 mt-3">
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleSaveAvatar}
+                    disabled={isUploadingAvatar}
+                    className="px-4 py-2 rounded-xl gradient-seed text-white text-sm font-medium flex items-center gap-2"
+                  >
+                    {isUploadingAvatar ? (
+                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    ) : (
+                      <Check className="w-4 h-4" />
+                    )}
+                    {isUploadingAvatar ? 'Saving...' : 'Save Photo'}
+                  </motion.button>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleCancelAvatar}
+                    className="px-4 py-2 rounded-xl bg-muted text-sm font-medium"
+                  >
+                    Cancel
+                  </motion.button>
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
         {settingsGroups.map((group, groupIndex) => (
           <motion.div
             key={group.title}

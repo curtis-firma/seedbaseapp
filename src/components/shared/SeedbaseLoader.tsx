@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import seedbaseIcon from '@/assets/seedbase-icon.png';
+import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
 
 interface SeedbaseLoaderProps {
   message?: string;
@@ -15,7 +15,7 @@ export function SeedbaseLoader({ message = 'Loading...' }: SeedbaseLoaderProps) 
     >
       <div className="relative mb-6">
         <motion.img
-          src={seedbaseIcon}
+          src={seedbaseLeaf}
           alt="Seedbase"
           className="w-20 h-20"
           animate={{ 
