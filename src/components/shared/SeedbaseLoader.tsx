@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Logo } from '@/components/shared/Logo';
+import seedbasePfp from '@/assets/seedbase-pfp.png';
 
 interface SeedbaseLoaderProps {
   message?: string;
@@ -23,12 +23,13 @@ export function SeedbaseLoader({ message = 'Loading...' }: SeedbaseLoaderProps) 
             repeat: Infinity,
             ease: 'easeInOut'
           }}
+          className="w-16 h-16 rounded-full overflow-hidden"
         >
-          <Logo variant="icon" size="xl" />
+          <img src={seedbasePfp} alt="Seedbase" className="w-full h-full object-cover" />
         </motion.div>
-        {/* Spinning ring - centered around logo */}
+        {/* Spinning ring - properly sized around circular PFP */}
         <motion.div
-          className="absolute w-28 h-28 rounded-full border-4 border-primary/20 border-t-primary"
+          className="absolute w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary"
           animate={{ rotate: 360 }}
           transition={{ 
             duration: 1.5,

@@ -32,48 +32,51 @@ export function PostHeader({
   className = '',
 }: PostHeaderProps) {
   return (
-    <div className={`flex items-center gap-1.5 flex-wrap ${className}`}>
-      {/* Name */}
-      <span className="font-semibold text-foreground text-[15px] leading-tight">
-        {author.name}
-      </span>
+    <div className={className}>
+      {/* Main row - Twitter/X style: Name ✓ @handle · time ... */}
+      <div className="flex items-center gap-1 min-w-0">
+        {/* Name - truncates with ellipsis */}
+        <span className="font-semibold text-foreground text-[15px] leading-tight truncate max-w-[100px] sm:max-w-[140px]">
+          {author.name}
+        </span>
 
-      {/* Verified Badge */}
-      {author.isVerified && (
-        <BadgeCheck className="w-4 h-4 text-primary flex-shrink-0" />
-      )}
+        {/* Verified Badge */}
+        {author.isVerified && (
+          <BadgeCheck className="w-4 h-4 text-primary flex-shrink-0" />
+        )}
 
-      {/* Role Badge Pill */}
+        {/* Handle - truncates */}
+        {author.handle && (
+          <span className="text-muted-foreground text-[13px] truncate max-w-[70px] sm:max-w-[100px]">
+            @{author.handle}
+          </span>
+        )}
+
+        {/* Separator + Time - never truncates */}
+        <span className="text-muted-foreground text-[13px] flex-shrink-0">·</span>
+        <span className="text-muted-foreground text-[13px] flex-shrink-0 whitespace-nowrap">
+          {formatDistanceToNow(timestamp, { addSuffix: false })}
+        </span>
+
+        {/* Spacer */}
+        <div className="flex-1 min-w-0" />
+
+        {/* More Button */}
+        {onMoreClick && (
+          <button
+            onClick={onMoreClick}
+            className="p-1 hover:bg-muted rounded-full transition-colors flex-shrink-0"
+          >
+            <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
+          </button>
+        )}
+      </div>
+
+      {/* Role badge on separate line (if present) */}
       {badge && (
-        <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${badgeStyles[badgeVariant]}`}>
+        <span className={`inline-block mt-1 px-1.5 py-0.5 rounded text-[10px] font-medium ${badgeStyles[badgeVariant]}`}>
           {badge}
         </span>
-      )}
-
-      {/* Handle */}
-      {author.handle && (
-        <span className="text-muted-foreground text-[13px]">@{author.handle}</span>
-      )}
-
-      {/* Separator */}
-      <span className="text-muted-foreground text-[13px]">·</span>
-
-      {/* Time */}
-      <span className="text-muted-foreground text-[13px]">
-        {formatDistanceToNow(timestamp, { addSuffix: false })}
-      </span>
-
-      {/* Spacer */}
-      <div className="flex-1" />
-
-      {/* More Button */}
-      {onMoreClick && (
-        <button
-          onClick={onMoreClick}
-          className="p-1.5 hover:bg-muted rounded-full transition-colors -mr-1"
-        >
-          <MoreHorizontal className="w-4 h-4 text-muted-foreground" />
-        </button>
       )}
     </div>
   );

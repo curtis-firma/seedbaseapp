@@ -14,7 +14,7 @@ import { getRandomImage, getCategoryFromName } from '@/lib/curatedImages';
 import { PostHeader } from '@/components/seedfeed/shared/PostHeader';
 import { PostActions } from '@/components/seedfeed/shared/PostActions';
 import { CardImpactFooter } from '@/components/seedfeed/shared/CardImpactFooter';
-import seedbaseIconLight from '@/assets/seeddroplogo_lightmode.png';
+import seedbasePfp from '@/assets/seedbase-pfp.png';
 
 interface FeedCardProps {
   item: FeedItem;
@@ -115,14 +115,14 @@ export function FeedCard({ item, index }: FeedCardProps) {
     role: item.author?.role,
   };
 
-  // Get avatar - use Seedbase logo for official accounts
+  // Get avatar - use circular PFP for official accounts
   const getAvatarContent = () => {
     if (isOfficial) {
       return (
         <img
-          src={seedbaseIconLight}
+          src={seedbasePfp}
           alt="Seedbase"
-          className="w-11 h-11 rounded-full bg-white object-cover ring-2 ring-primary"
+          className="w-11 h-11 rounded-full object-cover ring-2 ring-primary"
         />
       );
     }
