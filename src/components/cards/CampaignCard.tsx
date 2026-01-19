@@ -1,5 +1,5 @@
 import { Users, Clock, ArrowRight } from "lucide-react";
-import waterBackground from "@/assets/water-background.png";
+import generositySpread from "@/assets/generosity-spread.png";
 
 const CampaignCard = () => {
   const raised = 43800;
@@ -8,10 +8,10 @@ const CampaignCard = () => {
 
   return (
     <div className="w-full bg-white rounded-2xl shadow-lg overflow-hidden">
-      {/* Image with Active Badge */}
+      {/* Image with Active Badge - using children image */}
       <div 
         className="relative w-full aspect-[4/3] bg-cover bg-center"
-        style={{ backgroundImage: `url(${waterBackground})` }}
+        style={{ backgroundImage: `url(${generositySpread})` }}
       >
         <div className="absolute top-4 left-4">
           <span className="bg-emerald-500 text-white text-xs font-semibold px-3 py-1.5 rounded-full uppercase tracking-wide">
