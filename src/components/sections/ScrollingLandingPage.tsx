@@ -142,7 +142,7 @@ const ScrollingLandingPage = () => {
         {/* Left - Fixed Hero Text Column */}
         <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-8 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
           {/* Seedbase wordmark logo at top - forceDark for light background */}
-          <div className="w-48 lg:w-60 xl:w-72 h-auto mb-2 lg:mb-0">
+          <div className="w-32 lg:w-40 xl:w-48 h-auto mb-2 lg:mb-0">
             <img src={seeddropTypeLight} alt="Seedbase - Transparent Network of Generosity" className="w-full h-auto" />
           </div>
           
@@ -150,9 +150,7 @@ const ScrollingLandingPage = () => {
             {/* Hero content centered vertically on desktop */}
             <div className="flex-1 flex items-center lg:justify-center">
               <div>
-                <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-4 lg:mb-6 text-foreground leading-[1.05]">
-                  Where Generosity Grows.
-                </h1>
+                <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-4 lg:mb-6 text-foreground leading-[1.05]">Where Generosity Compounds.</h1>
                 
                 <div className="text-lg text-muted-foreground mb-3 lg:mb-8 leading-snug">
                   <span className="block opacity-0 animate-fade-in-stagger-1">Commit seed</span>
