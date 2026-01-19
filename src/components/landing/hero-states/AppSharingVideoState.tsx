@@ -10,10 +10,7 @@ const AppSharingVideoState = () => {
   return (
     <div className="relative w-full h-full overflow-hidden">
       {!videoError ? (
-        <motion.video
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
+        <video
           className="absolute inset-0 w-full h-full object-cover"
           autoPlay
           muted
@@ -22,19 +19,16 @@ const AppSharingVideoState = () => {
           onError={() => setVideoError(true)}
         >
           <source src={appSharingVideo} type="video/mp4" />
-        </motion.video>
+        </video>
       ) : (
-        <motion.img
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ duration: 0.3 }}
+        <img
           src={fallbackImage}
           alt="App sharing"
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
 
-      {/* Overlay text */}
+      {/* Centered overlay text */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
 
-// Ethereum diamond SVG component
+// Ethereum diamond SVG component - more subtle opacity
 const EthereumDiamond = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
   <svg 
     viewBox="0 0 784 1277" 
@@ -24,7 +24,7 @@ const OrbitalRing = ({
   duration, 
   reverse = false, 
   diamondCount = 4,
-  opacity = 0.2 
+  opacity = 0.1 
 }: { 
   radius: number; 
   duration: number; 
@@ -45,11 +45,11 @@ const OrbitalRing = ({
   >
     {/* Ring circle */}
     <div 
-      className="absolute inset-0 rounded-full border border-black/10"
+      className="absolute inset-0 rounded-full border border-black/5"
       style={{ opacity }}
     />
     
-    {/* Ethereum diamonds on the ring */}
+    {/* Ethereum diamonds on the ring - less opaque */}
     {Array.from({ length: diamondCount }).map((_, i) => {
       const angle = (i / diamondCount) * 360;
       const radian = (angle * Math.PI) / 180;
@@ -65,7 +65,7 @@ const OrbitalRing = ({
             top: '50%',
             x: x - 8,
             y: y - 10,
-            opacity: 0.25 + (i * 0.1),
+            opacity: 0.08 + (i * 0.02),
           }}
           animate={{ rotate: reverse ? 360 : -360 }}
           transition={{ duration, repeat: Infinity, ease: "linear" }}
@@ -80,21 +80,21 @@ const OrbitalRing = ({
 const NetworkFlowState = () => {
   return (
     <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
-      {/* "Generosity onchain" text at top */}
+      {/* Centered "Generosity onchain" text */}
       <motion.p
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="absolute top-6 md:top-8 left-1/2 -translate-x-1/2 text-black/60 font-medium text-base md:text-lg lg:text-xl tracking-wide z-20"
+        className="absolute top-6 md:top-8 left-0 right-0 text-center text-black/50 font-medium text-base md:text-lg lg:text-xl tracking-wide z-20"
       >
         Generosity onchain
       </motion.p>
 
       {/* Concentric spinning orbital rings */}
-      <OrbitalRing radius={60} duration={12} diamondCount={3} opacity={0.15} />
-      <OrbitalRing radius={95} duration={18} reverse diamondCount={4} opacity={0.12} />
-      <OrbitalRing radius={130} duration={24} diamondCount={5} opacity={0.1} />
-      <OrbitalRing radius={165} duration={30} reverse diamondCount={6} opacity={0.08} />
+      <OrbitalRing radius={60} duration={12} diamondCount={3} opacity={0.08} />
+      <OrbitalRing radius={95} duration={18} reverse diamondCount={4} opacity={0.06} />
+      <OrbitalRing radius={130} duration={24} diamondCount={5} opacity={0.05} />
+      <OrbitalRing radius={165} duration={30} reverse diamondCount={6} opacity={0.04} />
 
       {/* Central Seedbase logo */}
       <motion.div
@@ -105,11 +105,11 @@ const NetworkFlowState = () => {
       >
         {/* Glow effect behind logo */}
         <motion.div
-          className="absolute inset-0 rounded-full bg-blue-500/20 blur-xl"
+          className="absolute inset-0 rounded-full bg-blue-500/10"
           style={{ width: 80, height: 80, marginLeft: -40, marginTop: -40 }}
           animate={{ 
             scale: [1, 1.3, 1],
-            opacity: [0.2, 0.4, 0.2]
+            opacity: [0.1, 0.2, 0.1]
           }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -126,38 +126,38 @@ const NetworkFlowState = () => {
         />
       </motion.div>
 
-      {/* Subtle floating Ethereum diamonds in corners */}
+      {/* Subtle floating Ethereum diamonds in corners - much less opaque */}
       <motion.div
-        className="absolute text-blue-600/15"
+        className="absolute text-blue-600/8"
         style={{ top: '15%', right: '12%' }}
-        animate={{ y: [0, -8, 0], opacity: [0.15, 0.25, 0.15] }}
+        animate={{ y: [0, -8, 0], opacity: [0.08, 0.12, 0.08] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
       >
         <EthereumDiamond className="w-8 h-10 md:w-10 md:h-12" />
       </motion.div>
       
       <motion.div
-        className="absolute text-black/10"
+        className="absolute text-black/5"
         style={{ bottom: '18%', left: '10%' }}
-        animate={{ y: [0, 6, 0], opacity: [0.1, 0.18, 0.1] }}
+        animate={{ y: [0, 6, 0], opacity: [0.05, 0.1, 0.05] }}
         transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       >
         <EthereumDiamond className="w-6 h-8 md:w-8 md:h-10" />
       </motion.div>
       
       <motion.div
-        className="absolute text-blue-600/12"
+        className="absolute text-blue-600/6"
         style={{ bottom: '12%', right: '15%' }}
-        animate={{ y: [0, -5, 0], opacity: [0.12, 0.2, 0.12] }}
+        animate={{ y: [0, -5, 0], opacity: [0.06, 0.1, 0.06] }}
         transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
       >
         <EthereumDiamond className="w-5 h-7" />
       </motion.div>
 
       <motion.div
-        className="absolute text-black/8"
+        className="absolute text-black/4"
         style={{ top: '20%', left: '15%' }}
-        animate={{ y: [0, 5, 0], opacity: [0.08, 0.15, 0.08] }}
+        animate={{ y: [0, 5, 0], opacity: [0.04, 0.08, 0.04] }}
         transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
       >
         <EthereumDiamond className="w-6 h-8" />
