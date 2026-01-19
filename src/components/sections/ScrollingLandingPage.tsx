@@ -230,8 +230,8 @@ const ScrollingLandingPage = () => {
         {/* Right - Scrolling Content (desktop only) */}
         <main className="hidden lg:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
           {/* Hero Card Section - Yellow with scrolling cards */}
-          <section className="h-[620px] flex items-start justify-end pt-[32px] px-8 pointer-events-auto">
-            <div className="bg-[#FDDE02] rounded-[48px] p-8 w-[560px] h-full flex items-start justify-center relative overflow-hidden animate-content-reveal">
+          <section className="flex items-start pt-[32px] px-8 pointer-events-auto">
+            <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full aspect-[4/3] flex items-start justify-center relative overflow-hidden animate-content-reveal">
               <div className="animate-scroll-feed flex flex-col items-center gap-3 pt-4 w-full max-w-md">
                 <div className="w-full">
                   <SeedFeedCard />
@@ -271,9 +271,9 @@ const ScrollingLandingPage = () => {
                   </div>
                 </div>
                 
-                {/* Card - Right side */}
-                <div className="flex justify-end flex-shrink-0">
-                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex-shrink-0 flex justify-center min-w-[560px] w-[560px] min-h-[560px] h-[560px] overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center p-10'} ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
+                {/* Card - Right side - Full width square matching hero alignment */}
+                <div className="flex-1">
+                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex justify-center w-full aspect-square overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center p-10'} ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
                     <div className={`w-full max-w-md transform hover:scale-[1.01] transition-transform duration-300 ${section.id === 'wallet' ? 'animate-scale-in h-full' : ''}`}>
                       {renderCard(section.card, section.id)}
                     </div>
