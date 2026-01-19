@@ -31,9 +31,10 @@ function getCardVariant(item: FeedItem): CardVariant {
   // Map post types to V2 variants
   if (item.postType === 'announcement') return 'v2-announcement';
   if (item.postType === 'deployment' || item.postType === 'surplus') return hash % 2 === 0 ? 'v2-deployment' : 'v2-impact';
-  if (item.postType === 'milestone') return 'v2-milestone';
+  if (item.postType === 'milestone' || item.type === 'milestone') return 'v2-milestone';
   if (item.type === 'testimony') return 'v2-recipient';
-  if (item.postType === 'vote') return 'v2-vote';
+  // Vote cards - check content for vote-related keywords
+  if (item.content?.toLowerCase().includes('vote') || item.title?.toLowerCase().includes('vote')) return 'v2-vote';
   
   return 'current';
 }
