@@ -153,9 +153,9 @@ const ScrollingLandingPage = () => {
             {/* Hero content centered vertically on desktop */}
             <div className="flex-1 flex items-center lg:justify-center">
               <div>
-                <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-4 lg:mb-6 text-foreground leading-[1.05]">Where Generosity Grow.</h1>
+                <h1 className="text-hero md:text-hero-lg font-semibold tracking-[-0.03em] mb-4 lg:mb-6 text-foreground leading-[0.95]">Where Generosity Grows.</h1>
                 
-                <div className="font-heading text-lg lg:text-xl text-muted-foreground mb-3 lg:mb-8 leading-relaxed opacity-0 animate-fade-in-stagger-1">
+                <div className="text-[18px] lg:text-[20px] text-muted-foreground mb-3 lg:mb-8 leading-[1.5] opacity-0 animate-fade-in-stagger-1 max-w-[34rem]">
                   <p className="mb-3">Social app where generosity becomes shared impact.</p>
                   <p>Plant a seed, grow it with others, and follow how value flows back to you and missions through a transparent impact ledger.</p>
                 </div>
@@ -250,10 +250,10 @@ const ScrollingLandingPage = () => {
               <div className="flex flex-row gap-12 w-full items-center">
                 {/* Topic Text - Left side */}
                 <div className="flex-1 max-w-md">
-                  <h2 className="font-heading text-3xl xl:text-4xl font-medium tracking-tight mb-6 text-foreground leading-[1.1]">
+                  <h2 className="text-section md:text-section-lg font-semibold tracking-[-0.02em] mb-6 text-foreground leading-[1.05]">
                     {section.headline}
                   </h2>
-                  <p className="text-lg text-muted-foreground leading-snug whitespace-pre-line">
+                  <p className="text-body md:text-body-lg text-muted-foreground leading-[1.5] max-w-[34rem]">
                     {section.description}
                   </p>
                 </div>

@@ -109,7 +109,15 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-feature-settings: 'cv01', 'cv02', 'cv03', 'cv04';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  
+  /* Base-style heading defaults */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading;
+    font-feature-settings: 'cv01', 'cv02', 'cv03', 'cv04';
   }
 }
 

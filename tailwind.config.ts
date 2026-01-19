@@ -14,7 +14,42 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: [
+          'Inter',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"SF Pro Display"',
+          '"SF Pro Text"',
+          '"Segoe UI"',
+          'Roboto',
+          'Helvetica',
+          'Arial',
+          '"Apple Color Emoji"',
+          '"Segoe UI Emoji"',
+          'sans-serif',
+        ],
+        heading: [
+          'Inter',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"SF Pro Display"',
+          'sans-serif',
+        ],
+      },
+      fontSize: {
+        // Base-style type scale
+        'hero': ['44px', { lineHeight: '0.95', letterSpacing: '-0.03em', fontWeight: '600' }],
+        'hero-lg': ['64px', { lineHeight: '0.95', letterSpacing: '-0.03em', fontWeight: '600' }],
+        'section': ['28px', { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '600' }],
+        'section-lg': ['40px', { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '600' }],
+        'card-title': ['17px', { lineHeight: '1.25', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'body': ['15px', { lineHeight: '1.5', fontWeight: '400' }],
+        'body-lg': ['16px', { lineHeight: '1.5', fontWeight: '400' }],
+        'label': ['12px', { lineHeight: '1.2', letterSpacing: '0.02em', fontWeight: '500' }],
       },
       colors: {
         border: "hsl(var(--border))",
