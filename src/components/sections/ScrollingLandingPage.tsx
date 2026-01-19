@@ -14,7 +14,7 @@ import GrowthReportCard from "@/components/cards/GrowthReportCard";
 import ImpactStatsCard from "@/components/cards/ImpactStatsCard";
 import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
 import WalletCard from "@/components/cards/WalletCard";
-import { Logo, seeddropTypeDark } from "@/components/shared/Logo";
+import { Logo, seeddropTypeLight } from "@/components/shared/Logo";
 import poweredByCik from "@/assets/powered-by-cik-text.png";
 import generositySpread from "@/assets/generosity-spread.png";
 import baseLogo from "@/assets/base-logo.png";
@@ -146,7 +146,7 @@ const ScrollingLandingPage = () => {
         <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-8 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
           {/* SeedDrop wordmark logo at top - forceDark for light background */}
           <div className="w-32 lg:w-40 xl:w-48 h-auto mb-2 lg:mb-0">
-            <img src={seeddropTypeDark} alt="SeedDrop - Transparent Network of Generosity" className="w-full h-auto" />
+            <img src={seeddropTypeLight} alt="SeedDrop - Transparent Network of Generosity" className="w-full h-auto" />
           </div>
           
           <div className="max-w-sm flex flex-col flex-1">
@@ -325,7 +325,7 @@ const ScrollingLandingPage = () => {
             top: 0,
             behavior: 'smooth'
           })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg" aria-label="Scroll back to top of page">
-              <img alt="SeedDrop" className="w-[700px] max-w-[95vw] h-auto transition-opacity duration-300 opacity-100" src={seeddropTypeDark} />
+              <img alt="SeedDrop" className="w-[700px] max-w-[95vw] h-auto transition-opacity duration-300 opacity-100" src={seeddropTypeLight} />
             </button>
           </section>
         </main>
