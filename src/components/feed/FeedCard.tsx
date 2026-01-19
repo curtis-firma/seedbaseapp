@@ -9,7 +9,7 @@ import { ImpactDrawer } from './ImpactDrawer';
 import { SendModal } from '@/components/wallet/SendModal';
 import { ComingSoonModal, useComingSoon } from '@/components/shared/ComingSoonModal';
 import { toast } from 'sonner';
-import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
+import { seeddropIconDark } from '@/components/shared/Logo';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { useInView } from '@/hooks/useInView';
 import { getRandomImage, getCategoryFromName } from '@/lib/curatedImages';
@@ -137,8 +137,8 @@ export function FeedCard({ item, index }: FeedCardProps) {
               <div className="relative">
                 {item.author?.avatar === 'official' || item.author?.handle === 'seedfeed' ? (
                   <img
-                    src={seedbaseLeaf}
-                    alt="SeedFeed"
+                    src={seeddropIconDark}
+                    alt="SeedDrop"
                     className="w-11 h-11 rounded-full object-cover"
                   />
                 ) : item.author?.avatar ? (

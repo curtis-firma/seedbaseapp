@@ -8,7 +8,7 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
 import { FeedItem } from '@/types/seedbase';
-import seedbaseLogoFull from '@/assets/seedbase-logo-full.png';
+import { Logo } from '@/components/shared/Logo';
 import { useHaptic } from '@/hooks/useHaptic';
 
 const tabs = ['Network', 'For You'];
@@ -212,7 +212,7 @@ export default function HomePage() {
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <img src={seedbaseLogoFull} alt="Seedbase" className="h-8 w-auto" />
+              <Logo variant="wordmark" size="sm" />
             </div>
             <div className="flex items-center gap-1">
               <motion.button
