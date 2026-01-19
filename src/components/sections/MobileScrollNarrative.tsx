@@ -159,6 +159,21 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         ))}
       </div>
 
+      {/* Seedbase Logo Above Footer - All Views */}
+      <section className="py-8 flex justify-center">
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+          className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg w-full flex justify-center"
+          aria-label="Scroll back to top of page"
+        >
+          <img 
+            alt="Seedbase" 
+            className="w-full max-w-md h-auto transition-opacity duration-300 opacity-100" 
+            src={seeddropTypeLight} 
+          />
+        </button>
+      </section>
+
       {/* Mobile-only CTA Section */}
       <section className="flex flex-col items-center gap-6 py-8 border-t border-gray-200">
         <div className="text-center space-y-2">
@@ -181,21 +196,6 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
             <ArrowRight className="w-5 h-5" />
           </button>
         </div>
-      </section>
-
-      {/* Seedbase Logo Above Footer - All Views */}
-      <section className="py-8 flex justify-center">
-        <button 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
-          className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg w-full flex justify-center"
-          aria-label="Scroll back to top of page"
-        >
-          <img 
-            alt="Seedbase" 
-            className="w-full max-w-md h-auto transition-opacity duration-300 opacity-100" 
-            src={seeddropTypeLight} 
-          />
-        </button>
       </section>
 
       {/* Footer */}
