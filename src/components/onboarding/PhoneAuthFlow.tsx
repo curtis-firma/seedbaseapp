@@ -562,7 +562,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               <motion.img
                 src={seedbaseLeaf}
                 alt="Seedbase"
-                className="w-20 h-20 mx-auto mb-6"
+                className="h-16 w-auto mx-auto mb-6"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', delay: 0.1 }}
@@ -572,58 +572,59 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 Enter your phone to create or access your Seed Wallet
               </p>
               
-              {/* Form container with subtle blue background */}
-              <div className="bg-blue-50/20 rounded-3xl p-6 space-y-4 mb-4">
-                {/* Phone input with blue border */}
-                <div className="bg-white border-2 border-blue-200 rounded-2xl shadow-sm hover:border-blue-300 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all">
+              {/* Clean form - no background container */}
+              <div className="space-y-4 mb-6">
+                {/* Phone input - clean outlined rectangle */}
+                <div className="bg-white border border-border rounded-xl hover:border-primary/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                   <input
                     type="tel"
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ''))}
                     placeholder="(555) 123-4567"
-                    className="w-full text-center text-2xl font-semibold bg-transparent py-5 px-4 outline-none placeholder:text-gray-400"
+                    className="w-full text-center text-2xl font-semibold bg-transparent py-4 px-4 outline-none placeholder:text-muted-foreground/50"
                     autoFocus
                   />
                 </div>
 
-                {/* Returning user badge - enhanced */}
+                {/* Returning user badge - checking */}
                 {isCheckingUser && phoneNumber.length >= 10 && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-3 bg-gray-100 rounded-xl flex items-center gap-2 justify-center"
+                    className="p-3 bg-muted rounded-xl flex items-center gap-2 justify-center"
                   >
                     <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
                     <span className="text-sm text-muted-foreground">Checking...</span>
                   </motion.div>
                 )}
                 
+                {/* Returning user badge - blue themed */}
                 {returningUserPreview && !isCheckingUser && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-gradient-to-r from-emerald-50 to-teal-50 border border-emerald-200 rounded-2xl flex items-center gap-3"
+                    className="p-4 bg-primary/5 border border-primary/20 rounded-xl flex items-center gap-3"
                   >
-                    <div className="w-10 h-10 rounded-full gradient-seed flex items-center justify-center flex-shrink-0">
+                    <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center flex-shrink-0">
                       <CheckCircle2 className="h-5 w-5 text-white" />
                     </div>
                     <div className="text-left">
-                      <p className="text-sm font-semibold text-emerald-800">Welcome back!</p>
-                      <p className="text-sm text-emerald-600">@{returningUserPreview.username}</p>
+                      <p className="text-sm font-semibold text-primary">Welcome back!</p>
+                      <p className="text-sm text-primary/80">@{returningUserPreview.username}</p>
                     </div>
                   </motion.div>
                 )}
                 
-                {/* Continue button with shadow */}
+                {/* Continue button - blue, rounded rectangle */}
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={handlePhoneSubmit}
                   disabled={phoneNumber.length < 10}
                   className={cn(
-                    "w-full py-5 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all",
+                    "w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all",
                     phoneNumber.length >= 10 
-                      ? "gradient-seed text-white shadow-[0_4px_20px_rgba(59,130,246,0.3)] hover:shadow-xl" 
-                      : "bg-blue-50 border border-blue-200 text-blue-300"
+                      ? "bg-primary text-white hover:bg-primary/90 shadow-lg" 
+                      : "bg-muted text-muted-foreground"
                   )}
                 >
                   Continue
@@ -654,11 +655,11 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="relative w-20 h-20 mx-auto mb-8">
+              <div className="relative w-16 h-16 mx-auto mb-8">
                 <motion.img
                   src={seedbaseLeaf}
                   alt="Seedbase"
-                  className="w-20 h-20"
+                  className="h-16 w-auto mx-auto"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 />
@@ -682,16 +683,16 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="relative w-20 h-20 mx-auto mb-8">
+              <div className="relative w-16 h-16 mx-auto mb-8">
                 <motion.img
                   src={seedbaseLeaf}
                   alt="Seedbase"
-                  className="w-20 h-20"
+                  className="h-16 w-auto mx-auto"
                   animate={{ rotate: [0, 5, -5, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 />
                 <motion.div
-                  className="absolute inset-0 rounded-full border-2 border-seed"
+                  className="absolute inset-0 rounded-full border-2 border-primary"
                   animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0, 0.6] }}
                   transition={{ duration: 1.2, repeat: Infinity }}
                 />
@@ -829,7 +830,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setStep('username')}
-                className="w-full py-4 gradient-seed text-white rounded-2xl font-semibold flex items-center justify-center gap-2"
+                className="w-full py-4 bg-primary text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 shadow-lg"
               >
                 Continue
                 <ArrowRight className="h-5 w-5" />
@@ -860,14 +861,14 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               <div className="space-y-4 mb-6">
                 <div>
                   <label className="text-sm text-muted-foreground mb-1 block text-left">Username</label>
-                  <div className="relative">
+                  <div className="relative bg-white border border-border rounded-xl hover:border-primary/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all">
                     <span className="absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
                     <input
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
                       placeholder="yourname"
-                      className="w-full pl-8 pr-4 py-3 bg-muted rounded-xl outline-none focus:ring-2 ring-primary/50"
+                      className="w-full pl-8 pr-4 py-3 bg-transparent rounded-xl outline-none"
                       autoFocus
                     />
                   </div>
@@ -880,7 +881,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Your Name"
-                    className="w-full px-4 py-3 bg-muted rounded-xl outline-none focus:ring-2 ring-primary/50"
+                    className="w-full px-4 py-3 bg-white border border-border rounded-xl hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
                   />
                 </div>
               </div>
@@ -890,9 +891,9 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 onClick={handleUsernameSubmit}
                 disabled={username.length < 2}
                 className={cn(
-                  "w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all",
+                  "w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all",
                   username.length >= 2 
-                    ? "gradient-seed text-white" 
+                    ? "bg-primary text-white hover:bg-primary/90 shadow-lg" 
                     : "bg-muted text-muted-foreground"
                 )}
               >
@@ -927,7 +928,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                       whileTap={{ scale: 0.98 }}
                       onClick={() => handleRoleSelect(option.role)}
                       className={cn(
-                        "w-full p-4 rounded-2xl border-2 transition-all text-left",
+                        "w-full p-4 rounded-xl border-2 transition-all text-left",
                         isSelected 
                           ? `border-primary ${option.gradient}` 
                           : "border-border hover:border-primary/50 bg-card"
@@ -957,9 +958,9 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 onClick={handleActivateKey}
                 disabled={!selectedRole}
                 className={cn(
-                  "w-full py-4 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all",
+                  "w-full py-4 rounded-xl font-semibold flex items-center justify-center gap-2 transition-all",
                   selectedRole 
-                    ? "gradient-seed text-white" 
+                    ? "bg-primary text-white hover:bg-primary/90 shadow-lg" 
                     : "bg-muted text-muted-foreground"
                 )}
               >
@@ -1080,7 +1081,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={handleComplete}
-                className="w-full py-4 gradient-seed text-white rounded-2xl font-semibold flex items-center justify-center gap-2"
+                className="w-full py-4 bg-primary text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 shadow-lg"
               >
                 Enter Seedbase
                 <Sparkles className="h-5 w-5" />
