@@ -15,6 +15,7 @@ import waterBackground from "@/assets/water-background.png";
 import SeedFeedCard from "@/components/cards/SeedFeedCard";
 import SeedFeedCardPeek from "@/components/cards/SeedFeedCardPeek";
 import SeedFeedCardPeekAlt from "@/components/cards/SeedFeedCardPeekAlt";
+import { useInView } from "@/hooks/useInView";
 
 interface MobileSection {
   id: string;
@@ -28,6 +29,53 @@ interface MobileSection {
 interface MobileScrollNarrativeProps {
   onEnterApp: () => void;
 }
+
+// Animated section component with scroll-triggered entrance
+const AnimatedSection = ({ section, index }: { section: MobileSection; index: number }) => {
+  const { ref, isInView } = useInView<HTMLElement>({ threshold: 0.2, triggerOnce: true });
+  
+  return (
+    <section
+      ref={ref}
+      className={`flex flex-col gap-4 transition-all duration-700 ease-out ${
+        isInView 
+          ? 'opacity-100 translate-y-0' 
+          : 'opacity-0 translate-y-8'
+      }`}
+      style={{ transitionDelay: `${index * 50}ms` }}
+    >
+      {/* Section title and description */}
+      <div className={`space-y-2 transition-all duration-500 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+           style={{ transitionDelay: `${index * 50 + 100}ms` }}>
+        <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+          {section.title}
+        </h2>
+        <p className="text-base text-muted-foreground leading-relaxed">
+          {section.description}
+        </p>
+      </div>
+
+      {/* Card with colored background - FIXED SQUARE */}
+      <div 
+        className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl aspect-square w-full max-w-[400px] mx-auto flex items-center justify-center bg-cover bg-center transition-all duration-700 ${
+          isInView ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+        }`}
+        style={{ 
+          backgroundImage: section.bgImage ? `url(${section.bgImage})` : undefined,
+          transitionDelay: `${index * 50 + 200}ms`
+        }}
+      >
+        {/* FIXED SIZE CARD - doesn't scale */}
+        <div className={`w-[280px] h-[280px] rounded-2xl overflow-hidden shadow-lg bg-white flex-shrink-0 transition-all duration-500 ${
+          isInView ? 'opacity-100 scale-100' : 'opacity-0 scale-90'
+        }`}
+             style={{ transitionDelay: `${index * 50 + 300}ms` }}>
+          {section.card}
+        </div>
+      </div>
+    </section>
+  );
+};
 
 const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
   const navigate = useNavigate();
@@ -131,32 +179,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       {/* Sections */}
       <div id="mobile-sections" className="flex flex-col gap-16">
         {sections.map((section, index) => (
-          <section
-            key={section.id}
-            className="flex flex-col gap-4 animate-fade-in"
-            style={{ animationDelay: `${index * 0.05}s` }}
-          >
-            {/* Section title and description */}
-            <div className="space-y-2">
-              <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
-                {section.title}
-              </h2>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                {section.description}
-              </p>
-            </div>
-
-            {/* Card with colored background - FIXED SQUARE */}
-            <div 
-              className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl aspect-square w-full max-w-[400px] mx-auto flex items-center justify-center bg-cover bg-center`}
-              style={section.bgImage ? { backgroundImage: `url(${section.bgImage})` } : undefined}
-            >
-              {/* FIXED SIZE CARD - doesn't scale */}
-              <div className="w-[280px] h-[280px] rounded-2xl overflow-hidden shadow-lg bg-white flex-shrink-0">
-                {section.card}
-              </div>
-            </div>
-          </section>
+          <AnimatedSection key={section.id} section={section} index={index} />
         ))}
       </div>
 
