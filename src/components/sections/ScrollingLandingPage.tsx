@@ -153,7 +153,7 @@ const ScrollingLandingPage = () => {
             {/* Hero content centered vertically on desktop */}
             <div className="flex-1 flex items-center lg:justify-center">
               <div>
-                <h1 className="text-hero md:text-hero-lg font-semibold tracking-[-0.03em] mb-4 lg:mb-6 text-foreground leading-[0.95]">Where Generosity Grows.</h1>
+                <h1 className="text-hero lg:text-hero-lg font-semibold tracking-[-0.03em] mb-4 lg:mb-6 text-foreground leading-[0.95]">Where Generosity Grows.</h1>
                 
                 <div className="text-[18px] lg:text-[20px] text-muted-foreground mb-3 lg:mb-8 leading-[1.5] opacity-0 animate-fade-in-stagger-1 max-w-[34rem]">
                   <p className="mb-3">Social app where generosity becomes shared impact.</p>
@@ -246,19 +246,20 @@ const ScrollingLandingPage = () => {
 
           {/* Scrolling Content Sections */}
           <div ref={desktopSectionsRef} className="scroll-mt-8" />
-          {sections.map(section => <div key={section.id} className="flex items-start py-16 px-8 pointer-events-auto">
-              <div className="flex flex-row gap-12 w-full items-center">
-                {/* Topic Text - Left side */}
-                <div className="flex-1 max-w-md">
-                  <h2 className="text-section md:text-section-lg font-semibold tracking-[-0.02em] mb-6 text-foreground leading-[1.05]">
+          {sections.map(section => <section key={section.id} className="py-16 px-8 pointer-events-auto">
+              {/* Grid layout: text auto-sizes, card stays fixed - no stretching */}
+              <div className="grid w-full gap-12 items-start content-start grid-cols-[minmax(0,1fr)_auto]">
+                {/* Topic Text - Left side with alignment offset */}
+                <div className="min-w-0 max-w-md lg:pl-8">
+                  <h2 className="text-section lg:text-section-lg font-semibold tracking-[-0.02em] mb-6 text-foreground leading-[1.05]">
                     {section.headline}
                   </h2>
-                  <p className="text-body md:text-body-lg text-muted-foreground leading-[1.5] max-w-[34rem]">
+                  <p className="text-body lg:text-body-lg text-muted-foreground leading-[1.5] max-w-[34rem]">
                     {section.description}
                   </p>
                 </div>
                 
-                {/* Card - Right side - Using canonical FeatureSquareCard */}
+                {/* Card - Right side - Using canonical FeatureSquareCard (locked size) */}
                 <FeatureSquareCard 
                   bgColor={section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor}
                   bgImage={section.bgImage ? waterBackground : undefined}
@@ -268,7 +269,7 @@ const ScrollingLandingPage = () => {
                   {renderCard(section.card, section.id)}
                 </FeatureSquareCard>
               </div>
-            </div>)}
+            </section>)}
 
           {/* Full-width Seedbase Logo Above Footer */}
           <section className="py-12 px-8 flex justify-center pointer-events-auto">
