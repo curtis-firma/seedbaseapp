@@ -99,7 +99,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         {/* Enter App - Solid Blue Rectangle */}
         <button
           onClick={onEnterApp}
-          className="w-full py-5 rounded-xl font-semibold text-lg bg-primary text-white flex items-center justify-center gap-2 hover:bg-primary/90 transition-all"
+          className="w-full py-5 rounded-xl font-semibold text-lg bg-[#0000ff] text-white flex items-center justify-center gap-2 hover:bg-[#0000ff]/90 transition-all"
           aria-label="Enter SeedBase app"
         >
           Enter App
@@ -110,15 +110,15 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         <Button
           variant="outline"
           onClick={scrollToSections}
-          className="w-full rounded-xl py-5 h-auto text-lg font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-white"
+          className="w-full rounded-xl py-5 h-auto text-lg font-semibold border-2 border-[#0000ff] text-[#0000ff] hover:bg-[#0000ff] hover:text-white"
         >
           Learn More
           <ChevronDown className="w-5 h-5 ml-2" />
         </Button>
       </div>
 
-      {/* Yellow Hero Card Section - with scrolling cards */}
-      <div className="bg-[#FDDE02] rounded-3xl p-6 overflow-hidden flex items-center justify-center">
+      {/* Yellow Hero Card Section - FIXED RECTANGLE */}
+      <div className="bg-[#FDDE02] rounded-3xl p-6 overflow-hidden flex items-center justify-center h-[450px]">
         <div className="animate-scroll-feed flex flex-col gap-3 w-full max-w-md">
           <SeedFeedCard />
           <SeedFeedCardPeek />
@@ -146,12 +146,13 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
               </p>
             </div>
 
-            {/* Card with colored background - LOCKED SQUARE */}
+            {/* Card with colored background - FIXED SQUARE */}
             <div 
-              className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl aspect-square p-4 sm:p-6 flex items-center justify-center bg-cover bg-center`}
+              className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl aspect-square w-full max-w-[400px] mx-auto flex items-center justify-center bg-cover bg-center`}
               style={section.bgImage ? { backgroundImage: `url(${section.bgImage})` } : undefined}
             >
-              <div className="w-[85%] h-[85%] rounded-2xl overflow-hidden shadow-lg bg-white">
+              {/* FIXED SIZE CARD - doesn't scale */}
+              <div className="w-[280px] h-[280px] rounded-2xl overflow-hidden shadow-lg bg-white flex-shrink-0">
                 {section.card}
               </div>
             </div>
@@ -189,7 +190,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
           {/* Primary CTA - Enter App - Solid Blue Rectangle */}
           <button
             onClick={onEnterApp}
-            className="w-full py-5 rounded-xl font-semibold text-lg bg-primary text-white flex items-center justify-center gap-2 hover:bg-primary/90 transition-all"
+            className="w-full py-5 rounded-xl font-semibold text-lg bg-[#0000ff] text-white flex items-center justify-center gap-2 hover:bg-[#0000ff]/90 transition-all"
             aria-label="Enter SeedBase app"
           >
             Enter the App
