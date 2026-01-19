@@ -28,33 +28,6 @@ const SocialVideoState = () => {
           className="absolute inset-0 w-full h-full object-cover"
         />
       )}
-
-      {/* Centered overlay text */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.4, duration: 0.5 }}
-        className="absolute inset-0 flex items-center justify-center"
-      >
-        <div className="text-center px-4">
-          <motion.p
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ delay: 0.6, duration: 0.4 }}
-            className="text-2xl md:text-3xl lg:text-4xl font-bold text-white drop-shadow-lg"
-          >
-            Connect & Share
-          </motion.p>
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.9, duration: 0.4 }}
-            className="text-sm md:text-base lg:text-lg text-white/80 font-medium mt-2 drop-shadow-md"
-          >
-            Generosity goes further together
-          </motion.p>
-        </div>
-      </motion.div>
     </div>
   );
 };
