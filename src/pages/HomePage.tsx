@@ -63,6 +63,7 @@ function generateMoreMockItems(existingCount: number, count: number): FeedItem[]
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
+  const [isTabSwitching, setIsTabSwitching] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [posts, setPosts] = useState<FeedItem[]>([]);
@@ -163,8 +164,12 @@ export default function HomePage() {
   }, [hasMore, isLoadingMore, isLoading, activeTab, loadMoreForYou]);
 
   const handleTabChange = (index: number) => {
+    if (index === activeTab) return;
     haptic.selection();
+    setIsTabSwitching(true);
     setActiveTab(index);
+    // Brief skeleton display for smooth transition
+    setTimeout(() => setIsTabSwitching(false), 300);
   };
 
   const handleDragEnd = useCallback((event: any, info: PanInfo) => {
@@ -263,7 +268,7 @@ export default function HomePage() {
             transition={{ duration: 0.2 }}
             className="space-y-4"
           >
-            {isLoading ? (
+            {isLoading || isTabSwitching ? (
               <>
                 <SkeletonCard />
                 <SkeletonCard />
