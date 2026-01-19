@@ -131,10 +131,10 @@ export function ImpactDrawer({
           <div className="p-4 bg-muted/30 rounded-xl border border-border/50">
             <div className="flex items-center gap-2 mb-2">
               <TrendingUp className="h-4 w-4 text-seed" />
-              <span className="text-sm font-semibold">Your Impact Contribution</span>
+              <span className="text-sm font-semibold">Your Impact Number</span>
             </div>
             <p className="text-sm text-muted-foreground">
-              Your ${yourSeed} contribution represents {yourImpactPercentage}% of the total funds raised for {missionName}. 
+              Your ${yourSeed} impact number represents {yourImpactPercentage}% of the total funds raised for {missionName}. 
               Every seed you plant creates tangible, measurable impact.
             </p>
           </div>
