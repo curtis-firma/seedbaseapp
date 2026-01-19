@@ -52,22 +52,13 @@ export function Logo({
   forceDark = false,
   forceLight = false,
 }: LogoProps) {
-  // Determine which assets to use
-  // Light mode (light background) = show dark logo for contrast
-  // Dark mode (dark background) = show light logo for contrast
-  // forceDark = always show dark version (for light backgrounds)
-  // forceLight = always show light version (for dark backgrounds)
+  // Asset naming convention:
+  // _lightmode = designed for light backgrounds (use in light mode)
+  // _darkmode = designed for dark backgrounds (use in dark mode)
+  // forceLight = force lightmode assets (for light backgrounds)
+  // forceDark = force darkmode assets (for dark backgrounds)
   
   const renderIcon = (sizeClass: string) => {
-    if (forceDark) {
-      return (
-        <img 
-          src={seeddropIconDark} 
-          alt="SeedDrop" 
-          className={cn(sizeClass, className)}
-        />
-      );
-    }
     if (forceLight) {
       return (
         <img 
@@ -77,16 +68,25 @@ export function Logo({
         />
       );
     }
-    // Auto-detect: show light version in dark mode, dark version in light mode
+    if (forceDark) {
+      return (
+        <img 
+          src={seeddropIconDark} 
+          alt="SeedDrop" 
+          className={cn(sizeClass, className)}
+        />
+      );
+    }
+    // Auto-detect: lightmode asset in light mode, darkmode asset in dark mode
     return (
       <>
         <img 
-          src={seeddropIconDark} 
+          src={seeddropIconLight} 
           alt="SeedDrop" 
           className={cn(sizeClass, 'dark:hidden', className)}
         />
         <img 
-          src={seeddropIconLight} 
+          src={seeddropIconDark} 
           alt="SeedDrop" 
           className={cn(sizeClass, 'hidden dark:block', className)}
         />
@@ -95,15 +95,6 @@ export function Logo({
   };
 
   const renderWordmark = (sizeClass: string) => {
-    if (forceDark) {
-      return (
-        <img 
-          src={seeddropTypeDark} 
-          alt="SeedDrop" 
-          className={cn(sizeClass, className)}
-        />
-      );
-    }
     if (forceLight) {
       return (
         <img 
@@ -113,16 +104,25 @@ export function Logo({
         />
       );
     }
-    // Auto-detect
+    if (forceDark) {
+      return (
+        <img 
+          src={seeddropTypeDark} 
+          alt="SeedDrop" 
+          className={cn(sizeClass, className)}
+        />
+      );
+    }
+    // Auto-detect: lightmode asset in light mode, darkmode asset in dark mode
     return (
       <>
         <img 
-          src={seeddropTypeDark} 
+          src={seeddropTypeLight} 
           alt="SeedDrop" 
           className={cn(sizeClass, 'dark:hidden', className)}
         />
         <img 
-          src={seeddropTypeLight} 
+          src={seeddropTypeDark} 
           alt="SeedDrop" 
           className={cn(sizeClass, 'hidden dark:block', className)}
         />

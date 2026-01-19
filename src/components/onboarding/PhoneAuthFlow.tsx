@@ -26,7 +26,7 @@ import {
   type DemoKey,
 } from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
-import { Logo, seeddropIconDark } from '@/components/shared/Logo';
+import { Logo, seeddropIconLight } from '@/components/shared/Logo';
 
 interface PhoneAuthFlowProps {
   isOpen: boolean;
