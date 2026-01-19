@@ -14,6 +14,8 @@ import GrowthReportCard from "@/components/cards/GrowthReportCard";
 import ImpactStatsCard from "@/components/cards/ImpactStatsCard";
 import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
 import WalletCard from "@/components/cards/WalletCard";
+import ImpactPreviewCard from "@/components/cards/ImpactPreviewCard";
+import CampaignCard from "@/components/cards/CampaignCard";
 import { Logo, seeddropTypeLight } from "@/components/shared/Logo";
 import poweredByCik from "@/assets/powered-by-cik-text.png";
 import generositySpread from "@/assets/generosity-spread.png";
@@ -31,7 +33,7 @@ const sections = [{
   id: "impact",
   headline: "See your impact as it happens",
   description: "A live social feed shows generosity in motion.",
-  card: "commitment",
+  card: "impact",
   bgColor: "bg-emerald-400"
 }, {
   id: "spread",
@@ -97,22 +99,17 @@ const ScrollingLandingPage = () => {
   const renderCard = (cardType: string, sectionId: string, compact = false) => {
     // Special scrolling social feed for impact section (desktop)
     if (sectionId === "impact" && !compact) {
-      return <div className="relative w-full h-full overflow-hidden flex justify-center">
-          <div className={`animate-scroll-feed flex flex-col gap-3 pt-4 w-full max-w-sm`}>
-            <SeedCommitmentCard />
-            <SeedFeedCard />
-            <SeedCommitmentCard />
-            <SeedFeedCard />
-          </div>
+      return <div className="relative w-full h-full overflow-hidden flex justify-center items-center p-8">
+          <ImpactPreviewCard />
         </div>;
     }
     switch (cardType) {
       case "feed":
         return <div className={`aspect-square w-full ${compact ? 'max-w-xs' : 'max-w-sm'} rounded-2xl bg-white/20 border-2 border-white/40`} />;
       case "campaign":
-        return <div className={`${compact ? 'max-w-xs' : 'max-w-sm'} w-full aspect-square rounded-2xl bg-cover bg-center flex items-center justify-center overflow-hidden`} style={{
-          backgroundImage: `url(${generositySpread})`
-        }} />;
+        return <CampaignCard />;
+      case "impact":
+        return <ImpactPreviewCard />;
       case "commitment":
         return <SeedCommitmentCard />;
       case "ledger":
@@ -166,14 +163,14 @@ const ScrollingLandingPage = () => {
                 
                 {/* CTA Buttons - Desktop only in header */}
                 <nav className="hidden lg:flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
-                  {/* Enter App - Blue with white ring glow */}
-                  <button onClick={() => setShowLoginModal(true)} className="relative w-full py-6 rounded-full font-semibold text-base sm:text-lg bg-[hsl(221,83%,53%)] text-white flex items-center justify-center gap-2 hover:bg-[hsl(221,83%,48%)] transition-all shadow-[0_0_0_4px_white,0_0_20px_rgba(59,130,246,0.5)]" aria-label="Enter SeedBase app">
+                  {/* Enter App - Solid Blue Rectangle */}
+                  <button onClick={() => setShowLoginModal(true)} className="relative w-full py-5 rounded-xl font-semibold text-lg bg-primary text-white flex items-center justify-center gap-2 hover:bg-primary/90 transition-all" aria-label="Enter SeedBase app">
                     Enter App
                     <ArrowRight className="w-5 h-5" />
                   </button>
                   
-                  {/* Desktop: scroll to content */}
-                  <Button variant="outline" onClick={scrollToContent} className="rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]" aria-label="Learn more about SeedBase">
+                  {/* Desktop: scroll to content - Solid Blue Rectangle Outline */}
+                  <Button variant="outline" onClick={scrollToContent} className="rounded-xl py-5 h-auto text-lg font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-white min-h-[44px]" aria-label="Learn more about SeedBase">
                     Learn More
                     <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
                   </Button>
@@ -238,17 +235,26 @@ const ScrollingLandingPage = () => {
 
         {/* Right - Scrolling Content (desktop only) */}
         <main className="hidden lg:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
-          {/* Hero Card Section */}
+          {/* Hero Card Section - Yellow with scrolling cards */}
           <section className="h-[620px] flex items-start pt-[32px] pl-0 pr-8 pointer-events-auto">
             <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full h-full flex items-start justify-center relative overflow-hidden animate-content-reveal">
-              <div className="flex flex-col items-center gap-2 pt-4 w-full max-w-sm">
-                <div className="w-full opacity-0 animate-card-appear-1">
+              <div className="animate-scroll-feed flex flex-col items-center gap-3 pt-4 w-full max-w-sm">
+                <div className="w-full">
                   <SeedFeedCard />
                 </div>
-                <div className="w-full opacity-0 animate-card-appear-2">
+                <div className="w-full">
                   <SeedFeedCardPeek />
                 </div>
-                <div className="w-full opacity-0 animate-card-appear-3">
+                <div className="w-full">
+                  <SeedFeedCardPeekAlt />
+                </div>
+                <div className="w-full">
+                  <SeedFeedCard />
+                </div>
+                <div className="w-full">
+                  <SeedFeedCardPeek />
+                </div>
+                <div className="w-full">
                   <SeedFeedCardPeekAlt />
                 </div>
               </div>
@@ -282,15 +288,34 @@ const ScrollingLandingPage = () => {
               </div>
             </div>)}
 
-          {/* Closing Logo Section */}
-          <section className="py-32 px-8 flex items-center justify-center pointer-events-auto" aria-label="Return to top">
+          {/* Footer Section */}
+          <footer className="py-16 px-8 flex flex-col items-center gap-8 pointer-events-auto border-t border-gray-200 mt-16">
+            {/* Powered by CIK - 3x */}
+            <div className="flex items-center gap-8">
+              <img alt="Powered by Christ is King" className="h-4 object-contain opacity-60" src={poweredByCik} />
+              <img alt="Powered by Christ is King" className="h-4 object-contain opacity-60" src={poweredByCik} />
+              <img alt="Powered by Christ is King" className="h-4 object-contain opacity-60" src={poweredByCik} />
+            </div>
+            
+            {/* Built on Base */}
+            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+              <span>Built on</span>
+              <img src={baseLogo} alt="Base" className="h-5 w-auto" />
+            </div>
+            
+            {/* Copyright */}
+            <p className="text-muted-foreground text-sm">
+              © 2026 Christ is King Labs. All rights reserved.
+            </p>
+            
+            {/* Clickable Logo */}
             <button onClick={() => window.scrollTo({
-            top: 0,
-            behavior: 'smooth'
-          })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg" aria-label="Scroll back to top of page">
-              <img alt="Seedbase" className="w-[700px] max-w-[95vw] h-auto transition-opacity duration-300 opacity-100" src={seeddropTypeLight} />
+              top: 0,
+              behavior: 'smooth'
+            })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg" aria-label="Scroll back to top of page">
+              <img alt="Seedbase" className="w-[400px] max-w-[80vw] h-auto transition-opacity duration-300 opacity-100" src={seeddropTypeLight} />
             </button>
-          </section>
+          </footer>
         </main>
       </div>
     </div>;
