@@ -99,6 +99,15 @@ export default {
         envoy: {
           DEFAULT: "hsl(var(--envoy-orange))",
         },
+        landing: {
+          wallet: "hsl(var(--landing-wallet))",
+          impact: "hsl(var(--landing-impact))",
+          spread: "hsl(var(--landing-spread))",
+          ledger: "hsl(var(--landing-ledger))",
+          seedbases: "hsl(var(--landing-seedbases))",
+          tithing: "hsl(var(--landing-tithing))",
+          movement: "hsl(var(--landing-movement))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

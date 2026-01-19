@@ -91,21 +91,21 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       id: "wallet",
       title: "A wallet built for giving",
       description: "Sign in with email or phone. Give instantly. Withdraw to your bank.",
-      bgColor: "bg-blue-400",
+      bgColor: "bg-landing-wallet",
       card: <WalletCard />,
     },
     {
       id: "impact",
       title: "See your impact",
       description: "A live social feed shows generosity in motion.",
-      bgColor: "bg-emerald-400",
+      bgColor: "bg-landing-impact",
       card: <ImpactPreviewCard />,
     },
     {
       id: "spread",
       title: "See generosity spread",
       description: "Watch surplus move across people, places, and missions.",
-      bgColor: "bg-teal-400",
+      bgColor: "bg-landing-spread",
       bgImage: waterBackground,
       card: <CampaignCard />,
     },
@@ -113,28 +113,28 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       id: "ledger",
       title: "Built on shared ledgers",
       description: "Every seed. Every surplus. Every deployment. Trust you can see.",
-      bgColor: "bg-[#FDDE02]",
+      bgColor: "bg-landing-ledger",
       card: <LedgerCard />,
     },
     {
-      id: "steward",
+      id: "seedbases",
       title: "Communities steward together",
       description: "Ministries and teams run seedbases. Same numbers. Shared clarity.",
-      bgColor: "bg-violet-400",
+      bgColor: "bg-landing-seedbases",
       card: <DashboardCard />,
     },
     {
       id: "tithing",
       title: "Transparent tithing",
       description: "See allocations. Vote on priorities. Track impact.",
-      bgColor: "bg-amber-400",
+      bgColor: "bg-landing-tithing",
       card: <TitheAllocationCard />,
     },
     {
       id: "movement",
       title: "Built by generosity",
       description: "Every seed grows. Every surplus spreads. Trust rewards come back.",
-      bgColor: "bg-cyan-400",
+      bgColor: "bg-landing-movement",
       card: <GrowthReportCard />,
     },
   ];
@@ -165,7 +165,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       </div>
 
       {/* Yellow Hero Card Section - Fixed height rectangle with canonical InnerCards */}
-      <div className="bg-[#FDDE02] rounded-3xl p-6 overflow-hidden flex items-center justify-center h-[360px]">
+      <div className="bg-landing-ledger rounded-3xl p-6 overflow-hidden flex items-center justify-center h-[360px]">
         <div className="animate-scroll-feed flex flex-col items-center gap-3">
           <SeedFeedCard />
           <SeedFeedCardPeek />

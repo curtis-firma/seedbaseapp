@@ -57,6 +57,15 @@
     --shadow-card: 0 4px 24px -4px hsl(221 83% 53% / 0.08);
     --shadow-elevated: 0 12px 40px -8px hsl(221 83% 53% / 0.15);
     --shadow-glow: 0 0 40px hsl(221 83% 53% / 0.3);
+    
+    /* Landing Section Colors */
+    --landing-wallet: 217 91% 60%;
+    --landing-impact: 160 84% 39%;
+    --landing-spread: 174 72% 56%;
+    --landing-ledger: 52 98% 50%;
+    --landing-seedbases: 258 90% 66%;
+    --landing-tithing: 38 92% 50%;
+    --landing-movement: 187 92% 69%;
   }
 
   .dark {
