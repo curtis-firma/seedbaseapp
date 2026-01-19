@@ -65,10 +65,10 @@ const AnimatedSection = ({ section, index }: { section: MobileSection; index: nu
       {/* Section title and description - SECOND (below card, left-aligned) */}
       <div className={`space-y-2 text-left transition-all duration-500 ${isInView ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
            style={{ transitionDelay: `${index * 50 + 300}ms` }}>
-        <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+        <h2 className="text-section font-semibold tracking-[-0.02em] text-foreground">
           {section.title}
         </h2>
-        <p className="text-base text-muted-foreground leading-relaxed">
+        <p className="text-body text-muted-foreground leading-[1.5]">
           {section.description}
         </p>
       </div>
