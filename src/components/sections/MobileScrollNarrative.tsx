@@ -146,12 +146,12 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
               </p>
             </div>
 
-            {/* Card with colored background */}
+            {/* Card with colored background - LOCKED SQUARE */}
             <div 
-              className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl p-6 flex items-center justify-center bg-cover bg-center`}
+              className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl aspect-square p-4 sm:p-6 flex items-center justify-center bg-cover bg-center`}
               style={section.bgImage ? { backgroundImage: `url(${section.bgImage})` } : undefined}
             >
-              <div className="w-full max-w-md rounded-2xl overflow-hidden shadow-lg bg-white">
+              <div className="w-[85%] h-[85%] rounded-2xl overflow-hidden shadow-lg bg-white">
                 {section.card}
               </div>
             </div>

@@ -37,22 +37,22 @@ const GrowthReportCard = () => {
   }, []);
 
   return (
-    <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-5 shadow-lg text-white flex flex-col">
+    <div className="w-full h-full bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-4 sm:p-5 shadow-lg text-white flex flex-col">
       {/* Milestone Banner */}
-      <div className="flex items-center gap-2 mb-3 bg-emerald-500/20 rounded-xl px-3 py-2">
-        <PartyPopper className="w-4 h-4 text-emerald-400 animate-icon-wiggle flex-shrink-0" />
+      <div className="flex items-center gap-2 mb-2 bg-emerald-500/20 rounded-lg px-2.5 py-1.5">
+        <PartyPopper className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-400 animate-icon-wiggle flex-shrink-0" />
         <p className="text-xs text-emerald-300 leading-snug">
-          Milestone: 1,000 seeders joined this week!
+          1,000 seeders joined this week!
         </p>
       </div>
 
       {/* Header */}
-      <h3 className="font-bold text-lg mb-3 text-white/90">Weekly Growth Report</h3>
+      <h3 className="font-bold text-base sm:text-lg mb-2 text-white/90">Weekly Growth Report</h3>
 
       {/* Main Stat */}
-      <div className="mb-4 flex-1 flex flex-col justify-center">
+      <div className="mb-3 flex-1 flex flex-col justify-center">
         <p 
-          className={`text-5xl font-bold text-emerald-400 transition-all duration-500 ${
+          className={`text-4xl sm:text-5xl font-bold text-emerald-400 transition-all duration-500 ${
             isGlowing 
               ? 'drop-shadow-[0_0_20px_rgba(16,185,129,0.6)]' 
               : 'drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]'
@@ -60,31 +60,31 @@ const GrowthReportCard = () => {
         >
           ${displayValue.toFixed(1)}M
         </p>
-        <p className="text-gray-400 text-sm mt-1">committed</p>
+        <p className="text-gray-400 text-xs sm:text-sm mt-0.5">committed</p>
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <div className="bg-white/5 rounded-lg p-3 text-center hover:bg-white/10 transition-colors">
-          <p className="font-bold text-lg animate-number-tick">156</p>
-          <p className="text-xs text-gray-400 leading-tight">missions</p>
+      <div className="grid grid-cols-3 gap-1.5 sm:gap-2 mb-3">
+        <div className="bg-white/5 rounded-lg p-2 sm:p-2.5 text-center hover:bg-white/10 transition-colors">
+          <p className="font-bold text-sm sm:text-base animate-number-tick">156</p>
+          <p className="text-[10px] sm:text-xs text-gray-400 leading-tight">missions</p>
         </div>
-        <div className="bg-white/5 rounded-lg p-3 text-center hover:bg-white/10 transition-colors">
-          <p className="font-bold text-lg animate-number-tick" style={{ animationDelay: '0.2s' }}>1,247</p>
-          <p className="text-xs text-gray-400 leading-tight">seeders</p>
+        <div className="bg-white/5 rounded-lg p-2 sm:p-2.5 text-center hover:bg-white/10 transition-colors">
+          <p className="font-bold text-sm sm:text-base animate-number-tick" style={{ animationDelay: '0.2s' }}>1,247</p>
+          <p className="text-[10px] sm:text-xs text-gray-400 leading-tight">seeders</p>
         </div>
-        <div className="bg-white/5 rounded-lg p-3 text-center hover:bg-white/10 transition-colors">
-          <p className="font-bold text-lg animate-number-tick" style={{ animationDelay: '0.4s' }}>23</p>
-          <p className="text-xs text-gray-400 leading-tight">countries</p>
+        <div className="bg-white/5 rounded-lg p-2 sm:p-2.5 text-center hover:bg-white/10 transition-colors">
+          <p className="font-bold text-sm sm:text-base animate-number-tick" style={{ animationDelay: '0.4s' }}>23</p>
+          <p className="text-[10px] sm:text-xs text-gray-400 leading-tight">countries</p>
         </div>
       </div>
 
       {/* Footer */}
       <div className="flex items-center justify-between mt-auto">
-        <p className="text-xs text-gray-400">Verified on Base L2</p>
-        <button className="flex items-center gap-1 text-primary text-sm font-medium hover:underline group whitespace-nowrap">
+        <p className="text-[10px] sm:text-xs text-gray-400">Verified on Base L2</p>
+        <button className="flex items-center gap-1 text-primary text-xs sm:text-sm font-medium hover:underline group whitespace-nowrap">
           See dashboard
-          <ArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:translate-x-0.5 transition-transform" />
         </button>
       </div>
     </div>
