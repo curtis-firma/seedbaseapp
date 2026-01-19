@@ -20,10 +20,10 @@ const STATES = [
   { id: 'brand', Component: BrandMomentState },
 ];
 
-const STATE_DURATION = 8000; // 8 seconds per state
+const STATE_DURATION = 5000; // 5 seconds per state
 
 const HeroVisualCanvas = () => {
-  const [activeState, setActiveState] = useState(0);
+  const [activeState, setActiveState] = useState(1); // start on video so it's immediately visible
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   // Detect reduced motion preference
@@ -36,16 +36,16 @@ const HeroVisualCanvas = () => {
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Rotate states every 8 seconds
+  // Rotate states (setTimeout chain is more reliable than setInterval)
   useEffect(() => {
     if (prefersReducedMotion) return;
-    
-    const interval = setInterval(() => {
+
+    const timeout = window.setTimeout(() => {
       setActiveState((prev) => (prev + 1) % STATES.length);
     }, STATE_DURATION);
-    
-    return () => clearInterval(interval);
-  }, [prefersReducedMotion]);
+
+    return () => window.clearTimeout(timeout);
+  }, [prefersReducedMotion, activeState]);
 
   // Reduced motion fallback: show static brand state
   if (prefersReducedMotion) {

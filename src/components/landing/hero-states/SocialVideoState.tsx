@@ -16,6 +16,7 @@ const SocialVideoState = () => {
           muted
           loop
           playsInline
+          preload="auto"
           onError={() => setVideoError(true)}
         >
           <source src={socialVideo} type="video/mp4" />
