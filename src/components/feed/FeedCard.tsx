@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, MessageCircle, Share2, MoreHorizontal, TrendingUp, CheckCircle, Plus, DollarSign, Sprout } from 'lucide-react';
 import { FeedItem } from '@/types/seedbase';
@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { useInView } from '@/hooks/useInView';
+import { getRandomImage, getCategoryFromName } from '@/lib/curatedImages';
 
 interface FeedCardProps {
   item: FeedItem;
@@ -47,6 +48,13 @@ export function FeedCard({ item, index }: FeedCardProps) {
     rootMargin: '50px',
     triggerOnce: true,
   });
+
+  // Get a consistent random image for this card based on its content
+  const mediaImageUrl = useMemo(() => {
+    if (item.media?.url) return item.media.url;
+    const category = getCategoryFromName(item.seedbase?.name || item.mission?.name || item.content);
+    return getRandomImage(category);
+  }, [item.id, item.seedbase?.name, item.mission?.name, item.content, item.media?.url]);
 
   const handleLike = () => {
     triggerHaptic(isLiked ? 'light' : 'medium');
@@ -230,8 +238,13 @@ export function FeedCard({ item, index }: FeedCardProps) {
         {/* Media Placeholder */}
         {item.media?.type === 'image' && !item.embeddedCard && (
           <div className="px-4 py-2">
-            <div className="aspect-video bg-gradient-to-br from-muted to-muted/50 rounded-xl flex items-center justify-center">
-              <span className="text-muted-foreground">📸 Impact Photo</span>
+            <div className="aspect-video rounded-xl overflow-hidden bg-muted">
+              <img 
+                src={mediaImageUrl}
+                alt="Impact"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
             </div>
           </div>
         )}
