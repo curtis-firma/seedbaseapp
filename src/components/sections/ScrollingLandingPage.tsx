@@ -232,8 +232,8 @@ const ScrollingLandingPage = () => {
           </DialogContent>
         </Dialog>
 
-        {/* Right - Scrolling Content (desktop only) */}
-        <main className="hidden lg:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
+        {/* Right - Scrolling Content (tablet and desktop) */}
+        <main className="hidden md:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
           {/* Hero Card Section - Yellow with scrolling cards using canonical InnerCards */}
           <section className="flex items-start pt-[32px] px-8 pointer-events-auto">
             <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full h-[500px] flex items-center justify-center relative overflow-hidden animate-content-reveal">
@@ -251,27 +251,33 @@ const ScrollingLandingPage = () => {
           {/* Scrolling Content Sections */}
           <div ref={desktopSectionsRef} className="scroll-mt-8" />
           {sections.map(section => <section key={section.id} className="py-16 px-8 pointer-events-auto">
-              {/* Grid layout: text auto-sizes, card stays fixed - no stretching */}
-              <div className="grid w-full gap-12 items-start content-start grid-cols-[minmax(0,1fr)_auto]">
-                {/* Topic Text - Left side with alignment offset */}
-                <div className="min-w-0 max-w-md lg:pl-8">
-                  <h2 className="text-section lg:text-section-lg font-semibold tracking-[-0.02em] mb-6 text-foreground leading-[1.05]">
+              {/* 
+                Layout:
+                - Tablet (md): Stacked vertically - card on top, text below (like mobile but larger)
+                - Desktop (lg): Side-by-side grid - text left, card right
+              */}
+              <div className="flex flex-col lg:grid w-full gap-8 lg:gap-12 items-center lg:items-start content-start lg:grid-cols-[minmax(0,1fr)_auto]">
+                {/* Card - Top on tablet, Right on desktop */}
+                <div className="order-1 lg:order-2 w-full lg:w-auto">
+                  <FeatureSquareCard 
+                    bgColor={section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor}
+                    bgImage={section.bgImage ? waterBackground : undefined}
+                    animate
+                    className={section.id === 'wallet' ? 'animate-fade-in' : ''}
+                  >
+                    {renderCard(section.card, section.id)}
+                  </FeatureSquareCard>
+                </div>
+                
+                {/* Topic Text - Below on tablet, Left on desktop */}
+                <div className="order-2 lg:order-1 min-w-0 max-w-md lg:pl-8 text-center lg:text-left">
+                  <h2 className="text-section lg:text-section-lg font-semibold tracking-[-0.02em] mb-4 lg:mb-6 text-foreground leading-[1.05]">
                     {section.headline}
                   </h2>
-                  <p className="text-body lg:text-body-lg text-muted-foreground leading-[1.5] max-w-[34rem]">
+                  <p className="text-body lg:text-body-lg text-muted-foreground leading-[1.5] max-w-[34rem] mx-auto lg:mx-0">
                     {section.description}
                   </p>
                 </div>
-                
-                {/* Card - Right side - Using canonical FeatureSquareCard (locked size) */}
-                <FeatureSquareCard 
-                  bgColor={section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor}
-                  bgImage={section.bgImage ? waterBackground : undefined}
-                  animate
-                  className={section.id === 'wallet' ? 'animate-fade-in' : ''}
-                >
-                  {renderCard(section.card, section.id)}
-                </FeatureSquareCard>
               </div>
             </section>)}
 

@@ -31,9 +31,10 @@ const FeatureSquareCard = ({
         // LOCKED ASPECT RATIO - prevents distortion
         "aspect-square",
         // FIXED SIZE with min/max constraints - prevents flex/grid shrinking/stretching
+        // Tablet: full-width to match yellow rectangle
         "w-full",
         "max-w-[344px] min-w-[344px]",
-        "md:max-w-[480px] md:min-w-[480px]",
+        "md:max-w-full md:min-w-0",
         "lg:max-w-[404px] lg:min-w-[404px]",
         // Prevent flex shrink - critical for desktop grid layouts
         "flex-none shrink-0",

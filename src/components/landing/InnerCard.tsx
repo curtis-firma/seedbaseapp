@@ -19,8 +19,9 @@ const InnerCard = ({ children, className }: InnerCardProps) => {
     <div 
       className={cn(
         // SIZE ONLY - no background/shadow styling (children own that)
+        // Tablet: larger to fill the full-width square container
         "w-[280px] h-[280px]",           // Mobile default
-        "md:w-[400px] md:h-[400px]",     // Tablet - LARGER
+        "md:w-[420px] md:h-[420px]",     // Tablet - fills full-width container
         "lg:w-[340px] lg:h-[340px]",     // Desktop
         // Prevent compression and clip content
         "flex-shrink-0 overflow-hidden rounded-2xl",
