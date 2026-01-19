@@ -1,6 +1,6 @@
 import { cn } from '@/lib/utils';
 
-// New SeedDrop assets for light/dark mode
+// Seedbase assets for light/dark mode
 import seeddropIconLight from '@/assets/seeddroplogo_lightmode.png';
 import seeddropIconDark from '@/assets/seeddroplogo_darkmode.png';
 import seeddropTypeLight from '@/assets/seeddrop_lightmode.png';
@@ -37,8 +37,8 @@ const wordmarkSizes: Record<LogoSize, string> = {
  * Canonical Logo component that automatically switches between light/dark mode assets.
  * 
  * Variants:
- * - icon: Just the SeedDrop icon/symbol
- * - wordmark: Just the SeedDrop text/type
+ * - icon: Just the Seedbase icon/symbol
+ * - wordmark: Just the Seedbase text/type
  * - full: Icon + Wordmark side by side
  * 
  * For light backgrounds (like landing page): use forceDark={true}
@@ -63,7 +63,7 @@ export function Logo({
       return (
         <img 
           src={seeddropIconLight} 
-          alt="SeedDrop" 
+          alt="Seedbase" 
           className={cn(sizeClass, className)}
         />
       );
@@ -72,7 +72,7 @@ export function Logo({
       return (
         <img 
           src={seeddropIconDark} 
-          alt="SeedDrop" 
+          alt="Seedbase" 
           className={cn(sizeClass, className)}
         />
       );
@@ -82,12 +82,12 @@ export function Logo({
       <>
         <img 
           src={seeddropIconLight} 
-          alt="SeedDrop" 
+          alt="Seedbase" 
           className={cn(sizeClass, 'dark:hidden', className)}
         />
         <img 
           src={seeddropIconDark} 
-          alt="SeedDrop" 
+          alt="Seedbase" 
           className={cn(sizeClass, 'hidden dark:block', className)}
         />
       </>
@@ -99,7 +99,7 @@ export function Logo({
       return (
         <img 
           src={seeddropTypeLight} 
-          alt="SeedDrop" 
+          alt="Seedbase" 
           className={cn(sizeClass, className)}
         />
       );
@@ -108,7 +108,7 @@ export function Logo({
       return (
         <img 
           src={seeddropTypeDark} 
-          alt="SeedDrop" 
+          alt="Seedbase" 
           className={cn(sizeClass, className)}
         />
       );
@@ -118,12 +118,12 @@ export function Logo({
       <>
         <img 
           src={seeddropTypeLight} 
-          alt="SeedDrop" 
+          alt="Seedbase" 
           className={cn(sizeClass, 'dark:hidden', className)}
         />
         <img 
           src={seeddropTypeDark} 
-          alt="SeedDrop" 
+          alt="Seedbase" 
           className={cn(sizeClass, 'hidden dark:block', className)}
         />
       </>

@@ -583,7 +583,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', delay: 0.1 }}
               >
-                <Logo variant="icon" size="xl" />
+                <Logo variant="full" size="lg" />
               </motion.div>
               <h2 className="text-2xl font-bold mb-2">Welcome to Seedbase</h2>
               <p className="text-muted-foreground mb-8">
@@ -673,8 +673,9 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="relative mx-auto mb-8 flex items-center justify-center">
+              <div className="relative mx-auto mb-8 flex items-center justify-center w-24 h-24">
                 <motion.div
+                  className="flex items-center justify-center"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
                 >
@@ -700,8 +701,9 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               exit={{ opacity: 0, y: -20 }}
               className="w-full max-w-sm text-center"
             >
-              <div className="relative mx-auto mb-8 flex items-center justify-center">
+              <div className="relative mx-auto mb-8 flex items-center justify-center w-24 h-24">
                 <motion.div
+                  className="flex items-center justify-center"
                   animate={{ rotate: [0, 5, -5, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
                 >

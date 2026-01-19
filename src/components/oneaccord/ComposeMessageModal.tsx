@@ -6,6 +6,7 @@ import { getAllCompletedUsers, searchUsers, getWalletByUserId, type DemoUser } f
 import { createTransfer } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { Logo } from '@/components/shared/Logo';
 
 interface ComposeMessageModalProps {
   isOpen: boolean;
@@ -172,13 +173,16 @@ export function ComposeMessageModal({ isOpen, onClose, onSuccess }: ComposeMessa
         onClick={(e) => e.stopPropagation()}
         className="w-full max-w-lg bg-card rounded-t-3xl p-6 max-h-[90vh] overflow-y-auto"
       >
-        {/* Header */}
+        {/* Header with Logo */}
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-bold">
-            {step === 'compose' && 'New Message'}
-            {step === 'confirm' && 'Confirm'}
-            {step === 'success' && 'Sent!'}
-          </h2>
+          <div className="flex items-center gap-3">
+            <Logo variant="icon" size="sm" />
+            <h2 className="text-xl font-bold">
+              {step === 'compose' && 'New Message'}
+              {step === 'confirm' && 'Confirm'}
+              {step === 'success' && 'Sent!'}
+            </h2>
+          </div>
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={onClose}

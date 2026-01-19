@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Send, Check, X, DollarSign, Inbox, RefreshCw, Plus, Vote, FileText, Bell, Sprout } from 'lucide-react';
+import { ArrowLeft, Send, Check, X, DollarSign, Inbox, RefreshCw, Compass, Vote, FileText, Bell, Sprout } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -18,6 +18,8 @@ import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 import { oneAccordMessages } from '@/data/mockData';
 import { Confetti } from '@/components/shared/Confetti';
 import { triggerHaptic } from '@/hooks/useHaptic';
+import { seeddropIconLight } from '@/components/shared/Logo';
+
 // Message type icons and styles - Using blue (base) for branding
 const messageTypeConfig: Record<string, { icon: typeof DollarSign; gradient: string; bgColor: string }> = {
   distribution: { icon: DollarSign, gradient: 'gradient-base', bgColor: 'bg-base/10' },
@@ -181,7 +183,7 @@ export default function OneAccordPage() {
                     onClick={() => setShowComposeModal(true)}
                     className="p-2 rounded-xl gradient-base text-white"
                   >
-                    <Plus className="h-5 w-5" />
+                    <Compass className="h-5 w-5" />
                   </motion.button>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
@@ -235,12 +237,18 @@ export default function OneAccordPage() {
                             !message.isRead ? "border-base/30" : "border-border/50"
                           )}
                         >
-                          <div className="flex items-start gap-3 mb-3">
+                        <div className="flex items-start gap-3 mb-3">
                             {message.avatar.startsWith('http') ? (
                               <img 
                                 src={message.avatar}
                                 alt={message.from}
                                 className="w-10 h-10 rounded-full object-cover"
+                              />
+                            ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
+                              <img 
+                                src={seeddropIconLight}
+                                alt="Seedbase"
+                                className="w-10 h-10 object-contain"
                               />
                             ) : (
                               <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.gradient)}>
@@ -336,6 +344,12 @@ export default function OneAccordPage() {
                               src={message.avatar}
                               alt={message.from}
                               className="w-10 h-10 rounded-full object-cover"
+                            />
+                          ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
+                            <img 
+                              src={seeddropIconLight}
+                              alt="Seedbase"
+                              className="w-10 h-10 object-contain"
                             />
                           ) : (
                             <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.bgColor)}>

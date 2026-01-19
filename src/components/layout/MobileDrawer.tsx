@@ -65,9 +65,9 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed left-0 top-0 bottom-0 w-[300px] bg-card border-r border-border/50 z-50 flex flex-col"
           >
-            {/* Header - Logo on LEFT, Close on RIGHT */}
+            {/* Header - Full Logo on LEFT, Close on RIGHT */}
             <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
-              <Logo variant="icon" size="md" />
+              <Logo variant="full" size="sm" />
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
