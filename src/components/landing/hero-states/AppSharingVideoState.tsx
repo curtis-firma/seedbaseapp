@@ -16,6 +16,7 @@ const AppSharingVideoState = () => {
           muted
           loop
           playsInline
+          preload="auto"
           onError={() => setVideoError(true)}
         >
           <source src={appSharingVideo} type="video/mp4" />

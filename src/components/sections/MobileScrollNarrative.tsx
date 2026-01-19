@@ -8,15 +8,12 @@ import DashboardCard from "@/components/cards/DashboardCard";
 import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
 import ImpactPreviewCard from "@/components/cards/ImpactPreviewCard";
 import CampaignCard from "@/components/cards/CampaignCard";
-import { Logo, seeddropTypeLight } from "@/components/shared/Logo";
+import { seeddropTypeLight } from "@/components/shared/Logo";
 import baseLogo from "@/assets/base-logo.png";
 import poweredByCik from "@/assets/powered-by-cik-text.png";
 import waterBackground from "@/assets/water-background.png";
-import SeedFeedCard from "@/components/cards/SeedFeedCard";
-import SeedFeedCardPeek from "@/components/cards/SeedFeedCardPeek";
-import SeedFeedCardPeekAlt from "@/components/cards/SeedFeedCardPeekAlt";
+import HeroVisualCanvas from "@/components/landing/HeroVisualCanvas";
 import { useInView } from "@/hooks/useInView";
-import InnerCard from "@/components/landing/InnerCard";
 import FeatureSquareCard from "@/components/landing/FeatureSquareCard";
 
 interface MobileSection {
@@ -164,14 +161,10 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         </Button>
       </div>
 
-      {/* Yellow Hero Card Section - Fixed height rectangle with canonical InnerCards */}
-      <div className="bg-landing-ledger rounded-3xl p-6 overflow-hidden flex items-center justify-center h-[360px]">
-        <div className="animate-scroll-feed flex flex-col items-center gap-3">
-          <SeedFeedCard />
-          <SeedFeedCardPeek />
-          <SeedFeedCardPeekAlt />
-          <SeedFeedCard />
-          <SeedFeedCardPeek />
+      {/* Yellow Hero Card Section - same looping rectangle as desktop */}
+      <div className="flex items-center justify-center">
+        <div className="w-full">
+          <HeroVisualCanvas />
         </div>
       </div>
 

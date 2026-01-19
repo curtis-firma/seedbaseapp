@@ -210,28 +210,15 @@ const FeedScrollState = () => {
 
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
-      {/* Gradient mask for fade edges */}
-      <div 
-        className="absolute inset-0 pointer-events-none z-10"
-        style={{
-          background: 'linear-gradient(to bottom, #FDDE02 0%, transparent 12%, transparent 88%, #FDDE02 100%)'
-        }}
-      />
-      
-      {/* Parallax container with perspective */}
-      <div 
-        className="flex gap-4 items-start"
-        style={{ perspective: '1000px' }}
-      >
+      <div className="flex gap-4 items-start">
         {/* Left column - slower scroll */}
         <motion.div 
           className="flex flex-col gap-3"
-          style={{ transform: 'rotateY(-2deg)' }}
           animate={{ y: [0, -900] }}
           transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
         >
           {leftColumn.map((card, index) => (
-            <div key={`left-${card.id}-${index}`} className="scale-[0.85] origin-top">
+            <div key={`left-${card.id}-${index}`}>
               <card.Component />
             </div>
           ))}
@@ -240,12 +227,11 @@ const FeedScrollState = () => {
         {/* Right column - faster scroll, offset */}
         <motion.div 
           className="flex flex-col gap-3"
-          style={{ transform: 'rotateY(2deg) translateY(-100px)' }}
           animate={{ y: [-100, -1000] }}
           transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
         >
           {rightColumn.map((card, index) => (
-            <div key={`right-${card.id}-${index}`} className="scale-[0.85] origin-top">
+            <div key={`right-${card.id}-${index}`}>
               <card.Component />
             </div>
           ))}

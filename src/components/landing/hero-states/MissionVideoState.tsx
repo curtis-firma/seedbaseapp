@@ -16,6 +16,7 @@ const MissionVideoState = () => {
           muted
           loop
           playsInline
+          preload="auto"
           onError={() => setVideoError(true)}
         >
           <source src={missionVideo} type="video/mp4" />

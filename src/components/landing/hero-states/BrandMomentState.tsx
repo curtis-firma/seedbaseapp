@@ -116,10 +116,9 @@ const GrowingSquares = () => {
             animate={{ opacity: 1 }}
             transition={{ delay: bar.delay * 0.4, duration: 0.3 }}
           >
-            {/* Glow effect when complete */}
+            {/* Glow effect when complete (no blur to avoid fuzzy edges) */}
             <motion.div
-              className="absolute -inset-1 bg-blue-400/30 rounded-full blur-md"
-              initial={{ opacity: 0, scale: 0.8 }}
+              className="absolute -inset-1 bg-blue-400/20 rounded-full shadow-glow"
               animate={{ 
                 opacity: [0, 0, 0.6, 0],
                 scale: [0.8, 1, 1.2, 1]
@@ -200,9 +199,6 @@ const BrandMomentState = () => {
           className="w-28 h-28 md:w-32 md:h-32 lg:w-40 lg:h-40 rounded-full"
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-          style={{
-            filter: 'drop-shadow(0 0 40px rgba(0, 0, 255, 0.25))'
-          }}
         />
       </motion.div>
 
