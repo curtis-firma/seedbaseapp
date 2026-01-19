@@ -164,8 +164,8 @@ const ScrollingLandingPage = () => {
                   <p>Plant a seed, grow it with others, and follow how value flows back to you and missions through a transparent impact ledger.</p>
                 </div>
                 
-                {/* CTA Buttons - Desktop only in header */}
-                <nav className="hidden lg:flex flex-col gap-3" role="navigation" aria-label="Main actions">
+                {/* CTA Buttons - Tablet + Desktop in header */}
+                <nav className="hidden md:flex flex-col gap-3" role="navigation" aria-label="Main actions">
                   <EnterAppButton onClick={() => setShowLoginModal(true)} />
                   <LearnMoreButton onClick={scrollToContent} />
                 </nav>

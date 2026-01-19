@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
 import InnerCard from "./InnerCard";
 
 interface FeatureSquareCardProps {
@@ -14,9 +15,10 @@ interface FeatureSquareCardProps {
  * Combines colored outer background + white InnerCard as ONE unit
  * 
  * Sizing (InnerCard + consistent ~64px padding):
- * - Mobile: 344×344px (280 + 64)
- * - Tablet: 484×484px (420 + 64) - Scaled up proportionally
- * - Desktop: 404×404px (340 + 64)
+ * - Mobile: 300×300px (scales down smoothly)
+ * - Small Mobile: 344×344px
+ * - Tablet: 484×484px
+ * - Desktop: 404×404px
  */
 const FeatureSquareCard = ({ 
   bgColor, 
@@ -26,7 +28,11 @@ const FeatureSquareCard = ({
   animate = false 
 }: FeatureSquareCardProps) => {
   return (
-    <div 
+    <motion.div 
+      initial={{ opacity: 0, scale: 0.95 }}
+      whileInView={{ opacity: 1, scale: 1 }}
+      viewport={{ once: true, margin: "-50px" }}
+      transition={{ duration: 0.5, ease: "easeOut" }}
       className={cn(
         // LOCKED ASPECT RATIO - prevents distortion
         "aspect-square",
@@ -55,7 +61,7 @@ const FeatureSquareCard = ({
       <InnerCard>
         {children}
       </InnerCard>
-    </div>
+    </motion.div>
   );
 };
 
