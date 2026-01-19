@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { PrimaryButton } from "@/components/ui/primary-button";
 import { ChevronDown, ArrowRight } from "lucide-react";
 import SeedFeedCard from "@/components/cards/SeedFeedCard";
-import SeedFeedCardPeek from "@/components/cards/SeedFeedCardPeek";
-import SeedFeedCardPeekAlt from "@/components/cards/SeedFeedCardPeekAlt";
+import HeroVisualCanvas from "@/components/landing/HeroVisualCanvas";
 import SeedCommitmentCard from "@/components/cards/SeedCommitmentCard";
 import MobileScrollNarrative from "@/components/sections/MobileScrollNarrative";
 import DashboardCard from "@/components/cards/DashboardCard";
@@ -234,17 +233,10 @@ const ScrollingLandingPage = () => {
 
         {/* Right - Scrolling Content (tablet and desktop) */}
         <main className="hidden md:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
-          {/* Hero Card Section - Yellow with scrolling cards using canonical InnerCards */}
+          {/* Hero Card Section - Dynamic Visual Canvas */}
           <section className="flex items-start pt-[32px] px-8 pointer-events-auto">
-            <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full h-[500px] flex items-center justify-center relative overflow-hidden animate-content-reveal">
-              <div className="animate-scroll-feed flex flex-col items-center gap-3">
-                <SeedFeedCard />
-                <SeedFeedCardPeek />
-                <SeedFeedCardPeekAlt />
-                <SeedFeedCard />
-                <SeedFeedCardPeek />
-                <SeedFeedCardPeekAlt />
-              </div>
+            <div className="w-full animate-content-reveal">
+              <HeroVisualCanvas />
             </div>
           </section>
 

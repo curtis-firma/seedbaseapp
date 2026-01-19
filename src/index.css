@@ -357,3 +357,41 @@
 .glow-ring {
   box-shadow: 0 0 20px 4px hsl(var(--primary) / 0.3);
 }
+
+/* Hero Visual Canvas Animations */
+@keyframes hero-scroll-slow {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-50%); }
+}
+
+@keyframes hero-scroll-fast {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0); }
+}
+
+@keyframes hero-card-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(0.5deg); }
+}
+
+@keyframes hero-glow-pulse {
+  0%, 100% { filter: drop-shadow(0 0 0px rgba(74, 222, 128, 0)); }
+  50% { filter: drop-shadow(0 0 12px rgba(74, 222, 128, 0.6)); }
+}
+
+@keyframes hero-circle-pulse {
+  0% { transform: scale(1); opacity: 0.4; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+@keyframes hero-flow-path {
+  0% { stroke-dashoffset: 1000; }
+  100% { stroke-dashoffset: 0; }
+}
+
+@keyframes hero-particle-flow {
+  0% { offset-distance: 0%; opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { offset-distance: 100%; opacity: 0; }
+}
