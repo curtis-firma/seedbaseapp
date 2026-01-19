@@ -358,8 +358,9 @@ export const harvestReports = [
 ];
 
 // ============= Network Feed Items =============
+// Testimonies (nf-7, nf-16) are moved earlier in the feed for better engagement
 export const mockFeedItems: FeedItem[] = [
-  // Person / @mention post - Activator commitment
+  // Position 1: Person / @mention post - Activator commitment
   {
     id: 'nf-1',
     type: 'commitment',
@@ -390,7 +391,37 @@ export const mockFeedItems: FeedItem[] = [
     yourSeed: 150,
     yourImpactPercentage: 0.5,
   },
-  // Mission Update - Mobile Classrooms with funding progress
+  // Position 2: Testimony from recipient - MOVED UP from position 7
+  {
+    id: 'nf-7',
+    type: 'testimony',
+    postType: 'testimony',
+    title: '',
+    content: '"Before Seedbase, my children had no school. Now they learn every day. My daughter wants to be a doctor. Thank you for believing in us." — Maria, Guatemala',
+    author: {
+      name: 'Guatemala Medical Clinic',
+      avatar: '🇬🇹',
+      role: 'envoy',
+      handle: 'guatemalahope',
+      isVerified: false,
+    },
+    roleBadge: 'Recipient',
+    mission: { id: 'm-cik-1', name: 'Guatemala Medical Clinic' },
+    seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
+    embeddedCard: {
+      type: 'testimony',
+      missionName: 'Guatemala Medical Clinic',
+      content: 'Before Seedbase, my children had no school. Now they learn every day. My daughter wants to be a doctor. Thank you for believing in us.',
+      imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&h=600&fit=crop',
+    },
+    timestamp: new Date(Date.now() - 1000 * 60 * 45),
+    likes: 189,
+    comments: 34,
+    totalRaised: 50000,
+    yourSeed: 250,
+    yourImpactPercentage: 0.5,
+  },
+  // Position 3: Mission Update - Mobile Classrooms with funding progress
   {
     id: 'nf-2',
     type: 'mission_update',
@@ -467,6 +498,36 @@ export const mockFeedItems: FeedItem[] = [
     totalRaised: 12500,
     yourSeed: 890,
     yourImpactPercentage: 7.12,
+  },
+  // Position 5: Testimony from water recipient - MOVED UP from position 16
+  {
+    id: 'nf-16',
+    type: 'testimony',
+    postType: 'testimony',
+    title: '',
+    content: '"My children no longer walk 5km for water. Now they have time to study. My oldest just passed her exams. Thank you." — Grace, Kenya',
+    author: {
+      name: 'Clean Water Wells Kenya',
+      avatar: '🇰🇪',
+      role: 'envoy',
+      handle: 'kenyawells',
+      isVerified: false,
+    },
+    roleBadge: 'Recipient',
+    mission: { id: 'm-cik-4', name: 'Clean Water Wells Kenya' },
+    seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
+    embeddedCard: {
+      type: 'testimony',
+      missionName: 'Clean Water Wells Kenya',
+      content: 'My children no longer walk 5km for water. Now they have time to study. My oldest just passed her exams. Thank you.',
+      imageUrl: 'https://images.unsplash.com/photo-1594708767771-a7502209ff51?w=800&h=600&fit=crop',
+    },
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3),
+    likes: 267,
+    comments: 42,
+    totalRaised: 32000,
+    yourSeed: 300,
+    yourImpactPercentage: 0.94,
   },
   // Harvest - Impact report from field
   {
@@ -566,36 +627,6 @@ export const mockFeedItems: FeedItem[] = [
     totalRaised: 32000,
     yourSeed: 400,
     yourImpactPercentage: 1.25,
-  },
-  // Testimony from recipient
-  {
-    id: 'nf-7',
-    type: 'testimony',
-    postType: 'testimony',
-    title: '',
-    content: '"Before Seedbase, my children had no school. Now they learn every day. My daughter wants to be a doctor. Thank you for believing in us." — Maria, Guatemala',
-    author: {
-      name: 'Guatemala Medical Clinic',
-      avatar: '🇬🇹',
-      role: 'envoy',
-      handle: 'guatemalahope',
-      isVerified: false,
-    },
-    roleBadge: 'Recipient',
-    mission: { id: 'm-cik-1', name: 'Guatemala Medical Clinic' },
-    seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
-    embeddedCard: {
-      type: 'testimony',
-      missionName: 'Guatemala Medical Clinic',
-      content: 'Before Seedbase, my children had no school. Now they learn every day. My daughter wants to be a doctor. Thank you for believing in us.',
-      imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=800&h=600&fit=crop',
-    },
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 36),
-    likes: 189,
-    comments: 34,
-    totalRaised: 50000,
-    yourSeed: 250,
-    yourImpactPercentage: 0.5,
   },
   // Network milestone
   {
@@ -868,36 +899,6 @@ export const mockFeedItems: FeedItem[] = [
     totalRaised: 18500,
     yourSeed: 450,
     yourImpactPercentage: 2.43,
-  },
-  // NEW: Testimony from water recipient
-  {
-    id: 'nf-16',
-    type: 'testimony',
-    postType: 'testimony',
-    title: '',
-    content: '"My children no longer walk 5km for water. Now they have time to study. My oldest just passed her exams. Thank you." — Grace, Kenya',
-    author: {
-      name: 'Clean Water Wells Kenya',
-      avatar: '🇰🇪',
-      role: 'envoy',
-      handle: 'kenyawells',
-      isVerified: false,
-    },
-    roleBadge: 'Recipient',
-    mission: { id: 'm-cik-4', name: 'Clean Water Wells Kenya' },
-    seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
-    embeddedCard: {
-      type: 'testimony',
-      missionName: 'Clean Water Wells Kenya',
-      content: 'My children no longer walk 5km for water. Now they have time to study. My oldest just passed her exams. Thank you.',
-      imageUrl: 'https://images.unsplash.com/photo-1594708767771-a7502209ff51?w=800&h=600&fit=crop',
-    },
-    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 66),
-    likes: 267,
-    comments: 42,
-    totalRaised: 32000,
-    yourSeed: 300,
-    yourImpactPercentage: 0.94,
   },
   // NEW: Monthly impact summary
   {

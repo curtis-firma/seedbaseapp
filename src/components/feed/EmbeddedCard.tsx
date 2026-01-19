@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { Quote, Sparkles, Heart, Trophy, Rocket, ArrowRight, TrendingUp } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { EmbeddedCard as EmbeddedCardType } from '@/types/seedbase';
 import { cn } from '@/lib/utils';
 
@@ -8,6 +9,8 @@ interface EmbeddedCardProps {
 }
 
 export function EmbeddedCard({ card }: EmbeddedCardProps) {
+  const navigate = useNavigate();
+
   switch (card.type) {
     case 'testimony':
       return (
@@ -24,8 +27,13 @@ export function EmbeddedCard({ card }: EmbeddedCardProps) {
           </div>
           <p className="text-foreground italic leading-relaxed">"{card.content}"</p>
           {card.imageUrl && (
-            <div className="mt-3 aspect-video bg-gradient-to-br from-muted to-muted/50 rounded-lg flex items-center justify-center">
-              <span className="text-muted-foreground">📸 Impact Photo</span>
+            <div className="mt-3 aspect-video rounded-lg overflow-hidden">
+              <img 
+                src={card.imageUrl}
+                alt="Impact"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
             </div>
           )}
         </div>
@@ -68,8 +76,13 @@ export function EmbeddedCard({ card }: EmbeddedCardProps) {
           </div>
           <p className="text-foreground leading-relaxed">{card.content}</p>
           {card.imageUrl && (
-            <div className="mt-3 aspect-video bg-gradient-to-br from-muted to-muted/50 rounded-lg flex items-center justify-center">
-              <span className="text-muted-foreground">📸 Recipient Photo</span>
+            <div className="mt-3 aspect-video rounded-lg overflow-hidden">
+              <img 
+                src={card.imageUrl}
+                alt="Recipient"
+                className="w-full h-full object-cover"
+                loading="lazy"
+              />
             </div>
           )}
         </div>
@@ -98,7 +111,10 @@ export function EmbeddedCard({ card }: EmbeddedCardProps) {
           
           {/* CTA */}
           <div className="p-3 bg-card border-t border-border/50">
-            <button className="w-full text-sm text-base font-medium hover:underline">
+            <button 
+              onClick={() => navigate('/app/vault')}
+              className="w-full text-sm text-base font-medium hover:underline"
+            >
               See dashboard →
             </button>
           </div>
@@ -156,6 +172,16 @@ export function EmbeddedCard({ card }: EmbeddedCardProps) {
               ))}
             </div>
           )}
+
+          {/* View mission button */}
+          <div className="mt-3 pt-3 border-t border-border/50">
+            <button 
+              onClick={() => navigate('/app/seedbase')}
+              className="w-full text-sm text-trust font-medium hover:underline"
+            >
+              View mission →
+            </button>
+          </div>
         </div>
       );
 
