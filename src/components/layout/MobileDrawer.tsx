@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
 
 const menuNav = [
@@ -25,7 +26,7 @@ interface MobileDrawerProps {
 export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawerProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { username, displayName, activeRole } = useUser();
+  const { username, displayName, activeRole, user } = useUser();
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -58,9 +59,25 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed left-0 top-0 bottom-0 w-[300px] bg-card border-r border-border/50 z-50 flex flex-col"
           >
-            {/* Header with larger logo */}
-            <div className="p-6 flex items-center justify-between border-b border-border/50">
-              <img src={seedbaseLeaf} alt="Seedbase" className="h-12 w-auto" />
+            {/* Header with logo on left */}
+            <div className="p-4 flex items-center justify-between border-b border-border/50">
+              <div className="flex items-center gap-3">
+                <img src={seedbaseLeaf} alt="Seedbase" className="h-10 w-auto" />
+                {username && (
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10 border-2 border-primary/20">
+                      <AvatarImage src={user?.avatar} alt={displayName || username} />
+                      <AvatarFallback className="bg-primary/10 text-primary font-semibold">
+                        {(displayName || username || 'U').charAt(0).toUpperCase()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <p className="font-semibold text-sm">{displayName || username}</p>
+                      <p className="text-xs text-muted-foreground">@{username}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
@@ -69,14 +86,6 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
                 <X className="h-5 w-5" />
               </motion.button>
             </div>
-
-            {/* User Info */}
-            {username && (
-              <div className="px-6 py-4 border-b border-border/50">
-                <p className="font-semibold">{displayName || username}</p>
-                <p className="text-sm text-muted-foreground">@{username} · {activeRole}</p>
-              </div>
-            )}
 
             {/* View Role Switcher - Colorful Buttons */}
             <div className="px-6 py-4 border-b border-border/50">

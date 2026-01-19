@@ -13,11 +13,11 @@ export function SeedbaseLoader({ message = 'Loading...' }: SeedbaseLoaderProps) 
       exit={{ opacity: 0 }}
       className="fixed inset-0 flex flex-col items-center justify-center bg-background z-50"
     >
-      <div className="relative mb-6">
+      <div className="relative mb-6 flex items-center justify-center">
         <motion.img
           src={seedbaseLeaf}
           alt="Seedbase"
-          className="w-20 h-20"
+          className="h-20 w-auto"
           animate={{ 
             scale: [1, 1.05, 1],
           }}
@@ -27,18 +27,16 @@ export function SeedbaseLoader({ message = 'Loading...' }: SeedbaseLoaderProps) 
             ease: 'easeInOut'
           }}
         />
-        {/* Spinning ring */}
-        <div className="absolute inset-0 -m-2">
-          <motion.div
-            className="w-24 h-24 rounded-full border-4 border-primary/20 border-t-primary"
-            animate={{ rotate: 360 }}
-            transition={{ 
-              duration: 1.5,
-              repeat: Infinity,
-              ease: 'linear'
-            }}
-          />
-        </div>
+        {/* Spinning ring - centered around logo */}
+        <motion.div
+          className="absolute w-28 h-28 rounded-full border-4 border-primary/20 border-t-primary"
+          animate={{ rotate: 360 }}
+          transition={{ 
+            duration: 1.5,
+            repeat: Infinity,
+            ease: 'linear'
+          }}
+        />
       </div>
       
       <motion.p
