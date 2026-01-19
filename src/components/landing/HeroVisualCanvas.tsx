@@ -6,12 +6,17 @@ import NetworkFlowState from './hero-states/NetworkFlowState';
 import LiveDataState from './hero-states/LiveDataState';
 import BrandMomentState from './hero-states/BrandMomentState';
 import StaticBrandState from './hero-states/StaticBrandState';
+import SocialVideoState from './hero-states/SocialVideoState';
+import AppSharingVideoState from './hero-states/AppSharingVideoState';
 
+// Interleave videos between other cards for variety
 const STATES = [
   { id: 'feed', Component: FeedScrollState },
-  { id: 'video', Component: MissionVideoState },
+  { id: 'mission-video', Component: MissionVideoState },
   { id: 'network', Component: NetworkFlowState },
+  { id: 'social-video', Component: SocialVideoState },
   { id: 'live', Component: LiveDataState },
+  { id: 'app-sharing-video', Component: AppSharingVideoState },
   { id: 'brand', Component: BrandMomentState },
 ];
 
