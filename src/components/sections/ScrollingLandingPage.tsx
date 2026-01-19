@@ -11,7 +11,6 @@ import MobileScrollNarrative from "@/components/sections/MobileScrollNarrative";
 import DashboardCard from "@/components/cards/DashboardCard";
 import LedgerCard from "@/components/cards/LedgerCard";
 import GrowthReportCard from "@/components/cards/GrowthReportCard";
-import ImpactStatsCard from "@/components/cards/ImpactStatsCard";
 import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
 import WalletCard from "@/components/cards/WalletCard";
 import ImpactPreviewCard from "@/components/cards/ImpactPreviewCard";
@@ -23,7 +22,6 @@ import baseLogo from "@/assets/base-logo.png";
 import LoginModal from "@/components/sections/LoginModal";
 import { SeedbaseLoader } from "@/components/shared/SeedbaseLoader";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import InnerCard from "@/components/landing/InnerCard";
 import FeatureSquareCard from "@/components/landing/FeatureSquareCard";
 import waterBackground from "@/assets/water-background.png";
 const sections = [{
@@ -100,15 +98,18 @@ const ScrollingLandingPage = () => {
     }, 1500);
   };
   const renderCard = (cardType: string, sectionId: string, compact = false) => {
-    // Special scrolling social feed for impact section (desktop)
+    // Desktop impact card should fill the canonical InnerCard (no extra padding wrappers)
     if (sectionId === "impact" && !compact) {
-      return <div className="relative w-full h-full overflow-hidden flex justify-center items-center p-8">
-          <ImpactPreviewCard />
-        </div>;
+      return <ImpactPreviewCard />;
     }
+
     switch (cardType) {
       case "feed":
-        return <div className={`aspect-square w-full ${compact ? 'max-w-xs' : 'max-w-sm'} rounded-2xl bg-white/20 border-2 border-white/40`} />;
+        return (
+          <div
+            className={`aspect-square w-full ${compact ? "max-w-xs" : "max-w-sm"} rounded-2xl bg-white/20 border-2 border-white/40`}
+          />
+        );
       case "campaign":
         return <CampaignCard />;
       case "impact":
@@ -116,19 +117,15 @@ const ScrollingLandingPage = () => {
       case "commitment":
         return <SeedCommitmentCard />;
       case "ledger":
-        return <div className="animate-slide-hint"><LedgerCard /></div>;
+        // Keep perfectly centered to preserve even padding inside the colored square
+        return <LedgerCard />;
       case "dashboard":
         return <DashboardCard />;
       case "transparency":
         return <TitheAllocationCard />;
       case "growth":
-        if (compact) {
-          return <GrowthReportCard />;
-        }
-        return <div className="space-y-4">
-            <GrowthReportCard />
-            <ImpactStatsCard />
-          </div>;
+        // One card per square on desktop (stacking caused peek-through/clipping)
+        return <GrowthReportCard />;
       case "wallet":
         return <WalletCard />;
       default:
