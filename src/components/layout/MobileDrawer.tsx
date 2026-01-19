@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  MessageCircle, BarChart3, Radio, Rocket, Settings, X, HelpCircle
+  MessageCircle, BarChart3, Radio, Rocket, Settings, X, HelpCircle, LogOut
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
@@ -26,7 +26,7 @@ interface MobileDrawerProps {
 export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawerProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { username, displayName, activeRole, user } = useUser();
+  const { username, displayName, activeRole, user, logout, isAuthenticated } = useUser();
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -36,6 +36,12 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
   const handleShowWalkthroughClick = () => {
     onClose();
     onShowWalkthrough?.();
+  };
+
+  const handleLogout = () => {
+    logout();
+    onClose();
+    navigate('/');
   };
 
   return (
@@ -127,7 +133,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
             </div>
 
             {/* Footer */}
-            <div className="p-4 border-t border-border/50 space-y-3">
+            <div className="p-4 border-t border-border/50 space-y-2">
               {/* Walkthrough Button */}
               <motion.button
                 onClick={handleShowWalkthroughClick}
@@ -139,6 +145,20 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
                   <span className="font-medium text-sm">Show Walkthrough</span>
                 </div>
               </motion.button>
+
+              {/* Logout Button */}
+              {isAuthenticated && (
+                <motion.button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-between p-3 rounded-xl bg-destructive/10 hover:bg-destructive/20 transition-colors text-destructive"
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="flex items-center gap-3">
+                    <LogOut className="h-5 w-5" />
+                    <span className="font-medium text-sm">Log Out</span>
+                  </div>
+                </motion.button>
+              )}
 
               <p className="text-xs text-muted-foreground text-center italic pt-2">
                 "Commitment creates capacity."
