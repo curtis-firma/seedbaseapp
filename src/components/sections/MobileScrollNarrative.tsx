@@ -204,7 +204,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         <div className="w-full h-px bg-gray-200" />
 
         {/* Powered by CIK - 3x bigger */}
-        <img alt="Powered by Christ is King" className="h-24 object-contain" src={poweredByCik} />
+        <img alt="Powered by Christ is King" className="h-12 object-contain" src={poweredByCik} />
 
         {/* Built on Base - larger logo matching text size */}
         <div className="flex items-center gap-2 text-muted-foreground text-lg">
