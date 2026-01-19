@@ -11,7 +11,7 @@ interface InnerCardProps {
  * 
  * Sizing tokens:
  * - Mobile: 280×280px
- * - Tablet: 320×320px  
+ * - Tablet: 400×400px (LARGER to match rectangle width)
  * - Desktop: 340×340px
  */
 const InnerCard = ({ children, className }: InnerCardProps) => {
@@ -20,7 +20,7 @@ const InnerCard = ({ children, className }: InnerCardProps) => {
       className={cn(
         // SIZE ONLY - no background/shadow styling (children own that)
         "w-[280px] h-[280px]",           // Mobile default
-        "md:w-[320px] md:h-[320px]",     // Tablet
+        "md:w-[400px] md:h-[400px]",     // Tablet - LARGER
         "lg:w-[340px] lg:h-[340px]",     // Desktop
         // Prevent compression and clip content
         "flex-shrink-0 overflow-hidden rounded-2xl",
