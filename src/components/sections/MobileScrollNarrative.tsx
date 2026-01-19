@@ -1,14 +1,19 @@
 import { useNavigate } from "react-router-dom";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import WalletCard from "@/components/cards/WalletCard";
 import GrowthReportCard from "@/components/cards/GrowthReportCard";
 import LedgerCard from "@/components/cards/LedgerCard";
 import DashboardCard from "@/components/cards/DashboardCard";
 import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
-import SeedCommitmentCard from "@/components/cards/SeedCommitmentCard";
+import ImpactPreviewCard from "@/components/cards/ImpactPreviewCard";
+import CampaignCard from "@/components/cards/CampaignCard";
 import { Logo, seeddropTypeLight } from "@/components/shared/Logo";
 import baseLogo from "@/assets/base-logo.png";
+import poweredByCik from "@/assets/powered-by-cik-text.png";
+import SeedFeedCard from "@/components/cards/SeedFeedCard";
+import SeedFeedCardPeek from "@/components/cards/SeedFeedCardPeek";
+import SeedFeedCardPeekAlt from "@/components/cards/SeedFeedCardPeekAlt";
 
 interface MobileSection {
   id: string;
@@ -25,6 +30,13 @@ interface MobileScrollNarrativeProps {
 const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
   const navigate = useNavigate();
 
+  const scrollToSections = () => {
+    const firstSection = document.getElementById('mobile-sections');
+    if (firstSection) {
+      firstSection.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   const sections: MobileSection[] = [
     {
       id: "wallet",
@@ -38,7 +50,14 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       title: "See your impact",
       description: "A live social feed shows generosity in motion.",
       bgColor: "bg-emerald-400",
-      card: <GrowthReportCard />,
+      card: <ImpactPreviewCard />,
+    },
+    {
+      id: "spread",
+      title: "See generosity spread",
+      description: "Watch surplus move across people, places, and missions.",
+      bgColor: "bg-teal-400",
+      card: <CampaignCard />,
     },
     {
       id: "ledger",
@@ -66,36 +85,73 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       title: "Built by generosity",
       description: "Every seed grows. Every surplus spreads. Trust rewards come back.",
       bgColor: "bg-cyan-400",
-      card: <SeedCommitmentCard />,
+      card: <GrowthReportCard />,
     },
   ];
 
   return (
-    <div className="flex flex-col gap-16 py-8">
-      {sections.map((section, index) => (
-        <section
-          key={section.id}
-          className="flex flex-col gap-4 animate-fade-in"
-          style={{ animationDelay: `${index * 0.05}s` }}
+    <div className="flex flex-col gap-8 py-8">
+      {/* CTA Buttons - After hero */}
+      <div className="flex flex-col gap-3 w-full">
+        {/* Enter App - Solid Blue Rectangle */}
+        <button
+          onClick={onEnterApp}
+          className="w-full py-5 rounded-xl font-semibold text-lg bg-primary text-white flex items-center justify-center gap-2 hover:bg-primary/90 transition-all"
+          aria-label="Enter SeedBase app"
         >
-          {/* Section title and description */}
-          <div className="space-y-2">
-            <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
-              {section.title}
-            </h2>
-            <p className="text-base text-muted-foreground leading-relaxed">
-              {section.description}
-            </p>
-          </div>
+          Enter App
+          <ArrowRight className="w-5 h-5" />
+        </button>
 
-          {/* Card with colored background */}
-          <div className={`${section.bgColor} rounded-3xl p-4 flex items-center justify-center`}>
-            <div className="w-full max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white">
-              {section.card}
+        {/* Learn More - Solid Blue Outline */}
+        <Button
+          variant="outline"
+          onClick={scrollToSections}
+          className="w-full rounded-xl py-5 h-auto text-lg font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-white"
+        >
+          Learn More
+          <ChevronDown className="w-5 h-5 ml-2" />
+        </Button>
+      </div>
+
+      {/* Yellow Hero Card Section - with scrolling cards */}
+      <div className="bg-[#FDDE02] rounded-3xl p-4 overflow-hidden h-[400px]">
+        <div className="animate-scroll-feed flex flex-col gap-3 pt-2">
+          <SeedFeedCard />
+          <SeedFeedCardPeek />
+          <SeedFeedCardPeekAlt />
+          <SeedFeedCard />
+          <SeedFeedCardPeek />
+        </div>
+      </div>
+
+      {/* Sections */}
+      <div id="mobile-sections" className="flex flex-col gap-16">
+        {sections.map((section, index) => (
+          <section
+            key={section.id}
+            className="flex flex-col gap-4 animate-fade-in"
+            style={{ animationDelay: `${index * 0.05}s` }}
+          >
+            {/* Section title and description */}
+            <div className="space-y-2">
+              <h2 className="font-heading text-2xl font-semibold tracking-tight text-foreground">
+                {section.title}
+              </h2>
+              <p className="text-base text-muted-foreground leading-relaxed">
+                {section.description}
+              </p>
             </div>
-          </div>
-        </section>
-      ))}
+
+            {/* Card with colored background */}
+            <div className={`${section.bgColor} rounded-3xl p-4 flex items-center justify-center`}>
+              <div className="w-full max-w-sm rounded-2xl overflow-hidden shadow-lg bg-white">
+                {section.card}
+              </div>
+            </div>
+          </section>
+        ))}
+      </div>
 
       {/* Mobile-only CTA Section */}
       <section className="flex flex-col items-center gap-6 py-8 border-t border-gray-200">
@@ -109,21 +165,21 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         </div>
 
         <div className="flex flex-col gap-3 w-full max-w-sm">
-          {/* Primary CTA - Enter App */}
+          {/* Primary CTA - Enter App - Solid Blue Rectangle */}
           <button
             onClick={onEnterApp}
-            className="w-full py-4 rounded-full font-semibold text-base bg-[hsl(221,83%,53%)] text-white flex items-center justify-center gap-2 hover:bg-[hsl(221,83%,48%)] transition-all shadow-[0_0_0_4px_white,0_0_20px_rgba(59,130,246,0.5)]"
+            className="w-full py-5 rounded-xl font-semibold text-lg bg-primary text-white flex items-center justify-center gap-2 hover:bg-primary/90 transition-all"
             aria-label="Enter SeedBase app"
           >
             Enter the App
             <ArrowRight className="w-5 h-5" />
           </button>
 
-          {/* Secondary CTA - Create Account */}
+          {/* Secondary CTA - Create Account - Blue Outline */}
           <Button
             variant="outline"
             onClick={onEnterApp}
-            className="w-full rounded-full py-4 text-base font-medium bg-gray-50 border-gray-200 hover:bg-gray-100"
+            className="w-full rounded-xl py-5 h-auto text-lg font-semibold border-2 border-primary text-primary hover:bg-primary hover:text-white"
           >
             Create an Account
           </Button>
@@ -135,16 +191,23 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         {/* Divider */}
         <div className="w-full h-px bg-gray-200" />
 
-        {/* Copyright */}
-        <p className="text-muted-foreground text-sm">
-          © 2026 Seedbase. All rights reserved.
-        </p>
+        {/* Powered by CIK - 3x */}
+        <div className="flex items-center gap-4 flex-wrap justify-center">
+          <img alt="Powered by Christ is King" className="h-3 object-contain opacity-60" src={poweredByCik} />
+          <img alt="Powered by Christ is King" className="h-3 object-contain opacity-60" src={poweredByCik} />
+          <img alt="Powered by Christ is King" className="h-3 object-contain opacity-60" src={poweredByCik} />
+        </div>
 
         {/* Built on Base */}
         <div className="flex items-center gap-2 text-muted-foreground text-sm">
           <span>Built on</span>
           <img src={baseLogo} alt="Base" className="h-5 w-auto" />
         </div>
+
+        {/* Copyright */}
+        <p className="text-muted-foreground text-sm text-center">
+          © 2026 Christ is King Labs. All rights reserved.
+        </p>
 
         {/* Links */}
         <div className="flex items-center gap-4 text-muted-foreground text-sm">
