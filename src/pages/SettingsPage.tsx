@@ -7,7 +7,7 @@ import {
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
-import { clearAllDemoData, getSessionPhone, loadUserByPhone, listUsers, truncateHexId, saveUser } from '@/lib/demoAuth';
+import { clearAllDemoData, getSessionPhone, loadUserByPhone, listUsers, truncateHexId, saveUser, DemoUser } from '@/lib/demoAuth';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
@@ -17,7 +17,7 @@ export default function SettingsPage() {
   const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { logout, startDemo, isAuthenticated, username, displayName, activeRole, walletDisplayId, keyType, keyDisplayId, demoMode, phoneNumber } = useUser();
+  const { logout, startDemo, isAuthenticated, username, displayName, activeRole, walletDisplayId, keyType, keyDisplayId, demoMode, phoneNumber, avatarUrl, refreshUserData } = useUser();
 
   const handleResetDemo = () => {
     clearAllDemoData();
@@ -25,8 +25,9 @@ export default function SettingsPage() {
     toast.success('All demo data cleared. Refresh to start fresh.');
   };
 
-  // Get current user avatar
+  // Get current user avatar - prioritize avatarUrl from context, then localStorage, then DiceBear
   const getCurrentAvatarUrl = () => {
+    if (avatarUrl) return avatarUrl;
     if (phoneNumber) {
       const user = loadUserByPhone(phoneNumber);
       return user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
@@ -58,6 +59,8 @@ export default function SettingsPage() {
       if (user) {
         user.avatarUrl = avatarPreview;
         saveUser(user);
+        // Refresh user data in context to sync avatar everywhere
+        refreshUserData();
         toast.success('Profile photo updated!');
         setAvatarFile(null);
         // Keep preview showing new avatar

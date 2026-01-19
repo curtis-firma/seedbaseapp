@@ -9,6 +9,7 @@ import {
   type DemoWallet,
   type DemoKey
 } from '@/lib/supabase/demoApi';
+import { loadUserByPhone as loadLocalUserByPhone } from '@/lib/demoAuth';
 
 interface UserContextType {
   user: User;
@@ -24,6 +25,7 @@ interface UserContextType {
   phoneNumber: string | null;
   username: string | null;
   displayName: string | null;
+  avatarUrl: string | null;
   walletDisplayId: string | null;
   keyDisplayId: string | null;
   keyType: KeyType | null;
@@ -33,6 +35,7 @@ interface UserContextType {
   loginWithSupabaseUser: (userId: string) => Promise<void>;
   logout: () => void;
   startDemo: () => void;
+  refreshUserData: () => void;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -74,6 +77,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [phoneNumber, setPhoneNumber] = useState<string | null>(null);
   const [username, setUsername] = useState<string | null>(null);
   const [displayName, setDisplayName] = useState<string | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [walletDisplayId, setWalletDisplayId] = useState<string | null>(null);
   const [keyDisplayId, setKeyDisplayId] = useState<string | null>(null);
   const [keyType, setKeyType] = useState<KeyType | null>(null);
@@ -149,6 +153,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(true);
     setDemoMode(demoUser.phone.startsWith('demo:'));
     
+    // Load avatar from local storage if available
+    const localUser = loadLocalUserByPhone(demoUser.phone);
+    const avatar = localUser?.avatarUrl || demoUser.avatar_url || null;
+    setAvatarUrl(avatar);
+    
     // Save session
     saveSession({ userId: demoUser.id, phone: demoUser.phone });
     
@@ -158,7 +167,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setUser(prev => ({
       ...prev,
       name: demoUser.display_name || demoUser.username,
-      avatar: demoUser.avatar_url || prev.avatar,
+      avatar: avatar || prev.avatar,
       activeRole: userRole,
       walletBalance: wallet?.balance ?? 25.00,
       keys: prev.keys.map(k => ({
@@ -169,6 +178,20 @@ export function UserProvider({ children }: { children: ReactNode }) {
     
     setActiveRole(userRole);
     setViewRole(userRole);
+  };
+
+  // Refresh user data from localStorage (after avatar update)
+  const refreshUserData = () => {
+    if (phoneNumber) {
+      const localUser = loadLocalUserByPhone(phoneNumber);
+      if (localUser?.avatarUrl) {
+        setAvatarUrl(localUser.avatarUrl);
+        setUser(prev => ({
+          ...prev,
+          avatar: localUser.avatarUrl || prev.avatar,
+        }));
+      }
+    }
   };
 
   // Login with just a user ID (fetch from Supabase)
@@ -199,6 +222,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setPhoneNumber(null);
     setUsername(null);
     setDisplayName(null);
+    setAvatarUrl(null);
     setWalletDisplayId(null);
     setKeyDisplayId(null);
     setKeyType(null);
@@ -228,6 +252,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       phoneNumber,
       username,
       displayName,
+      avatarUrl,
       walletDisplayId,
       keyDisplayId,
       keyType,
@@ -237,6 +262,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       loginWithSupabaseUser,
       logout,
       startDemo,
+      refreshUserData,
     }}>
       {children}
     </UserContext.Provider>

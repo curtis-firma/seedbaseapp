@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Send, Check, X, DollarSign, Inbox, RefreshCw, Compass, Vote, FileText, Bell, Sprout } from 'lucide-react';
+import { ArrowLeft, Send, Check, X, DollarSign, Inbox, RefreshCw, Edit, Vote, FileText, Bell, Sprout } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -18,7 +18,7 @@ import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 import { oneAccordMessages } from '@/data/mockData';
 import { Confetti } from '@/components/shared/Confetti';
 import { triggerHaptic } from '@/hooks/useHaptic';
-import { seeddropIconLight } from '@/components/shared/Logo';
+import seedbasePfp from '@/assets/seedbase-pfp.png';
 
 // Message type icons and styles - Using blue (base) for branding
 const messageTypeConfig: Record<string, { icon: typeof DollarSign; gradient: string; bgColor: string }> = {
@@ -40,7 +40,11 @@ export default function OneAccordPage() {
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [acceptedTransferId, setAcceptedTransferId] = useState<string | null>(null);
-  const [acceptedDemoId, setAcceptedDemoId] = useState<string | null>(null);
+  // Persist accepted demo IDs in localStorage
+  const [acceptedDemoIds, setAcceptedDemoIds] = useState<Set<string>>(() => {
+    const saved = localStorage.getItem('seedbase-accepted-demo-ids');
+    return saved ? new Set(JSON.parse(saved)) : new Set();
+  });
   const navigate = useNavigate();
 
   // Get current user ID from session
@@ -128,13 +132,17 @@ export default function OneAccordPage() {
   };
 
   const handleDemoAccept = (messageId: string) => {
-    setAcceptedDemoId(messageId);
+    // Add to accepted set and persist to localStorage
+    const newAcceptedIds = new Set(acceptedDemoIds);
+    newAcceptedIds.add(messageId);
+    setAcceptedDemoIds(newAcceptedIds);
+    localStorage.setItem('seedbase-accepted-demo-ids', JSON.stringify([...newAcceptedIds]));
+    
     setShowConfetti(true);
     triggerHaptic('success');
     toast.success('Transfer accepted! Funds added to your wallet.');
     setTimeout(() => {
       setShowConfetti(false);
-      setAcceptedDemoId(null);
     }, 2000);
   };
 
@@ -183,7 +191,7 @@ export default function OneAccordPage() {
                     onClick={() => setShowComposeModal(true)}
                     className="p-2 rounded-xl gradient-base text-white"
                   >
-                    <Compass className="h-5 w-5" />
+                    <Edit className="h-5 w-5" />
                   </motion.button>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
@@ -244,11 +252,11 @@ export default function OneAccordPage() {
                                 alt={message.from}
                                 className="w-10 h-10 rounded-full object-cover"
                               />
-                            ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
+                          ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
                               <img 
-                                src={seeddropIconLight}
+                                src={seedbasePfp}
                                 alt="Seedbase"
-                                className="w-10 h-10 object-contain"
+                                className="w-10 h-10 rounded-full object-cover"
                               />
                             ) : (
                               <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.gradient)}>
@@ -285,14 +293,14 @@ export default function OneAccordPage() {
                           
                           {message.hasAcceptButton && (
                             <div className="flex gap-2">
-                              {acceptedDemoId === message.id ? (
+                              {acceptedDemoIds.has(message.id) ? (
                                 <motion.div
                                   initial={{ scale: 0.95 }}
                                   animate={{ scale: [1, 1.05, 1] }}
-                                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-base rounded-xl text-white font-medium"
+                                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary/20 border-2 border-primary rounded-xl text-primary font-medium cursor-not-allowed"
                                 >
                                   <Check className="h-5 w-5" />
-                                  Accepted!
+                                  Accepted
                                 </motion.div>
                               ) : (
                                 <>
@@ -347,9 +355,9 @@ export default function OneAccordPage() {
                             />
                           ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
                             <img 
-                              src={seeddropIconLight}
+                              src={seedbasePfp}
                               alt="Seedbase"
-                              className="w-10 h-10 object-contain"
+                              className="w-10 h-10 rounded-full object-cover"
                             />
                           ) : (
                             <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.bgColor)}>
