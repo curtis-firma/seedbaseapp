@@ -62,10 +62,10 @@ export function Logo({
       return <img src={seeddropIconDark} alt="Seedbase" className={cn(sizeClass, className)} />;
     }
     // Auto-detect: lightmode asset in light mode, darkmode asset in dark mode
-    return <>
+    return <div className="flex items-center justify-center">
         <img alt="Seedbase" className={cn(sizeClass, 'dark:hidden', className)} src="/lovable-uploads/9eee91e8-1943-4558-97c1-aaf910ffc759.png" />
         <img src={seeddropIconDark} alt="Seedbase" className={cn(sizeClass, 'hidden dark:block', className)} />
-      </>;
+      </div>;
   };
   const renderWordmark = (sizeClass: string) => {
     if (forceLight) {
