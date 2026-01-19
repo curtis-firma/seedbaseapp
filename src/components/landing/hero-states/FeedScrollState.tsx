@@ -1,7 +1,25 @@
 import { motion } from 'framer-motion';
-import { Heart, TrendingUp, Users, Vote, PartyPopper, Zap, Gift, Sparkles } from 'lucide-react';
+import { Heart, TrendingUp, Users, Vote, PartyPopper, Zap, Gift, Sparkles, BookOpen, Droplets } from 'lucide-react';
 
-// 8 unique compact card variants
+// Unique avatar images - no duplicates
+const AVATARS = {
+  sarah: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100",
+  marcus: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100",
+  elena: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100",
+  david: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100",
+  maya: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100",
+  james: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100",
+};
+
+// Unique mission photos - no duplicates
+const MISSION_PHOTOS = {
+  tanzania: "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400",
+  water: "https://images.unsplash.com/photo-1541544537156-7627a7a4aa1c?w=400",
+  school: "https://images.unsplash.com/photo-1497486751825-1233686d5d80?w=400",
+  farming: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=400",
+};
+
+// 12 unique compact card variants
 const SeededCard = () => (
   <div className="w-[260px] bg-white rounded-xl p-4 shadow-lg">
     <div className="flex items-center gap-2 mb-2">
@@ -45,7 +63,7 @@ const JoinedCard = () => (
   <div className="w-[260px] bg-white rounded-xl p-4 shadow-lg">
     <div className="flex items-center gap-3">
       <img 
-        src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100" 
+        src={AVATARS.sarah}
         alt="" 
         className="w-10 h-10 rounded-full object-cover ring-2 ring-primary"
       />
@@ -89,7 +107,7 @@ const VoteCard = () => (
 const ThankYouCard = () => (
   <div className="w-[260px] bg-white rounded-xl overflow-hidden shadow-lg">
     <img 
-      src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400" 
+      src={MISSION_PHOTOS.tanzania}
       alt="" 
       className="w-full h-24 object-cover"
     />
@@ -118,7 +136,7 @@ const TestimonyCard = () => (
   <div className="w-[260px] bg-white rounded-xl p-4 shadow-lg">
     <div className="flex items-start gap-3">
       <img 
-        src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100" 
+        src={AVATARS.marcus}
         alt="" 
         className="w-8 h-8 rounded-full object-cover"
       />
@@ -141,6 +159,34 @@ const DeploymentCard = () => (
   </div>
 );
 
+const SchoolCard = () => (
+  <div className="w-[260px] bg-white rounded-xl overflow-hidden shadow-lg">
+    <img 
+      src={MISSION_PHOTOS.school}
+      alt="" 
+      className="w-full h-24 object-cover"
+    />
+    <div className="p-3">
+      <div className="flex items-center gap-2 mb-1">
+        <BookOpen className="w-4 h-4 text-blue-500" />
+        <span className="text-xs font-medium text-blue-600">Education</span>
+      </div>
+      <p className="text-sm font-medium">New classroom built!</p>
+    </div>
+  </div>
+);
+
+const WaterCard = () => (
+  <div className="w-[260px] bg-gradient-to-br from-sky-50 to-white rounded-xl p-4 shadow-lg">
+    <div className="flex items-center gap-2 mb-2">
+      <Droplets className="w-4 h-4 text-sky-500" />
+      <span className="text-xs font-medium text-sky-600">Clean Water</span>
+    </div>
+    <p className="text-sm font-medium">Well completed in Kenya</p>
+    <p className="text-xs text-muted-foreground mt-1">500+ families now have clean water</p>
+  </div>
+);
+
 // All cards with unique keys
 const ALL_CARDS = [
   { id: 1, Component: SeededCard },
@@ -153,12 +199,14 @@ const ALL_CARDS = [
   { id: 8, Component: GrowthCard },
   { id: 9, Component: TestimonyCard },
   { id: 10, Component: DeploymentCard },
+  { id: 11, Component: SchoolCard },
+  { id: 12, Component: WaterCard },
 ];
 
 const FeedScrollState = () => {
-  // Create two columns with different card distributions
-  const leftColumn = [ALL_CARDS[0], ALL_CARDS[2], ALL_CARDS[4], ALL_CARDS[6], ALL_CARDS[8], ALL_CARDS[1], ALL_CARDS[3], ALL_CARDS[5]];
-  const rightColumn = [ALL_CARDS[1], ALL_CARDS[3], ALL_CARDS[5], ALL_CARDS[7], ALL_CARDS[9], ALL_CARDS[0], ALL_CARDS[4], ALL_CARDS[6]];
+  // Create two columns with different card distributions - no duplicates visible at same time
+  const leftColumn = [ALL_CARDS[0], ALL_CARDS[2], ALL_CARDS[4], ALL_CARDS[6], ALL_CARDS[8], ALL_CARDS[10], ALL_CARDS[1], ALL_CARDS[3]];
+  const rightColumn = [ALL_CARDS[1], ALL_CARDS[3], ALL_CARDS[5], ALL_CARDS[7], ALL_CARDS[9], ALL_CARDS[11], ALL_CARDS[0], ALL_CARDS[5]];
 
   return (
     <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
@@ -179,8 +227,8 @@ const FeedScrollState = () => {
         <motion.div 
           className="flex flex-col gap-3"
           style={{ transform: 'rotateY(-2deg)' }}
-          animate={{ y: [0, -800] }}
-          transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+          animate={{ y: [0, -900] }}
+          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
         >
           {leftColumn.map((card, index) => (
             <div key={`left-${card.id}-${index}`} className="scale-[0.85] origin-top">
@@ -193,8 +241,8 @@ const FeedScrollState = () => {
         <motion.div 
           className="flex flex-col gap-3"
           style={{ transform: 'rotateY(2deg) translateY(-100px)' }}
-          animate={{ y: [-100, -900] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+          animate={{ y: [-100, -1000] }}
+          transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
         >
           {rightColumn.map((card, index) => (
             <div key={`right-${card.id}-${index}`} className="scale-[0.85] origin-top">
