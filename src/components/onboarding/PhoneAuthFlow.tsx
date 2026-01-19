@@ -26,7 +26,7 @@ import {
   type DemoKey,
 } from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
-import seedbaseIcon from '@/assets/seedbase-icon.png';
+import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
 
 interface PhoneAuthFlowProps {
   isOpen: boolean;
@@ -560,7 +560,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               className="w-full max-w-sm text-center"
             >
               <motion.img
-                src={seedbaseIcon}
+                src={seedbaseLeaf}
                 alt="Seedbase"
                 className="w-20 h-20 mx-auto mb-6"
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -572,10 +572,10 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 Enter your phone to create or access your Seed Wallet
               </p>
               
-              {/* Form container with subtle background */}
-              <div className="bg-gray-50/50 rounded-3xl p-6 space-y-4 mb-4">
-                {/* Phone input with visible border */}
-                <div className="bg-white border-2 border-gray-200 rounded-2xl shadow-sm hover:border-gray-300 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all">
+              {/* Form container with subtle blue background */}
+              <div className="bg-blue-50/20 rounded-3xl p-6 space-y-4 mb-4">
+                {/* Phone input with blue border */}
+                <div className="bg-white border-2 border-blue-200 rounded-2xl shadow-sm hover:border-blue-300 focus-within:border-primary focus-within:ring-4 focus-within:ring-primary/10 transition-all">
                   <input
                     type="tel"
                     value={phoneNumber}
@@ -622,8 +622,8 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                   className={cn(
                     "w-full py-5 rounded-2xl font-semibold flex items-center justify-center gap-2 transition-all",
                     phoneNumber.length >= 10 
-                      ? "gradient-seed text-white shadow-lg shadow-primary/25 hover:shadow-xl" 
-                      : "bg-gray-100 border border-gray-200 text-gray-400"
+                      ? "gradient-seed text-white shadow-[0_4px_20px_rgba(59,130,246,0.3)] hover:shadow-xl" 
+                      : "bg-blue-50 border border-blue-200 text-blue-300"
                   )}
                 >
                   Continue
@@ -656,7 +656,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
             >
               <div className="relative w-20 h-20 mx-auto mb-8">
                 <motion.img
-                  src={seedbaseIcon}
+                  src={seedbaseLeaf}
                   alt="Seedbase"
                   className="w-20 h-20"
                   animate={{ scale: [1, 1.05, 1] }}
@@ -684,7 +684,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
             >
               <div className="relative w-20 h-20 mx-auto mb-8">
                 <motion.img
-                  src={seedbaseIcon}
+                  src={seedbaseLeaf}
                   alt="Seedbase"
                   className="w-20 h-20"
                   animate={{ rotate: [0, 5, -5, 0] }}

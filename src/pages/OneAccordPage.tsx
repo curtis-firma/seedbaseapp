@@ -13,6 +13,7 @@ import {
 } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
 import { SendModal } from '@/components/wallet/SendModal';
+import { ComposeMessageModal } from '@/components/oneaccord/ComposeMessageModal';
 import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 import { oneAccordMessages } from '@/data/mockData';
 
@@ -113,8 +114,7 @@ export default function OneAccordPage() {
 
   const currentUserId = getCurrentUserId();
 
-  // Use demo messages when no real transfers exist
-  const hasRealData = pendingTransfers.length > 0 || recentTransfers.length > 0;
+  // Always show demo messages first, then any real transfers below
 
   return (
     <div className="min-h-screen">
@@ -181,124 +181,9 @@ export default function OneAccordPage() {
                 <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                 <p className="text-muted-foreground">Loading messages...</p>
               </div>
-            ) : hasRealData ? (
-              // Show real transfers
-              <>
-                {pendingTransfers.length > 0 && (
-                  <div className="px-4 py-2">
-                    <div className="flex items-center gap-2 mb-3">
-                      <h2 className="font-semibold">Pending</h2>
-                      <span className="px-2 py-0.5 bg-seed/10 text-seed rounded-full text-xs font-medium">
-                        {pendingTransfers.length}
-                      </span>
-                    </div>
-                    <div className="space-y-2">
-                      {pendingTransfers.map((transfer, i) => (
-                        <motion.div
-                          key={transfer.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.05 }}
-                          className="bg-card rounded-2xl border border-seed/30 p-4"
-                        >
-                          <div className="flex items-center gap-3 mb-3">
-                            {transfer.from_user?.avatar_url ? (
-                              <img 
-                                src={transfer.from_user.avatar_url}
-                                alt={transfer.from_user.display_name || transfer.from_user.username}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-10 h-10 rounded-full gradient-seed flex items-center justify-center">
-                                <DollarSign className="h-5 w-5 text-white" />
-                              </div>
-                            )}
-                            <div className="flex-1">
-                              <p className="font-semibold">@{transfer.from_user?.username || 'unknown'}</p>
-                              <p className="text-xs text-muted-foreground">
-                                {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
-                              </p>
-                            </div>
-                            <p className="text-xl font-bold text-seed">${transfer.amount.toFixed(2)}</p>
-                          </div>
-                          
-                          {transfer.purpose && (
-                            <p className="text-sm text-muted-foreground mb-3">"{transfer.purpose}"</p>
-                          )}
-                          
-                          <div className="flex gap-2">
-                            <motion.button
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => handleAccept(transfer)}
-                              className="flex-1 flex items-center justify-center gap-2 py-3 gradient-seed rounded-xl text-white font-medium"
-                            >
-                              <Check className="h-4 w-4" />
-                              Accept
-                            </motion.button>
-                            <motion.button
-                              whileTap={{ scale: 0.98 }}
-                              onClick={() => handleDecline(transfer)}
-                              className="px-4 py-3 bg-muted rounded-xl"
-                            >
-                              <X className="h-4 w-4 text-muted-foreground" />
-                            </motion.button>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {recentTransfers.length > 0 && (
-                  <div className="px-4 py-4">
-                    <h2 className="font-semibold mb-3">Recent Activity</h2>
-                    <div className="space-y-2">
-                      {recentTransfers.filter(t => t.status !== 'pending').map((transfer, i) => {
-                        const isIncoming = transfer.to_user_id === currentUserId;
-                        const isAccepted = transfer.status === 'accepted';
-                        
-                        return (
-                          <motion.button
-                            key={transfer.id}
-                            initial={{ opacity: 0, y: 10 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            transition={{ delay: i * 0.03 }}
-                            onClick={() => setSelectedTransfer(transfer)}
-                            className="w-full bg-card rounded-xl border border-border/50 p-4 flex items-center gap-4 text-left"
-                          >
-                            <div className={cn(
-                              "w-10 h-10 rounded-full flex items-center justify-center",
-                              isAccepted ? "bg-seed/10" : "bg-muted"
-                            )}>
-                              <DollarSign className={cn(
-                                "h-5 w-5",
-                                isAccepted ? "text-seed" : "text-muted-foreground"
-                              )} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium truncate">
-                                {isIncoming ? `From @${transfer.from_user?.username || 'user'}` : `To @${transfer.to_user?.username || 'user'}`}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {transfer.status === 'accepted' ? 'Accepted' : 'Declined'} • {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
-                              </p>
-                            </div>
-                            <p className={cn(
-                              "font-semibold",
-                              isIncoming && isAccepted ? "text-seed" : "text-foreground"
-                            )}>
-                              {isIncoming ? '+' : '-'}${transfer.amount.toFixed(2)}
-                            </p>
-                          </motion.button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                )}
-              </>
             ) : (
-              // Show demo messages
               <div className="px-4 py-2">
+                {/* ALWAYS show demo messages first */}
                 {/* Pending Section */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
@@ -387,7 +272,7 @@ export default function OneAccordPage() {
                   </div>
                 </div>
 
-                {/* All Messages */}
+                {/* All Demo Messages */}
                 <h2 className="font-semibold mb-3">All Messages</h2>
                 <div className="space-y-2">
                   {oneAccordMessages.filter(m => m.status !== 'pending' || !m.hasAcceptButton).map((message, i) => {
@@ -454,6 +339,129 @@ export default function OneAccordPage() {
                     );
                   })}
                 </div>
+
+                {/* Real Transfers Section - Only show if there are real transfers */}
+                {(pendingTransfers.length > 0 || recentTransfers.length > 0) && (
+                  <>
+                    <div className="my-6 flex items-center gap-3">
+                      <div className="h-px flex-1 bg-border" />
+                      <span className="text-xs font-medium text-muted-foreground">YOUR TRANSFERS</span>
+                      <div className="h-px flex-1 bg-border" />
+                    </div>
+
+                    {pendingTransfers.length > 0 && (
+                      <div className="mb-4">
+                        <div className="flex items-center gap-2 mb-3">
+                          <h2 className="font-semibold">Pending Transfers</h2>
+                          <span className="px-2 py-0.5 bg-seed/10 text-seed rounded-full text-xs font-medium">
+                            {pendingTransfers.length}
+                          </span>
+                        </div>
+                        <div className="space-y-2">
+                          {pendingTransfers.map((transfer, i) => (
+                            <motion.div
+                              key={transfer.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.05 }}
+                              className="bg-card rounded-2xl border border-seed/30 p-4"
+                            >
+                              <div className="flex items-center gap-3 mb-3">
+                                {transfer.from_user?.avatar_url ? (
+                                  <img 
+                                    src={transfer.from_user.avatar_url}
+                                    alt={transfer.from_user.display_name || transfer.from_user.username}
+                                    className="w-10 h-10 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-full gradient-seed flex items-center justify-center">
+                                    <DollarSign className="h-5 w-5 text-white" />
+                                  </div>
+                                )}
+                                <div className="flex-1">
+                                  <p className="font-semibold">@{transfer.from_user?.username || 'unknown'}</p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
+                                  </p>
+                                </div>
+                                <p className="text-xl font-bold text-seed">${transfer.amount.toFixed(2)}</p>
+                              </div>
+                              
+                              {transfer.purpose && (
+                                <p className="text-sm text-muted-foreground mb-3">"{transfer.purpose}"</p>
+                              )}
+                              
+                              <div className="flex gap-2">
+                                <motion.button
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={() => handleAccept(transfer)}
+                                  className="flex-1 flex items-center justify-center gap-2 py-3 gradient-seed rounded-xl text-white font-medium"
+                                >
+                                  <Check className="h-4 w-4" />
+                                  Accept
+                                </motion.button>
+                                <motion.button
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={() => handleDecline(transfer)}
+                                  className="px-4 py-3 bg-muted rounded-xl"
+                                >
+                                  <X className="h-4 w-4 text-muted-foreground" />
+                                </motion.button>
+                              </div>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {recentTransfers.filter(t => t.status !== 'pending').length > 0 && (
+                      <div>
+                        <h2 className="font-semibold mb-3">Recent Activity</h2>
+                        <div className="space-y-2">
+                          {recentTransfers.filter(t => t.status !== 'pending').map((transfer, i) => {
+                            const isIncoming = transfer.to_user_id === currentUserId;
+                            const isAccepted = transfer.status === 'accepted';
+                            
+                            return (
+                              <motion.button
+                                key={transfer.id}
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: i * 0.03 }}
+                                onClick={() => setSelectedTransfer(transfer)}
+                                className="w-full bg-card rounded-xl border border-border/50 p-4 flex items-center gap-4 text-left"
+                              >
+                                <div className={cn(
+                                  "w-10 h-10 rounded-full flex items-center justify-center",
+                                  isAccepted ? "bg-seed/10" : "bg-muted"
+                                )}>
+                                  <DollarSign className={cn(
+                                    "h-5 w-5",
+                                    isAccepted ? "text-seed" : "text-muted-foreground"
+                                  )} />
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-medium truncate">
+                                    {isIncoming ? `From @${transfer.from_user?.username || 'user'}` : `To @${transfer.to_user?.username || 'user'}`}
+                                  </p>
+                                  <p className="text-sm text-muted-foreground">
+                                    {transfer.status === 'accepted' ? 'Accepted' : 'Declined'} • {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
+                                  </p>
+                                </div>
+                                <p className={cn(
+                                  "font-semibold",
+                                  isIncoming && isAccepted ? "text-seed" : "text-foreground"
+                                )}>
+                                  {isIncoming ? '+' : '-'}${transfer.amount.toFixed(2)}
+                                </p>
+                              </motion.button>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
             )}
           </motion.div>

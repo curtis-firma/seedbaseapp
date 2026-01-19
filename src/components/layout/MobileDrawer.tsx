@@ -6,7 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
-import seedbaseIcon from '@/assets/seedbase-icon.png';
+import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
 import seedbaseWordmark from '@/assets/seedbase-wordmark.svg';
 
 const menuNav = [
@@ -62,7 +62,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
             {/* Header with larger logo */}
             <div className="p-6 flex items-center justify-between border-b border-border/50">
               <div className="flex items-center gap-3">
-                <img src={seedbaseIcon} alt="Seedbase" className="w-12 h-12" />
+                <img src={seedbaseLeaf} alt="Seedbase" className="w-12 h-12" />
                 <img src={seedbaseWordmark} alt="Seedbase" className="h-8 dark:invert" />
               </div>
               <motion.button

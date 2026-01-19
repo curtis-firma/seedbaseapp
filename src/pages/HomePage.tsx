@@ -8,7 +8,7 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
 import { FeedItem } from '@/types/seedbase';
-import seedbaseIcon from '@/assets/seedbase-icon.png';
+import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
 
 const tabs = ['Network', 'For You'];
 
@@ -130,8 +130,9 @@ export default function HomePage() {
     }
   }, [activeTab]);
 
-  // Use DB posts for Network tab, mock for For You
-  const currentFeed = activeTab === 0 ? posts : forYouItems;
+  // Network shows mockFeedItems + any DB posts, For You shows personalized items
+  const networkFeed = [...mockFeedItems, ...posts.filter(p => !mockFeedItems.some(m => m.id === p.id))];
+  const currentFeed = activeTab === 0 ? networkFeed : forYouItems;
 
   // Note: Walkthrough is now triggered via AppLayout
   // This button is kept for legacy but could be removed
@@ -153,7 +154,7 @@ export default function HomePage() {
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <img src={seedbaseIcon} alt="Seedbase" className="w-10 h-10 md:hidden" />
+              <img src={seedbaseLeaf} alt="Seedbase" className="w-10 h-10 md:hidden" />
               <div>
                 <h1 className="text-xl font-bold">Seedfeed</h1>
                 <p className="text-sm text-muted-foreground">Commitment creates capacity.</p>
@@ -176,7 +177,7 @@ export default function HomePage() {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate('/oneaccord')}
+                onClick={() => navigate('/app/oneaccord')}
                 className="relative p-2.5 hover:bg-muted rounded-xl transition-colors"
                 title="Messages & Transfers"
               >
