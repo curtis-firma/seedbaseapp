@@ -15,59 +15,66 @@ import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
 import WalletCard from "@/components/cards/WalletCard";
 import ImpactPreviewCard from "@/components/cards/ImpactPreviewCard";
 import CampaignCard from "@/components/cards/CampaignCard";
-import { Logo, seeddropTypeLight } from "@/components/shared/Logo";
+import { seeddropTypeLight } from "@/components/shared/Logo";
 import poweredByCik from "@/assets/powered-by-cik-text.png";
-import generositySpread from "@/assets/generosity-spread.png";
 import baseLogo from "@/assets/base-logo.png";
 import LoginModal from "@/components/sections/LoginModal";
 import { SeedbaseLoader } from "@/components/shared/SeedbaseLoader";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import FeatureSquareCard from "@/components/landing/FeatureSquareCard";
 import waterBackground from "@/assets/water-background.png";
-const sections = [{
-  id: "wallet",
-  headline: "A wallet built for giving",
-  description: "Sign in with email or phone. Give instantly. Withdraw to your bank.",
-  card: "wallet",
-  bgColor: "bg-blue-400"
-}, {
-  id: "impact",
-  headline: "See your impact",
-  description: "A live social feed shows generosity in motion.",
-  card: "impact",
-  bgColor: "bg-emerald-400"
-}, {
-  id: "spread",
-  headline: "See generosity spread",
-  description: "Watch surplus move across people, places, and missions.",
-  card: "campaign",
-  bgColor: "bg-teal-400",
-  bgImage: true
-}, {
-  id: "ledger",
-  headline: "Built on shared ledgers",
-  description: "Every seed. Every surplus. Every deployment. Trust you can see.",
-  card: "ledger",
-  bgColor: "bg-[#FDDE02]"
-}, {
-  id: "seedbases",
-  headline: "Communities steward together",
-  description: "Ministries and teams run seedbases. Same numbers. Shared clarity.",
-  card: "dashboard",
-  bgColor: "bg-violet-400"
-}, {
-  id: "tithing",
-  headline: "Transparent tithing",
-  description: "See allocations. Vote on priorities. Track impact.",
-  card: "transparency",
-  bgColor: "bg-amber-400"
-}, {
-  id: "movement",
-  headline: "Built by generosity",
-  description: "Every seed grows. Every surplus spreads. Trust rewards come back.",
-  card: "growth",
-  bgColor: "bg-cyan-400"
-}];
+const sections = [
+  {
+    id: "wallet",
+    headline: "A wallet built for giving",
+    description: "Sign in with email or phone. Give instantly. Withdraw to your bank.",
+    card: "wallet",
+    bgColor: "bg-landing-wallet",
+  },
+  {
+    id: "impact",
+    headline: "See your impact",
+    description: "A live social feed shows generosity in motion.",
+    card: "impact",
+    bgColor: "bg-landing-impact",
+  },
+  {
+    id: "spread",
+    headline: "See generosity spread",
+    description: "Watch surplus move across people, places, and missions.",
+    card: "campaign",
+    bgColor: "bg-landing-spread",
+    bgImage: true,
+  },
+  {
+    id: "ledger",
+    headline: "Built on shared ledgers",
+    description: "Every seed. Every surplus. Every deployment. Trust you can see.",
+    card: "ledger",
+    bgColor: "bg-landing-ledger",
+  },
+  {
+    id: "seedbases",
+    headline: "Communities steward together",
+    description: "Ministries and teams run seedbases. Same numbers. Shared clarity.",
+    card: "dashboard",
+    bgColor: "bg-landing-seedbases",
+  },
+  {
+    id: "tithing",
+    headline: "Transparent tithing",
+    description: "See allocations. Vote on priorities. Track impact.",
+    card: "transparency",
+    bgColor: "bg-landing-tithing",
+  },
+  {
+    id: "movement",
+    headline: "Built by generosity",
+    description: "Every seed grows. Every surplus spreads. Trust rewards come back.",
+    card: "growth",
+    bgColor: "bg-landing-movement",
+  },
+];
 const ScrollingLandingPage = () => {
   const [showLearnMore, setShowLearnMore] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
