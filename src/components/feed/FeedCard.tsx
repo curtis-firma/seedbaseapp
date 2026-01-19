@@ -1,18 +1,19 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, MessageCircle, Share2, MoreHorizontal, TrendingUp, CheckCircle, Plus, DollarSign, Sprout } from 'lucide-react';
+import { Plus, Sprout } from 'lucide-react';
 import { FeedItem } from '@/types/seedbase';
-import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { EmbeddedCard } from './EmbeddedCard';
 import { ImpactDrawer } from './ImpactDrawer';
 import { SendModal } from '@/components/wallet/SendModal';
 import { ComingSoonModal, useComingSoon } from '@/components/shared/ComingSoonModal';
 import { toast } from 'sonner';
-import { seeddropIconLight } from '@/components/shared/Logo';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { useInView } from '@/hooks/useInView';
 import { getRandomImage, getCategoryFromName } from '@/lib/curatedImages';
+import { PostHeader } from '@/components/seedfeed/shared/PostHeader';
+import { PostActions } from '@/components/seedfeed/shared/PostActions';
+import { CardImpactFooter } from '@/components/seedfeed/shared/CardImpactFooter';
 
 interface FeedCardProps {
   item: FeedItem;
@@ -27,14 +28,6 @@ const typeStyles: Record<string, string> = {
   harvest: 'border-l-envoy',
   testimony: 'border-l-seed',
   mission_update: 'border-l-base',
-};
-
-const roleBadgeStyles: Record<string, string> = {
-  Steward: 'bg-trust/10 text-trust',
-  Recipient: 'bg-envoy/10 text-envoy',
-  Official: 'bg-base/10 text-base',
-  Envoy: 'bg-envoy/10 text-envoy',
-  Activator: 'bg-seed/10 text-seed',
 };
 
 export function FeedCard({ item, index }: FeedCardProps) {
@@ -75,7 +68,6 @@ export function FeedCard({ item, index }: FeedCardProps) {
         await navigator.share(shareData);
         triggerHaptic('success');
       } catch (err) {
-        // User cancelled or share failed
         navigator.clipboard.writeText(window.location.href);
         toast.success('Link copied to clipboard!');
       }
@@ -101,6 +93,26 @@ export function FeedCard({ item, index }: FeedCardProps) {
   };
 
   const hasYourSeed = item.yourSeed !== undefined && item.yourSeed > 0;
+
+  // Map role badge to variant
+  const getBadgeVariant = (): 'official' | 'steward' | 'envoy' | 'activator' | 'recipient' => {
+    if (item.roleBadge === 'Steward') return 'steward';
+    if (item.roleBadge === 'Envoy') return 'envoy';
+    if (item.roleBadge === 'Recipient') return 'recipient';
+    if (item.roleBadge === 'Official') return 'official';
+    return 'activator';
+  };
+
+  // Prepare author for PostHeader
+  const author = {
+    name: item.author?.name || item.seedbase?.name || 'Seedbase Network',
+    avatar: item.author?.avatar || '',
+    handle: item.author?.handle,
+    isVerified: item.author?.isVerified,
+    role: item.author?.role,
+  };
+
+  const isOfficial = author.handle === 'seedfeedhq' || author.handle === 'seedfeed';
 
   // Default impact categories if not provided
   const defaultImpactCategories = [
@@ -129,79 +141,49 @@ export function FeedCard({ item, index }: FeedCardProps) {
           typeStyles[item.type] || typeStyles[item.postType || 'milestone']
         )}
       >
-        {/* Header - X/Twitter Style */}
+        {/* Header - Using Shared PostHeader */}
         <div className="p-4 pb-0">
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-start gap-3">
-              {/* Avatar with Follow Button */}
-              <div className="relative">
-                {item.author?.avatar === 'official' || item.author?.handle === 'seedfeed' ? (
+          <div className="flex items-start gap-3">
+            {/* Avatar with Follow Button */}
+            <div className="relative flex-shrink-0">
+              {author.avatar ? (
+                author.avatar.startsWith('http') ? (
                   <img
-                    src={seeddropIconLight}
-                    alt="Seedbase"
-                    className="w-11 h-11 object-contain"
+                    src={author.avatar}
+                    alt={author.name}
+                    className="w-11 h-11 rounded-full bg-muted object-cover ring-2 ring-border/50"
                   />
-                ) : item.author?.avatar ? (
-                  item.author.avatar.startsWith('http') ? (
-                    <img
-                      src={item.author.avatar}
-                      alt={item.author.name}
-                      className="w-11 h-11 rounded-full bg-muted object-cover"
-                    />
-                  ) : (
-                    <div className="w-11 h-11 rounded-full gradient-base flex items-center justify-center text-xl">
-                      {item.author.avatar}
-                    </div>
-                  )
                 ) : (
-                  <div className="w-11 h-11 rounded-full gradient-seed flex items-center justify-center">
-                    <Sprout className="h-5 w-5 text-white" />
+                  <div className="w-11 h-11 rounded-full gradient-base flex items-center justify-center text-xl">
+                    {author.avatar}
                   </div>
-                )}
-                {/* Follow button overlay */}
-                <motion.button
-                  whileTap={{ scale: 0.9 }}
-                  onClick={handleFollow}
-                  className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-base flex items-center justify-center shadow-md"
-                >
-                  <Plus className="h-3 w-3 text-white" />
-                </motion.button>
-              </div>
-
-              {/* Name, Badge, Handle, Timestamp */}
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className="font-bold text-foreground truncate">
-                    {item.author?.name || item.seedbase?.name || 'Seedbase Network'}
-                  </span>
-                  {item.author?.isVerified && (
-                    <CheckCircle className="h-4 w-4 text-base fill-base stroke-white" />
-                  )}
-                  {item.roleBadge && (
-                    <span className={cn(
-                      "text-[10px] px-1.5 py-0.5 rounded font-semibold uppercase tracking-wide",
-                      roleBadgeStyles[item.roleBadge] || 'bg-muted text-muted-foreground'
-                    )}>
-                      {item.roleBadge}
-                    </span>
-                  )}
+                )
+              ) : (
+                <div className="w-11 h-11 rounded-full gradient-seed flex items-center justify-center">
+                  <Sprout className="h-5 w-5 text-white" />
                 </div>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  {item.author?.handle && (
-                    <>
-                      <span>@{item.author.handle}</span>
-                      <span>·</span>
-                    </>
-                  )}
-                  <span>{formatDistanceToNow(item.timestamp, { addSuffix: false })}</span>
-                </div>
-              </div>
+              )}
+              {/* Follow button overlay */}
+              <motion.button
+                whileTap={{ scale: 0.9 }}
+                onClick={handleFollow}
+                className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-base flex items-center justify-center shadow-md"
+              >
+                <Plus className="h-3 w-3 text-white" />
+              </motion.button>
             </div>
 
-            {/* More menu */}
-            <button className="p-2 hover:bg-muted rounded-full transition-colors -mt-1">
-              <MoreHorizontal className="h-5 w-5 text-muted-foreground" />
-            </button>
+            {/* Use PostHeader for rest */}
+            <div className="flex-1 min-w-0">
+              <PostHeader
+                author={author}
+                timestamp={item.timestamp}
+                badge={item.roleBadge}
+                badgeVariant={getBadgeVariant()}
+                isOfficial={isOfficial}
+                className="[&>*:first-child]:hidden" // Hide avatar from PostHeader since we render custom one
+              />
+            </div>
           </div>
         </div>
 
@@ -267,88 +249,37 @@ export function FeedCard({ item, index }: FeedCardProps) {
           </div>
         )}
 
-        {/* Actions Bar */}
-        <div className="px-4 py-3 flex items-center justify-between border-t border-border/50 mt-2">
-          <div className="flex items-center gap-1">
-            {/* Comments */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={handleComment}
-              className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-muted rounded-full transition-colors"
-            >
-              <MessageCircle className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">{item.comments}</span>
-            </motion.button>
-
-            {/* Impact Amount */}
-            {item.impactFlow?.amount && (
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-muted rounded-full transition-colors"
-              >
-                <TrendingUp className="h-4 w-4 text-seed" />
-                <span className="text-sm font-medium text-seed">
-                  ${(item.impactFlow.amount / 1000).toFixed(1)}K
-                </span>
-              </motion.button>
-            )}
-
-            {/* Share */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={handleShare}
-              className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-muted rounded-full transition-colors"
-            >
-              <Share2 className="h-4 w-4 text-muted-foreground" />
-            </motion.button>
-
-            {/* Like */}
-            <motion.button
-              whileTap={{ scale: 0.9 }}
-              onClick={handleLike}
-              className="flex items-center gap-1.5 px-3 py-1.5 hover:bg-muted rounded-full transition-colors"
-            >
-              <Heart className={cn(
-                "h-4 w-4 transition-colors",
-                isLiked ? "fill-destructive text-destructive" : "text-muted-foreground"
-              )} />
-              <span className={cn(
-                "text-sm",
-                isLiked ? "text-destructive" : "text-muted-foreground"
-              )}>{likeCount}</span>
-            </motion.button>
-          </div>
-
-          {/* Give Button */}
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleGive}
-            className="w-9 h-9 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center shadow-lg active:bg-primary/80"
-          >
-            <DollarSign className="h-4 w-4 text-white" />
-          </motion.button>
-        </div>
-
-        {/* Your Seed Pill - Bottom Section */}
-        {hasYourSeed && (
-          <div className="px-4 py-3 bg-muted/30 border-t border-border/50 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <span className="font-medium">TOTAL</span>
-              <span className="font-bold text-foreground">${item.totalRaised?.toLocaleString() || '0'}</span>
-            </div>
-            
-            <motion.button
-              whileTap={{ scale: 0.95 }}
+        {/* Your Seed Footer - Using Shared CardImpactFooter */}
+        {hasYourSeed && item.totalRaised && (
+          <div className="px-4 py-3">
+            <motion.div
+              whileTap={{ scale: 0.98 }}
               onClick={() => setIsImpactDrawerOpen(true)}
-              className="flex items-center gap-2 px-3 py-1.5 bg-seed/10 hover:bg-seed/20 rounded-full transition-colors"
+              className="cursor-pointer"
             >
-              <Sprout className="h-4 w-4 text-seed" />
-              <span className="text-sm font-semibold text-seed">
-                Your Seed: ${item.yourSeed?.toLocaleString()}
-              </span>
-            </motion.button>
+              <CardImpactFooter
+                totalAmount={item.totalRaised}
+                yourSeed={item.yourSeed}
+                yourPercentage={item.yourImpactPercentage}
+              />
+            </motion.div>
           </div>
         )}
+
+        {/* Actions Bar - Using Shared PostActions */}
+        <div className="px-4 pb-4 border-t border-border/30 mt-2">
+          <PostActions
+            commentCount={item.comments}
+            likeCount={likeCount}
+            impactAmount={item.impactFlow?.amount ? item.impactFlow.amount / 1000 : undefined}
+            isLiked={isLiked}
+            onComment={handleComment}
+            onShare={handleShare}
+            onLike={handleLike}
+            onGive={handleGive}
+            showGiveButton={true}
+          />
+        </div>
       </motion.article>
 
       {/* Impact Drawer */}
