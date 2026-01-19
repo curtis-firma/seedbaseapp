@@ -13,9 +13,9 @@ interface FeatureSquareCardProps {
  * FeatureSquareCard - Canonical grouped wrapper component
  * Combines colored outer background + white InnerCard as ONE unit
  * 
- * Sizing (InnerCard + 64px padding):
+ * Sizing (InnerCard + consistent ~64px padding):
  * - Mobile: 344×344px (280 + 64)
- * - Tablet: 480×480px (400 + 80) - LARGER to match rectangle width
+ * - Tablet: 484×484px (420 + 64) - Scaled up proportionally
  * - Desktop: 404×404px (340 + 64)
  */
 const FeatureSquareCard = ({ 
@@ -30,11 +30,10 @@ const FeatureSquareCard = ({
       className={cn(
         // LOCKED ASPECT RATIO - prevents distortion
         "aspect-square",
-        // FIXED SIZE with min/max constraints - prevents flex/grid shrinking/stretching
-        // Tablet: full-width to match yellow rectangle
+        // FIXED SIZE with min/max constraints - consistent padding at all breakpoints
         "w-full",
         "max-w-[344px] min-w-[344px]",
-        "md:max-w-full md:min-w-0",
+        "md:max-w-[484px] md:min-w-[484px]",
         "lg:max-w-[404px] lg:min-w-[404px]",
         // Prevent flex shrink - critical for desktop grid layouts
         "flex-none shrink-0",
