@@ -16,7 +16,7 @@ interface PostCardProps {
   timestamp: Date;
   content?: string;
   badge?: string;
-  badgeVariant?: 'official' | 'steward' | 'envoy' | 'activator' | 'recipient';
+  badgeVariant?: 'official' | 'trustee' | 'envoy' | 'activator' | 'recipient';
   isOfficial?: boolean;
   children?: ReactNode;
   commentCount?: number;

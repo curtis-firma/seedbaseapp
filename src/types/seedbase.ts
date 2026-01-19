@@ -4,7 +4,7 @@ export type KeyType = 'SeedKey' | 'BaseKey' | 'MissionKey';
 
 export type UserRole = 'activator' | 'trustee' | 'envoy';
 
-export type RoleBadge = 'Steward' | 'Recipient' | 'Official' | 'Envoy' | 'Activator';
+export type RoleBadge = 'Trustee' | 'Recipient' | 'Official' | 'Envoy' | 'Activator';
 
 export type PostType = 'testimony' | 'surplus' | 'recipient' | 'milestone' | 'deployment' | 'announcement' | 'mission_update' | 'harvest' | 'commitment' | 'distribution' | 'transparency';
 
