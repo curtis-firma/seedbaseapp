@@ -41,7 +41,7 @@ const MobileScrollNarrative = ({
   const sections: MobileSection[] = [{
     id: "wallet",
     title: "A wallet built for giving",
-    description: "Sign in with email or phone. Give instantly. Withdraw to your bank.",
+    description: "Sign in with email or phone. Give instantly. Withdraw digital dollars to your bank.",
     bgColor: "bg-blue-400",
     card: <WalletCard />
   }, {
