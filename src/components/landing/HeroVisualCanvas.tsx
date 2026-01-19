@@ -1,19 +1,21 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import FeedScrollState from './hero-states/FeedScrollState';
-import CardStackState from './hero-states/CardStackState';
-import BrandMomentState from './hero-states/BrandMomentState';
+import MissionVideoState from './hero-states/MissionVideoState';
 import NetworkFlowState from './hero-states/NetworkFlowState';
+import LiveDataState from './hero-states/LiveDataState';
+import BrandMomentState from './hero-states/BrandMomentState';
 import StaticBrandState from './hero-states/StaticBrandState';
 
 const STATES = [
   { id: 'feed', Component: FeedScrollState },
-  { id: 'stack', Component: CardStackState },
-  { id: 'brand', Component: BrandMomentState },
+  { id: 'video', Component: MissionVideoState },
   { id: 'network', Component: NetworkFlowState },
+  { id: 'live', Component: LiveDataState },
+  { id: 'brand', Component: BrandMomentState },
 ];
 
-const STATE_DURATION = 8000; // 8 seconds per state
+const STATE_DURATION = 5000; // 5 seconds per state
 
 const HeroVisualCanvas = () => {
   const [activeState, setActiveState] = useState(0);
@@ -29,7 +31,7 @@ const HeroVisualCanvas = () => {
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Rotate states every 8 seconds
+  // Rotate states every 5 seconds
   useEffect(() => {
     if (prefersReducedMotion) return;
     
@@ -59,7 +61,7 @@ const HeroVisualCanvas = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1.5, ease: "easeInOut" }}
+          transition={{ duration: 1, ease: "easeInOut" }}
           className="absolute inset-0"
         >
           <ActiveComponent />

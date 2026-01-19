@@ -1,4 +1,22 @@
 import { motion } from 'framer-motion';
+import baseLogo from '@/assets/base-logo.png';
+
+// Ethereum diamond SVG component
+const EthereumDiamond = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
+  <svg 
+    viewBox="0 0 784 1277" 
+    className={className}
+    style={style}
+    fill="currentColor"
+  >
+    <path d="M392.07 0L383.5 29.11v873.79l8.57 8.55 392.06-231.75z" opacity="0.6"/>
+    <path d="M392.07 0L0 679.7l392.07 231.75V496.27z" opacity="0.45"/>
+    <path d="M392.07 956.52l-4.83 5.89v300.87l4.83 14.1 392.3-552.49z" opacity="0.8"/>
+    <path d="M392.07 1277.38V956.52L0 724.89z" opacity="0.45"/>
+    <path d="M392.07 911.45l392.06-231.75-392.06-183.43z" opacity="0.6"/>
+    <path d="M0 679.7l392.07 231.75V496.27z" opacity="0.8"/>
+  </svg>
+);
 
 const NetworkFlowState = () => {
   return (
@@ -59,6 +77,66 @@ const NetworkFlowState = () => {
           />
         </g>
       </svg>
+
+      {/* Base logos - floating subtly */}
+      <motion.img
+        src={baseLogo}
+        alt=""
+        className="absolute w-16 h-16 opacity-[0.08]"
+        style={{ top: '15%', left: '20%' }}
+        animate={{ y: [0, -8, 0], rotate: [0, 2, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.img
+        src={baseLogo}
+        alt=""
+        className="absolute w-12 h-12 opacity-[0.06]"
+        style={{ top: '60%', right: '15%' }}
+        animate={{ y: [0, 6, 0], rotate: [0, -2, 0] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+      />
+      <motion.img
+        src={baseLogo}
+        alt=""
+        className="absolute w-10 h-10 opacity-[0.05]"
+        style={{ bottom: '25%', left: '10%' }}
+        animate={{ y: [0, -5, 0] }}
+        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+      />
+
+      {/* Ethereum diamonds - scattered and floating */}
+      <motion.div
+        className="absolute text-black/[0.07]"
+        style={{ top: '20%', right: '25%' }}
+        animate={{ y: [0, -10, 0], rotate: [0, 5, 0] }}
+        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <EthereumDiamond className="w-10 h-14" />
+      </motion.div>
+      <motion.div
+        className="absolute text-black/[0.05]"
+        style={{ top: '50%', left: '30%' }}
+        animate={{ y: [0, 8, 0], rotate: [0, -3, 0] }}
+        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+      >
+        <EthereumDiamond className="w-8 h-11" />
+      </motion.div>
+      <motion.div
+        className="absolute text-black/[0.06]"
+        style={{ bottom: '20%', right: '20%' }}
+        animate={{ y: [0, -6, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+      >
+        <EthereumDiamond className="w-6 h-8" />
+      </motion.div>
+      <motion.div
+        className="absolute text-black/[0.04]"
+        style={{ top: '70%', left: '60%' }}
+        animate={{ y: [0, 5, 0], rotate: [0, 4, 0] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+      >
+        <EthereumDiamond className="w-7 h-10" />
+      </motion.div>
 
       {/* Animated particles */}
       {[0, 1, 2, 3, 4].map((i) => (

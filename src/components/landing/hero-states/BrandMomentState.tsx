@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import seedbaseIcon from '@/assets/seedbase-icon.png';
+import seedbasePfp from '@/assets/seedbase-pfp-new.png';
 
 const BrandMomentState = () => {
   return (
@@ -33,18 +33,18 @@ const BrandMomentState = () => {
         </svg>
       </div>
       
-      {/* Seedbase icon with glow */}
+      {/* Seedbase circular logo with glow */}
       <motion.div
         animate={{ scale: [1, 1.03, 1] }}
         transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
         className="relative z-10"
       >
         <img 
-          src={seedbaseIcon} 
+          src={seedbasePfp} 
           alt=""
-          className="w-24 h-24"
+          className="w-28 h-28 rounded-full"
           style={{
-            filter: 'drop-shadow(0 0 30px rgba(0, 0, 0, 0.15))'
+            filter: 'drop-shadow(0 0 40px rgba(0, 0, 255, 0.25))'
           }}
         />
       </motion.div>
