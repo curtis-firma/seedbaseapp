@@ -15,7 +15,7 @@ interface FeatureSquareCardProps {
  * 
  * Sizing (InnerCard + 64px padding):
  * - Mobile: 344×344px (280 + 64)
- * - Tablet: 384×384px (320 + 64)
+ * - Tablet: 480×480px (400 + 80) - LARGER to match rectangle width
  * - Desktop: 404×404px (340 + 64)
  */
 const FeatureSquareCard = ({ 
@@ -33,7 +33,7 @@ const FeatureSquareCard = ({
         // FIXED SIZE with min/max constraints - prevents flex/grid shrinking/stretching
         "w-full",
         "max-w-[344px] min-w-[344px]",
-        "md:max-w-[384px] md:min-w-[384px]",
+        "md:max-w-[480px] md:min-w-[480px]",
         "lg:max-w-[404px] lg:min-w-[404px]",
         // Prevent flex shrink - critical for desktop grid layouts
         "flex-none shrink-0",
