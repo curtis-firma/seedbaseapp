@@ -152,11 +152,9 @@ const ScrollingLandingPage = () => {
               <div>
                 <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-4 lg:mb-6 text-foreground leading-[1.05]">Where Generosity Grow.</h1>
                 
-                <div className="text-lg text-muted-foreground mb-3 lg:mb-8 leading-snug">
-                  <span className="block opacity-0 animate-fade-in-stagger-1">Commit seed</span>
-                  <span className="block opacity-0 animate-fade-in-stagger-2">Earn and watch it grow.</span>
-                  <span className="block opacity-0 animate-fade-in-stagger-3">Track your impact—live.</span>
-                  <span className="block opacity-0 animate-fade-in-stagger-4">Connect with others.</span>
+                <div className="font-heading text-lg lg:text-xl text-muted-foreground mb-3 lg:mb-8 leading-relaxed opacity-0 animate-fade-in-stagger-1">
+                  <p className="mb-3">Social app where generosity becomes shared impact.</p>
+                  <p>Plant a seed, grow it with others, and follow how value flows back to you and missions through a transparent impact ledger.</p>
                 </div>
                 
                 {/* CTA Buttons - Desktop only in header */}
@@ -231,24 +229,24 @@ const ScrollingLandingPage = () => {
         <main className="hidden lg:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
           {/* Hero Card Section - Yellow with scrolling cards */}
           <section className="flex items-start pt-[32px] px-8 pointer-events-auto">
-            <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full aspect-[4/3] flex items-start justify-center relative overflow-hidden animate-content-reveal">
-              <div className="animate-scroll-feed flex flex-col items-center gap-3 pt-4 w-full max-w-md">
-                <div className="w-full">
+            <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full h-[500px] flex items-center justify-center relative overflow-hidden animate-content-reveal">
+              <div className="animate-scroll-feed flex flex-col items-center gap-3">
+                <div className="w-[340px]">
                   <SeedFeedCard />
                 </div>
-                <div className="w-full">
+                <div className="w-[340px]">
                   <SeedFeedCardPeek />
                 </div>
-                <div className="w-full">
+                <div className="w-[340px]">
                   <SeedFeedCardPeekAlt />
                 </div>
-                <div className="w-full">
+                <div className="w-[340px]">
                   <SeedFeedCard />
                 </div>
-                <div className="w-full">
+                <div className="w-[340px]">
                   <SeedFeedCardPeek />
                 </div>
-                <div className="w-full">
+                <div className="w-[340px]">
                   <SeedFeedCardPeekAlt />
                 </div>
               </div>
@@ -271,10 +269,11 @@ const ScrollingLandingPage = () => {
                   </div>
                 </div>
                 
-                {/* Card - Right side - Full width square matching hero alignment */}
+                {/* Card - Right side - Fixed size inner card locked to outer square */}
                 <div className="flex-1">
-                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex justify-center w-full aspect-square overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center p-10'} ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
-                    <div className={`w-full max-w-md transform hover:scale-[1.01] transition-transform duration-300 ${section.id === 'wallet' ? 'animate-scale-in h-full' : ''}`}>
+                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex items-center justify-center w-full aspect-square overflow-hidden ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
+                    {/* FIXED SIZE CARD - locked to outer square */}
+                    <div className="w-[340px] h-[340px] rounded-2xl overflow-hidden shadow-lg bg-white flex-shrink-0 transform hover:scale-[1.01] transition-transform duration-300">
                       {renderCard(section.card, section.id)}
                     </div>
                   </div>
@@ -293,18 +292,18 @@ const ScrollingLandingPage = () => {
           </section>
 
           {/* Footer Section */}
-          <footer className="py-12 px-8 flex flex-col items-center gap-6 pointer-events-auto border-t border-gray-200">
-            {/* Powered by CIK - Single, larger */}
-            <img alt="Powered by Christ is King" className="h-8 object-contain" src={poweredByCik} />
+          <footer className="py-16 px-8 flex flex-col items-center gap-8 pointer-events-auto border-t border-gray-200">
+            {/* Powered by CIK - Scaled for desktop */}
+            <img alt="Powered by Christ is King" className="h-12 object-contain" src={poweredByCik} />
             
-            {/* Built on Base - logo same size as text */}
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
+            {/* Built on Base - logo scaled to match desktop text */}
+            <div className="flex items-center gap-2 text-muted-foreground text-lg">
               <span>Built on</span>
-              <img src={baseLogo} alt="Base" className="h-3.5 w-auto" />
+              <img src={baseLogo} alt="Base" className="h-8 w-auto" />
             </div>
             
             {/* Copyright */}
-            <p className="text-muted-foreground text-sm">
+            <p className="text-muted-foreground text-base">
               © 2026 Christ is King Labs. All rights reserved.
             </p>
           </footer>
