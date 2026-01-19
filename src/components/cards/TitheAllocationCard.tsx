@@ -42,7 +42,7 @@ const TitheAllocationCard = () => {
   const totalPercentage = allocations.reduce((sum, a) => sum + a.percentage, 0);
 
   return (
-    <div className="w-[320px] bg-white rounded-[20px] p-5 shadow-xl">
+    <div className="w-full h-full bg-white rounded-[20px] p-5 shadow-xl flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-3 mb-5">
         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
@@ -66,7 +66,7 @@ const TitheAllocationCard = () => {
       </div>
 
       {/* Allocations List */}
-      <div className="space-y-3">
+      <div className="space-y-3 flex-1">
         {allocations.map((item, i) => (
           <div key={i} className="flex items-center gap-3">
             <div className={`w-3 h-3 rounded-full ${item.color}`} />

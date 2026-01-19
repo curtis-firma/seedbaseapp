@@ -117,9 +117,9 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         </Button>
       </div>
 
-      {/* Yellow Hero Card Section - with scrolling cards - SQUARE */}
-      <div className="bg-[#FDDE02] rounded-3xl p-4 overflow-hidden aspect-square flex items-center justify-center">
-        <div className="animate-scroll-feed flex flex-col gap-3 w-full max-w-sm">
+      {/* Yellow Hero Card Section - with scrolling cards */}
+      <div className="bg-[#FDDE02] rounded-3xl p-6 overflow-hidden flex items-center justify-center">
+        <div className="animate-scroll-feed flex flex-col gap-3 w-full max-w-md">
           <SeedFeedCard />
           <SeedFeedCardPeek />
           <SeedFeedCardPeekAlt />
@@ -146,15 +146,13 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
               </p>
             </div>
 
-            {/* Card with colored background - SQUARE aspect ratio */}
+            {/* Card with colored background */}
             <div 
-              className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl p-4 flex items-center justify-center aspect-square bg-cover bg-center`}
+              className={`${!section.bgImage ? section.bgColor : ''} rounded-3xl p-6 flex items-center justify-center bg-cover bg-center`}
               style={section.bgImage ? { backgroundImage: `url(${section.bgImage})` } : undefined}
             >
-              <div className="aspect-square w-full max-w-[85%] rounded-2xl overflow-hidden shadow-lg bg-white flex items-center justify-center">
-                <div className="w-full h-full overflow-hidden">
-                  {section.card}
-                </div>
+              <div className="w-full max-w-md rounded-2xl overflow-hidden shadow-lg bg-white">
+                {section.card}
               </div>
             </div>
           </section>

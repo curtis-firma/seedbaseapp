@@ -73,7 +73,7 @@ const WalletCard = () => {
   }, [isSent]);
 
   return (
-    <div className="w-full h-full min-h-[320px] bg-white p-6 flex flex-col rounded-2xl">
+    <div className="w-full h-full bg-white p-6 flex flex-col rounded-2xl justify-between">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-4">
@@ -110,7 +110,7 @@ const WalletCard = () => {
       </div>
 
       {/* Recipient Row */}
-      <div className="flex items-center gap-4 mb-auto">
+      <div className="flex items-center gap-4 flex-1 min-h-0">
         {/* DiceBear Avatar */}
         <div className="w-14 h-14 rounded-full overflow-hidden flex-shrink-0">
           <img 
@@ -128,7 +128,7 @@ const WalletCard = () => {
       {/* Slide to Send - with spring physics */}
       <div 
         ref={containerRef}
-        className={`relative h-14 rounded-xl overflow-hidden transition-colors duration-300 mt-6 ${
+        className={`relative h-16 rounded-xl overflow-hidden transition-colors duration-300 ${
           isSent 
             ? 'bg-emerald-500' 
             : 'bg-gray-100'
