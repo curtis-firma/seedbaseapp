@@ -2,78 +2,78 @@ import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp-new.png';
 import seedBlue from '@/assets/seedbase-seed-blue.svg';
 
-// Ethereum diamond SVG component (faded)
-const EthereumDiamond = ({ className, style }: { className?: string; style?: React.CSSProperties }) => (
-  <svg 
-    viewBox="0 0 784 1277" 
-    className={className}
-    style={style}
-    fill="currentColor"
-  >
-    <path d="M392.07 0L383.5 29.11v873.79l8.57 8.55 392.06-231.75z" opacity="0.6"/>
-    <path d="M392.07 0L0 679.7l392.07 231.75V496.27z" opacity="0.45"/>
-    <path d="M392.07 956.52l-4.83 5.89v300.87l4.83 14.1 392.3-552.49z" opacity="0.8"/>
-    <path d="M392.07 1277.38V956.52L0 724.89z" opacity="0.45"/>
-    <path d="M392.07 911.45l392.06-231.75-392.06-183.43z" opacity="0.6"/>
-    <path d="M0 679.7l392.07 231.75V496.27z" opacity="0.8"/>
-  </svg>
-);
-
-// Spinning orbital ring component
+// Spinning orbital ring component with seed icons
 const OrbitalRing = ({ 
   radius, 
   duration, 
   reverse = false,
-  dashArray = "8 12",
+  seedCount = 4,
   opacity = 0.15
 }: { 
   radius: number; 
   duration: number; 
   reverse?: boolean;
-  dashArray?: string;
+  seedCount?: number;
   opacity?: number;
-}) => (
-  <motion.div
-    className="absolute left-1/2 top-1/2"
-    style={{
-      width: radius * 2,
-      height: radius * 2,
-      marginLeft: -radius,
-      marginTop: -radius,
-    }}
-    animate={{ rotate: reverse ? -360 : 360 }}
-    transition={{ duration, repeat: Infinity, ease: "linear" }}
-  >
-    <svg className="w-full h-full" viewBox={`0 0 ${radius * 2} ${radius * 2}`}>
-      <circle
-        cx={radius}
-        cy={radius}
-        r={radius - 2}
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeDasharray={dashArray}
-        className="text-black"
-        style={{ opacity }}
-      />
-    </svg>
-    {/* Nodes on the ring */}
-    {[0, 90, 180, 270].map((angle) => (
-      <motion.div
-        key={angle}
-        className="absolute w-2 h-2 rounded-full bg-blue-500/30"
-        style={{
-          left: radius + (radius - 2) * Math.cos((angle * Math.PI) / 180) - 4,
-          top: radius + (radius - 2) * Math.sin((angle * Math.PI) / 180) - 4,
-        }}
-        animate={{ scale: [1, 1.3, 1], opacity: [0.3, 0.6, 0.3] }}
-        transition={{ duration: 2, repeat: Infinity, delay: angle / 180 }}
-      />
-    ))}
-  </motion.div>
-);
+}) => {
+  const angles = Array.from({ length: seedCount }, (_, i) => (360 / seedCount) * i);
+  
+  return (
+    <motion.div
+      className="absolute left-1/2 top-1/2"
+      style={{
+        width: radius * 2,
+        height: radius * 2,
+        marginLeft: -radius,
+        marginTop: -radius,
+      }}
+      animate={{ rotate: reverse ? -360 : 360 }}
+      transition={{ duration, repeat: Infinity, ease: "linear" }}
+    >
+      {/* Ring circle */}
+      <svg className="w-full h-full absolute" viewBox={`0 0 ${radius * 2} ${radius * 2}`}>
+        <circle
+          cx={radius}
+          cy={radius}
+          r={radius - 2}
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1"
+          strokeDasharray="6 10"
+          className="text-black"
+          style={{ opacity }}
+        />
+      </svg>
+      
+      {/* Seed icons positioned along the ring */}
+      {angles.map((angle, i) => {
+        const x = radius + (radius - 2) * Math.cos((angle * Math.PI) / 180) - 8;
+        const y = radius + (radius - 2) * Math.sin((angle * Math.PI) / 180) - 8;
+        return (
+          <motion.img
+            key={i}
+            src={seedBlue}
+            alt=""
+            className="absolute w-4 h-4"
+            style={{ left: x, top: y }}
+            animate={{ 
+              scale: [1, 1.2, 1],
+              opacity: [0.6, 1, 0.6]
+            }}
+            transition={{ 
+              duration: 2, 
+              repeat: Infinity, 
+              delay: i * 0.5,
+              ease: "easeInOut"
+            }}
+          />
+        );
+      })}
+    </motion.div>
+  );
+};
 
-// Growing squares bar chart component - builds UP from bottom
+// Growing squares bar chart component - builds UP from bottom with glow
 const GrowingSquares = () => {
   const bars = [
     { height: 3, delay: 0.8 },
@@ -105,31 +105,50 @@ const GrowingSquares = () => {
 
   return (
     <div className="flex items-end justify-between w-full px-4 md:px-8">
-      {bars.map((bar, index) => (
-        <motion.div
-          key={index}
-          className="flex flex-col-reverse gap-0.5 items-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: bar.delay * 0.4, duration: 0.3 }}
-        >
-          {Array.from({ length: bar.height }).map((_, squareIndex) => (
-            <motion.img
-              key={squareIndex}
-              src={seedBlue}
-              alt=""
-              className="w-3 h-3 md:w-4 md:h-4"
-              initial={{ opacity: 0, scale: 0, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
+      {bars.map((bar, index) => {
+        const animationDuration = bar.delay * 0.4 + bar.height * 0.08;
+        
+        return (
+          <motion.div
+            key={index}
+            className="flex flex-col-reverse gap-0.5 items-center relative"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: bar.delay * 0.4, duration: 0.3 }}
+          >
+            {/* Glow effect when complete */}
+            <motion.div
+              className="absolute -inset-1 bg-blue-400/30 rounded-full blur-md"
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ 
+                opacity: [0, 0, 0.6, 0],
+                scale: [0.8, 1, 1.2, 1]
+              }}
               transition={{
-                delay: bar.delay * 0.4 + squareIndex * 0.08,
-                duration: 0.25,
-                ease: "backOut"
+                delay: animationDuration + 0.2,
+                duration: 1,
+                times: [0, 0.3, 0.6, 1]
               }}
             />
-          ))}
-        </motion.div>
-      ))}
+            
+            {Array.from({ length: bar.height }).map((_, squareIndex) => (
+              <motion.img
+                key={squareIndex}
+                src={seedBlue}
+                alt=""
+                className="w-3 h-3 md:w-4 md:h-4 relative z-10"
+                initial={{ opacity: 0, scale: 0, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                transition={{
+                  delay: bar.delay * 0.4 + squareIndex * 0.08,
+                  duration: 0.25,
+                  ease: "backOut"
+                }}
+              />
+            ))}
+          </motion.div>
+        );
+      })}
     </div>
   );
 };
@@ -142,61 +161,15 @@ const BrandMomentState = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="absolute top-8 md:top-12 text-black/70 font-semibold text-xl md:text-2xl tracking-wide z-20"
+        className="absolute top-6 md:top-8 lg:top-12 text-black/70 font-semibold text-lg md:text-xl lg:text-2xl tracking-wide z-20"
       >
         Generosity that grows
       </motion.p>
 
-      {/* Faded Ethereum diamonds orbiting in the background */}
-      <motion.div
-        className="absolute text-black/8"
-        style={{ top: '15%', left: '10%' }}
-        animate={{ 
-          y: [0, -10, 0], 
-          rotate: [0, 5, 0],
-        }}
-        transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <EthereumDiamond className="w-10 h-14 md:w-12 md:h-16" />
-      </motion.div>
-      <motion.div
-        className="absolute text-blue-600/10"
-        style={{ top: '20%', right: '12%' }}
-        animate={{ 
-          y: [0, 8, 0], 
-          rotate: [0, -8, 0],
-        }}
-        transition={{ duration: 5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-      >
-        <EthereumDiamond className="w-8 h-11 md:w-10 md:h-14" />
-      </motion.div>
-      <motion.div
-        className="absolute text-black/6"
-        style={{ bottom: '35%', left: '8%' }}
-        animate={{ 
-          y: [0, -6, 0],
-          x: [0, 4, 0],
-        }}
-        transition={{ duration: 7, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-      >
-        <EthereumDiamond className="w-7 h-10 md:w-9 md:h-12" />
-      </motion.div>
-      <motion.div
-        className="absolute text-blue-600/8"
-        style={{ bottom: '40%', right: '10%' }}
-        animate={{ 
-          y: [0, 10, 0],
-          rotate: [-3, 3, -3],
-        }}
-        transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
-      >
-        <EthereumDiamond className="w-6 h-9 md:w-8 md:h-11" />
-      </motion.div>
-
-      {/* Spinning orbital rings */}
-      <OrbitalRing radius={100} duration={20} dashArray="6 10" opacity={0.12} />
-      <OrbitalRing radius={140} duration={25} reverse dashArray="10 8" opacity={0.1} />
-      <OrbitalRing radius={180} duration={30} dashArray="4 12" opacity={0.08} />
+      {/* Spinning orbital rings with seed icons */}
+      <OrbitalRing radius={80} duration={18} seedCount={3} opacity={0.12} />
+      <OrbitalRing radius={115} duration={24} reverse seedCount={4} opacity={0.1} />
+      <OrbitalRing radius={150} duration={30} seedCount={5} opacity={0.08} />
 
       {/* Grid dots pattern */}
       <div className="absolute inset-0 opacity-5 pointer-events-none">
@@ -224,7 +197,7 @@ const BrandMomentState = () => {
         <motion.img 
           src={seedbasePfp} 
           alt=""
-          className="w-32 h-32 md:w-40 md:h-40 rounded-full"
+          className="w-28 h-28 md:w-32 md:h-32 lg:w-40 lg:h-40 rounded-full"
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
           style={{
@@ -233,12 +206,12 @@ const BrandMomentState = () => {
         />
       </motion.div>
 
-      {/* Growing squares bar chart at bottom - builds UP */}
+      {/* Growing squares bar chart at bottom - builds UP with glow */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 0.6 }}
-        className="absolute bottom-4 left-0 right-0 w-full"
+        className="absolute bottom-3 md:bottom-4 left-0 right-0 w-full"
       >
         <GrowingSquares />
       </motion.div>
