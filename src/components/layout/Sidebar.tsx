@@ -7,8 +7,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
-import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
-import seedbaseWordmark from '@/assets/seedbase-wordmark.svg';
+import seedbaseLogoFull from '@/assets/seedbase-logo-full.png';
 import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
 
 const primaryNav = [
@@ -36,18 +35,28 @@ export function Sidebar() {
       animate={{ width: isCollapsed ? 80 : 260 }}
       className="hidden md:flex flex-col h-screen fixed left-0 top-0 bg-card/90 backdrop-blur-xl border-r border-border/50 z-40"
     >
-      {/* Logo - Larger */}
+      {/* Logo */}
       <div className="p-6 flex items-center gap-3">
-        <img src={seedbaseLeaf} alt="Seedbase" className="w-12 h-12" />
-        <AnimatePresence>
-          {!isCollapsed && (
+        <AnimatePresence mode="wait">
+          {isCollapsed ? (
+            <motion.div
+              key="collapsed"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center"
+            >
+              <span className="text-xl">🌱</span>
+            </motion.div>
+          ) : (
             <motion.img
-              src={seedbaseWordmark}
+              key="expanded"
+              src={seedbaseLogoFull}
               alt="Seedbase"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
-              className="h-8 dark:invert"
+              className="h-10 w-auto"
             />
           )}
         </AnimatePresence>

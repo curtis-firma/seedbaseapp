@@ -285,7 +285,7 @@ export function FeedCard({ item, index }: FeedCardProps) {
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={() => setShowSendModal(true)}
-            className="w-9 h-9 rounded-full gradient-seed flex items-center justify-center shadow-glow"
+            className="w-9 h-9 rounded-full bg-primary hover:bg-primary/90 flex items-center justify-center shadow-lg"
           >
             <DollarSign className="h-4 w-4 text-white" />
           </motion.button>

@@ -8,7 +8,7 @@ import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
 import { FeedItem } from '@/types/seedbase';
-import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
+import seedbaseLogoFull from '@/assets/seedbase-logo-full.png';
 
 const tabs = ['Network', 'For You'];
 
@@ -154,11 +154,7 @@ export default function HomePage() {
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <img src={seedbaseLeaf} alt="Seedbase" className="w-10 h-10 md:hidden" />
-              <div>
-                <h1 className="text-xl font-bold">Seedfeed</h1>
-                <p className="text-sm text-muted-foreground">Commitment creates capacity.</p>
-              </div>
+              <img src={seedbaseLogoFull} alt="Seedbase" className="h-8 w-auto" />
             </div>
             <div className="flex items-center gap-1">
               <motion.button

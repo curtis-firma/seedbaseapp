@@ -407,7 +407,7 @@ export function ComposeMessageModal({ isOpen, onClose, onSuccess }: ComposeMessa
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={handleConfirm}
-                className="w-full py-4 gradient-seed rounded-xl text-white font-semibold flex items-center justify-center gap-2"
+                className="w-full py-4 bg-primary hover:bg-primary/90 rounded-xl text-white font-semibold flex items-center justify-center gap-2"
               >
                 <Send className="h-5 w-5" />
                 Confirm & Send

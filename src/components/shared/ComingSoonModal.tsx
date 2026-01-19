@@ -53,7 +53,7 @@ export function ComingSoonModal({ isOpen, onClose, featureName }: ComingSoonModa
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={onClose}
-              className="w-full py-3 gradient-seed rounded-xl text-white font-semibold"
+              className="w-full py-3 bg-primary hover:bg-primary/90 rounded-xl text-white font-semibold"
             >
               Got it
             </motion.button>
