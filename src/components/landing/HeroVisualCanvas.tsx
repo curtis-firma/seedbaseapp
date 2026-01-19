@@ -9,21 +9,21 @@ import StaticBrandState from './hero-states/StaticBrandState';
 import SocialVideoState from './hero-states/SocialVideoState';
 import AppSharingVideoState from './hero-states/AppSharingVideoState';
 
-// Interleave videos between other cards for variety
+// Mission video (Video_Revision_With_Logo) is FIRST
 const STATES = [
-  { id: 'feed', Component: FeedScrollState },
   { id: 'mission-video', Component: MissionVideoState },
-  { id: 'network', Component: NetworkFlowState },
+  { id: 'feed', Component: FeedScrollState },
   { id: 'social-video', Component: SocialVideoState },
-  { id: 'live', Component: LiveDataState },
+  { id: 'network', Component: NetworkFlowState },
   { id: 'app-sharing-video', Component: AppSharingVideoState },
+  { id: 'live', Component: LiveDataState },
   { id: 'brand', Component: BrandMomentState },
 ];
 
 const STATE_DURATION = 5000; // 5 seconds per state
 
 const HeroVisualCanvas = () => {
-  const [activeState, setActiveState] = useState(1); // start on video so it's immediately visible
+  const [activeState, setActiveState] = useState(0); // start on mission video (first)
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
 
   // Detect reduced motion preference
@@ -50,7 +50,7 @@ const HeroVisualCanvas = () => {
   // Reduced motion fallback: show static brand state
   if (prefersReducedMotion) {
     return (
-      <div className="relative w-full h-[280px] md:h-[340px] lg:h-[420px] bg-[#FDDE02] rounded-[24px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
+      <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] bg-[#FDDE02] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
         <StaticBrandState />
       </div>
     );
@@ -59,7 +59,7 @@ const HeroVisualCanvas = () => {
   const ActiveComponent = STATES[activeState].Component;
 
   return (
-    <div className="relative w-full h-[280px] md:h-[340px] lg:h-[420px] bg-[#FDDE02] rounded-[24px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
+    <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] bg-[#FDDE02] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
       <AnimatePresence mode="sync">
         <div
           key={activeState}
