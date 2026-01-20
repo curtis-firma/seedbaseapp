@@ -14,7 +14,42 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: [
+          'Inter',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"SF Pro Display"',
+          '"SF Pro Text"',
+          '"Segoe UI"',
+          'Roboto',
+          'Helvetica',
+          'Arial',
+          '"Apple Color Emoji"',
+          '"Segoe UI Emoji"',
+          'sans-serif',
+        ],
+        heading: [
+          'Inter',
+          'ui-sans-serif',
+          'system-ui',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          '"SF Pro Display"',
+          'sans-serif',
+        ],
+      },
+      fontSize: {
+        // Base-style type scale
+        'hero': ['44px', { lineHeight: '0.95', letterSpacing: '-0.03em', fontWeight: '600' }],
+        'hero-lg': ['64px', { lineHeight: '0.95', letterSpacing: '-0.03em', fontWeight: '600' }],
+        'section': ['28px', { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '600' }],
+        'section-lg': ['40px', { lineHeight: '1.05', letterSpacing: '-0.02em', fontWeight: '600' }],
+        'card-title': ['17px', { lineHeight: '1.25', letterSpacing: '-0.01em', fontWeight: '600' }],
+        'body': ['15px', { lineHeight: '1.5', fontWeight: '400' }],
+        'body-lg': ['16px', { lineHeight: '1.5', fontWeight: '400' }],
+        'label': ['12px', { lineHeight: '1.2', letterSpacing: '0.02em', fontWeight: '500' }],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -63,6 +98,15 @@ export default {
         },
         envoy: {
           DEFAULT: "hsl(var(--envoy-orange))",
+        },
+        landing: {
+          wallet: "hsl(var(--landing-wallet))",
+          impact: "hsl(var(--landing-impact))",
+          spread: "hsl(var(--landing-spread))",
+          ledger: "hsl(var(--landing-ledger))",
+          seedbases: "hsl(var(--landing-seedbases))",
+          tithing: "hsl(var(--landing-tithing))",
+          movement: "hsl(var(--landing-movement))",
         },
       },
       borderRadius: {
@@ -142,6 +186,10 @@ export default {
           "0%": { width: "0%" },
           "100%": { width: "var(--target-width)" },
         },
+        "bounce-subtle": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(4px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -157,6 +205,7 @@ export default {
         "number-tick": "number-tick 2s ease-in-out infinite",
         "icon-wiggle": "icon-wiggle 3s ease-in-out infinite",
         "progress-pulse": "progress-pulse 2s ease-in-out infinite",
+        "bounce-subtle": "bounce-subtle 0.6s ease-in-out infinite",
       },
       spacing: {
         "safe-bottom": "env(safe-area-inset-bottom)",

@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   ArrowRight, Check, Sprout, Shield, Copy,
-  Key, Sparkles, Users, Rocket, CheckCircle2, Loader2
+  Key, Sparkles, Users, Rocket, CheckCircle2, Loader2, ChevronDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
@@ -26,7 +26,9 @@ import {
   type DemoKey,
 } from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
-import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
+import { Logo } from '@/components/shared/Logo';
+import { useHaptic } from '@/hooks/useHaptic';
+import seedbasePfp from '@/assets/seedbase-pfp.png';
 
 interface PhoneAuthFlowProps {
   isOpen: boolean;
@@ -38,7 +40,7 @@ interface PhoneAuthFlowProps {
 type Step = 
   | 'welcome' 
   | 'verifying' 
-  | 'restoring'  // NEW: For returning users
+  | 'restoring'
   | 'creating-wallet' 
   | 'wallet-reveal' 
   | 'username' 
@@ -65,35 +67,129 @@ const RESTORE_STEPS = [
   { label: 'Syncing state...', duration: 400 },
 ];
 
+// Enhanced role data with expandable details
 const ROLE_OPTIONS = [
   { 
     role: 'activator' as const, 
     keyType: 'SeedKey' as const,
     title: 'Activator',
+    tagline: 'Plant generosity. Watch it grow.',
     description: 'Commit capital, earn distributions',
     bullets: ['Plant USDC into missions', 'Receive surplus distributions', 'Track your impact'],
+    details: {
+      who: 'Anyone who wants to give and see their impact multiply',
+      whatYouDo: [
+        'Commit USDC as seed',
+        'Share impact moments',
+        'Bring others into the network',
+      ],
+      whatYouGet: [
+        'Original seed returned after commitment',
+        'Surplus distributions',
+        'Higher impact score',
+      ],
+    },
     icon: Sprout,
-    gradient: 'gradient-seed'
+    gradient: 'gradient-seed',
+    glowColor: 'rgba(34, 197, 94, 0.4)',
   },
   { 
     role: 'trustee' as const, 
     keyType: 'BaseKey' as const,
     title: 'Trustee',
+    tagline: 'Steward shared generosity.',
     description: 'Govern funds, approve missions',
     bullets: ['Manage your Seedbase', 'Approve mission deployments', 'Oversee provision pool'],
+    details: {
+      who: 'Community leaders, nonprofit directors, church leaders',
+      whatYouDo: [
+        'Steward a Seedbase',
+        'Launch and approve missions',
+        'Review impact reports',
+      ],
+      whatYouGet: [
+        'Tools to mobilize your community',
+        'Reputation as a trusted steward',
+        'Impact at scale',
+      ],
+    },
     icon: Shield,
-    gradient: 'gradient-trust'
+    gradient: 'gradient-trust',
+    glowColor: 'rgba(168, 85, 247, 0.4)',
   },
   { 
     role: 'envoy' as const, 
     keyType: 'MissionKey' as const,
     title: 'Envoy',
+    tagline: 'Execute missions. Deliver impact.',
     description: 'Execute missions on the ground',
     bullets: ['Receive mission funding', 'Report milestones', 'Deliver impact'],
+    details: {
+      who: 'Field partners, project leaders, missionaries',
+      whatYouDo: [
+        'Receive mission funding directly',
+        'Execute approved initiatives',
+        'Submit Harvest reports',
+      ],
+      whatYouGet: [
+        'Direct funding without bureaucracy',
+        'Community backing',
+        'More missions as you prove results',
+      ],
+    },
     icon: Rocket,
-    gradient: 'gradient-envoy'
+    gradient: 'gradient-envoy',
+    glowColor: 'rgba(249, 115, 22, 0.4)',
   },
 ];
+
+// Animation variants
+const slideTransition = {
+  type: 'spring' as const,
+  damping: 30,
+  stiffness: 350,
+};
+
+const dropdownVariants = {
+  closed: { 
+    height: 0, 
+    opacity: 0,
+    transition: { 
+      height: { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const },
+      opacity: { duration: 0.15 }
+    }
+  },
+  open: { 
+    height: 'auto', 
+    opacity: 1,
+    transition: { 
+      height: { duration: 0.3, ease: [0.4, 0, 0.2, 1] as const },
+      opacity: { duration: 0.2, delay: 0.1 }
+    }
+  }
+};
+
+const glowVariants = {
+  initial: { 
+    opacity: 0, 
+    scale: 0.95,
+    boxShadow: '0 0 0 transparent',
+  },
+  animate: (glowColor: string) => ({
+    opacity: 1,
+    scale: 1,
+    boxShadow: [
+      '0 0 0 transparent',
+      `0 0 16px ${glowColor}`,
+      '0 0 0 transparent',
+    ],
+    transition: {
+      opacity: { duration: 0.3 },
+      scale: { duration: 0.3 },
+      boxShadow: { duration: 1.2, times: [0, 0.5, 1] }
+    }
+  }),
+};
 
 export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal = false }: PhoneAuthFlowProps) {
   const [step, setStep] = useState<Step>('welcome');
@@ -101,6 +197,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
   const [isDemo, setIsDemo] = useState(forceDemo);
   const [isCheckingUser, setIsCheckingUser] = useState(false);
   const [returningUserPreview, setReturningUserPreview] = useState<DbDemoUser | null>(null);
+  const [expandedRole, setExpandedRole] = useState<string | null>(null);
   
   // User data being built (for new users)
   const [pendingUser, setPendingUser] = useState<DemoUser | null>(null);
@@ -117,6 +214,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
   const [restoreStep, setRestoreStep] = useState(0);
   
   const { loginWithUser } = useUser();
+  const { trigger } = useHaptic();
 
   // Reset on forceDemo change
   useEffect(() => {
@@ -137,6 +235,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
     setUsername('');
     setDisplayName('');
     setSelectedRole(null);
+    setExpandedRole(null);
     setCreationStep(0);
     setCreationProgress(0);
     setRestoreStep(0);
@@ -175,6 +274,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
   const handlePhoneSubmit = () => {
     if (phoneNumber.length < 10) return;
     
+    trigger('light');
     try {
       const normalizedPhone = isDemo ? `demo:${phoneNumber}` : normalizePhone(phoneNumber);
       const formatted = formatPhoneDisplay(normalizedPhone);
@@ -187,6 +287,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
   };
 
   const handleTryDemo = () => {
+    trigger('light');
     setIsDemo(true);
     setPhoneNumber(`${Date.now()}`);
     toast.success('Demo mode activated');
@@ -229,10 +330,8 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
       })();
       
       if (localUser) {
-        // Partial user exists in localStorage, reuse wallet ID
         newUser = localUser;
       } else {
-        // Create brand new user in memory
         newUser = createDemoUser(phoneNumber, isDemo);
       }
       
@@ -252,7 +351,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
     let timeout: NodeJS.Timeout;
     
     const runRestore = async () => {
-      // Animate restore steps
       for (let i = 0; i < RESTORE_STEPS.length; i++) {
         setRestoreStep(i);
         await new Promise(resolve => {
@@ -260,16 +358,13 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
         });
       }
       
-      // Load wallet and key from Supabase
       const [wallet, key] = await Promise.all([
         getWalletByUserId(dbUser.id),
         getKeyByUserId(dbUser.id),
       ]);
       
-      // Update last_login_at
       await updateUser(dbUser.id, { last_login_at: new Date().toISOString() });
       
-      // Convert DB user to local format and login
       const localUser: DemoUser = {
         phone: dbUser.phone,
         username: dbUser.username,
@@ -287,14 +382,13 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
         updatedAt: new Date().toISOString(),
       };
       
-      // Save to localStorage for session persistence
       saveUser(localUser);
       setSessionPhone(localUser.phone);
       
-      // Login with the database user
       loginWithUser(dbUser, wallet, key);
+      trigger('success');
       toast.success(`Welcome back, @${dbUser.username}!`);
-      onComplete(false); // Returning user
+      onComplete(false);
     };
     
     runRestore();
@@ -331,6 +425,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
         clearInterval(progressInterval);
       }
       
+      trigger('medium');
       setStep('wallet-reveal');
     };
     
@@ -374,7 +469,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
         clearInterval(progressInterval);
       }
       
-      // Generate key ID
       if (pendingUser && selectedRole) {
         const keyType = getKeyTypeFromRole(selectedRole);
         setPendingUser({
@@ -385,6 +479,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
         });
       }
       
+      trigger('medium');
       setStep('key-reveal');
     };
     
@@ -399,6 +494,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
   const handleCopyWallet = () => {
     if (pendingUser?.walletDisplayId) {
       navigator.clipboard.writeText(pendingUser.walletDisplayId);
+      trigger('light');
       toast.success('Wallet address copied!');
     }
   };
@@ -406,6 +502,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
   const handleCopyKey = () => {
     if (pendingUser?.keyDisplayId) {
       navigator.clipboard.writeText(pendingUser.keyDisplayId);
+      trigger('light');
       toast.success('Key ID copied!');
     }
   };
@@ -413,7 +510,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
   const handleUsernameSubmit = async () => {
     if (username.length < 2) return;
     
-    // Check for duplicate username in Supabase
+    trigger('light');
     const taken = await isUsernameTakenDb(username);
     if (taken) {
       toast.error('Username already taken');
@@ -432,11 +529,20 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
   };
 
   const handleRoleSelect = (role: DemoUser['role']) => {
+    trigger('medium');
     setSelectedRole(role);
+    // Expand the selected role to show details
+    setExpandedRole(role);
+  };
+
+  const toggleRoleExpand = (role: string) => {
+    trigger('light');
+    setExpandedRole(expandedRole === role ? null : role);
   };
 
   const handleActivateKey = () => {
     if (!selectedRole) return;
+    trigger('light');
     setCreationStep(0);
     setCreationProgress(0);
     setStep('activating-key');
@@ -448,7 +554,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
     const normalizedPhone = pendingUser.phone;
     const keyType = getKeyTypeFromRole(selectedRole);
     
-    // Create user in Supabase
     const newDbUser = await createUserDb({
       phone: normalizedPhone,
       username: username.toLowerCase(),
@@ -461,19 +566,16 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
       return;
     }
     
-    // Create wallet in Supabase (idempotent - only if none exists)
     let wallet = await getWalletByUserId(newDbUser.id);
     if (!wallet) {
       wallet = await createWallet(newDbUser.id, 'personal', 25);
     }
     
-    // Create key in Supabase (idempotent - only if none exists)
     let key = await getKeyByUserId(newDbUser.id);
     if (!key) {
       key = await createKey(newDbUser.id, keyType);
     }
     
-    // Mark onboarding complete
     await updateUser(newDbUser.id, { onboarding_complete: true });
     
     const finalUser: DemoUser = {
@@ -487,18 +589,16 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
       onboardingComplete: true,
     };
     
-    // Save user to localStorage
     saveUser(finalUser);
     setSessionPhone(finalUser.phone);
     
-    // Login with the database user
     if (dbUser) {
       loginWithUser(dbUser, wallet, key);
     }
+    trigger('success');
     toast.success(`Welcome to Seedbase, @${username}!`);
-    onComplete(true); // New user - show welcome walkthrough
+    onComplete(true);
     
-    // Reset for next time
     setTimeout(resetFlow, 500);
   };
 
@@ -545,18 +645,24 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
           }}
         />
       )}
-      {/* Progress dots - hide during animations */}
+      
+      {/* Progress dots - enhanced pill style */}
       {step !== 'creating-wallet' && step !== 'activating-key' && step !== 'verifying' && step !== 'restoring' && (
         <div className={cn("flex justify-center", asModal ? "pt-6 pb-2" : "p-6")}>
           <div className="flex gap-2">
             {progressSteps.map((s, i) => (
-              <div
+              <motion.div
                 key={s}
-                className={cn(
-                  "w-2 h-2 rounded-full transition-all",
-                  i === currentStepIndex ? "w-6 bg-primary" : 
-                  i < currentStepIndex ? "bg-primary" : "bg-muted"
-                )}
+                animate={{
+                  width: i === currentStepIndex ? 24 : 8,
+                  backgroundColor: i === currentStepIndex 
+                    ? 'hsl(var(--primary))' 
+                    : i < currentStepIndex 
+                      ? 'hsl(var(--primary) / 0.5)' 
+                      : 'hsl(var(--muted))',
+                }}
+                transition={{ duration: 0.2 }}
+                className="h-2 rounded-full"
               />
             ))}
           </div>
@@ -567,32 +673,31 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
         "flex-1 flex flex-col items-center justify-center",
         asModal ? "px-6 py-8" : "px-6 pb-12"
       )}>
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           {/* Welcome / Phone Input Step */}
           {step === 'welcome' && (
             <motion.div
               key="welcome"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={slideTransition}
               className="w-full max-w-sm text-center"
             >
-              <motion.img
-                src={seedbaseLeaf}
-                alt="Seedbase"
-                className="h-16 w-auto mx-auto mb-6"
+              <motion.div
+                className="mx-auto mb-6"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', delay: 0.1 }}
-              />
+              >
+                <Logo variant="icon" size="xl" />
+              </motion.div>
               <h2 className="text-2xl font-bold mb-2">Welcome to Seedbase</h2>
               <p className="text-muted-foreground mb-8">
                 Enter your phone to create or access your Seed Wallet
               </p>
               
-              {/* Clean form - no background container */}
               <div className="space-y-4 mb-6">
-                {/* Phone input - clean outlined rectangle with autofill override */}
                 <div className="bg-white border border-border rounded-xl hover:border-primary/50 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20 transition-all shadow-sm">
                   <input
                     type="tel"
@@ -604,7 +709,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                   />
                 </div>
 
-                {/* Returning user badge - checking */}
                 {isCheckingUser && phoneNumber.length >= 10 && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -616,7 +720,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                   </motion.div>
                 )}
                 
-                {/* Returning user badge - blue themed */}
                 {returningUserPreview && !isCheckingUser && (
                   <motion.div
                     initial={{ opacity: 0, y: 10 }}
@@ -633,7 +736,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                   </motion.div>
                 )}
                 
-                {/* Continue button - blue, rounded rectangle */}
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={handlePhoneSubmit}
@@ -650,7 +752,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 </motion.button>
               </div>
               
-              {/* Secondary "Try demo" link */}
               <button
                 onClick={handleTryDemo}
                 className="text-sm text-muted-foreground hover:text-foreground transition-colors"
@@ -664,23 +765,24 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
             </motion.div>
           )}
 
-          {/* Verifying Step (auto-verify) */}
+          {/* Verifying Step */}
           {step === 'verifying' && (
             <motion.div
               key="verifying"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={slideTransition}
               className="w-full max-w-sm text-center"
             >
-              <div className="relative mx-auto mb-8 flex items-center justify-center">
-                <motion.img
-                  src={seedbaseLeaf}
-                  alt="Seedbase"
-                  className="h-20 w-auto"
+              <div className="relative mx-auto mb-8 flex items-center justify-center w-28 h-28">
+                <motion.div
+                  className="w-16 h-16 rounded-full overflow-hidden"
                   animate={{ scale: [1, 1.05, 1] }}
                   transition={{ duration: 1.5, repeat: Infinity }}
-                />
+                >
+                  <img src={seedbasePfp} alt="Seedbase" className="w-full h-full object-cover" />
+                </motion.div>
                 <motion.div
                   className="absolute w-24 h-24 rounded-full border-2 border-primary"
                   animate={{ scale: [1, 1.3, 1], opacity: [0.5, 0, 0.5] }}
@@ -692,23 +794,24 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
             </motion.div>
           )}
 
-          {/* RESTORING Step (for returning users) */}
+          {/* Restoring Step */}
           {step === 'restoring' && dbUser && (
             <motion.div
               key="restoring"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={slideTransition}
               className="w-full max-w-sm text-center"
             >
-              <div className="relative mx-auto mb-8 flex items-center justify-center">
-                <motion.img
-                  src={seedbaseLeaf}
-                  alt="Seedbase"
-                  className="h-20 w-auto"
+              <div className="relative mx-auto mb-8 flex items-center justify-center w-28 h-28">
+                <motion.div
+                  className="w-16 h-16 rounded-full overflow-hidden"
                   animate={{ rotate: [0, 5, -5, 0] }}
                   transition={{ duration: 2, repeat: Infinity }}
-                />
+                >
+                  <img src={seedbasePfp} alt="Seedbase" className="w-full h-full object-cover" />
+                </motion.div>
                 <motion.div
                   className="absolute w-24 h-24 rounded-full border-2 border-primary"
                   animate={{ scale: [1, 1.2, 1], opacity: [0.6, 0, 0.6] }}
@@ -755,9 +858,10 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
           {step === 'creating-wallet' && (
             <motion.div
               key="creating-wallet"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={slideTransition}
               className="w-full max-w-sm text-center"
             >
               <motion.div
@@ -770,7 +874,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               
               <h2 className="text-xl font-semibold mb-2">Creating Seed Wallet</h2>
               
-              {/* Progress bar */}
               <div className="w-full h-2 bg-muted rounded-full overflow-hidden mb-6">
                 <motion.div
                   className="h-full bg-primary"
@@ -779,7 +882,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 />
               </div>
               
-              {/* Console-style status lines */}
               <div className="space-y-2 text-left bg-muted/50 rounded-xl p-4 font-mono text-sm">
                 {WALLET_CREATION_STEPS.map((ws, i) => (
                   <motion.div
@@ -814,7 +916,8 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               key="wallet-reveal"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, y: -20 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={slideTransition}
               className="w-full max-w-sm text-center"
             >
               <motion.div
@@ -829,7 +932,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               <h2 className="text-xl font-semibold mb-2">Seed Wallet Created!</h2>
               <p className="text-muted-foreground mb-6">Your wallet is ready on Base L2</p>
               
-              {/* Wallet ID with typewriter effect */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -847,7 +949,7 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               
               <motion.button
                 whileTap={{ scale: 0.98 }}
-                onClick={() => setStep('username')}
+                onClick={() => { trigger('light'); setStep('username'); }}
                 className="w-full py-4 bg-primary text-white rounded-xl font-semibold flex items-center justify-center gap-2 hover:bg-primary/90 shadow-lg"
               >
                 Continue
@@ -860,9 +962,10 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
           {step === 'username' && (
             <motion.div
               key="username"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={slideTransition}
               className="w-full max-w-sm text-center"
             >
               <motion.div
@@ -921,52 +1024,148 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
             </motion.div>
           )}
 
-          {/* Role Selection Step */}
+          {/* Role Selection Step - Enhanced with expandable cards */}
           {step === 'role-select' && (
             <motion.div
               key="role-select"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={slideTransition}
               className="w-full max-w-sm"
             >
-              <div className="text-center mb-6">
+              <div className="text-center mb-4">
                 <h2 className="text-xl font-semibold mb-2">Choose Your Role</h2>
-                <p className="text-muted-foreground">Select your primary role in the Seedbase ecosystem</p>
+                <p className="text-muted-foreground text-sm">Select your primary role in the Seedbase ecosystem</p>
+              </div>
+              
+              {/* Visual Progress Indicator */}
+              <div className="flex items-center justify-center gap-2 mb-6 px-4">
+                {ROLE_OPTIONS.map((option, i) => {
+                  const Icon = option.icon;
+                  const isSelected = selectedRole === option.role;
+                  
+                  return (
+                    <div key={option.role} className="flex items-center">
+                      <motion.div
+                        animate={{
+                          scale: isSelected ? 1.1 : 1,
+                          boxShadow: isSelected ? `0 0 16px ${option.glowColor}` : '0 0 0 transparent',
+                        }}
+                        className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center transition-colors",
+                          isSelected ? option.gradient : "bg-muted"
+                        )}
+                      >
+                        <Icon className={cn("h-4 w-4", isSelected ? "text-white" : "text-muted-foreground")} />
+                      </motion.div>
+                      {i < ROLE_OPTIONS.length - 1 && (
+                        <div className="w-6 h-0.5 bg-border mx-1" />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
               
               <div className="space-y-3 mb-6">
-                {ROLE_OPTIONS.map((option) => {
+                {ROLE_OPTIONS.map((option, index) => {
                   const isSelected = selectedRole === option.role;
+                  const isExpanded = expandedRole === option.role;
                   const Icon = option.icon;
                   
                   return (
-                    <motion.button
+                    <motion.div
                       key={option.role}
-                      whileTap={{ scale: 0.98 }}
-                      onClick={() => handleRoleSelect(option.role)}
-                      className={cn(
-                        "w-full p-4 rounded-xl border-2 transition-all text-left",
-                        isSelected 
-                          ? `border-primary ${option.gradient}` 
-                          : "border-border hover:border-primary/50 bg-card"
-                      )}
+                      variants={glowVariants}
+                      initial="initial"
+                      animate="animate"
+                      custom={option.glowColor}
+                      transition={{ delay: index * 0.08 }}
+                      className="rounded-xl overflow-hidden"
                     >
-                      <div className="flex items-center gap-3 mb-2">
-                        <div className={cn(
-                          "w-10 h-10 rounded-xl flex items-center justify-center",
-                          isSelected ? "bg-white/20" : option.gradient
-                        )}>
-                          <Icon className={cn("h-5 w-5", isSelected ? "text-white" : "text-white")} />
+                      <motion.button
+                        whileTap={{ scale: 0.98 }}
+                        onClick={() => handleRoleSelect(option.role)}
+                        className={cn(
+                          "w-full p-4 rounded-xl border-2 transition-all text-left",
+                          isSelected 
+                            ? `border-primary ${option.gradient}` 
+                            : "border-border hover:border-primary/50 bg-card"
+                        )}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={cn(
+                              "w-10 h-10 rounded-xl flex items-center justify-center",
+                              isSelected ? "bg-white/20" : option.gradient
+                            )}>
+                              <Icon className="h-5 w-5 text-white" />
+                            </div>
+                            <div>
+                              <p className={cn("font-semibold", isSelected && "text-white")}>{option.title}</p>
+                              <p className={cn("text-sm", isSelected ? "text-white/80" : "text-muted-foreground")}>
+                                {option.tagline}
+                              </p>
+                            </div>
+                          </div>
+                          <motion.div
+                            animate={{ rotate: isExpanded ? 180 : 0 }}
+                            transition={{ duration: 0.2 }}
+                            onClick={(e) => { e.stopPropagation(); toggleRoleExpand(option.role); }}
+                            className="p-1"
+                          >
+                            <ChevronDown className={cn("h-5 w-5", isSelected ? "text-white" : "text-muted-foreground")} />
+                          </motion.div>
                         </div>
-                        <div>
-                          <p className={cn("font-semibold", isSelected && "text-white")}>{option.title}</p>
-                          <p className={cn("text-sm", isSelected ? "text-white/80" : "text-muted-foreground")}>
-                            {option.description}
-                          </p>
-                        </div>
-                      </div>
-                    </motion.button>
+                      </motion.button>
+                      
+                      {/* Expanded details */}
+                      <AnimatePresence>
+                        {isExpanded && (
+                          <motion.div
+                            variants={dropdownVariants}
+                            initial="closed"
+                            animate="open"
+                            exit="closed"
+                            className="overflow-hidden"
+                          >
+                            <motion.div
+                              initial={{ y: -10, opacity: 0 }}
+                              animate={{ y: 0, opacity: 1 }}
+                              transition={{ delay: 0.1 }}
+                              className={cn("p-4 space-y-3 text-left rounded-b-xl", option.gradient)}
+                            >
+                              <div>
+                                <p className="text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Who</p>
+                                <p className="text-sm text-white">{option.details.who}</p>
+                              </div>
+                              <div>
+                                <p className="text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">What you do</p>
+                                <ul className="space-y-1">
+                                  {option.details.whatYouDo.map((item, i) => (
+                                    <li key={i} className="text-sm text-white/90 flex items-start gap-2">
+                                      <CheckCircle2 className="h-4 w-4 text-white flex-shrink-0 mt-0.5" />
+                                      <span>{item}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div>
+                                <p className="text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">What you get</p>
+                                <ul className="space-y-1">
+                                  {option.details.whatYouGet.map((item, i) => (
+                                    <li key={i} className="text-sm text-white/90 flex items-start gap-2">
+                                      <CheckCircle2 className="h-4 w-4 text-white flex-shrink-0 mt-0.5" />
+                                      <span>{item}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            </motion.div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </motion.div>
                   );
                 })}
               </div>
@@ -992,9 +1191,10 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
           {step === 'activating-key' && selectedRole && (
             <motion.div
               key="activating-key"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
+              initial={{ opacity: 0, y: 20, scale: 0.98 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={slideTransition}
               className="w-full max-w-sm text-center"
             >
               <motion.div
@@ -1011,7 +1211,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 Activating {ROLE_OPTIONS.find(r => r.role === selectedRole)?.keyType}
               </h2>
               
-              {/* Progress bar */}
               <div className="w-full h-2 bg-muted rounded-full overflow-hidden mb-6">
                 <motion.div
                   className={cn(ROLE_OPTIONS.find(r => r.role === selectedRole)?.gradient, "h-full")}
@@ -1020,7 +1219,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 />
               </div>
               
-              {/* Console-style status lines */}
               <div className="space-y-2 text-left bg-muted/50 rounded-xl p-4 font-mono text-sm">
                 {KEY_ACTIVATION_STEPS.map((ks, i) => (
                   <motion.div
@@ -1055,7 +1253,8 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
               key="key-reveal"
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, y: -20 }}
+              exit={{ opacity: 0, y: -20, scale: 0.98 }}
+              transition={slideTransition}
               className="w-full max-w-sm text-center"
             >
               <motion.div
@@ -1077,7 +1276,6 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                 You're ready to {selectedRole === 'activator' ? 'plant seeds' : selectedRole === 'trustee' ? 'govern your Seedbase' : 'execute missions'}
               </p>
               
-              {/* Key ID with typewriter effect */}
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}

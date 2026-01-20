@@ -2,69 +2,79 @@ import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { PrimaryButton } from "@/components/ui/primary-button";
-import { ChevronDown, ArrowRight } from "lucide-react";
+import EnterAppButton from "@/components/ui/EnterAppButton";
+import LearnMoreButton from "@/components/ui/LearnMoreButton";
 import SeedFeedCard from "@/components/cards/SeedFeedCard";
-import SeedFeedCardPeek from "@/components/cards/SeedFeedCardPeek";
-import SeedFeedCardPeekAlt from "@/components/cards/SeedFeedCardPeekAlt";
+import HeroVisualCanvas from "@/components/landing/HeroVisualCanvas";
 import SeedCommitmentCard from "@/components/cards/SeedCommitmentCard";
-import MobileCardCarousel from "@/components/cards/MobileCardCarousel";
+import MobileScrollNarrative from "@/components/sections/MobileScrollNarrative";
 import DashboardCard from "@/components/cards/DashboardCard";
 import LedgerCard from "@/components/cards/LedgerCard";
 import GrowthReportCard from "@/components/cards/GrowthReportCard";
-import ImpactStatsCard from "@/components/cards/ImpactStatsCard";
 import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
 import WalletCard from "@/components/cards/WalletCard";
-import seedbaseWordmark from "@/assets/seedbase-wordmark.svg";
+import ImpactPreviewCard from "@/components/cards/ImpactPreviewCard";
+import CampaignCard from "@/components/cards/CampaignCard";
+import { seeddropTypeLight } from "@/components/shared/Logo";
 import poweredByCik from "@/assets/powered-by-cik-text.png";
-import generositySpread from "@/assets/generosity-spread.png";
 import baseLogo from "@/assets/base-logo.png";
 import LoginModal from "@/components/sections/LoginModal";
 import { SeedbaseLoader } from "@/components/shared/SeedbaseLoader";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-const sections = [{
-  id: "wallet",
-  headline: "A wallet built for giving",
-  description: "Sign in with email or phone.\nGive instantly.\nWithdraw to your bank.\nSpend with a card.\n\nNo crypto required.",
-  card: "wallet",
-  bgColor: "bg-blue-400"
-}, {
-  id: "impact",
-  headline: "See your impact as it happens",
-  description: "A live social feed shows generosity in motion.",
-  card: "commitment",
-  bgColor: "bg-emerald-400"
-}, {
-  id: "spread",
-  headline: "See generosity spread",
-  description: "Watch surplus move across people, places, and missions.",
-  card: "campaign",
-  bgColor: "bg-teal-400",
-  bgImage: true
-}, {
-  id: "ledger",
-  headline: "Built on shared ledgers",
-  description: "Every seed. Every surplus. Every deployment.\n\nTrust you can see.",
-  card: "ledger",
-  bgColor: "bg-[#FDDE02]"
-}, {
-  id: "seedbases",
-  headline: "Communities steward together",
-  description: "Ministries and teams run seedbases.\n\nSteward seed. Track tithes. Vote on missions.\n\nSame numbers. Shared clarity.",
-  card: "dashboard",
-  bgColor: "bg-violet-400"
-}, {
-  id: "tithing",
-  headline: "Transparent tithing",
-  description: "Tithes go directly to a seedbase.\n\nSee allocations. Vote on priorities. Track impact.\n\nHeld in USDC or CIK.",
-  card: "transparency",
-  bgColor: "bg-amber-400"
-}, {
-  id: "movement",
-  headline: "Built by generosity",
-  description: "Every seed. Every surplus. Every deployment.\n\nTrust you can see.",
-  card: "growth",
-  bgColor: "bg-cyan-400"
-}];
+import FeatureSquareCard from "@/components/landing/FeatureSquareCard";
+import LearnMoreModal from "@/components/landing/LearnMoreModal";
+import waterBackground from "@/assets/water-background.png";
+const sections = [
+  {
+    id: "wallet",
+    headline: "A wallet built for giving",
+    description: "Sign in with email or phone. Give instantly. Withdraw to your bank.",
+    card: "wallet",
+    bgColor: "bg-landing-wallet",
+  },
+  {
+    id: "impact",
+    headline: "See your impact",
+    description: "A live social feed shows generosity in motion.",
+    card: "impact",
+    bgColor: "bg-landing-impact",
+  },
+  {
+    id: "spread",
+    headline: "See generosity spread",
+    description: "Watch surplus move across people, places, and missions.",
+    card: "campaign",
+    bgColor: "bg-landing-spread",
+    bgImage: true,
+  },
+  {
+    id: "ledger",
+    headline: "Built on shared ledgers",
+    description: "Every seed. Every surplus. Every deployment. Trust you can see.",
+    card: "ledger",
+    bgColor: "bg-landing-ledger",
+  },
+  {
+    id: "seedbases",
+    headline: "Communities steward together",
+    description: "Ministries and teams run seedbases. Same numbers. Shared clarity.",
+    card: "dashboard",
+    bgColor: "bg-landing-seedbases",
+  },
+  {
+    id: "tithing",
+    headline: "Transparent tithing",
+    description: "See allocations. Vote on priorities. Track impact.",
+    card: "transparency",
+    bgColor: "bg-landing-tithing",
+  },
+  {
+    id: "movement",
+    headline: "Built by generosity",
+    description: "Every seed grows. Every surplus spreads. Trust rewards come back.",
+    card: "growth",
+    bgColor: "bg-landing-movement",
+  },
+];
 const ScrollingLandingPage = () => {
   const [showLearnMore, setShowLearnMore] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -95,40 +105,34 @@ const ScrollingLandingPage = () => {
     }, 1500);
   };
   const renderCard = (cardType: string, sectionId: string, compact = false) => {
-    // Special scrolling social feed for impact section (desktop)
+    // Desktop impact card should fill the canonical InnerCard (no extra padding wrappers)
     if (sectionId === "impact" && !compact) {
-      return <div className="relative w-full h-full overflow-hidden flex justify-center">
-          <div className={`animate-scroll-feed flex flex-col gap-3 pt-4 w-full max-w-sm`}>
-            <SeedCommitmentCard />
-            <SeedFeedCard />
-            <SeedCommitmentCard />
-            <SeedFeedCard />
-          </div>
-        </div>;
+      return <ImpactPreviewCard />;
     }
+
     switch (cardType) {
       case "feed":
-        return <div className={`aspect-square w-full ${compact ? 'max-w-xs' : 'max-w-sm'} rounded-2xl bg-white/20 border-2 border-white/40`} />;
+        return (
+          <div
+            className={`aspect-square w-full ${compact ? "max-w-xs" : "max-w-sm"} rounded-2xl bg-white/20 border-2 border-white/40`}
+          />
+        );
       case "campaign":
-        return <div className={`${compact ? 'max-w-xs' : 'max-w-sm'} w-full aspect-square rounded-2xl bg-cover bg-center flex items-center justify-center overflow-hidden`} style={{
-          backgroundImage: `url(${generositySpread})`
-        }} />;
+        return <CampaignCard />;
+      case "impact":
+        return <ImpactPreviewCard />;
       case "commitment":
         return <SeedCommitmentCard />;
       case "ledger":
-        return <div className="animate-slide-hint"><LedgerCard /></div>;
+        // Keep perfectly centered to preserve even padding inside the colored square
+        return <LedgerCard />;
       case "dashboard":
         return <DashboardCard />;
       case "transparency":
         return <TitheAllocationCard />;
       case "growth":
-        if (compact) {
-          return <GrowthReportCard />;
-        }
-        return <div className="space-y-4">
-            <GrowthReportCard />
-            <ImpactStatsCard />
-          </div>;
+        // One card per square on desktop (stacking caused peek-through/clipping)
+        return <GrowthReportCard />;
       case "wallet":
         return <WalletCard />;
       default:
@@ -144,188 +148,123 @@ const ScrollingLandingPage = () => {
       <div className="flex flex-col lg:flex-row">
         {/* Left - Fixed Hero Text Column */}
         <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-8 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
-          {/* Seedbase wordmark logo at top */}
-          <img alt="Seedbase - Transparent Network of Generosity" className="w-32 lg:w-40 xl:w-48 h-auto mb-2 lg:mb-0" src="/lovable-uploads/52edf2f7-f6a7-464b-b0ff-d0e5d962e4d6.png" />
+          {/* Seedbase wordmark logo at top - forceDark for light background */}
+          <div className="w-[163px] lg:w-[203px] xl:w-[244px] h-auto mb-2 lg:mb-0">
+            <img src={seeddropTypeLight} alt="Seedbase - Transparent Network of Generosity" className="w-full h-auto" />
+          </div>
           
           <div className="max-w-sm flex flex-col flex-1">
             {/* Hero content centered vertically on desktop */}
             <div className="flex-1 flex items-center lg:justify-center">
               <div>
-                <h1 className="font-heading text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mb-4 lg:mb-6 text-foreground leading-[1.05]">
-                  Where Generosity Grows.
-                </h1>
+                <h1 className="text-hero lg:text-hero-lg font-semibold tracking-[-0.03em] mb-4 lg:mb-6 text-foreground leading-[0.95]">Where Generosity Grows.</h1>
                 
-                <div className="text-lg text-muted-foreground mb-3 lg:mb-8 leading-snug">
-                  <span className="block opacity-0 animate-fade-in-stagger-1">Seed digital dollars.</span>
-                  <span className="block opacity-0 animate-fade-in-stagger-2">Lock and watch it grow.</span>
-                  <span className="block opacity-0 animate-fade-in-stagger-3">Track your impact—live.</span>
-                  <span className="block opacity-0 animate-fade-in-stagger-4">Connect with others.</span>
+                <div className="text-[18px] lg:text-[20px] text-muted-foreground mb-3 lg:mb-8 leading-[1.5] opacity-0 animate-fade-in-stagger-1 max-w-[34rem]">
+                  <p className="mb-3">Social app where generosity becomes shared impact.</p>
+                  <p>Plant a seed, grow it with others, and follow how value flows back to you and missions through a transparent impact ledger.</p>
                 </div>
                 
-                {/* Mobile Card Carousel - between tagline and buttons */}
-                <div className="lg:hidden w-full overflow-hidden">
-                  <MobileCardCarousel />
-                </div>
-                
-                {/* CTA Buttons */}
-                <nav className="flex flex-col gap-3 w-full max-w-[calc(100vw-2rem)] sm:max-w-sm" role="navigation" aria-label="Main actions">
-                  {/* Enter App - Blue with white ring glow */}
-                  <button onClick={() => setShowLoginModal(true)} className="relative w-full py-6 rounded-full font-semibold text-base sm:text-lg bg-[hsl(221,83%,53%)] text-white flex items-center justify-center gap-2 hover:bg-[hsl(221,83%,48%)] transition-all shadow-[0_0_0_4px_white,0_0_20px_rgba(59,130,246,0.5)]" aria-label="Enter SeedBase app">
-                    Enter App
-                    <ArrowRight className="w-5 h-5" />
-                  </button>
-                  
-                  {/* Mobile: open modal */}
-                  <Button variant="outline" onClick={() => setShowLearnMore(true)} className="lg:hidden rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]" aria-label="Learn more about SeedBase">
-                    Learn More
-                    <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
-                  </Button>
-                  
-                  {/* Desktop: scroll to content */}
-                  <Button variant="outline" onClick={scrollToContent} className="hidden lg:inline-flex rounded-full py-6 text-base sm:text-lg font-medium bg-gray-50 border-gray-200 hover:bg-gray-100 min-h-[44px]" aria-label="Learn more about SeedBase">
-                    Learn More
-                    <ChevronDown className="w-5 h-5 ml-2" aria-hidden="true" />
-                  </Button>
+                {/* CTA Buttons - Tablet + Desktop in header */}
+                <nav className="hidden md:flex flex-col gap-3" role="navigation" aria-label="Main actions">
+                  <EnterAppButton onClick={() => setShowLoginModal(true)} />
+                  <LearnMoreButton onClick={() => setShowLearnMore(true)} />
                 </nav>
                 
-                {/* Powered by CIK */}
-                <div className="w-full max-w-[calc(100vw-2rem)] sm:max-w-sm flex justify-center lg:justify-start mt-3">
-                  <img alt="Powered by Christ is King" className="h-4 opacity-0 animate-fade-in-stagger-5 object-contain" src="/lovable-uploads/77b981db-2bff-491e-bbe7-64c8bb64864f.png" />
-                </div>
               </div>
             </div>
           </div>
-
-          {/* Mobile Footer */}
-          <footer className="lg:hidden mt-8 mb-8 flex flex-col items-center gap-5 w-full">
-            {/* Divider */}
-            <div className="w-full h-px bg-gray-200" />
-            
-            {/* Copyright */}
-            <p className="text-muted-foreground text-sm">
-              © 2026 Seedbase. All rights reserved.
-            </p>
-            
-            {/* Built on Base */}
-            <div className="flex items-center gap-2 text-muted-foreground text-sm">
-              <span>Built on</span>
-              <img src={baseLogo} alt="Base" className="h-5 w-auto" />
-            </div>
-            
-            {/* Links */}
-            <div className="flex items-center gap-4 text-muted-foreground text-sm">
-              <a href="#" className="hover:text-foreground transition-colors">Privacy</a>
-              <span>•</span>
-              <a href="#" className="hover:text-foreground transition-colors">Terms</a>
-              <span>•</span>
-              <a href="#" className="hover:text-foreground transition-colors">Contact</a>
-            </div>
-            
-            {/* Network pill */}
-            <a href="https://seedbase.network" target="_blank" rel="noopener noreferrer" className="px-6 py-3 bg-gray-100 rounded-full text-foreground font-medium text-sm hover:bg-gray-200 transition-colors">
-              seedbase.network
-            </a>
-          </footer>
         </header>
+
+        {/* Mobile Scroll Narrative - replaces carousel */}
+        <div className="md:hidden px-4 sm:px-6">
+          <MobileScrollNarrative onEnterApp={() => setShowLoginModal(true)} />
+        </div>
 
         {/* Login Modal */}
         <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onComplete={handleLoginComplete} />
 
-        {/* Learn More Modal (Mobile) */}
-        <Dialog open={showLearnMore} onOpenChange={setShowLearnMore}>
-          <DialogContent className="sm:max-w-[420px] p-0 border-0 bg-transparent overflow-hidden">
-            {/* Colored background container */}
-            <div className="bg-gradient-to-br from-emerald-400 to-teal-500 rounded-3xl p-4">
-              {/* White floating card */}
-              <div className="bg-white rounded-2xl p-6 shadow-xl">
-                <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center animate-scale-fade-in">
-                    <span className="text-3xl">🌱</span>
-                  </div>
-                </div>
-                <div className="opacity-0 animate-slide-fade-in">
-                  <DialogHeader>
-                    <DialogTitle className="text-xl font-semibold text-center mb-2">
-                      What is SeedBase?
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 py-2">
-                    <p className="text-muted-foreground leading-relaxed">
-                      SeedBase is a social network where generosity compounds. Lock digital seeds, fund missions, or just show up—the surplus grows, the impact spreads, and trust rewards come back to everyone.
-                    </p>
-                    <p className="text-muted-foreground leading-relaxed">
-                      It's a live feed of global blessing where every dollar is tracked and every seed grows.
-                    </p>
-                    <div className="pt-4">
-                      <PrimaryButton onClick={() => {
-                      setShowLearnMore(false);
-                      setShowLoginModal(true);
-                    }} className="w-full">
-                        Get Started
-                      </PrimaryButton>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* Learn More Modal */}
+        <LearnMoreModal 
+          open={showLearnMore} 
+          onOpenChange={setShowLearnMore}
+          onGetStarted={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => setShowLoginModal(true), 300);
+          }}
+        />
 
-        {/* Right - Scrolling Content (desktop only) */}
-        <main className="hidden lg:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
-          {/* Hero Card Section */}
-          <section className="h-[620px] flex items-start pt-[32px] pl-0 pr-8 pointer-events-auto">
-            <div className="bg-[#FDDE02] rounded-[48px] p-8 w-full h-full flex items-start justify-center relative overflow-hidden animate-content-reveal">
-              <div className="flex flex-col items-center gap-2 pt-4 w-full max-w-sm">
-                <div className="w-full opacity-0 animate-card-appear-1">
-                  <SeedFeedCard />
-                </div>
-                <div className="w-full opacity-0 animate-card-appear-2">
-                  <SeedFeedCardPeek />
-                </div>
-                <div className="w-full opacity-0 animate-card-appear-3">
-                  <SeedFeedCardPeekAlt />
-                </div>
-              </div>
+        {/* Right - Scrolling Content (tablet and desktop) */}
+        <main className="hidden md:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
+          {/* Hero Card Section - Dynamic Visual Canvas */}
+          <section className="flex items-start pt-[32px] px-8 pointer-events-auto">
+            <div className="w-full animate-content-reveal">
+              <HeroVisualCanvas />
             </div>
           </section>
 
           {/* Scrolling Content Sections */}
           <div ref={desktopSectionsRef} className="scroll-mt-8" />
-          {sections.map(section => <div key={section.id} className="flex items-start py-16 px-8 pointer-events-auto">
-              <div className="flex flex-row gap-12 w-full">
-                {/* Topic Text - Left side */}
-                <div className="w-[45%] pt-16">
-                  <div className="max-w-md">
-                    <h2 className="font-heading text-3xl xl:text-4xl font-medium tracking-tight mb-6 text-foreground leading-[1.1]">
-                      {section.headline}
-                    </h2>
-                    <p className="text-lg text-muted-foreground leading-snug whitespace-pre-line">
-                      {section.description}
-                    </p>
-                  </div>
+          {sections.map(section => <section key={section.id} className="py-16 px-8 pointer-events-auto">
+              {/* 
+                Layout:
+                - Tablet (md): Stacked vertically - card on top, text below (like mobile but larger)
+                - Desktop (lg): Side-by-side grid - text left, card right
+              */}
+              <div className="flex flex-col lg:grid w-full gap-8 lg:gap-12 items-center lg:items-start content-start lg:grid-cols-[minmax(0,1fr)_auto]">
+                {/* Card - Top on tablet, Right on desktop */}
+                <div className="order-1 lg:order-2 w-full lg:w-auto">
+                  <FeatureSquareCard 
+                    bgColor={section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor}
+                    bgImage={section.bgImage ? waterBackground : undefined}
+                    animate
+                    className={section.id === 'wallet' ? 'animate-fade-in' : ''}
+                  >
+                    {renderCard(section.card, section.id)}
+                  </FeatureSquareCard>
                 </div>
                 
-                {/* Card - Right side */}
-                <div className="flex justify-end flex-shrink-0">
-                  <div className={`${section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor} rounded-[32px] flex-shrink-0 flex justify-center min-w-[560px] w-[560px] min-h-[560px] h-[560px] overflow-hidden ${section.id === 'impact' ? 'items-start p-0' : 'items-center p-8'} ${section.id === 'wallet' ? 'animate-fade-in' : ''}`}>
-                    <div className={`transform hover:scale-[1.01] transition-transform duration-300 flex items-center justify-center ${section.id === 'wallet' ? 'animate-scale-in' : ''}`}>
-                      {renderCard(section.card, section.id)}
-                    </div>
-                  </div>
+                {/* Topic Text - Below on tablet, Left on desktop */}
+                <div className="order-2 lg:order-1 min-w-0 max-w-md lg:pl-8 text-center lg:text-left">
+                  <h2 className="text-section lg:text-section-lg font-semibold tracking-[-0.02em] mb-4 lg:mb-6 text-foreground leading-[1.05]">
+                    {section.headline}
+                  </h2>
+                  <p className="text-body lg:text-body-lg text-muted-foreground leading-[1.5] max-w-[34rem] mx-auto lg:mx-0">
+                    {section.description}
+                  </p>
                 </div>
               </div>
-            </div>)}
+            </section>)}
 
-          {/* Closing Logo Section */}
-          <section className="py-32 px-8 flex items-center justify-center pointer-events-auto" aria-label="Return to top">
+          {/* Full-width Seedbase Logo Above Footer */}
+          <section className="py-6 px-8 flex justify-center pointer-events-auto">
             <button onClick={() => window.scrollTo({
             top: 0,
             behavior: 'smooth'
-          })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg" aria-label="Scroll back to top of page">
-              <img alt="SeedBase" className="w-[700px] max-w-[95vw] h-auto transition-opacity duration-300 opacity-100" src="/lovable-uploads/5a45fcb7-88b5-46ce-85d2-9d32748b4fb8.png" />
+          })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg w-full flex justify-center" aria-label="Scroll back to top of page">
+              <img alt="Seedbase" className="w-full max-w-2xl h-auto transition-opacity duration-300 opacity-100" src={seeddropTypeLight} />
             </button>
           </section>
+
+          {/* Footer Section */}
+          <footer className="py-8 px-8 flex flex-col items-center gap-4 pointer-events-auto border-t border-gray-200">
+            {/* Powered by CIK - Top of footer */}
+            <img alt="Powered by Christ is King" className="h-14 object-contain" src={poweredByCik} />
+            
+            {/* Desktop: Built on Base (left) + Copyright (right) on same line */}
+            {/* Mobile: Stacked vertically, centered */}
+            <div className="w-full flex flex-col items-center gap-4 md:flex-row md:justify-between md:items-center">
+              {/* Built on Base - left on desktop */}
+              <div className="flex items-center gap-2 text-muted-foreground text-base md:text-lg">
+                <span>Built on</span>
+                <img src={baseLogo} alt="Base" className="h-6 md:h-8 w-auto" />
+              </div>
+              
+              {/* Copyright - right on desktop */}
+              <p className="text-muted-foreground text-sm md:text-base">
+                © 2026 Christ is King Labs. All rights reserved.
+              </p>
+            </div>
+          </footer>
         </main>
       </div>
     </div>;

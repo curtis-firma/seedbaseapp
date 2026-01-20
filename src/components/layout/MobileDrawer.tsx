@@ -7,7 +7,7 @@ import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import seedbaseLeaf from '@/assets/seedbase-leaf-blue.png';
+import { Logo } from '@/components/shared/Logo';
 
 const menuNav = [
   { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages & transfers' },
@@ -26,7 +26,10 @@ interface MobileDrawerProps {
 export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawerProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { username, displayName, activeRole, user, logout, isAuthenticated } = useUser();
+  const { username, displayName, activeRole, user, logout, isAuthenticated, avatarUrl } = useUser();
+  
+  // Use avatarUrl from context for synced avatar
+  const displayAvatar = avatarUrl || user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
 
   const handleNavigate = (path: string) => {
     navigate(path);
@@ -65,9 +68,9 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
             className="fixed left-0 top-0 bottom-0 w-[300px] bg-card border-r border-border/50 z-50 flex flex-col"
           >
-            {/* Header - Logo on LEFT, Close on RIGHT */}
+            {/* Header - Full Logo on LEFT, Close on RIGHT */}
             <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
-              <img src={seedbaseLeaf} alt="Seedbase" className="h-10 w-auto" />
+              <Logo variant="wordmark" size="sm" />
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
@@ -82,7 +85,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
               <div className="px-6 py-4 border-b border-border/50">
                 <div className="flex items-center gap-4">
                   <Avatar className="h-14 w-14 border-2 border-primary/20">
-                    <AvatarImage src={user?.avatar} alt={displayName || username} />
+                    <AvatarImage src={displayAvatar} alt={displayName || username} />
                     <AvatarFallback className="bg-primary/10 text-primary font-semibold text-lg">
                       {(displayName || username || 'U').charAt(0).toUpperCase()}
                     </AvatarFallback>

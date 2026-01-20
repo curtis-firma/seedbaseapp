@@ -7,7 +7,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
-import seedbaseLogoFull from '@/assets/seedbase-logo-full.png';
+import { Logo, seeddropIconDark } from '@/components/shared/Logo';
 import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
 
 const primaryNav = [
@@ -44,20 +44,18 @@ export function Sidebar() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center"
             >
-              <span className="text-xl">🌱</span>
+              <Logo variant="icon" size="md" />
             </motion.div>
           ) : (
-            <motion.img
+            <motion.div
               key="expanded"
-              src={seedbaseLogoFull}
-              alt="Seedbase"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
-              className="h-10 w-auto"
-            />
+            >
+              <Logo variant="wordmark" size="lg" />
+            </motion.div>
           )}
         </AnimatePresence>
       </div>

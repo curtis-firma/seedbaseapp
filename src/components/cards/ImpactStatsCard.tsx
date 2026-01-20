@@ -32,39 +32,37 @@ const ImpactStatsCard = () => {
   };
 
   return (
-    <div className="w-[320px] bg-white rounded-3xl p-5 shadow-lg border border-gray-100">
+    <div className="w-full h-full bg-white rounded-2xl p-4 sm:p-5 shadow-lg flex flex-col">
       {/* Header */}
-      <div className="flex items-center justify-between mb-5">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
-            <Zap className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <p className="text-xs text-gray-500">Total Seeded</p>
-            <p className="font-bold text-2xl text-gray-900">{formatCurrency(displayValue)}</p>
-          </div>
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center flex-shrink-0">
+          <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+        </div>
+        <div>
+          <p className="text-[10px] sm:text-xs text-gray-500">Total Seeded</p>
+          <p className="font-bold text-xl sm:text-2xl text-gray-900">{formatCurrency(displayValue)}</p>
         </div>
       </div>
 
       {/* Kingdom Impact Label */}
-      <div className="flex items-center gap-2 mb-5">
-        <Heart className="w-4 h-4 text-rose-500 fill-current animate-subtle-pulse" />
-        <span className="text-xs font-semibold text-gray-400 tracking-wider uppercase">Kingdom Impact</span>
+      <div className="flex items-center gap-2 mb-3 sm:mb-4">
+        <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-rose-500 fill-current animate-subtle-pulse" />
+        <span className="text-[10px] sm:text-xs font-semibold text-gray-400 tracking-wider uppercase">Kingdom Impact</span>
       </div>
 
       {/* Action Buttons */}
-      <div className="flex items-center gap-3">
-        <button className="flex-1 flex items-center justify-center gap-2 py-3 px-4 border-2 border-emerald-200 rounded-xl text-emerald-600 font-medium hover:bg-emerald-50 transition-colors group">
-          <TrendingUp className="w-5 h-5 group-hover:animate-icon-wiggle" />
-          <span className="text-sm">Growth</span>
+      <div className="flex items-center gap-2 sm:gap-3 mt-auto">
+        <button className="flex-1 flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-2 sm:px-3 border-2 border-emerald-200 rounded-lg sm:rounded-xl text-emerald-600 font-medium hover:bg-emerald-50 transition-colors group">
+          <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5 group-hover:animate-icon-wiggle" />
+          <span className="text-xs sm:text-sm">Growth</span>
         </button>
-        <button className="flex-1 flex items-center justify-center gap-2 py-3 px-4 border-2 border-emerald-200 rounded-xl text-emerald-600 font-medium hover:bg-emerald-50 transition-colors group">
-          <Target className="w-5 h-5 group-hover:animate-icon-wiggle" />
-          <span className="text-sm">Goals</span>
+        <button className="flex-1 flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-2 sm:px-3 border-2 border-emerald-200 rounded-lg sm:rounded-xl text-emerald-600 font-medium hover:bg-emerald-50 transition-colors group">
+          <Target className="w-4 h-4 sm:w-5 sm:h-5 group-hover:animate-icon-wiggle" />
+          <span className="text-xs sm:text-sm">Goals</span>
         </button>
-        <button className="flex-1 flex items-center justify-center gap-2 py-3 px-4 border-2 border-emerald-200 rounded-xl text-emerald-600 font-medium hover:bg-emerald-50 transition-colors group">
-          <Heart className="w-5 h-5 group-hover:animate-icon-wiggle" />
-          <span className="text-sm">Impact</span>
+        <button className="flex-1 flex items-center justify-center gap-1.5 py-2 sm:py-2.5 px-2 sm:px-3 border-2 border-emerald-200 rounded-lg sm:rounded-xl text-emerald-600 font-medium hover:bg-emerald-50 transition-colors group">
+          <Heart className="w-4 h-4 sm:w-5 sm:h-5 group-hover:animate-icon-wiggle" />
+          <span className="text-xs sm:text-sm">Impact</span>
         </button>
       </div>
     </div>

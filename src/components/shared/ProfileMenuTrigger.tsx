@@ -7,7 +7,10 @@ interface ProfileMenuTriggerProps {
 }
 
 export function ProfileMenuTrigger({ onOpen }: ProfileMenuTriggerProps) {
-  const { user } = useUser();
+  const { user, avatarUrl, username } = useUser();
+  
+  // Use avatarUrl from context (synced with localStorage), fallback to user.avatar or DiceBear
+  const displayAvatar = avatarUrl || user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
 
   return (
     <motion.button
@@ -17,7 +20,7 @@ export function ProfileMenuTrigger({ onOpen }: ProfileMenuTriggerProps) {
     >
       <div className="relative">
         <img
-          src={user.avatar}
+          src={displayAvatar}
           alt={user.name}
           className="w-10 h-10 rounded-xl bg-muted object-cover"
         />

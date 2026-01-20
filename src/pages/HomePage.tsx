@@ -1,15 +1,16 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { Search, HelpCircle, MessageCircle } from 'lucide-react';
+import { Search, HelpCircle, MessageCircle, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
-import { FeedCard } from '@/components/feed/FeedCard';
+import { FeedRenderer } from '@/components/seedfeed/FeedRenderer';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
 import { FeedItem } from '@/types/seedbase';
-import seedbaseLogoFull from '@/assets/seedbase-logo-full.png';
+import { Logo } from '@/components/shared/Logo';
 import { useHaptic } from '@/hooks/useHaptic';
+import { toast } from 'sonner';
 
 const tabs = ['Network', 'For You'];
 
@@ -38,7 +39,7 @@ function postToFeedItem(post: DemoPost): FeedItem {
     } : undefined,
     seedbase: post.seedbase_tag ? { id: post.id, name: post.seedbase_tag } : undefined,
     mission: post.mission_tag ? { id: post.id, name: post.mission_tag } : undefined,
-    roleBadge: post.author?.active_role === 'trustee' ? 'Steward' : 
+    roleBadge: post.author?.active_role === 'trustee' ? 'Trustee' : 
                post.author?.active_role === 'envoy' ? 'Envoy' : 'Activator',
   };
 }
@@ -193,13 +194,56 @@ export default function HomePage() {
     window.dispatchEvent(new CustomEvent('show-walkthrough'));
   };
 
+  const [pullDistance, setPullDistance] = useState(0);
+  const [isPulling, setIsPulling] = useState(false);
+  const pullThreshold = 80;
+
   const handleRefresh = async () => {
     haptic.medium();
     setIsRefreshing(true);
     await loadPosts(true);
     setIsRefreshing(false);
     haptic.success();
+    toast.success('Feed refreshed!');
   };
+
+  // Pull-to-refresh touch handlers
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    if (window.scrollY === 0) {
+      setIsPulling(true);
+    }
+  }, []);
+
+  const handleTouchMove = useCallback((e: React.TouchEvent) => {
+    if (!isPulling || window.scrollY > 0) return;
+    
+    const touch = e.touches[0];
+    const startY = (e.target as HTMLElement).dataset.startY;
+    if (!startY) {
+      (e.target as HTMLElement).dataset.startY = String(touch.clientY);
+      return;
+    }
+    
+    const deltaY = touch.clientY - Number(startY);
+    if (deltaY > 0) {
+      setPullDistance(Math.min(deltaY * 0.5, 120));
+      if (deltaY > pullThreshold && !isRefreshing) {
+        haptic.light();
+      }
+    }
+  }, [isPulling, isRefreshing, haptic]);
+
+  const handleTouchEnd = useCallback(() => {
+    if (pullDistance > pullThreshold && !isRefreshing) {
+      handleRefresh();
+    }
+    setPullDistance(0);
+    setIsPulling(false);
+    // Clear startY
+    document.querySelectorAll('[data-start-y]').forEach(el => {
+      delete (el as HTMLElement).dataset.startY;
+    });
+  }, [pullDistance, isRefreshing]);
 
   const handleButtonTap = () => {
     haptic.light();
@@ -212,7 +256,7 @@ export default function HomePage() {
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <img src={seedbaseLogoFull} alt="Seedbase" className="h-8 w-auto" />
+              <Logo variant="wordmark" size="sm" />
             </div>
             <div className="flex items-center gap-1">
               <motion.button
@@ -251,14 +295,38 @@ export default function HomePage() {
         </div>
       </header>
 
-      {/* Feed Content */}
-      <motion.div
-        drag="x"
-        dragConstraints={{ left: 0, right: 0 }}
-        dragElastic={0.1}
-        onDragEnd={handleDragEnd}
-        className="px-4 py-4"
+      {/* Feed Content with Pull-to-Refresh */}
+      <div
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
       >
+        {/* Pull-to-refresh indicator */}
+        <motion.div
+          animate={{ 
+            height: pullDistance,
+            opacity: pullDistance > 20 ? 1 : 0 
+          }}
+          className="flex items-center justify-center overflow-hidden"
+        >
+          <motion.div
+            animate={{ 
+              rotate: pullDistance > pullThreshold ? 180 : (pullDistance / pullThreshold) * 180,
+              scale: pullDistance > pullThreshold ? 1.2 : 1
+            }}
+            className={`p-2 rounded-full ${pullDistance > pullThreshold ? 'bg-primary/20' : 'bg-muted'}`}
+          >
+            <RefreshCw className={`h-5 w-5 ${pullDistance > pullThreshold ? 'text-primary' : 'text-muted-foreground'}`} />
+          </motion.div>
+        </motion.div>
+
+        <motion.div
+          drag="x"
+          dragConstraints={{ left: 0, right: 0 }}
+          dragElastic={0.1}
+          onDragEnd={handleDragEnd}
+          className="px-4 py-4"
+        >
         <AnimatePresence mode="wait">
           <motion.div
             key={activeTab}
@@ -276,9 +344,7 @@ export default function HomePage() {
               </>
             ) : (
               <>
-                {currentFeed.map((item, index) => (
-                  <FeedCard key={item.id} item={item} index={index} />
-                ))}
+                <FeedRenderer items={currentFeed} />
 
                 {/* Infinite Scroll Load More Trigger */}
                 <div ref={loadMoreRef} className="py-6">
@@ -324,7 +390,8 @@ export default function HomePage() {
             )}
           </motion.div>
         </AnimatePresence>
-      </motion.div>
+        </motion.div>
+      </div>
 
       {/* Pull to Refresh Indicator */}
       <AnimatePresence>
