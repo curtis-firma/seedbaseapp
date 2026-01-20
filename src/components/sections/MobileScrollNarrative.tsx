@@ -210,7 +210,10 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       <LearnMoreModal 
         open={showLearnMore} 
         onOpenChange={setShowLearnMore}
-        onGetStarted={onEnterApp}
+        onGetStarted={() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setTimeout(() => onEnterApp(), 300);
+        }}
       />
     </div>
   );

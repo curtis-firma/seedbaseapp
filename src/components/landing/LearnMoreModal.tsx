@@ -1,7 +1,8 @@
-import { motion, Variants } from "framer-motion";
+import { useState } from "react";
+import { motion, Variants, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, ChevronDown } from "lucide-react";
 
 interface LearnMoreModalProps {
   open: boolean;
@@ -10,9 +11,16 @@ interface LearnMoreModalProps {
 }
 
 const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProps) => {
+  const [showDetails, setShowDetails] = useState(false);
+
   const handleGetStarted = () => {
     onOpenChange(false);
-    onGetStarted();
+    // Smooth scroll to top before showing login
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Delay login modal to allow scroll to complete
+    setTimeout(() => {
+      onGetStarted();
+    }, 300);
   };
 
   const handleReadLightPaper = () => {
@@ -24,88 +32,106 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.1,
+        staggerChildren: 0.08,
+        delayChildren: 0.05,
       },
     },
   };
 
   const itemVariants: Variants = {
-    hidden: { opacity: 0, y: 12 },
+    hidden: { opacity: 0, y: 8 },
     visible: { 
       opacity: 1, 
       y: 0,
-      transition: { duration: 0.4, ease: [0.4, 0, 0.2, 1] }
+      transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
     },
   };
 
   const pillVariants: Variants = {
-    hidden: { opacity: 0, x: -10 },
+    hidden: { opacity: 0, x: -8 },
     visible: { 
       opacity: 1, 
       x: 0,
-      transition: { duration: 0.3, ease: [0.4, 0, 0.2, 1] }
+      transition: { duration: 0.25, ease: [0.4, 0, 0.2, 1] }
     },
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto p-6 rounded-2xl border-0 bg-white shadow-2xl">
+      <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto p-5 sm:p-6 rounded-2xl border-0 bg-white shadow-2xl">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
-          className="space-y-5"
+          className="space-y-4"
         >
           {/* Hero Headline */}
           <motion.h2 
             variants={itemVariants}
-            className="text-2xl font-semibold tracking-tight text-foreground leading-tight"
+            className="text-xl sm:text-2xl font-semibold tracking-tight text-foreground leading-tight"
           >
             Impact you can see.{" "}
             <span className="text-primary">Where generosity compounds.</span>
           </motion.h2>
 
-          {/* Paragraph 1 */}
+          {/* Main Summary - Always visible */}
           <motion.p 
             variants={itemVariants}
-            className="text-[15px] text-muted-foreground leading-relaxed"
+            className="text-sm sm:text-[15px] text-muted-foreground leading-relaxed"
           >
-            Seedbase is a social network for generosity built on blockchain technology. When you commit USDC, it becomes seed—locked value that can't be sold or traded. As the network grows, seed appreciates. That growth creates surplus that automatically funds real missions worldwide.
+            Seedbase is a social network for generosity. Commit USDC, it becomes seed that grows. 
+            That growth funds real missions worldwide—and you follow every dollar in real time.
           </motion.p>
 
-          {/* Paragraph 2 */}
-          <motion.p 
-            variants={itemVariants}
-            className="text-[15px] text-muted-foreground leading-relaxed"
-          >
-            You follow missions in real time and see verified Harvests (impact reports). As your seed grows in value, that appreciation creates surplus—you earn rewards, missions get funded, and your original seed is kept safe for return.
-          </motion.p>
-
-          {/* No crypto line */}
-          <motion.p 
-            variants={itemVariants}
-            className="text-[15px] text-muted-foreground leading-relaxed"
-          >
-            No crypto knowledge needed. Use your debit card or Apple Pay to start. Deposit instantly to your bank account anytime.
-          </motion.p>
+          {/* Expandable Details */}
+          <motion.div variants={itemVariants}>
+            <button
+              onClick={() => setShowDetails(!showDetails)}
+              className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+            >
+              <span>{showDetails ? "Hide details" : "How it works"}</span>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showDetails ? 'rotate-180' : ''}`} />
+            </button>
+            
+            <AnimatePresence>
+              {showDetails && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  className="overflow-hidden"
+                >
+                  <div className="pt-3 space-y-3 text-sm text-muted-foreground leading-relaxed">
+                    <p>
+                      As the network grows, seed appreciates. That appreciation creates surplus—you earn rewards, 
+                      missions get funded, and your original seed is kept safe for return.
+                    </p>
+                    <p>
+                      No crypto knowledge needed. Use your debit card or Apple Pay. Withdraw to your bank anytime.
+                    </p>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </motion.div>
 
           {/* Closing line */}
           <motion.p 
             variants={itemVariants}
-            className="text-[15px] font-medium text-foreground leading-relaxed"
+            className="text-sm sm:text-[15px] font-medium text-foreground"
           >
-            This is generosity that multiplies impact, not generosity that disappears.
+            Generosity that multiplies—not disappears.
           </motion.p>
 
           {/* How to Participate Section */}
-          <motion.div variants={itemVariants} className="pt-2">
-            <h3 className="text-lg font-semibold text-foreground mb-4">
+          <motion.div variants={itemVariants} className="pt-1">
+            <h3 className="text-base font-semibold text-foreground mb-3">
               How to Participate
             </h3>
             
             <motion.div 
-              className="space-y-3"
+              className="space-y-2"
               variants={containerVariants}
               initial="hidden"
               animate="visible"
@@ -113,9 +139,9 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
               {/* Activator */}
               <motion.div 
                 variants={pillVariants}
-                className="flex items-center gap-3"
+                className="flex items-center gap-2 flex-wrap"
               >
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-seed/10 text-seed">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-seed/10 text-seed">
                   🌱 Activators
                 </span>
                 <span className="text-sm text-muted-foreground">
@@ -126,9 +152,9 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
               {/* Trustee */}
               <motion.div 
                 variants={pillVariants}
-                className="flex items-center gap-3"
+                className="flex items-center gap-2 flex-wrap"
               >
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-trust/10 text-trust">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-trust/10 text-trust">
                   ⛨ Trustees
                 </span>
                 <span className="text-sm text-muted-foreground">
@@ -139,9 +165,9 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
               {/* Envoy */}
               <motion.div 
                 variants={pillVariants}
-                className="flex items-center gap-3"
+                className="flex items-center gap-2 flex-wrap"
               >
-                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium bg-envoy/10 text-envoy">
+                <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-envoy/10 text-envoy">
                   🚀 Envoys
                 </span>
                 <span className="text-sm text-muted-foreground">
@@ -165,9 +191,10 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
             <Button
               onClick={handleReadLightPaper}
               variant="outline"
-              className="flex-1 border-primary text-primary hover:bg-primary/5 font-medium h-11 rounded-xl gap-2"
+              className="flex-1 border-primary text-primary hover:bg-primary/5 font-medium h-11 rounded-xl gap-1.5"
             >
-              Read Full Light Paper
+              <span className="hidden sm:inline">Read Light Paper</span>
+              <span className="sm:hidden">Light Paper</span>
               <ExternalLink className="w-4 h-4" />
             </Button>
           </motion.div>
