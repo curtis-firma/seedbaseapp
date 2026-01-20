@@ -25,11 +25,12 @@ const FeatureSquareCard = ({
   animate = false 
 }: FeatureSquareCardProps) => {
   return (
-    // Outer wrapper constrains the visual space taken, with proper margins
+    // Outer wrapper - full width of parent, card scales inside
+    // Parent (MobileScrollNarrative) has px-4 padding, so this respects that
     <div className={cn(
       "flex items-center justify-center",
-      // Constrain on mobile so the square never touches the screen edge
-      "w-full max-w-[280px] sm:max-w-[340px] md:max-w-[484px]",
+      // Full width on mobile to align with buttons/hero, constrained on larger screens
+      "w-full sm:max-w-[340px] md:max-w-[484px]",
       "aspect-square",
       "mx-auto"
     )}>
@@ -39,10 +40,9 @@ const FeatureSquareCard = ({
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={cn(
-          // Fixed desktop size
-          "w-[404px] h-[404px] aspect-square",
-          // Scale down uniformly on mobile
-          "scale-[0.69] sm:scale-[0.84] md:scale-100",
+          // Use percentage-based width to fill container, max out at 404px for desktop
+          "w-full max-w-[404px] aspect-square",
+          // No scale transform - let container control size
           "origin-center",
           // Outer styling
           "rounded-3xl md:rounded-[32px]",
