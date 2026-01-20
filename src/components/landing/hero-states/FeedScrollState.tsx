@@ -21,7 +21,7 @@ const MISSION_PHOTOS = {
 
 // 12 unique compact card variants
 const SeededCard = () => (
-  <div className="w-[260px] bg-white rounded-xl p-4 shadow-lg">
+  <div className="w-[260px] bg-white rounded-xl p-4 shadow-xl shadow-black/8 hover:shadow-2xl transition-shadow duration-300">
     <div className="flex items-center gap-2 mb-2">
       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-orange-500 flex items-center justify-center">
         <Gift className="w-4 h-4 text-white" />
@@ -36,7 +36,7 @@ const SeededCard = () => (
 );
 
 const SurplusCard = () => (
-  <div className="w-[260px] bg-white rounded-xl p-4 shadow-lg border-l-4 border-emerald-500">
+  <div className="w-[260px] bg-white rounded-xl p-4 shadow-xl shadow-black/8 border-l-4 border-emerald-500">
     <div className="flex items-center gap-2 mb-2">
       <Zap className="w-5 h-5 text-emerald-500" />
       <span className="text-xs font-medium text-emerald-600">Surplus Deployed</span>
@@ -47,7 +47,7 @@ const SurplusCard = () => (
 );
 
 const MilestoneCard = () => (
-  <div className="w-[260px] bg-gradient-to-br from-yellow-50 to-white rounded-xl p-4 shadow-lg">
+  <div className="w-[260px] bg-gradient-to-br from-yellow-50 to-white rounded-xl p-4 shadow-xl shadow-black/8">
     <div className="flex items-center gap-2 mb-2">
       <PartyPopper className="w-5 h-5 text-yellow-500" />
       <span className="text-xs font-bold text-yellow-600">MILESTONE!</span>
@@ -60,7 +60,7 @@ const MilestoneCard = () => (
 );
 
 const JoinedCard = () => (
-  <div className="w-[260px] bg-white rounded-xl p-4 shadow-lg">
+  <div className="w-[260px] bg-white rounded-xl p-4 shadow-xl shadow-black/8">
     <div className="flex items-center gap-3">
       <img 
         src={AVATARS.sarah}
@@ -76,7 +76,7 @@ const JoinedCard = () => (
 );
 
 const ImpactCard = () => (
-  <div className="w-[260px] bg-gradient-to-br from-blue-50 to-white rounded-xl p-4 shadow-lg">
+  <div className="w-[260px] bg-gradient-to-br from-blue-50 to-white rounded-xl p-4 shadow-xl shadow-black/8">
     <div className="flex items-center gap-2 mb-2">
       <Heart className="w-4 h-4 text-rose-500" />
       <span className="text-xs text-muted-foreground">Your Impact</span>
@@ -89,7 +89,7 @@ const ImpactCard = () => (
 );
 
 const VoteCard = () => (
-  <div className="w-[260px] bg-white rounded-xl p-4 shadow-lg">
+  <div className="w-[260px] bg-white rounded-xl p-4 shadow-xl shadow-black/8">
     <div className="flex items-center gap-2 mb-2">
       <Vote className="w-4 h-4 text-purple-500" />
       <span className="text-xs font-medium text-purple-600">Governance</span>
@@ -105,7 +105,7 @@ const VoteCard = () => (
 );
 
 const ThankYouCard = () => (
-  <div className="w-[260px] bg-white rounded-xl overflow-hidden shadow-lg">
+  <div className="w-[260px] bg-white rounded-xl overflow-hidden shadow-xl shadow-black/8">
     <img 
       src={MISSION_PHOTOS.tanzania}
       alt="" 
@@ -119,7 +119,7 @@ const ThankYouCard = () => (
 );
 
 const GrowthCard = () => (
-  <div className="w-[260px] bg-white rounded-xl p-4 shadow-lg">
+  <div className="w-[260px] bg-white rounded-xl p-4 shadow-xl shadow-black/8">
     <div className="flex items-center justify-between mb-2">
       <div className="flex items-center gap-2">
         <TrendingUp className="w-4 h-4 text-emerald-500" />
@@ -133,7 +133,7 @@ const GrowthCard = () => (
 );
 
 const TestimonyCard = () => (
-  <div className="w-[260px] bg-white rounded-xl p-4 shadow-lg">
+  <div className="w-[260px] bg-white rounded-xl p-4 shadow-xl shadow-black/8">
     <div className="flex items-start gap-3">
       <img 
         src={AVATARS.marcus}
@@ -149,7 +149,7 @@ const TestimonyCard = () => (
 );
 
 const DeploymentCard = () => (
-  <div className="w-[260px] bg-gradient-to-br from-cyan-50 to-white rounded-xl p-4 shadow-lg">
+  <div className="w-[260px] bg-gradient-to-br from-cyan-50 to-white rounded-xl p-4 shadow-xl shadow-black/8">
     <div className="flex items-center gap-2 mb-2">
       <Users className="w-4 h-4 text-cyan-600" />
       <span className="text-xs font-medium text-cyan-600">Deployment</span>
@@ -160,7 +160,7 @@ const DeploymentCard = () => (
 );
 
 const SchoolCard = () => (
-  <div className="w-[260px] bg-white rounded-xl overflow-hidden shadow-lg">
+  <div className="w-[260px] bg-white rounded-xl overflow-hidden shadow-xl shadow-black/8">
     <img 
       src={MISSION_PHOTOS.school}
       alt="" 
@@ -177,7 +177,7 @@ const SchoolCard = () => (
 );
 
 const WaterCard = () => (
-  <div className="w-[260px] bg-gradient-to-br from-sky-50 to-white rounded-xl p-4 shadow-lg">
+  <div className="w-[260px] bg-gradient-to-br from-sky-50 to-white rounded-xl p-4 shadow-xl shadow-black/8">
     <div className="flex items-center gap-2 mb-2">
       <Droplets className="w-4 h-4 text-sky-500" />
       <span className="text-xs font-medium text-sky-600">Clean Water</span>
@@ -209,13 +209,13 @@ const FeedScrollState = () => {
   const rightColumn = [ALL_CARDS[1], ALL_CARDS[3], ALL_CARDS[5], ALL_CARDS[7], ALL_CARDS[9], ALL_CARDS[11], ALL_CARDS[0], ALL_CARDS[5]];
 
   return (
-    <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
+    <div className="relative w-full h-full flex items-center justify-center overflow-hidden bg-[#FDDE02]">
       <div className="flex gap-4 items-start">
-        {/* Left column - slower scroll */}
+        {/* Left column - slower premium scroll */}
         <motion.div 
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-4"
           animate={{ y: [0, -900] }}
-          transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 45, repeat: Infinity, ease: "linear" }}
         >
           {leftColumn.map((card, index) => (
             <div key={`left-${card.id}-${index}`}>
@@ -224,11 +224,11 @@ const FeedScrollState = () => {
           ))}
         </motion.div>
         
-        {/* Right column - faster scroll, offset */}
+        {/* Right column - slightly faster scroll, offset */}
         <motion.div 
-          className="flex flex-col gap-3"
+          className="flex flex-col gap-4"
           animate={{ y: [-100, -1000] }}
-          transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+          transition={{ duration: 38, repeat: Infinity, ease: "linear" }}
         >
           {rightColumn.map((card, index) => (
             <div key={`right-${card.id}-${index}`}>

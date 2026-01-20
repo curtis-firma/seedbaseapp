@@ -1,10 +1,11 @@
 import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp-new.png';
-import seedBlue from '@/assets/seedbase-seed-blue.svg';
+import seedWhite from '@/assets/seed-icon-white.png';
 
 /**
  * BrandMomentState - Hero canvas state showing generosity growth
  * Uses percentage-based sizing to scale properly across viewports
+ * Blue background with white/inverted elements
  */
 
 // Spinning orbital ring component with seed icons
@@ -40,10 +41,9 @@ const OrbitalRing = ({
           cy="50"
           r="48"
           fill="none"
-          stroke="currentColor"
+          stroke="white"
           strokeWidth="0.5"
           strokeDasharray="3 5"
-          className="text-black"
           style={{ opacity }}
         />
       </svg>
@@ -73,7 +73,7 @@ const OrbitalRing = ({
               ease: "easeInOut"
             }}
           >
-            <img src={seedBlue} alt="" className="w-full h-full" />
+            <img src={seedWhite} alt="" className="w-full h-full opacity-80" />
           </motion.div>
         );
       })}
@@ -157,7 +157,7 @@ const GrowingSquares = () => {
                   ease: "backOut"
                 }}
               >
-                <img src={seedBlue} alt="" className="w-full h-full" />
+                <img src={seedWhite} alt="" className="w-full h-full" />
               </motion.div>
             ))}
           </motion.div>
@@ -169,13 +169,13 @@ const GrowingSquares = () => {
 
 const BrandMomentState = () => {
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#0000ff]">
       {/* "Generosity that grows" at the TOP */}
       <motion.p
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="absolute top-[8%] text-black/70 font-semibold tracking-wide z-20"
+        className="absolute top-[8%] text-white/80 font-semibold tracking-wide z-20"
         style={{ fontSize: 'clamp(14px, 5%, 24px)' }}
       >
         Generosity that grows
@@ -187,12 +187,12 @@ const BrandMomentState = () => {
       <OrbitalRing radius="85%" duration={30} seedCount={5} opacity={0.08} />
 
       {/* Grid dots pattern */}
-      <div className="absolute inset-0 opacity-5 pointer-events-none">
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
         <svg className="w-full h-full">
-          <pattern id="hero-dots" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <circle cx="20" cy="20" r="1" fill="black" />
+          <pattern id="hero-dots-blue" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <circle cx="20" cy="20" r="1" fill="white" />
           </pattern>
-          <rect width="100%" height="100%" fill="url(#hero-dots)" />
+          <rect width="100%" height="100%" fill="url(#hero-dots-blue)" />
         </svg>
       </div>
       
