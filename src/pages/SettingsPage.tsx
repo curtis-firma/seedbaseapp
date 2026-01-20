@@ -2,7 +2,7 @@ import { motion } from 'framer-motion';
 import { 
   Settings as SettingsIcon, User, Bell, Shield, Palette, 
   HelpCircle, FileText, LogOut, ChevronRight, Moon, Sun, Play,
-  Trash2, Bug, ChevronDown, Camera, Check, Edit, X
+  Trash2, Bug, ChevronDown, Camera, Check, Edit, X, Share2
 } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ import { clearAllDemoData, getSessionPhone, listUsers, truncateHexId } from '@/l
 import { uploadAvatar, updateUser, findUserByPhone, isUsernameTaken } from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
+import { SocialHandlesSettings } from '@/components/social/SocialHandlesSettings';
 
 export default function SettingsPage() {
   const [isDark, setIsDark] = useState(false);
@@ -170,11 +171,14 @@ export default function SettingsPage() {
     }
   };
 
+  const [showSocialHandles, setShowSocialHandles] = useState(false);
+
   const settingsGroups = [
     {
       title: 'Account',
       items: [
         { icon: User, label: 'Profile', description: 'Manage your identity' },
+        { icon: Share2, label: 'Social Handles', description: 'X & Base handles', isSocialHandles: true },
         { icon: Bell, label: 'Notifications', description: 'Alerts & updates' },
         { icon: Shield, label: 'Security', description: 'Keys & authentication' },
       ],
@@ -354,60 +358,84 @@ export default function SettingsPage() {
             </h3>
             <div className="bg-card rounded-2xl border border-border/50 divide-y divide-border/50">
               {group.items.map((item) => (
-                <motion.button
-                  key={item.label}
-                  whileTap={{ scale: 0.99 }}
-                  onClick={() => {
-                    if ((item as any).isDemoButton) {
-                      startDemo();
-                    }
-                  }}
-                  className="w-full p-4 flex items-center gap-4 text-left"
-                >
-                  <div className={cn(
-                    "w-10 h-10 rounded-xl flex items-center justify-center",
-                    (item as any).isDemoButton ? "bg-primary/10" : "bg-muted"
-                  )}>
-                    <item.icon className={cn(
-                      "h-5 w-5",
-                      (item as any).isDemoButton ? "text-primary" : "text-foreground"
-                    )} />
-                  </div>
-                  <div className="flex-1">
-                    <p className="font-medium">{item.label}</p>
-                    <p className="text-sm text-muted-foreground">{item.description}</p>
-                  </div>
-                  {(item as any).hasToggle ? (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setIsDark(!isDark);
-                        document.documentElement.classList.toggle('dark');
-                      }}
-                      className={cn(
-                        "w-12 h-7 rounded-full p-1 transition-colors",
-                        isDark ? "bg-primary" : "bg-muted"
-                      )}
-                    >
-                      <motion.div
-                        animate={{ x: isDark ? 20 : 0 }}
-                        className="w-5 h-5 rounded-full bg-white shadow-sm flex items-center justify-center"
-                      >
-                        {isDark ? (
-                          <Moon className="h-3 w-3 text-primary" />
-                        ) : (
-                          <Sun className="h-3 w-3 text-muted-foreground" />
-                        )}
-                      </motion.div>
-                    </button>
-                  ) : (item as any).isDemoButton ? (
-                    <div className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium">
-                      Start
+                <div key={item.label}>
+                  <motion.button
+                    whileTap={{ scale: 0.99 }}
+                    onClick={() => {
+                      if ((item as any).isDemoButton) {
+                        startDemo();
+                      } else if ((item as any).isSocialHandles) {
+                        setShowSocialHandles(!showSocialHandles);
+                      }
+                    }}
+                    className="w-full p-4 flex items-center gap-4 text-left"
+                  >
+                    <div className={cn(
+                      "w-10 h-10 rounded-xl flex items-center justify-center",
+                      (item as any).isDemoButton ? "bg-primary/10" : 
+                      (item as any).isSocialHandles ? "bg-[#0000ff]/10" : "bg-muted"
+                    )}>
+                      <item.icon className={cn(
+                        "h-5 w-5",
+                        (item as any).isDemoButton ? "text-primary" : 
+                        (item as any).isSocialHandles ? "text-[#0000ff]" : "text-foreground"
+                      )} />
                     </div>
-                  ) : (
-                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    <div className="flex-1">
+                      <p className="font-medium">{item.label}</p>
+                      <p className="text-sm text-muted-foreground">{item.description}</p>
+                    </div>
+                    {(item as any).hasToggle ? (
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setIsDark(!isDark);
+                          document.documentElement.classList.toggle('dark');
+                        }}
+                        className={cn(
+                          "w-12 h-7 rounded-full p-1 transition-colors",
+                          isDark ? "bg-primary" : "bg-muted"
+                        )}
+                      >
+                        <motion.div
+                          animate={{ x: isDark ? 20 : 0 }}
+                          className="w-5 h-5 rounded-full bg-white shadow-sm flex items-center justify-center"
+                        >
+                          {isDark ? (
+                            <Moon className="h-3 w-3 text-primary" />
+                          ) : (
+                            <Sun className="h-3 w-3 text-muted-foreground" />
+                          )}
+                        </motion.div>
+                      </button>
+                    ) : (item as any).isDemoButton ? (
+                      <div className="px-3 py-1.5 rounded-lg bg-primary/10 text-primary text-sm font-medium">
+                        Start
+                      </div>
+                    ) : (item as any).isSocialHandles ? (
+                      <ChevronDown className={cn(
+                        "h-5 w-5 text-muted-foreground transition-transform",
+                        showSocialHandles && "rotate-180"
+                      )} />
+                    ) : (
+                      <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                    )}
+                  </motion.button>
+                  
+                  {/* Social Handles Expandable Section */}
+                  {(item as any).isSocialHandles && showSocialHandles && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      exit={{ opacity: 0, height: 0 }}
+                      className="px-4 pb-4 border-t border-border/50"
+                    >
+                      <div className="pt-4">
+                        <SocialHandlesSettings />
+                      </div>
+                    </motion.div>
                   )}
-                </motion.button>
+                </div>
               ))}
             </div>
           </motion.div>
