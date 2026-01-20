@@ -25,7 +25,9 @@ export const demoProfiles = {
       handle: 'john', 
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
       lockedValue: 5000, 
-      seedbases: ['sb-cik', 'sb-hc', 'sb-mci'] 
+      seedbases: ['sb-cik', 'sb-hc', 'sb-mci'],
+      x_handle: '@john_seedbase',
+      base_handle: '@john.base',
     },
     { 
       id: 'act-2', 
@@ -33,7 +35,9 @@ export const demoProfiles = {
       handle: 'emma', 
       avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
       lockedValue: 12000, 
-      seedbases: ['sb-cik'] 
+      seedbases: ['sb-cik'],
+      x_handle: '@emma_activator',
+      base_handle: '@emma.base',
     },
     { 
       id: 'act-3', 
@@ -41,7 +45,19 @@ export const demoProfiles = {
       handle: 'david', 
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop',
       lockedValue: 8000, 
-      seedbases: ['sb-cik', 'sb-wwu'] 
+      seedbases: ['sb-cik', 'sb-wwu'],
+      x_handle: '@davidkim',
+      base_handle: '@david.base',
+    },
+    { 
+      id: 'act-4', 
+      name: 'The Demo King', 
+      handle: 'TheDemoKing', 
+      avatar: 'https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=100&h=100&fit=crop',
+      lockedValue: 25000, 
+      seedbases: ['sb-cik', 'sb-hc'],
+      x_handle: '@demoking',
+      base_handle: '@demoking.base',
     },
   ],
   trustees: [
@@ -50,7 +66,18 @@ export const demoProfiles = {
       name: 'Pastor James', 
       handle: 'pastorjames', 
       avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
-      seedbase: 'sb-cik' 
+      seedbase: 'sb-cik',
+      x_handle: '@pastorjames',
+      base_handle: '@pastorjames.base',
+    },
+    { 
+      id: 'trs-2', 
+      name: 'Hope City Church', 
+      handle: 'hope_city', 
+      avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
+      seedbase: 'sb-hc',
+      x_handle: '@hope_city',
+      base_handle: '@hopecity.base',
     },
   ],
   envoys: [
@@ -60,7 +87,9 @@ export const demoProfiles = {
       handle: 'sarah', 
       avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&h=100&fit=crop',
       seedbase: 'sb-cik', 
-      missions: ['m-cik-1', 'm-cik-3'] 
+      missions: ['m-cik-1', 'm-cik-3'],
+      x_handle: '@sarah_envoy',
+      base_handle: '@sarah.base',
     },
     { 
       id: 'env-2', 
@@ -68,7 +97,9 @@ export const demoProfiles = {
       handle: 'marcus', 
       avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop',
       seedbase: 'sb-cik', 
-      missions: ['m-cik-4'] 
+      missions: ['m-cik-4'],
+      x_handle: '@marcus_envoy',
+      base_handle: '@marcus.base',
     },
   ],
 };

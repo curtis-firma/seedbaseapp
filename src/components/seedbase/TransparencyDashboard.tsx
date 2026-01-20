@@ -12,6 +12,7 @@ import { KeyGatedCard } from '@/components/shared/KeyGatedCard';
 import { useHaptic } from '@/hooks/useHaptic';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { Confetti } from '@/components/shared/Confetti';
 
 interface TransparencyDashboardProps {
   viewMode: 'activator' | 'trustee' | 'envoy';
@@ -124,6 +125,11 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
   const [showTour, setShowTour] = useState(false);
   const [tourStep, setTourStep] = useState(0);
   const [highlightedSection, setHighlightedSection] = useState<string | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
+  
+  // Breakdown modal state
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [showBreakdownModal, setShowBreakdownModal] = useState(false);
   
   const totalPool = 12500;
   
@@ -185,9 +191,23 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
     haptic.success();
     setShowTour(false);
     setHighlightedSection(null);
+    setShowConfetti(true);
     localStorage.setItem(TOUR_STORAGE_KEY, 'true');
     toast.success('Tour completed! Explore the dashboard.');
+    setTimeout(() => setShowConfetti(false), 3000);
   };
+  
+  const handleCategoryClick = (categoryName: string) => {
+    haptic.light();
+    setSelectedCategory(categoryName);
+    setShowBreakdownModal(true);
+  };
+  
+  const categoryTransactions = selectedCategory
+    ? transactions.filter(tx => tx.category === selectedCategory)
+    : [];
+  
+  const categoryTotal = categoryTransactions.reduce((sum, tx) => sum + tx.amount, 0);
   
   const skipTour = () => {
     setShowTour(false);
@@ -227,6 +247,94 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
       animate={{ opacity: 1, y: 0 }}
       className={cn("space-y-6 relative", className)}
     >
+      {/* Confetti on tour completion */}
+      <Confetti isActive={showConfetti} />
+      
+      {/* Category Breakdown Modal */}
+      <AnimatePresence>
+        {showBreakdownModal && selectedCategory && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            onClick={() => setShowBreakdownModal(false)}
+          >
+            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+              className="relative bg-card rounded-2xl border border-border/50 shadow-2xl max-w-md w-full max-h-[80vh] overflow-hidden"
+            >
+              {/* Header */}
+              <div 
+                className="p-5 border-b border-border/50"
+                style={{ backgroundColor: `${getCategoryColor(selectedCategory)}10` }}
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div 
+                      className="w-12 h-12 rounded-xl flex items-center justify-center"
+                      style={{ backgroundColor: `${getCategoryColor(selectedCategory)}20` }}
+                    >
+                      {(() => {
+                        const Icon = getCategoryIcon(selectedCategory);
+                        return <Icon className="h-6 w-6" style={{ color: getCategoryColor(selectedCategory) }} />;
+                      })()}
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-xl">{selectedCategory}</h3>
+                      <p className="text-sm text-muted-foreground">{categoryTransactions.length} transactions</p>
+                    </div>
+                  </div>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setShowBreakdownModal(false)}
+                    className="p-2 rounded-lg hover:bg-muted transition-colors"
+                  >
+                    <X className="h-5 w-5" />
+                  </motion.button>
+                </div>
+                
+                {/* Category Total */}
+                <div className="mt-4 p-4 rounded-xl bg-card">
+                  <p className="text-sm text-muted-foreground mb-1">Total Spent</p>
+                  <p className="text-3xl font-bold" style={{ color: getCategoryColor(selectedCategory) }}>
+                    <AnimatedCounter value={categoryTotal} prefix="$" />
+                  </p>
+                </div>
+              </div>
+              
+              {/* Transactions List */}
+              <div className="p-5 max-h-[400px] overflow-y-auto">
+                <h4 className="text-sm font-medium text-muted-foreground mb-3">All Transactions</h4>
+                <div className="space-y-3">
+                  {categoryTransactions.map((tx, i) => (
+                    <motion.div
+                      key={tx.id}
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="flex items-center justify-between p-3 rounded-xl bg-muted/30"
+                    >
+                      <div>
+                        <p className="font-medium text-sm">{tx.description}</p>
+                        <p className="text-xs text-muted-foreground">{tx.date}</p>
+                      </div>
+                      <p className="font-semibold" style={{ color: getCategoryColor(selectedCategory) }}>
+                        -${tx.amount.toLocaleString()}
+                      </p>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
       {/* Tour Overlay */}
       <AnimatePresence>
         {showTour && (
@@ -379,6 +487,7 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
                       fill={entry.color}
                       stroke={hoveredSegment === entry.name ? 'hsl(var(--background))' : 'transparent'}
                       strokeWidth={hoveredSegment === entry.name ? 3 : 0}
+                      onClick={() => handleCategoryClick(entry.name)}
                       style={{
                         filter: hoveredSegment === entry.name ? 'brightness(1.1)' : 'none',
                         cursor: 'pointer',
@@ -430,6 +539,7 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
                   )}
                   onMouseEnter={() => setHoveredSegment(item.name)}
                   onMouseLeave={() => setHoveredSegment(null)}
+                  onClick={() => handleCategoryClick(item.name)}
                 >
                   <div 
                     className="w-8 h-8 rounded-lg flex items-center justify-center"

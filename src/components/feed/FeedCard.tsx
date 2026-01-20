@@ -14,6 +14,7 @@ import { getRandomImage, getCategoryFromName } from '@/lib/curatedImages';
 import { PostHeader } from '@/components/seedfeed/shared/PostHeader';
 import { PostActions } from '@/components/seedfeed/shared/PostActions';
 import { CardImpactFooter } from '@/components/seedfeed/shared/CardImpactFooter';
+import { AmplifyButton } from '@/components/social/AmplifyButton';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
 
 interface FeedCardProps {
@@ -288,17 +289,24 @@ export function FeedCard({ item, index }: FeedCardProps) {
 
         {/* Actions Bar - Using Shared PostActions */}
         <div className="px-4 pb-4 border-t border-border/30 mt-2">
-          <PostActions
-            commentCount={item.comments}
-            likeCount={likeCount}
-            impactAmount={item.impactFlow?.amount ? item.impactFlow.amount / 1000 : undefined}
-            isLiked={isLiked}
-            onComment={handleComment}
-            onShare={handleShare}
-            onLike={handleLike}
-            onGive={handleGive}
-            showGiveButton={true}
-          />
+          <div className="flex items-center justify-between">
+            <PostActions
+              commentCount={item.comments}
+              likeCount={likeCount}
+              impactAmount={item.impactFlow?.amount ? item.impactFlow.amount / 1000 : undefined}
+              isLiked={isLiked}
+              onComment={handleComment}
+              onShare={handleShare}
+              onLike={handleLike}
+              onGive={handleGive}
+              showGiveButton={true}
+            />
+            <AmplifyButton
+              variant="inline"
+              content={`${item.author?.name || 'Someone'} just made an impact! ${item.content?.slice(0, 80)}...\n\n#Seedbase`}
+              impactSummary={`Impact from ${item.author?.name || 'the network'}`}
+            />
+          </div>
         </div>
       </motion.article>
 
