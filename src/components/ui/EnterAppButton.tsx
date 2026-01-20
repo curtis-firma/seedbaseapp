@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import seedIconWhite from "@/assets/seed-icon-white.png";
+import seedButtonIcon from "@/assets/seed-button-icon.png";
 
 interface EnterAppButtonProps {
   onClick: () => void;
@@ -29,12 +29,12 @@ const EnterAppButton = ({ onClick, fullWidth = false, className }: EnterAppButto
     >
       {/* Seed icon - absolute left, slides out on hover */}
       <img
-        src={seedIconWhite}
+        src={seedButtonIcon}
         alt=""
         aria-hidden="true"
         className={cn(
           "absolute left-4 w-5 h-5 object-contain",
-          "brightness-0 invert", // Make blue icon white
+          "brightness-0 invert", // Convert blue to white
           "transition-transform duration-300 ease-out",
           "group-hover:-translate-x-10 group-focus-visible:-translate-x-10",
           // Reduced motion: no animation
