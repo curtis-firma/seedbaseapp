@@ -26,8 +26,8 @@ export function AmplifyButton({
   
   const variants = {
     default: 'flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0000ff] text-white rounded-xl font-medium text-sm hover:bg-[#0000dd] transition-colors',
-    small: 'flex items-center gap-1.5 px-3 py-1.5 bg-[#0000ff]/10 text-[#0000ff] rounded-lg text-xs font-medium hover:bg-[#0000ff]/20 transition-colors',
-    inline: 'flex items-center gap-1 text-[#0000ff] text-sm font-medium hover:underline',
+    small: 'flex items-center gap-1.5 px-3 py-1.5 bg-[#0000ff] text-white rounded-lg text-xs font-medium hover:bg-[#0000dd] transition-colors',
+    inline: 'flex items-center gap-1 text-white dark:text-[#0000ff] text-sm font-medium hover:text-white/80 dark:hover:text-[#0000dd] transition-colors',
   };
   
   return (

@@ -25,13 +25,13 @@ import seedbasePfp from '@/assets/seedbase-pfp.png';
 
 // Message type icons and styles - Using blue (base) for branding
 const messageTypeConfig: Record<string, { icon: typeof DollarSign; gradient: string; bgColor: string }> = {
-  distribution: { icon: DollarSign, gradient: 'gradient-base', bgColor: 'bg-base/10' },
-  transfer: { icon: Send, gradient: 'gradient-base', bgColor: 'bg-base/10' },
-  harvest: { icon: FileText, gradient: 'gradient-envoy', bgColor: 'bg-envoy/10' },
-  governance: { icon: Vote, gradient: 'gradient-trust', bgColor: 'bg-trust/10' },
-  milestone: { icon: Sprout, gradient: 'gradient-base', bgColor: 'bg-base/10' },
-  system: { icon: Bell, gradient: 'gradient-base', bgColor: 'bg-muted' },
-  update: { icon: FileText, gradient: 'gradient-envoy', bgColor: 'bg-envoy/10' },
+  distribution: { icon: DollarSign, gradient: 'gradient-base', bgColor: 'bg-[#0000ff]/30' },
+  transfer: { icon: Send, gradient: 'gradient-base', bgColor: 'bg-[#0000ff]/30' },
+  harvest: { icon: FileText, gradient: 'gradient-envoy', bgColor: 'bg-orange-500/30' },
+  governance: { icon: Vote, gradient: 'gradient-trust', bgColor: 'bg-purple-500/30' },
+  milestone: { icon: Sprout, gradient: 'gradient-base', bgColor: 'bg-[#0000ff]/30' },
+  system: { icon: Bell, gradient: 'gradient-base', bgColor: 'bg-white/20 dark:bg-gray-200' },
+  update: { icon: FileText, gradient: 'gradient-envoy', bgColor: 'bg-orange-500/30' },
 };
 
 export default function OneAccordPage() {
@@ -208,7 +208,7 @@ export default function OneAccordPage() {
                 <div className="px-4 py-4 flex items-center justify-between">
                   <div>
                     <h1 className="text-xl font-bold text-white dark:text-black">OneAccord</h1>
-                    <p className="text-sm text-gray-400 dark:text-gray-500">Messages & Transfers</p>
+                    <p className="text-sm text-white/60 dark:text-gray-600">Messages & Transfers</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <motion.button
@@ -236,7 +236,7 @@ export default function OneAccordPage() {
             {isLoading ? (
               <div className="px-4 py-12 text-center">
                 <div className="w-8 h-8 border-2 border-[#0000ff] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-gray-400 dark:text-gray-500">Loading messages...</p>
+                <p className="text-white/60 dark:text-gray-600">Loading messages...</p>
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto px-4 py-2 pb-36">
@@ -291,13 +291,13 @@ export default function OneAccordPage() {
                               <div className="flex items-center gap-2">
                                 <p className="font-semibold text-white dark:text-black">{message.from}</p>
                                 <span className={cn(
-                                  "text-[10px] px-1.5 py-0.5 rounded font-medium uppercase",
+                                  "text-[10px] px-1.5 py-0.5 rounded font-medium uppercase text-white dark:text-black",
                                   config.bgColor
                                 )}>
                                   {message.fromRole}
                                 </span>
                               </div>
-                              <p className="text-xs text-gray-400 dark:text-gray-500">
+                              <p className="text-xs text-white/50 dark:text-gray-500">
                                 {formatDistanceToNow(message.timestamp, { addSuffix: true })}
                               </p>
                             </div>
@@ -308,7 +308,7 @@ export default function OneAccordPage() {
                           
                           <div className="mb-3">
                             <p className="font-medium text-white dark:text-black">{message.title}</p>
-                            <p className="text-sm text-gray-400 dark:text-gray-500 whitespace-pre-line">{message.body}</p>
+                            <p className="text-sm text-white/70 dark:text-gray-600 whitespace-pre-line">{message.body}</p>
                           </div>
                           
                           {message.hasAcceptButton && (
@@ -343,7 +343,7 @@ export default function OneAccordPage() {
                                       whileTap={{ scale: 0.98 }}
                                       className="px-4 py-3 bg-white/10 dark:bg-gray-100 rounded-xl"
                                     >
-                                      <X className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                                      <X className="h-4 w-4 text-white/60 dark:text-gray-500" />
                                     </motion.button>
                                   </>
                                 )}
@@ -390,9 +390,9 @@ export default function OneAccordPage() {
                           ) : (
                             <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.bgColor)}>
                               {message.avatar.length <= 2 ? (
-                                <span className="text-lg">{message.avatar}</span>
+                                <span className="text-lg text-white dark:text-black">{message.avatar}</span>
                               ) : (
-                                <IconComponent className="h-5 w-5 text-gray-400" />
+                                <IconComponent className="h-5 w-5 text-white dark:text-black" />
                               )}
                             </div>
                           )}
@@ -411,14 +411,14 @@ export default function OneAccordPage() {
                               )}
                             </div>
                             <p className="font-medium text-sm text-white dark:text-black">{message.title}</p>
-                            <p className="text-sm text-gray-400 dark:text-gray-500 line-clamp-2">{message.body}</p>
-                            <p className="text-xs text-gray-500 mt-1">
+                            <p className="text-sm text-white/70 dark:text-gray-600 line-clamp-2">{message.body}</p>
+                            <p className="text-xs text-white/50 dark:text-gray-500 mt-1">
                               {formatDistanceToNow(message.timestamp, { addSuffix: true })}
                             </p>
                             
                             {/* Amplify button for eligible messages */}
                             {isAmplifiable && (
-                              <div className="mt-3 pt-3 border-t border-white/10 dark:border-gray-200">
+                              <div className="mt-3 pt-3 border-t border-white/20 dark:border-gray-200">
                                 <AmplifyButton
                                   variant="inline"
                                   content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
