@@ -105,35 +105,80 @@ const BlockchainChain = ({ direction, blockCount = 5 }: { direction: 'left' | 'r
   );
 };
 
-// Subtle orbital ring (keeping some movement)
-const OrbitalRing = ({ 
-  radius, 
-  duration, 
-  reverse = false, 
-  opacity = 0.1 
-}: { 
-  radius: number; 
-  duration: number; 
+// Base-style segmented orbital ring with orbiting dots
+const SegmentedOrbitalRing = ({
+  radius,
+  duration,
+  reverse = false,
+  segments = 8,
+  gapRatio = 0.3,
+  dotCount = 2,
+  strokeWidth = 2,
+}: {
+  radius: number;
+  duration: number;
   reverse?: boolean;
-  opacity?: number;
-}) => (
-  <motion.div
-    className="absolute left-1/2 top-1/2"
-    style={{ 
-      width: radius * 2, 
-      height: radius * 2,
-      marginLeft: -radius,
-      marginTop: -radius,
-    }}
-    animate={{ rotate: reverse ? -360 : 360 }}
-    transition={{ duration, repeat: Infinity, ease: "linear" }}
-  >
-    <div 
-      className="absolute inset-0 rounded-full border border-blue-500/10"
-      style={{ opacity }}
-    />
-  </motion.div>
-);
+  segments?: number;
+  gapRatio?: number;
+  dotCount?: number;
+  strokeWidth?: number;
+}) => {
+  // Calculate dash array for segmented effect
+  const circumference = 2 * Math.PI * radius;
+  const segmentLength = circumference / segments;
+  const dashLength = segmentLength * (1 - gapRatio);
+  const gapLength = segmentLength * gapRatio;
+  
+  // Generate dot positions evenly around the ring
+  const dotPositions = Array.from({ length: dotCount }).map((_, i) => {
+    const angle = (i / dotCount) * 360;
+    return angle;
+  });
+  
+  return (
+    <motion.div
+      className="absolute left-1/2 top-1/2"
+      style={{ 
+        width: radius * 2, 
+        height: radius * 2,
+        marginLeft: -radius,
+        marginTop: -radius,
+      }}
+      animate={{ rotate: reverse ? -360 : 360 }}
+      transition={{ duration, repeat: Infinity, ease: "linear" }}
+    >
+      {/* SVG for dashed ring */}
+      <svg className="w-full h-full" viewBox={`0 0 ${radius * 2} ${radius * 2}`}>
+        <circle
+          cx={radius}
+          cy={radius}
+          r={radius - strokeWidth / 2}
+          fill="none"
+          stroke="white"
+          strokeWidth={strokeWidth}
+          strokeDasharray={`${dashLength} ${gapLength}`}
+          strokeLinecap="round"
+          opacity={0.6}
+        />
+      </svg>
+      
+      {/* Orbiting dots */}
+      {dotPositions.map((angle, i) => (
+        <div
+          key={i}
+          className="absolute bg-white rounded-full"
+          style={{
+            width: 6,
+            height: 6,
+            left: '50%',
+            top: '50%',
+            transform: `rotate(${angle}deg) translateY(-${radius - 3}px) translateX(-50%)`,
+          }}
+        />
+      ))}
+    </motion.div>
+  );
+};
 
 const NetworkFlowState = () => {
   return (
@@ -148,9 +193,11 @@ const NetworkFlowState = () => {
         Generosity onchain
       </motion.p>
 
-      {/* Subtle orbital rings in background */}
-      <OrbitalRing radius={100} duration={25} opacity={0.04} />
-      <OrbitalRing radius={150} duration={35} reverse opacity={0.03} />
+      {/* Base-style spinning segmented orbital rings */}
+      <SegmentedOrbitalRing radius={55} duration={15} segments={6} dotCount={2} strokeWidth={1.5} />
+      <SegmentedOrbitalRing radius={85} duration={20} reverse segments={8} dotCount={3} strokeWidth={1.5} />
+      <SegmentedOrbitalRing radius={115} duration={25} segments={10} dotCount={2} strokeWidth={1.5} />
+      <SegmentedOrbitalRing radius={145} duration={30} reverse segments={12} dotCount={1} strokeWidth={1} />
 
       {/* Blockchain chains extending from logo in both directions */}
       <BlockchainChain direction="left" blockCount={5} />
