@@ -151,8 +151,9 @@ export default function OneAccordPage() {
 
   // Always show demo messages first, then any real transfers below
 
+  // One Accord uses inverted colors - dark when system is light, light when system is dark
   return (
-    <div className="min-h-screen pb-36">
+    <div className="min-h-screen pb-36 bg-[#0a0a0a] dark:bg-white">
       {/* Confetti Animation */}
       <Confetti isActive={showConfetti} />
       
@@ -179,18 +180,18 @@ export default function OneAccordPage() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, x: -20 }}
           >
-            {/* Header */}
-            <header className="sticky top-0 z-20 glass-strong border-b border-border/50">
+            {/* Header - inverted colors */}
+            <header className="sticky top-0 z-20 bg-[#0a0a0a]/95 dark:bg-white/95 backdrop-blur-xl border-b border-white/10 dark:border-gray-200">
               <div className="px-4 py-4 flex items-center justify-between">
                 <div>
-                  <h1 className="text-xl font-bold">OneAccord</h1>
-                  <p className="text-sm text-muted-foreground">Messages & Transfers</p>
+                  <h1 className="text-xl font-bold text-white dark:text-black">OneAccord</h1>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">Messages & Transfers</p>
                 </div>
                 <div className="flex items-center gap-2">
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={loadTransfers}
-                    className="p-2 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+                    className="p-2 rounded-xl bg-white/10 dark:bg-gray-100 hover:bg-white/20 dark:hover:bg-gray-200 transition-colors text-white dark:text-black"
                   >
                     <RefreshCw className="h-5 w-5" />
                   </motion.button>
@@ -198,10 +199,10 @@ export default function OneAccordPage() {
               </div>
             </header>
 
-            {/* Info Banner */}
+            {/* Info Banner - inverted colors */}
             <div className="px-4 py-3">
-              <div className="bg-primary/5 border border-primary/20 rounded-xl p-4">
-                <p className="text-sm text-foreground">
+              <div className="bg-[#0000ff]/10 border border-[#0000ff]/30 rounded-xl p-4">
+                <p className="text-sm text-white dark:text-black">
                   <span className="font-semibold">All transfers arrive here.</span> Accept USDC transfers to move them to your wallet.
                 </p>
               </div>
@@ -209,8 +210,8 @@ export default function OneAccordPage() {
 
             {isLoading ? (
               <div className="px-4 py-12 text-center">
-                <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-muted-foreground">Loading messages...</p>
+                <div className="w-8 h-8 border-2 border-[#0000ff] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-gray-400 dark:text-gray-500">Loading messages...</p>
               </div>
             ) : (
               <div className="px-4 py-2">
@@ -218,8 +219,8 @@ export default function OneAccordPage() {
                 {/* Pending Section */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
-                    <h2 className="font-semibold">Pending</h2>
-                    <span className="px-2 py-0.5 bg-base/10 text-base rounded-full text-xs font-medium">
+                    <h2 className="font-semibold text-white dark:text-black">Pending</h2>
+                    <span className="px-2 py-0.5 bg-[#0000ff]/20 text-[#0000ff] rounded-full text-xs font-medium">
                       {oneAccordMessages.filter(m => !m.isRead && m.hasAcceptButton).length}
                     </span>
                   </div>
@@ -235,8 +236,8 @@ export default function OneAccordPage() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.05 }}
                           className={cn(
-                            "bg-card rounded-2xl border p-4",
-                            !message.isRead ? "border-base/30" : "border-border/50"
+                            "bg-[#1a1a1a] dark:bg-gray-50 rounded-2xl border p-4",
+                            !message.isRead ? "border-[#0000ff]/30" : "border-white/10 dark:border-gray-200"
                           )}
                         >
                         <div className="flex items-start gap-3 mb-3">
@@ -263,7 +264,7 @@ export default function OneAccordPage() {
                             )}
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <p className="font-semibold">{message.from}</p>
+                                <p className="font-semibold text-white dark:text-black">{message.from}</p>
                                 <span className={cn(
                                   "text-[10px] px-1.5 py-0.5 rounded font-medium uppercase",
                                   config.bgColor
@@ -271,18 +272,18 @@ export default function OneAccordPage() {
                                   {message.fromRole}
                                 </span>
                               </div>
-                              <p className="text-xs text-muted-foreground">
+                              <p className="text-xs text-gray-400 dark:text-gray-500">
                                 {formatDistanceToNow(message.timestamp, { addSuffix: true })}
                               </p>
                             </div>
                             {message.amount && (
-                              <p className="text-xl font-bold text-base">${message.amount.toLocaleString()}</p>
+                              <p className="text-xl font-bold text-[#0000ff]">${message.amount.toLocaleString()}</p>
                             )}
                           </div>
                           
                           <div className="mb-3">
-                            <p className="font-medium text-foreground">{message.title}</p>
-                            <p className="text-sm text-muted-foreground whitespace-pre-line">{message.body}</p>
+                            <p className="font-medium text-white dark:text-black">{message.title}</p>
+                            <p className="text-sm text-gray-400 dark:text-gray-500 whitespace-pre-line">{message.body}</p>
                           </div>
                           
                           {message.hasAcceptButton && (
@@ -291,7 +292,7 @@ export default function OneAccordPage() {
                                 <motion.div
                                   initial={{ scale: 0.95 }}
                                   animate={{ scale: [1, 1.05, 1] }}
-                                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary/20 border-2 border-primary rounded-xl text-primary font-medium cursor-not-allowed"
+                                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff]/20 border-2 border-[#0000ff] rounded-xl text-[#0000ff] font-medium cursor-not-allowed"
                                 >
                                   <Check className="h-5 w-5" />
                                   Accepted
@@ -301,16 +302,16 @@ export default function OneAccordPage() {
                                   <motion.button
                                     whileTap={{ scale: 0.98 }}
                                     onClick={() => handleDemoAccept(message.id)}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 gradient-base rounded-xl text-white font-medium"
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff] rounded-xl text-white font-medium"
                                   >
                                     <Check className="h-4 w-4" />
                                     Accept
                                   </motion.button>
                                   <motion.button
                                     whileTap={{ scale: 0.98 }}
-                                    className="px-4 py-3 bg-muted rounded-xl"
+                                    className="px-4 py-3 bg-white/10 dark:bg-gray-100 rounded-xl"
                                   >
-                                    <X className="h-4 w-4 text-muted-foreground" />
+                                    <X className="h-4 w-4 text-gray-400 dark:text-gray-500" />
                                   </motion.button>
                                 </>
                               )}
@@ -323,7 +324,7 @@ export default function OneAccordPage() {
                 </div>
 
                 {/* All Demo Messages */}
-                <h2 className="font-semibold mb-3">All Messages</h2>
+                <h2 className="font-semibold mb-3 text-white dark:text-black">All Messages</h2>
                 <div className="space-y-2">
                   {oneAccordMessages.filter(m => m.status !== 'pending' || !m.hasAcceptButton).map((message, i) => {
                     const config = messageTypeConfig[message.type] || messageTypeConfig.system;
@@ -336,8 +337,8 @@ export default function OneAccordPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.03 }}
                         className={cn(
-                          "bg-card rounded-xl border p-4",
-                          !message.isRead ? "border-primary/30" : "border-border/50"
+                          "bg-[#1a1a1a] dark:bg-gray-50 rounded-xl border p-4",
+                          !message.isRead ? "border-[#0000ff]/30" : "border-white/10 dark:border-gray-200"
                         )}
                       >
                         <div className="flex items-start gap-3">
@@ -358,34 +359,34 @@ export default function OneAccordPage() {
                               {message.avatar.length <= 2 ? (
                                 <span className="text-lg">{message.avatar}</span>
                               ) : (
-                                <IconComponent className="h-5 w-5 text-muted-foreground" />
+                                <IconComponent className="h-5 w-5 text-gray-400" />
                               )}
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <p className="font-medium truncate">{message.from}</p>
+                              <p className="font-medium truncate text-white dark:text-black">{message.from}</p>
                               {message.status === 'accepted' && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-base/10 text-base font-medium">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#0000ff]/20 text-[#0000ff] font-medium">
                                   Accepted
                                 </span>
                               )}
                               {message.status === 'review' && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-500/10 text-yellow-600 font-medium">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-500 font-medium">
                                   In Review
                                 </span>
                               )}
                             </div>
-                            <p className="font-medium text-sm">{message.title}</p>
-                            <p className="text-sm text-muted-foreground line-clamp-2">{message.body}</p>
-                            <p className="text-xs text-muted-foreground mt-1">
+                            <p className="font-medium text-sm text-white dark:text-black">{message.title}</p>
+                            <p className="text-sm text-gray-400 dark:text-gray-500 line-clamp-2">{message.body}</p>
+                            <p className="text-xs text-gray-500 mt-1">
                               {formatDistanceToNow(message.timestamp, { addSuffix: true })}
                             </p>
                           </div>
                           {message.amount && (
                             <p className={cn(
                               "font-semibold text-lg",
-                              message.status === 'accepted' ? "text-base" : "text-foreground"
+                              message.status === 'accepted' ? "text-[#0000ff]" : "text-white dark:text-black"
                             )}>
                               ${message.amount.toLocaleString()}
                             </p>
