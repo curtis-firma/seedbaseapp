@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
+import seedNodeIcon from '@/assets/seed-block-white-on-blue.png';
 
 // Seed square block component for the blockchain chain (white version for dark bg)
 const SeedBlock = ({ 
@@ -43,31 +44,33 @@ const SeedBlock = ({
           ease: "easeInOut",
         }}
       >
-        {/* White seed block for dark background */}
-        <div 
-          className="w-6 h-6 md:w-7 md:h-7 rounded-md bg-white/80 flex items-center justify-center"
-          style={{ 
-            opacity: 0.8 - (index * 0.08),
-            boxShadow: `0 0 ${6 + index}px rgba(255, 255, 255, 0.3)`,
+        {/* Seed node icon (white seed on blue square) */}
+        <motion.img
+          src={seedNodeIcon}
+          alt=""
+          className="w-6 h-6 md:w-7 md:h-7 rounded-md ring-1 ring-primary-foreground/25"
+          style={{
+            opacity: 0.9 - index * 0.06,
+            boxShadow: `0 0 ${6 + index}px hsl(var(--primary-foreground) / 0.25)`,
           }}
-        >
-          <div className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-black/60" />
-        </div>
+          animate={{ scale: [1, 1.03, 1] }}
+          transition={{ duration: 2.4 + index * 0.2, repeat: Infinity, ease: "easeInOut" }}
+        />
       </motion.div>
       
       {/* Connecting line to next block */}
-      {index < totalBlocks - 1 && (
-        <motion.div
-          className="absolute top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-white/30 to-white/10"
-          style={{
-            width: '28px',
-            [direction === 'left' ? 'right' : 'left']: '-30px',
-          }}
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ delay: 0.6 + delay, duration: 0.3 }}
-        />
-      )}
+        {index < totalBlocks - 1 && (
+          <motion.div
+            className="absolute top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-primary-foreground/30 to-primary-foreground/10"
+            style={{
+              width: '28px',
+              [direction === 'left' ? 'right' : 'left']: '-30px',
+            }}
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.6 + delay, duration: 0.3 }}
+          />
+        )}
     </motion.div>
   );
 };
@@ -83,8 +86,8 @@ const BlockchainChain = ({ direction, blockCount = 5 }: { direction: 'left' | 'r
           [direction]: '50%',
           width: `${blockCount * 36 + 50}px`,
           background: direction === 'left' 
-            ? 'linear-gradient(to left, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.05))'
-            : 'linear-gradient(to right, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.05))',
+            ? 'linear-gradient(to left, hsl(var(--primary-foreground) / 0.4), hsl(var(--primary-foreground) / 0.05))'
+            : 'linear-gradient(to right, hsl(var(--primary-foreground) / 0.4), hsl(var(--primary-foreground) / 0.05))',
         }}
         initial={{ scaleX: 0, opacity: 0 }}
         animate={{ scaleX: 1, opacity: 1 }}
@@ -151,7 +154,7 @@ const SegmentedOrbitalRing = ({
           cy={radius}
           r={radius - strokeWidth / 2}
           fill="none"
-          stroke="rgba(255, 255, 255, 0.25)"
+          stroke="hsl(var(--primary-foreground) / 0.25)"
           strokeWidth={strokeWidth}
           strokeDasharray={`${dashLength} ${gapLength}`}
           strokeLinecap="round"
@@ -162,7 +165,7 @@ const SegmentedOrbitalRing = ({
       {dotPositions.map((angle, i) => (
         <div
           key={i}
-          className="absolute bg-white/50 rounded-full"
+          className="absolute bg-primary-foreground/50 rounded-full"
           style={{
             width: 6,
             height: 6,
@@ -178,13 +181,13 @@ const SegmentedOrbitalRing = ({
 
 const NetworkFlowState = () => {
   return (
-    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-[#0000ff]">
+    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-base">
       {/* Centered "Generosity onchain" text */}
       <motion.p
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="absolute top-6 md:top-8 left-0 right-0 text-center text-white/70 font-medium text-base md:text-lg lg:text-xl tracking-wide z-20"
+        className="absolute top-6 md:top-8 left-0 right-0 text-center text-primary-foreground/70 font-medium text-base md:text-lg lg:text-xl tracking-wide z-20"
       >
         Generosity onchain
       </motion.p>
@@ -208,7 +211,7 @@ const NetworkFlowState = () => {
       >
         {/* Glow effect behind logo - white glow on black */}
         <motion.div
-          className="absolute inset-0 rounded-full bg-white/20"
+          className="absolute inset-0 rounded-full bg-primary-foreground/20"
           style={{ 
             width: 90, 
             height: 90, 
@@ -228,7 +231,7 @@ const NetworkFlowState = () => {
         <motion.img
           src={seedbasePfp}
           alt="Seedbase"
-          className="w-18 h-18 md:w-20 md:h-20 rounded-full ring-3 ring-white/30 shadow-xl"
+          className="w-18 h-18 md:w-20 md:h-20 rounded-full ring-3 ring-primary-foreground/30 shadow-xl"
           style={{ width: 72, height: 72 }}
           animate={{ 
             scale: [1, 1.03, 1]
@@ -237,20 +240,24 @@ const NetworkFlowState = () => {
         />
       </motion.div>
 
-      {/* Subtle pulsing nodes at chain ends - white */}
-      <motion.div
-        className="absolute left-[8%] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white/30"
-        animate={{ 
-          scale: [1, 1.5, 1],
-          opacity: [0.3, 0.5, 0.3],
+      {/* Subtle pulsing nodes at chain ends */}
+      <motion.img
+        src={seedNodeIcon}
+        alt=""
+        className="absolute left-[8%] top-1/2 -translate-y-1/2 w-6 h-6 rounded-md ring-1 ring-primary-foreground/25"
+        animate={{
+          scale: [1, 1.18, 1],
+          opacity: [0.7, 1, 0.7],
         }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
-      <motion.div
-        className="absolute right-[8%] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white/30"
-        animate={{ 
-          scale: [1, 1.5, 1],
-          opacity: [0.3, 0.5, 0.3],
+      <motion.img
+        src={seedNodeIcon}
+        alt=""
+        className="absolute right-[8%] top-1/2 -translate-y-1/2 w-6 h-6 rounded-md ring-1 ring-primary-foreground/25"
+        animate={{
+          scale: [1, 1.18, 1],
+          opacity: [0.7, 1, 0.7],
         }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
       />
