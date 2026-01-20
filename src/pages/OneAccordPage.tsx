@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Send, Check, X, DollarSign, Inbox, RefreshCw, Vote, FileText, Bell, Sprout } from 'lucide-react';
+import { ArrowLeft, Send, Check, X, DollarSign, Inbox, RefreshCw, Vote, FileText, Bell, Sprout, Megaphone } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -19,6 +19,8 @@ import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 import { oneAccordMessages } from '@/data/mockData';
 import { Confetti } from '@/components/shared/Confetti';
 import { triggerHaptic } from '@/hooks/useHaptic';
+import { AmplifyPromptModal } from '@/components/social/AmplifyPromptModal';
+import { AmplifyButton } from '@/components/social/AmplifyButton';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
 
 // Message type icons and styles - Using blue (base) for branding
@@ -41,6 +43,10 @@ export default function OneAccordPage() {
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [acceptedTransferId, setAcceptedTransferId] = useState<string | null>(null);
+  // Amplify prompt state
+  const [showAmplifyPrompt, setShowAmplifyPrompt] = useState(false);
+  const [amplifyContent, setAmplifyContent] = useState('');
+  const [amplifySummary, setAmplifySummary] = useState('');
   // Persist accepted demo IDs in localStorage
   const [acceptedDemoIds, setAcceptedDemoIds] = useState<Set<string>>(() => {
     const saved = localStorage.getItem('seedbase-accepted-demo-ids');
@@ -110,11 +116,16 @@ export default function OneAccordPage() {
       
       toast.success(`Accepted $${transfer.amount} from @${transfer.from_user?.username || 'user'}`);
       
-      // Delay removal to show success animation
+      // Delay removal to show success animation, then show Amplify prompt
       setTimeout(() => {
         setShowConfetti(false);
         setAcceptedTransferId(null);
         loadTransfers();
+        
+        // Show amplify prompt
+        setAmplifyContent(`Just accepted $${transfer.amount} USDC from @${transfer.from_user?.username || 'user'}! 🙏\n\nGenerosity in motion through @Seedbase.`);
+        setAmplifySummary(`You accepted $${transfer.amount} USDC from ${transfer.from_user?.display_name || transfer.from_user?.username || 'a supporter'}`);
+        setShowAmplifyPrompt(true);
       }, 1500);
     } else {
       toast.error('Failed to accept transfer');
@@ -132,7 +143,7 @@ export default function OneAccordPage() {
     }
   };
 
-  const handleDemoAccept = (messageId: string) => {
+  const handleDemoAccept = (messageId: string, message?: { from: string; amount?: number; title?: string }) => {
     // Add to accepted set and persist to localStorage
     const newAcceptedIds = new Set(acceptedDemoIds);
     newAcceptedIds.add(messageId);
@@ -142,8 +153,17 @@ export default function OneAccordPage() {
     setShowConfetti(true);
     triggerHaptic('success');
     toast.success('Transfer accepted! Funds added to your wallet.');
+    
     setTimeout(() => {
       setShowConfetti(false);
+      
+      // Show amplify prompt for demo accepts too
+      if (message) {
+        const amount = message.amount || 0;
+        setAmplifyContent(`${message.title || `Received $${amount} USDC`} from ${message.from}! 🙏\n\nTransparency and trust in action through @Seedbase.`);
+        setAmplifySummary(`${message.title || `You accepted $${amount} USDC`} from ${message.from}`);
+        setShowAmplifyPrompt(true);
+      }
     }, 2000);
   };
 
@@ -293,33 +313,40 @@ export default function OneAccordPage() {
                           
                           {message.hasAcceptButton && (
                             <div className="flex gap-2">
-                              {acceptedDemoIds.has(message.id) ? (
-                                <motion.div
-                                  initial={{ scale: 0.95 }}
-                                  animate={{ scale: [1, 1.05, 1] }}
-                                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff]/20 border-2 border-[#0000ff] rounded-xl text-[#0000ff] font-medium cursor-not-allowed"
-                                >
-                                  <Check className="h-5 w-5" />
-                                  Accepted
-                                </motion.div>
-                              ) : (
-                                <>
-                                  <motion.button
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => handleDemoAccept(message.id)}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff] rounded-xl text-white font-medium"
-                                  >
-                                    <Check className="h-4 w-4" />
-                                    Accept
-                                  </motion.button>
-                                  <motion.button
-                                    whileTap={{ scale: 0.98 }}
-                                    className="px-4 py-3 bg-white/10 dark:bg-gray-100 rounded-xl"
-                                  >
-                                    <X className="h-4 w-4 text-gray-400 dark:text-gray-500" />
-                                  </motion.button>
-                                </>
-                              )}
+                                {acceptedDemoIds.has(message.id) ? (
+                                  <div className="flex gap-2">
+                                    <motion.div
+                                      initial={{ scale: 0.95 }}
+                                      animate={{ scale: [1, 1.05, 1] }}
+                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff]/20 border-2 border-[#0000ff] rounded-xl text-[#0000ff] font-medium cursor-not-allowed"
+                                    >
+                                      <Check className="h-5 w-5" />
+                                      Accepted
+                                    </motion.div>
+                                    <AmplifyButton
+                                      variant="small"
+                                      content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
+                                      impactSummary={message.title}
+                                    />
+                                  </div>
+                                ) : (
+                                  <>
+                                    <motion.button
+                                      whileTap={{ scale: 0.98 }}
+                                      onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
+                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff] rounded-xl text-white font-medium"
+                                    >
+                                      <Check className="h-4 w-4" />
+                                      Accept
+                                    </motion.button>
+                                    <motion.button
+                                      whileTap={{ scale: 0.98 }}
+                                      className="px-4 py-3 bg-white/10 dark:bg-gray-100 rounded-xl"
+                                    >
+                                      <X className="h-4 w-4 text-gray-400 dark:text-gray-500" />
+                                    </motion.button>
+                                  </>
+                                )}
                             </div>
                           )}
                         </motion.div>
@@ -559,6 +586,14 @@ export default function OneAccordPage() {
           loadTransfers();
           setShowComposeModal(false);
         }}
+      />
+      
+      {/* Amplify Prompt Modal */}
+      <AmplifyPromptModal
+        isOpen={showAmplifyPrompt}
+        onClose={() => setShowAmplifyPrompt(false)}
+        impactSummary={amplifySummary}
+        content={amplifyContent}
       />
     </div>
   );
