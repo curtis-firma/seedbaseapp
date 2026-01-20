@@ -1,8 +1,9 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Volume2, VolumeX, Play } from "lucide-react";
+import { Volume2, VolumeX, Play, Globe, Sprout } from "lucide-react";
 import { Logo } from "@/components/shared/Logo";
-import seededHypeVideo from "@/assets/seeded-hype-1.mp4";
+import seededHypeVideo1 from "@/assets/seeded-hype-1.mp4";
+import seededHypeVideo2 from "@/assets/seeded-hype-2.mp4";
 
 type Phase = "playing" | "holding" | "logo";
 
@@ -10,19 +11,52 @@ export function MovementSection() {
   const [phase, setPhase] = useState<Phase>("playing");
   const [isMuted, setIsMuted] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
+  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const videoRef = useRef<HTMLVideoElement>(null);
 
+  // Live stats animation
+  const [seedCount, setSeedCount] = useState(12847);
+  const [countryCount, setCountryCount] = useState(47);
+
+  const videos = [seededHypeVideo1, seededHypeVideo2];
+
+  // Animate stats during playback
+  useEffect(() => {
+    if (hasStarted && phase === "playing") {
+      const interval = setInterval(() => {
+        setSeedCount(prev => prev + Math.floor(Math.random() * 3));
+        if (Math.random() > 0.95) {
+          setCountryCount(prev => Math.min(prev + 1, 52));
+        }
+      }, 800);
+      return () => clearInterval(interval);
+    }
+  }, [hasStarted, phase]);
+
   const handleVideoEnd = () => {
-    setPhase("holding");
-    // Hold for 8 seconds then fade to logo
-    setTimeout(() => {
-      setPhase("logo");
-    }, 8000);
+    // If first video ended, play second
+    if (currentVideoIndex < videos.length - 1) {
+      setCurrentVideoIndex(prev => prev + 1);
+      if (videoRef.current) {
+        videoRef.current.src = videos[currentVideoIndex + 1];
+        videoRef.current.play();
+      }
+    } else {
+      // All videos played, hold then show logo
+      setPhase("holding");
+      setTimeout(() => {
+        setPhase("logo");
+      }, 8000);
+    }
   };
 
   const handlePlayClick = () => {
     setHasStarted(true);
-    videoRef.current?.play();
+    setCurrentVideoIndex(0);
+    if (videoRef.current) {
+      videoRef.current.src = videos[0];
+      videoRef.current.play();
+    }
   };
 
   const toggleMute = () => {
@@ -34,6 +68,8 @@ export function MovementSection() {
 
   const restartVideo = () => {
     if (videoRef.current) {
+      setCurrentVideoIndex(0);
+      videoRef.current.src = videos[0];
       videoRef.current.currentTime = 0;
       videoRef.current.play();
       setPhase("playing");
@@ -47,14 +83,14 @@ export function MovementSection() {
         {phase !== "logo" && (
           <motion.div
             initial={{ opacity: 1 }}
-            animate={{ opacity: phase === "holding" ? 1 : 1 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.5, ease: "easeInOut" }}
             className="absolute inset-0"
           >
             <video
               ref={videoRef}
-              src={seededHypeVideo}
+              src={videos[0]}
               className="w-full h-full object-cover"
               muted={isMuted}
               playsInline
@@ -86,7 +122,7 @@ export function MovementSection() {
                 animate={{ opacity: 1 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={toggleMute}
-                className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center"
+                className="absolute bottom-4 right-4 w-10 h-10 rounded-full bg-black/50 backdrop-blur-sm flex items-center justify-center z-10"
               >
                 {isMuted ? (
                   <VolumeX className="w-5 h-5 text-white" />
@@ -97,7 +133,59 @@ export function MovementSection() {
             )}
 
             {/* Gradient Overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/30 pointer-events-none" />
+
+            {/* Live Stats Overlay */}
+            {hasStarted && phase === "playing" && (
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.5 }}
+                className="absolute bottom-4 left-4 md:bottom-6 md:left-6 flex flex-col gap-2"
+              >
+                {/* Live Donation Counter */}
+                <motion.div 
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/60 backdrop-blur-sm"
+                  animate={{ scale: [1, 1.02, 1] }}
+                  transition={{ duration: 0.5, repeat: Infinity, repeatDelay: 2 }}
+                >
+                  <div className="relative">
+                    <Sprout className="w-4 h-4 text-emerald-400" />
+                    <span className="absolute -top-1 -right-1 w-2 h-2 bg-emerald-400 rounded-full animate-ping" />
+                  </div>
+                  <span className="text-white font-bold text-sm md:text-base">
+                    {seedCount.toLocaleString()}
+                  </span>
+                  <span className="text-white/70 text-xs md:text-sm">seeds planted</span>
+                </motion.div>
+
+                {/* Countries Counter */}
+                <motion.div 
+                  className="flex items-center gap-2 px-3 py-2 rounded-lg bg-black/60 backdrop-blur-sm"
+                >
+                  <Globe className="w-4 h-4 text-blue-400" />
+                  <span className="text-white font-bold text-sm md:text-base">
+                    {countryCount}
+                  </span>
+                  <span className="text-white/70 text-xs md:text-sm">countries reached</span>
+                </motion.div>
+              </motion.div>
+            )}
+
+            {/* Video Progress Indicator */}
+            {hasStarted && phase === "playing" && (
+              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-2">
+                {videos.map((_, idx) => (
+                  <div 
+                    key={idx}
+                    className={`w-8 h-1 rounded-full transition-colors ${
+                      idx === currentVideoIndex ? 'bg-white' : 
+                      idx < currentVideoIndex ? 'bg-white/60' : 'bg-white/30'
+                    }`}
+                  />
+                ))}
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -157,20 +245,6 @@ export function MovementSection() {
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Stats Overlay (during playing) */}
-      {hasStarted && phase === "playing" && (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="absolute bottom-4 left-4 md:bottom-6 md:left-6"
-        >
-          <p className="text-white/90 text-xs md:text-sm font-medium">
-            12,000+ seeds planted • 47 countries
-          </p>
-        </motion.div>
-      )}
     </div>
   );
 }
