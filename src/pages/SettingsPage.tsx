@@ -12,6 +12,7 @@ import { uploadAvatar, updateUser, findUserByPhone, isUsernameTaken } from '@/li
 import { toast } from 'sonner';
 import { Input } from '@/components/ui/input';
 import { SocialHandlesSettings } from '@/components/social/SocialHandlesSettings';
+import { useSocialHandles } from '@/hooks/useSocialHandles';
 
 export default function SettingsPage() {
   const [isDark, setIsDark] = useState(false);
@@ -28,6 +29,7 @@ export default function SettingsPage() {
   const [newUsername, setNewUsername] = useState('');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   const [usernameError, setUsernameError] = useState<string | null>(null);
+  const { xHandle, baseHandle, hasHandles } = useSocialHandles();
 
   const handleResetDemo = () => {
     clearAllDemoData();
@@ -304,7 +306,7 @@ export default function SettingsPage() {
                   </div>
                 </div>
               ) : (
-                <>
+              <>
                   <div className="flex items-center gap-2">
                     <p className="font-semibold text-lg">{displayName || username || 'User'}</p>
                     <motion.button
@@ -316,6 +318,13 @@ export default function SettingsPage() {
                     </motion.button>
                   </div>
                   <p className="text-sm text-muted-foreground">@{username || 'username'}</p>
+                  {hasHandles && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {xHandle && <span>X: @{xHandle.replace('@', '')}</span>}
+                      {xHandle && baseHandle && <span> · </span>}
+                      {baseHandle && <span>Base: @{baseHandle.replace('@', '')}</span>}
+                    </p>
+                  )}
                   
                   {avatarFile && (
                     <div className="flex gap-2 mt-3">

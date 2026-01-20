@@ -361,6 +361,7 @@ export default function OneAccordPage() {
                   {oneAccordMessages.filter(m => m.status !== 'pending' || !m.hasAcceptButton).map((message, i) => {
                     const config = messageTypeConfig[message.type] || messageTypeConfig.system;
                     const IconComponent = config.icon;
+                    const isAmplifiable = ['distribution', 'harvest'].includes(message.type) || message.status === 'accepted';
                     
                     return (
                       <motion.div
@@ -414,6 +415,17 @@ export default function OneAccordPage() {
                             <p className="text-xs text-gray-500 mt-1">
                               {formatDistanceToNow(message.timestamp, { addSuffix: true })}
                             </p>
+                            
+                            {/* Amplify button for eligible messages */}
+                            {isAmplifiable && (
+                              <div className="mt-3 pt-3 border-t border-white/10 dark:border-gray-200">
+                                <AmplifyButton
+                                  variant="inline"
+                                  content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
+                                  impactSummary={message.title}
+                                />
+                              </div>
+                            )}
                           </div>
                           {message.amount && (
                             <p className={cn(

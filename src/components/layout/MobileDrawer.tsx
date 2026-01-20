@@ -8,6 +8,7 @@ import { cn } from '@/lib/utils';
 import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Logo } from '@/components/shared/Logo';
+import { useSocialHandles } from '@/hooks/useSocialHandles';
 
 const menuNav = [
   { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages & transfers' },
@@ -27,6 +28,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
   const location = useLocation();
   const navigate = useNavigate();
   const { username, displayName, activeRole, user, logout, isAuthenticated, avatarUrl } = useUser();
+  const { xHandle, baseHandle, hasHandles } = useSocialHandles();
   
   // Use avatarUrl from context for synced avatar
   const displayAvatar = avatarUrl || user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
@@ -93,6 +95,13 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
                   <div>
                     <p className="font-semibold text-lg">{displayName || username}</p>
                     <p className="text-sm text-muted-foreground">@{username}</p>
+                    {hasHandles && (
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {xHandle && <span>X: @{xHandle.replace('@', '')}</span>}
+                        {xHandle && baseHandle && <span> · </span>}
+                        {baseHandle && <span>Base: @{baseHandle.replace('@', '')}</span>}
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>
