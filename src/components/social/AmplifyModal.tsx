@@ -223,6 +223,80 @@ export function AmplifyModal({
         </motion.div>
       )}
       
+      {/* Send Out Confirmation Modal */}
+      {showSendOutModal && !showSuccessScene && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+          onClick={() => setShowSendOutModal(false)}
+        >
+          <motion.div
+            initial={{ opacity: 0, y: 100 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 100 }}
+            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            onClick={(e) => e.stopPropagation()}
+            className="w-full sm:max-w-md bg-card rounded-t-3xl sm:rounded-2xl overflow-hidden"
+          >
+            {/* Platform Header */}
+            <div className={`p-6 text-center ${
+              selectedPlatform === 'x' ? 'bg-black' : 'bg-[#0052FF]'
+            }`}>
+              {selectedPlatform === 'x' ? (
+                <svg className="h-10 w-10 text-white mx-auto" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                </svg>
+              ) : (
+                <div className="h-10 w-10 rounded-full bg-white mx-auto flex items-center justify-center">
+                  <div className="h-6 w-6 rounded-full bg-[#0052FF]" />
+                </div>
+              )}
+              <p className="text-white font-medium mt-3">
+                {selectedPlatform === 'x' ? 'Post to X' : 'Send on Base'}
+              </p>
+            </div>
+            
+            {/* Confirmation content */}
+            <div className="p-4">
+              <p className="text-sm text-muted-foreground text-center mb-4">
+                This will share your impact to {selectedPlatform === 'x' ? 'X (Twitter)' : 'Base'}
+              </p>
+              
+              <div className="bg-muted/50 rounded-xl p-3 text-center text-sm">
+                <span className="text-muted-foreground">Posting as: </span>
+                <span className="font-medium">
+                  @{selectedPlatform === 'x' 
+                    ? (xHandle || 'your-handle').replace('@', '') 
+                    : (baseHandle || 'your-handle').replace('@', '')}
+                </span>
+              </div>
+            </div>
+            
+            {/* Action buttons */}
+            <div className="p-4 border-t border-border space-y-3">
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={handleConfirmSend}
+                className={`w-full py-3.5 rounded-xl font-medium text-white ${
+                  selectedPlatform === 'x' ? 'bg-black' : 'bg-[#0052FF]'
+                }`}
+              >
+                Confirm & Send
+              </motion.button>
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={() => setShowSendOutModal(false)}
+                className="w-full py-3 bg-muted rounded-xl font-medium"
+              >
+                Back
+              </motion.button>
+            </div>
+          </motion.div>
+        </motion.div>
+      )}
+      
       {/* Success Scene - Cinematic Amplify Confirmation */}
       {showSuccessScene && (
         <motion.div
