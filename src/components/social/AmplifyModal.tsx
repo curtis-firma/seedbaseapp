@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Share2, Copy, AlertCircle, Check, ExternalLink, Megaphone, Settings } from 'lucide-react';
+import { X, Share2, Copy, AlertCircle, Check, ExternalLink, Megaphone, Settings, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { Confetti } from '@/components/shared/Confetti';
+import { AffiliateExplainerModal, DEMO_SOCIAL_HANDLES } from '@/components/shared/AffiliateExplainerModal';
 
 interface AmplifyModalProps {
   isOpen: boolean;
@@ -27,8 +28,9 @@ export function AmplifyModal({
   const [showSendOutModal, setShowSendOutModal] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<'x' | 'base' | null>(null);
   const [showSuccessScene, setShowSuccessScene] = useState(false);
+  const [showAffiliateExplainer, setShowAffiliateExplainer] = useState(false);
   
-  // Get stored handles
+  // Get stored handles - fallback to demo handles for share preview
   const [xHandle, setXHandle] = useState<string>('');
   const [baseHandle, setBaseHandle] = useState<string>('');
   
@@ -37,8 +39,13 @@ export function AmplifyModal({
       const stored = localStorage.getItem('seedbase-social-handles');
       if (stored) {
         const handles = JSON.parse(stored);
-        setXHandle(handles.x_handle || '');
-        setBaseHandle(handles.base_handle || '');
+        // Use stored handles, or demo handles as fallback
+        setXHandle(handles.x_handle || DEMO_SOCIAL_HANDLES.x);
+        setBaseHandle(handles.base_handle || DEMO_SOCIAL_HANDLES.base);
+      } else {
+        // Use demo handles when no handles are stored
+        setXHandle(DEMO_SOCIAL_HANDLES.x);
+        setBaseHandle(DEMO_SOCIAL_HANDLES.base);
       }
     }
   }, [isOpen]);
@@ -159,34 +166,23 @@ export function AmplifyModal({
             
             {/* Identity Section */}
             <div className="px-4 pt-4">
-              {hasHandles ? (
-                <div className="flex items-center gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl p-3">
+              <div className="flex items-center justify-between gap-2 text-sm text-muted-foreground bg-muted/50 rounded-xl p-3">
+                <div className="flex items-center gap-2 flex-wrap">
                   <Share2 className="h-4 w-4 flex-shrink-0" />
                   <span>Posting as: </span>
-                  {xHandle && <span className="font-medium text-foreground">X @{xHandle.replace('@', '')}</span>}
+                  {xHandle && <span className="font-medium text-foreground">X {xHandle.replace('@', '@')}</span>}
                   {xHandle && baseHandle && <span>·</span>}
-                  {baseHandle && <span className="font-medium text-foreground">Base @{baseHandle.replace('@', '')}</span>}
+                  {baseHandle && <span className="font-medium text-foreground">Base {baseHandle.replace('@', '@')}</span>}
                 </div>
-              ) : (
-                <div className="flex items-start gap-2 text-sm bg-amber-500/10 border border-amber-500/30 rounded-xl p-3">
-                  <AlertCircle className="h-4 w-4 text-amber-500 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-amber-600 dark:text-amber-400">
-                      Add your handles in Settings to preview sharing identity
-                    </p>
-                    <button
-                      onClick={() => {
-                        onClose();
-                        navigate('/app/settings');
-                      }}
-                      className="text-xs text-[#0000ff] font-medium mt-1 flex items-center gap-1"
-                    >
-                      <Settings className="h-3 w-3" />
-                      Go to Settings
-                    </button>
-                  </div>
-                </div>
-              )}
+                <motion.button
+                  whileTap={{ scale: 0.9 }}
+                  onClick={() => setShowAffiliateExplainer(true)}
+                  className="p-1.5 rounded-lg hover:bg-muted transition-colors flex-shrink-0"
+                  title="How Affiliates Work"
+                >
+                  <Users className="h-4 w-4 text-muted-foreground" />
+                </motion.button>
+              </div>
             </div>
             
             {/* Caption Preview */}
@@ -483,6 +479,12 @@ export function AmplifyModal({
           <Confetti isActive={true} duration={2500} />
         </motion.div>
       )}
+      
+      {/* Affiliate Explainer Modal */}
+      <AffiliateExplainerModal 
+        isOpen={showAffiliateExplainer} 
+        onClose={() => setShowAffiliateExplainer(false)} 
+      />
     </AnimatePresence>
   );
 }
