@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import EnterAppButton from "@/components/ui/EnterAppButton";
 import LearnMoreButton from "@/components/ui/LearnMoreButton";
@@ -15,6 +16,7 @@ import waterBackground from "@/assets/water-background.png";
 import HeroVisualCanvas from "@/components/landing/HeroVisualCanvas";
 import { useInView } from "@/hooks/useInView";
 import FeatureSquareCard from "@/components/landing/FeatureSquareCard";
+import LearnMoreModal from "@/components/landing/LearnMoreModal";
 
 interface MobileSection {
   id: string;
@@ -75,13 +77,7 @@ const AnimatedSection = ({ section, index }: { section: MobileSection; index: nu
 
 const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
   const navigate = useNavigate();
-
-  const scrollToSections = () => {
-    const firstSection = document.getElementById('mobile-sections');
-    if (firstSection) {
-      firstSection.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const [showLearnMore, setShowLearnMore] = useState(false);
 
   const sections: MobileSection[] = [
     {
@@ -141,7 +137,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       {/* CTA Buttons - After hero */}
       <div className="flex flex-col gap-3 w-full">
         <EnterAppButton onClick={onEnterApp} fullWidth />
-        <LearnMoreButton onClick={scrollToSections} fullWidth variant="black" />
+        <LearnMoreButton onClick={() => setShowLearnMore(true)} fullWidth variant="black" />
       </div>
 
       {/* Yellow Hero Card Section - same looping rectangle as desktop */}
@@ -186,7 +182,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
 
         <div className="flex flex-col gap-3 w-full max-w-sm">
           <EnterAppButton onClick={onEnterApp} fullWidth />
-          <LearnMoreButton onClick={scrollToSections} fullWidth variant="black" />
+          <LearnMoreButton onClick={() => setShowLearnMore(true)} fullWidth variant="black" />
         </div>
 
         {/* Powered by CIK */}
@@ -209,6 +205,13 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
           © 2026 Christ is King Labs. All rights reserved.
         </p>
       </footer>
+
+      {/* Learn More Modal */}
+      <LearnMoreModal 
+        open={showLearnMore} 
+        onOpenChange={setShowLearnMore}
+        onGetStarted={onEnterApp}
+      />
     </div>
   );
 };

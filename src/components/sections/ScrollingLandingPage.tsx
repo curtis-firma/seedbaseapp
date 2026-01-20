@@ -20,8 +20,8 @@ import poweredByCik from "@/assets/powered-by-cik-text.png";
 import baseLogo from "@/assets/base-logo.png";
 import LoginModal from "@/components/sections/LoginModal";
 import { SeedbaseLoader } from "@/components/shared/SeedbaseLoader";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import FeatureSquareCard from "@/components/landing/FeatureSquareCard";
+import LearnMoreModal from "@/components/landing/LearnMoreModal";
 import waterBackground from "@/assets/water-background.png";
 const sections = [
   {
@@ -167,7 +167,7 @@ const ScrollingLandingPage = () => {
                 {/* CTA Buttons - Tablet + Desktop in header */}
                 <nav className="hidden md:flex flex-col gap-3" role="navigation" aria-label="Main actions">
                   <EnterAppButton onClick={() => setShowLoginModal(true)} />
-                  <LearnMoreButton onClick={scrollToContent} />
+                  <LearnMoreButton onClick={() => setShowLearnMore(true)} />
                 </nav>
                 
               </div>
@@ -183,45 +183,12 @@ const ScrollingLandingPage = () => {
         {/* Login Modal */}
         <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onComplete={handleLoginComplete} />
 
-        {/* Learn More Modal (Mobile) */}
-        <Dialog open={showLearnMore} onOpenChange={setShowLearnMore}>
-          <DialogContent className="sm:max-w-[420px] p-0 border-0 bg-transparent overflow-hidden">
-            {/* Colored background container */}
-            <div className="bg-gradient-to-br from-emerald-400 to-teal-500 rounded-3xl p-4">
-              {/* White floating card */}
-              <div className="bg-white rounded-2xl p-6 shadow-xl">
-                <div className="flex justify-center mb-4">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-teal-500 flex items-center justify-center animate-scale-fade-in">
-                    <span className="text-3xl">🌱</span>
-                  </div>
-                </div>
-                <div className="opacity-0 animate-slide-fade-in">
-                  <DialogHeader>
-                    <DialogTitle className="text-xl font-semibold text-center mb-2">
-                      What is SeedBase?
-                    </DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4 py-2">
-                    <p className="text-muted-foreground leading-relaxed">
-                      SeedBase is a social network where generosity compounds. Lock digital seeds, fund missions, or just show up—the surplus grows, the impact spreads, and trust rewards come back to everyone.
-                    </p>
-                    <p className="text-muted-foreground leading-relaxed">
-                      It's a live feed of global blessing where every dollar is tracked and every seed grows.
-                    </p>
-                    <div className="pt-4">
-                      <PrimaryButton onClick={() => {
-                      setShowLearnMore(false);
-                      setShowLoginModal(true);
-                    }} className="w-full">
-                        Get Started
-                      </PrimaryButton>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
+        {/* Learn More Modal */}
+        <LearnMoreModal 
+          open={showLearnMore} 
+          onOpenChange={setShowLearnMore}
+          onGetStarted={() => setShowLoginModal(true)}
+        />
 
         {/* Right - Scrolling Content (tablet and desktop) */}
         <main className="hidden md:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
