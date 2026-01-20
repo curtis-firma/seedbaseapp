@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, VolumeX, Play, Globe, Sprout } from "lucide-react";
-import { Logo } from "@/components/shared/Logo";
 import seededHypeVideo1 from "@/assets/seeded-hype-1.mp4";
 import seededHypeVideo2 from "@/assets/seeded-hype-2.mp4";
+import seededLogoWhite from "@/assets/seeded-logo-white.png";
+import seedbaseWordmarkWhite from "@/assets/seedbase-wordmark-white.png";
 
 type Phase = "playing" | "holding" | "logo";
 
@@ -12,6 +13,7 @@ export function MovementSection() {
   const [isMuted, setIsMuted] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
   const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
+  const [isVideoReady, setIsVideoReady] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   // Live stats animation
@@ -19,6 +21,13 @@ export function MovementSection() {
   const [countryCount, setCountryCount] = useState(47);
 
   const videos = [seededHypeVideo1, seededHypeVideo2];
+
+  // Preload video
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.load();
+    }
+  }, []);
 
   // Animate stats during playback
   useEffect(() => {
@@ -36,10 +45,12 @@ export function MovementSection() {
   const handleVideoEnd = () => {
     // If first video ended, play second
     if (currentVideoIndex < videos.length - 1) {
-      setCurrentVideoIndex(prev => prev + 1);
+      const nextIndex = currentVideoIndex + 1;
+      setCurrentVideoIndex(nextIndex);
       if (videoRef.current) {
-        videoRef.current.src = videos[currentVideoIndex + 1];
-        videoRef.current.play();
+        videoRef.current.src = videos[nextIndex];
+        videoRef.current.load();
+        videoRef.current.play().catch(console.error);
       }
     } else {
       // All videos played, hold then show logo
@@ -50,12 +61,19 @@ export function MovementSection() {
     }
   };
 
+  const handleCanPlay = () => {
+    setIsVideoReady(true);
+  };
+
   const handlePlayClick = () => {
     setHasStarted(true);
     setCurrentVideoIndex(0);
     if (videoRef.current) {
       videoRef.current.src = videos[0];
-      videoRef.current.play();
+      videoRef.current.load();
+      videoRef.current.play().catch(err => {
+        console.error("Video play failed:", err);
+      });
     }
   };
 
@@ -67,12 +85,14 @@ export function MovementSection() {
   };
 
   const restartVideo = () => {
+    setHasStarted(true);
+    setCurrentVideoIndex(0);
+    setPhase("playing");
     if (videoRef.current) {
-      setCurrentVideoIndex(0);
       videoRef.current.src = videos[0];
+      videoRef.current.load();
       videoRef.current.currentTime = 0;
-      videoRef.current.play();
-      setPhase("playing");
+      videoRef.current.play().catch(console.error);
     }
   };
 
@@ -94,7 +114,9 @@ export function MovementSection() {
               className="w-full h-full object-cover"
               muted={isMuted}
               playsInline
+              preload="auto"
               onEnded={handleVideoEnd}
+              onCanPlay={handleCanPlay}
             />
 
             {/* Play Button Overlay (before started) */}
@@ -190,46 +212,44 @@ export function MovementSection() {
         )}
       </AnimatePresence>
 
-      {/* Logo Reveal Layer */}
+      {/* Logo Reveal Layer - Black Background */}
       <AnimatePresence>
         {phase === "logo" && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1.5, ease: "easeInOut" }}
-            className="absolute inset-0 bg-gradient-to-br from-[#0a0a0a] via-[#111] to-[#0a0a0a] flex flex-col items-center justify-center px-6"
+            className="absolute inset-0 bg-black flex flex-col items-center justify-center px-6"
           >
-            {/* Main Title */}
-            <motion.h2
+            {/* SEEDED Logo Image */}
+            <motion.img
+              src={seededLogoWhite}
+              alt="SEEDED"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.3, duration: 0.8 }}
-              className="text-4xl md:text-6xl font-bold text-white tracking-widest mb-4"
-            >
-              SEEDED
-            </motion.h2>
+              className="h-12 md:h-16 lg:h-20 object-contain mb-4"
+            />
 
             {/* Subtitle */}
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.8 }}
-              className="text-base md:text-xl text-white/70 text-center mb-12"
+              className="text-base md:text-xl text-white/70 text-center mb-12 font-medium"
             >
               A Global Movement of Radical Generosity
             </motion.p>
 
-            {/* Seedbase Logo */}
-            <motion.div
+            {/* Seedbase Wordmark Logo */}
+            <motion.img
+              src={seedbaseWordmarkWhite}
+              alt="Seedbase"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: 0.7, duration: 0.8, ease: "easeOut" }}
-              className="relative"
-            >
-              {/* Glow Effect */}
-              <div className="absolute inset-0 blur-2xl bg-primary/30 rounded-full scale-150" />
-              <Logo variant="icon" size="xl" forceDark />
-            </motion.div>
+              className="h-8 md:h-10 lg:h-12 object-contain"
+            />
 
             {/* Replay Button */}
             <motion.button
