@@ -90,10 +90,12 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
           <motion.div variants={itemVariants}>
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="flex items-center gap-2 text-sm font-medium text-primary hover:text-primary/80 transition-colors"
+              className="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
             >
-              <span>{showDetails ? "Hide details" : "How it works"}</span>
-              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showDetails ? 'rotate-180' : ''}`} />
+              <span className="text-sm font-medium text-foreground">
+                {showDetails ? "Hide details" : "How it works →"}
+              </span>
+              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${showDetails ? 'rotate-180' : ''}`} />
             </button>
             
             <AnimatePresence mode="wait">
