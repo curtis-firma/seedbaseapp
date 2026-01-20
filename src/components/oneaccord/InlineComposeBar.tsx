@@ -165,7 +165,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           setMode('user-select');
           triggerHaptic('light');
         }}
-        className="fixed bottom-20 right-4 md:right-8 z-40 w-14 h-14 rounded-full bg-[#0000ff] text-white shadow-lg flex items-center justify-center hover:bg-[#0000dd] transition-colors"
+        className="fixed bottom-20 right-4 md:right-8 z-40 w-14 h-14 rounded-full bg-[#0000ff] text-white shadow-[0_0_24px_rgba(0,0,255,0.5)] hover:shadow-[0_0_32px_rgba(0,0,255,0.7)] flex items-center justify-center hover:bg-[#0000dd] transition-all"
       >
         <Edit className="h-6 w-6" />
       </motion.button>
@@ -445,7 +445,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           className={cn(
             "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all",
             canSend && !isSending
-              ? "bg-[#0000ff] text-white hover:bg-[#0000dd]"
+              ? "bg-[#0000ff] text-white hover:bg-[#0000dd] shadow-[0_0_16px_rgba(0,0,255,0.4)] hover:shadow-[0_0_24px_rgba(0,0,255,0.6)]"
               : "bg-white/10 dark:bg-gray-200 text-gray-500 cursor-not-allowed"
           )}
         >
