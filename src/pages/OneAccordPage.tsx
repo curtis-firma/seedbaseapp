@@ -334,7 +334,7 @@ export default function OneAccordPage() {
                                     <motion.button
                                       whileTap={{ scale: 0.98 }}
                                       onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
-                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff] rounded-xl text-white font-medium"
+                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff] rounded-xl text-white font-medium shadow-[0_0_20px_rgba(0,0,255,0.4)] hover:shadow-[0_0_30px_rgba(0,0,255,0.6)] transition-shadow"
                                     >
                                       <Check className="h-4 w-4" />
                                       Accept
