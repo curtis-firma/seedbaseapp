@@ -132,10 +132,12 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
       <ViewingAsBadge />
       
       {/* Mobile Header with Profile Menu Trigger */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-30 bg-card/95 backdrop-blur-xl border-b border-border/50">
-        <div className="px-4 py-3 flex items-center justify-between">
-          <ProfileMenuTrigger onOpen={() => setIsDrawerOpen(true)} />
-          <span className="font-bold text-lg">Seedbase</span>
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border/50">
+        <div className="px-4 py-3 flex items-center justify-between relative">
+          <div className="z-10">
+            <ProfileMenuTrigger onOpen={() => setIsDrawerOpen(true)} />
+          </div>
+          <span className="font-bold text-lg absolute left-1/2 -translate-x-1/2">Seedbase</span>
           <div className="w-10" /> {/* Spacer for centering */}
         </div>
       </div>

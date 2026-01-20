@@ -1,5 +1,7 @@
 import { motion } from 'framer-motion';
 import { Sparkles, TrendingUp, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { useHaptic } from '@/hooks/useHaptic';
 
 interface CardImpactFooterProps {
   totalAmount: number;
@@ -18,6 +20,19 @@ export function CardImpactFooter({
   onYourSeedClick,
   className = '',
 }: CardImpactFooterProps) {
+  const navigate = useNavigate();
+  const haptic = useHaptic();
+
+  const handleImpactClick = () => {
+    haptic.light();
+    if (onYourSeedClick) {
+      onYourSeedClick();
+    } else {
+      // Default navigation to vault/impact
+      navigate('/app/vault');
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -42,35 +57,36 @@ export function CardImpactFooter({
         </div>
       </div>
 
-      {/* Your Seed Impact - Now Interactive Button with emphasis */}
+      {/* Your Seed Impact - Premium Interactive Button */}
       {yourSeed !== undefined && (
         <motion.button
-          whileHover={{ scale: 1.03 }}
-          whileTap={{ scale: 0.97 }}
-          onClick={onYourSeedClick}
+          whileHover={{ scale: 1.02, y: -1 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={handleImpactClick}
           className="
-            flex items-center gap-2 px-4 py-2.5
-            bg-primary/10 hover:bg-primary/20 
-            border-2 border-primary/40 hover:border-primary/60
+            flex items-center gap-2.5 px-4 py-2.5
+            bg-[#0000ff] hover:bg-[#0000dd]
+            text-white
             rounded-xl cursor-pointer
             transition-all duration-200
-            shadow-md hover:shadow-lg
+            shadow-lg hover:shadow-xl
             group
+            active:scale-95
           "
         >
-          <Sparkles className="w-4 h-4 text-primary" />
+          <Sparkles className="w-4 h-4 text-white/90" />
           <div className="flex flex-col items-start">
-            <span className="text-xs text-primary font-medium">Your Seed Impact</span>
-            <div className="flex items-center gap-1">
-              <span className="text-sm font-bold text-primary">${yourSeed.toLocaleString()}</span>
+            <span className="text-[10px] text-white/80 font-medium uppercase tracking-wide">Your Seed Impact</span>
+            <div className="flex items-center gap-1.5">
+              <span className="text-sm font-bold text-white">${yourSeed.toLocaleString()}</span>
               {yourPercentage !== undefined && (
-                <span className="text-xs text-primary/70">
+                <span className="text-xs text-white/70 font-medium">
                   ({yourPercentage.toFixed(1)}%)
                 </span>
               )}
             </div>
           </div>
-          <ChevronRight className="w-4 h-4 text-primary/60 group-hover:text-primary group-hover:translate-x-0.5 transition-all ml-1" />
+          <ChevronRight className="w-4 h-4 text-white/70 group-hover:text-white group-hover:translate-x-0.5 transition-all ml-1" />
         </motion.button>
       )}
     </motion.div>

@@ -252,7 +252,7 @@ export default function HomePage() {
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-30 glass-strong border-b border-border/50">
+      <header className="sticky top-0 z-20 glass-strong border-b border-border/50">
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
