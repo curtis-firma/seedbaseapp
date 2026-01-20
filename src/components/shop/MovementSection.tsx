@@ -27,13 +27,13 @@ const SCENE_ORDER: Scene[] = [
 ];
 
 const SCENE_TIMINGS: Record<Scene, number> = {
-  "intro-text": 2500,
-  "hype2-energy": 2500,
-  "parachute": 3000,
-  "hype1-action": 4000,
-  "call-to-action": 2000,
-  "brand-lockup": 3000,
-  "power-cut": 1500
+  "intro-text": 3000,      // Longer intro build-up
+  "hype2-energy": 4500,    // Extended video hold
+  "parachute": 3500,       // Longer parachute moment
+  "hype1-action": 6000,    // Extended action clip
+  "call-to-action": 2500,  // Slightly longer CTA
+  "brand-lockup": 5000,    // Much longer brand hold
+  "power-cut": 3000        // Longer ending fade
 };
 
 const INTRO_WORDS = ["DO", "YOU", "WANT", "TO", "LIVE?"];
@@ -45,6 +45,7 @@ export function MovementSection() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [showRestart, setShowRestart] = useState(false);
+  const [videosLoading, setVideosLoading] = useState({ hype1: true, hype2: true });
   
   const containerRef = useRef<HTMLDivElement>(null);
   const hype1Ref = useRef<HTMLVideoElement>(null);
@@ -159,6 +160,15 @@ export function MovementSection() {
     >
       {/* Always-mounted videos - hidden when not active */}
       <div className={`absolute inset-0 ${scene === "hype2-energy" ? "block" : "hidden"}`}>
+        {/* Loading skeleton for hype2 */}
+        {videosLoading.hype2 && (
+          <div className="absolute inset-0 bg-black flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              <span className="text-white/50 text-sm">Loading...</span>
+            </div>
+          </div>
+        )}
         <video
           ref={hype2Ref}
           src={seededHype2}
@@ -166,25 +176,26 @@ export function MovementSection() {
           muted={isMuted}
           playsInline
           loop
+          onCanPlay={() => setVideosLoading(prev => ({ ...prev, hype2: false }))}
         />
         <div className="absolute inset-0 bg-black/30" />
         <motion.div 
           className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ delay: 0.5 }}
         >
           <motion.span 
             className="text-white text-3xl md:text-5xl font-black tracking-tight"
-            animate={{ opacity: [0, 1, 0.3, 1, 0.3, 1] }}
-            transition={{ duration: 2, times: [0, 0.2, 0.4, 0.6, 0.8, 1] }}
+            animate={{ opacity: [0, 1, 0.4, 1, 0.4, 1] }}
+            transition={{ duration: 3, times: [0, 0.15, 0.35, 0.55, 0.75, 1] }}
           >
             A LIFESTYLE
           </motion.span>
           <motion.span 
             className="text-white text-2xl md:text-4xl font-bold tracking-tight mt-2"
-            animate={{ opacity: [0, 1, 0.3, 1, 0.3, 1] }}
-            transition={{ duration: 2, delay: 0.3, times: [0, 0.2, 0.4, 0.6, 0.8, 1] }}
+            animate={{ opacity: [0, 1, 0.4, 1, 0.4, 1] }}
+            transition={{ duration: 3, delay: 0.4, times: [0, 0.15, 0.35, 0.55, 0.75, 1] }}
           >
             OF RADICAL GENEROSITY
           </motion.span>
@@ -192,19 +203,29 @@ export function MovementSection() {
       </div>
 
       <div className={`absolute inset-0 ${scene === "hype1-action" ? "block" : "hidden"}`}>
+        {/* Loading skeleton for hype1 */}
+        {videosLoading.hype1 && (
+          <div className="absolute inset-0 bg-black flex items-center justify-center">
+            <div className="flex flex-col items-center gap-4">
+              <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              <span className="text-white/50 text-sm">Loading...</span>
+            </div>
+          </div>
+        )}
         <video
           ref={hype1Ref}
           src={seededHype1}
           className="w-full h-full object-cover"
           muted={isMuted}
           playsInline
+          onCanPlay={() => setVideosLoading(prev => ({ ...prev, hype1: false }))}
         />
         <div className="absolute inset-0 bg-black/20" />
         <motion.div 
           className="absolute bottom-8 left-8"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 2 }}
+          transition={{ delay: 2.5 }}
         >
           <span className="text-white text-xl md:text-2xl font-bold tracking-wide opacity-90">
             THIS IS REAL
@@ -284,63 +305,64 @@ export function MovementSection() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.3 }}
             className="absolute inset-0 bg-black flex items-center justify-center"
           >
             <motion.span 
               className="text-white text-4xl md:text-6xl font-bold tracking-tight"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ duration: 1.5 }}
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
             >
               JOIN US
             </motion.span>
           </motion.div>
         )}
 
-        {/* SCENE 6: Brand Lockup */}
+        {/* SCENE 6: Brand Lockup - Extended */}
         {scene === "brand-lockup" && (
           <motion.div
             key="brand"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.8 }}
             className="absolute inset-0 bg-black flex flex-col items-center justify-center px-6"
           >
             <motion.img
               src={seededLogoWhite}
               alt="SEEDED"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              className="h-12 md:h-16 lg:h-20 object-contain mb-4"
+              initial={{ opacity: 0, y: 30, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ delay: 0.4, duration: 1, ease: "easeOut" }}
+              className="h-14 md:h-20 lg:h-24 object-contain mb-6"
             />
             <motion.p
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.8 }}
-              className="text-xl md:text-2xl text-white/80 text-center font-medium tracking-wide"
+              transition={{ delay: 0.8, duration: 1 }}
+              className="text-xl md:text-3xl text-white/90 text-center font-medium tracking-wide"
             >
               RADICAL GENEROSITY
             </motion.p>
             <motion.img
               src={seedbaseWordmarkWhite}
               alt="Seedbase"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 0.6 }}
-              transition={{ delay: 1, duration: 1 }}
-              className="h-6 md:h-8 object-contain mt-8"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 0.7, y: 0 }}
+              transition={{ delay: 1.5, duration: 1.2 }}
+              className="h-6 md:h-10 object-contain mt-10"
             />
           </motion.div>
         )}
 
-        {/* SCENE 7: Power Cut */}
+        {/* SCENE 7: Power Cut - Graceful Ending */}
         {scene === "power-cut" && (
           <motion.div
             key="power-cut"
-            initial={{ opacity: 1 }}
+            initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
+            transition={{ duration: 1 }}
             className="absolute inset-0 bg-black"
           >
             {showRestart && (
@@ -348,12 +370,13 @@ export function MovementSection() {
                 className="absolute inset-0 flex items-center justify-center"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
+                transition={{ delay: 1 }}
               >
                 <motion.button
+                  whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                   onClick={restartSequence}
-                  className="px-6 py-2 rounded-full border border-white/20 text-white/60 text-sm hover:bg-white/10 transition-colors"
+                  className="px-8 py-3 rounded-full border border-white/30 text-white/80 text-sm font-medium hover:bg-white/10 transition-colors"
                 >
                   Watch Again
                 </motion.button>
