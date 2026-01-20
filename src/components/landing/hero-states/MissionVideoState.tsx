@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import missionVideo from '@/assets/mission-video.mp4';
 
-type MissionVideoStateProps = { active?: boolean };
+type MissionVideoStateProps = { 
+  active?: boolean;
+  onEnded?: () => void;
+};
 
-const MissionVideoState = ({ active = true }: MissionVideoStateProps) => {
+const MissionVideoState = ({ active = true, onEnded }: MissionVideoStateProps) => {
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -28,6 +30,10 @@ const MissionVideoState = ({ active = true }: MissionVideoStateProps) => {
     return () => clearTimeout(timer);
   }, [active]);
 
+  const handleEnded = () => {
+    onEnded?.();
+  };
+
   return (
     <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-black">
       {!videoError ? (
@@ -35,10 +41,10 @@ const MissionVideoState = ({ active = true }: MissionVideoStateProps) => {
           ref={videoRef}
           className="w-full h-full object-cover"
           muted
-          loop
           playsInline
           preload="auto"
           onError={() => setVideoError(true)}
+          onEnded={handleEnded}
         >
           <source src={missionVideo} type="video/mp4" />
         </video>

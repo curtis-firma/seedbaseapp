@@ -17,6 +17,7 @@ import HeroVisualCanvas from "@/components/landing/HeroVisualCanvas";
 import { useInView } from "@/hooks/useInView";
 import FeatureSquareCard from "@/components/landing/FeatureSquareCard";
 import LearnMoreModal from "@/components/landing/LearnMoreModal";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface MobileSection {
   id: string;
@@ -78,6 +79,7 @@ const AnimatedSection = ({ section, index }: { section: MobileSection; index: nu
 const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
   const navigate = useNavigate();
   const [showLearnMore, setShowLearnMore] = useState(false);
+  const isMobile = useIsMobile();
 
   const sections: MobileSection[] = [
     {
@@ -140,10 +142,10 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
         <LearnMoreButton onClick={() => setShowLearnMore(true)} fullWidth variant="black" />
       </div>
 
-      {/* Yellow Hero Card Section - same looping rectangle as desktop */}
+      {/* Yellow Hero Card Section - only render on mobile */}
       <div className="flex items-center justify-center">
         <div className="w-full">
-          <HeroVisualCanvas />
+          {isMobile && <HeroVisualCanvas />}
         </div>
       </div>
 

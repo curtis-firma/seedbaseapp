@@ -1,10 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
 import appSharingVideo from '@/assets/app-sharing-video.mp4';
 
-type AppSharingVideoStateProps = { active?: boolean };
+type AppSharingVideoStateProps = { 
+  active?: boolean;
+  onEnded?: () => void;
+};
 
-const AppSharingVideoState = ({ active = true }: AppSharingVideoStateProps) => {
+const AppSharingVideoState = ({ active = true, onEnded }: AppSharingVideoStateProps) => {
   const [videoError, setVideoError] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -23,34 +25,31 @@ const AppSharingVideoState = ({ active = true }: AppSharingVideoStateProps) => {
     }
   }, [active]);
 
+  const handleEnded = () => {
+    onEnded?.();
+  };
+
   return (
-    <div className="relative w-full h-full overflow-hidden">
-      <motion.div
-        initial={{ scale: 1 }}
-        animate={{ scale: 1.05 }}
-        transition={{ duration: 8, ease: "linear" }}
-        className="absolute inset-0 will-change-transform transform-gpu"
-      >
-        {!videoError ? (
-          <video
-            ref={videoRef}
-            className="absolute inset-0 w-full h-full object-cover"
-            muted
-            loop
-            playsInline
-            preload="auto"
-            onError={() => setVideoError(true)}
-          >
-            <source src={appSharingVideo} type="video/mp4" />
-          </video>
-        ) : (
-          <img
-            src={fallbackImage}
-            alt="App sharing"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        )}
-      </motion.div>
+    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-black">
+      {!videoError ? (
+        <video
+          ref={videoRef}
+          className="w-full h-full object-cover"
+          muted
+          playsInline
+          preload="auto"
+          onError={() => setVideoError(true)}
+          onEnded={handleEnded}
+        >
+          <source src={appSharingVideo} type="video/mp4" />
+        </video>
+      ) : (
+        <img
+          src={fallbackImage}
+          alt="App sharing"
+          className="w-full h-full object-cover"
+        />
+      )}
     </div>
   );
 };

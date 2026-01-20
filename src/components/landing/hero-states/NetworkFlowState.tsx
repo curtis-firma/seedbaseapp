@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
-import seedNodeIcon from '@/assets/seed-block-white-on-blue.png';
+import seedSquareNode from '@/assets/seed-square-node.png';
 import { SegmentedOrbitalRing, BlockchainChain } from './shared';
 
 /**
@@ -58,14 +58,14 @@ const NetworkFlowState = () => {
 
       {/* Pulsing nodes at chain ends */}
       <motion.img
-        src={seedNodeIcon}
+        src={seedSquareNode}
         alt=""
         className="absolute left-[8%] top-1/2 -translate-y-1/2 w-6 h-6 rounded-md ring-1 ring-primary-foreground/25"
         animate={{ scale: [1, 1.18, 1], opacity: [0.7, 1, 0.7] }}
         transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
       />
       <motion.img
-        src={seedNodeIcon}
+        src={seedSquareNode}
         alt=""
         className="absolute right-[8%] top-1/2 -translate-y-1/2 w-6 h-6 rounded-md ring-1 ring-primary-foreground/25"
         animate={{ scale: [1, 1.18, 1], opacity: [0.7, 1, 0.7] }}
