@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Send, Check, X, DollarSign, Inbox, RefreshCw, Edit, Vote, FileText, Bell, Sprout } from 'lucide-react';
+import { ArrowLeft, Send, Check, X, DollarSign, Inbox, RefreshCw, Vote, FileText, Bell, Sprout } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ import {
 import { toast } from 'sonner';
 import { SendModal } from '@/components/wallet/SendModal';
 import { ComposeMessageModal } from '@/components/oneaccord/ComposeMessageModal';
+import { InlineComposeBar } from '@/components/oneaccord/InlineComposeBar';
 import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 import { oneAccordMessages } from '@/data/mockData';
 import { Confetti } from '@/components/shared/Confetti';
@@ -151,7 +152,7 @@ export default function OneAccordPage() {
   // Always show demo messages first, then any real transfers below
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-36">
       {/* Confetti Animation */}
       <Confetti isActive={showConfetti} />
       
@@ -179,20 +180,13 @@ export default function OneAccordPage() {
             exit={{ opacity: 0, x: -20 }}
           >
             {/* Header */}
-            <header className="sticky top-0 z-30 glass-strong border-b border-border/50">
+            <header className="sticky top-0 z-20 glass-strong border-b border-border/50">
               <div className="px-4 py-4 flex items-center justify-between">
                 <div>
                   <h1 className="text-xl font-bold">OneAccord</h1>
                   <p className="text-sm text-muted-foreground">Messages & Transfers</p>
                 </div>
                 <div className="flex items-center gap-2">
-                    <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setShowComposeModal(true)}
-                    className="p-2 rounded-xl gradient-base text-white"
-                  >
-                    <Edit className="h-5 w-5" />
-                  </motion.button>
                   <motion.button
                     whileTap={{ scale: 0.95 }}
                     onClick={loadTransfers}
@@ -548,6 +542,9 @@ export default function OneAccordPage() {
         onClose={() => setShowSendModal(false)}
         onSuccess={loadTransfers}
       />
+
+      {/* Inline Compose Bar */}
+      <InlineComposeBar onSuccess={loadTransfers} />
 
       <ComposeMessageModal
         isOpen={showComposeModal}
