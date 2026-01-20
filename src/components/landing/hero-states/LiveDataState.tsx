@@ -91,7 +91,7 @@ const LiveDataState = () => {
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center p-3 md:p-6 overflow-hidden">
+    <div className="relative w-full h-full flex flex-col items-center justify-center p-6 overflow-hidden">
       <Confetti isActive={showConfetti} />
 
       {/* Centered Header */}
@@ -99,19 +99,19 @@ const LiveDataState = () => {
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="absolute top-2 md:top-6 left-0 right-0 text-center z-20"
+        className="absolute top-6 left-0 right-0 text-center z-20"
       >
-        <div className="flex items-center justify-center gap-1.5 md:gap-2 mb-0.5 md:mb-1">
-          <Vote className="w-3 h-3 md:w-4 md:h-4 text-primary" />
-          <span className="text-xs md:text-base font-semibold text-foreground">Transparent Voting</span>
+        <div className="flex items-center justify-center gap-2 mb-1">
+          <Vote className="w-4 h-4 text-primary" />
+          <span className="text-base font-semibold text-foreground">Transparent Voting</span>
         </div>
-        <p className="text-[10px] md:text-sm font-medium text-muted-foreground">{CHURCH_NAME}</p>
+        <p className="text-sm font-medium text-muted-foreground">{CHURCH_NAME}</p>
       </motion.div>
 
-      {/* Main content - donut and voting - STACKED on mobile, side-by-side on tablet+ */}
-      <div className="flex flex-col md:flex-row items-center gap-2 md:gap-8 mt-6 md:mt-8">
-        {/* Larger Donut Chart */}
-        <div className="relative w-[100px] h-[100px] md:w-[180px] md:h-[180px] flex-shrink-0">
+      {/* Main content - donut and voting side by side */}
+      <div className="flex flex-row items-center gap-8 mt-8">
+        {/* Larger Donut Chart - fixed size */}
+        <div className="relative w-[180px] h-[180px] flex-shrink-0">
           <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
             {donutSegments.map((segment, index) => {
               const radius = 38;
@@ -159,10 +159,10 @@ const LiveDataState = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center"
               >
-                <p className="text-base md:text-2xl font-bold text-foreground">
+                <p className="text-2xl font-bold text-foreground">
                   {donutSegments.find(s => s.id === hoveredSegment)?.percentage}%
                 </p>
-                <p className="text-[10px] md:text-sm text-muted-foreground">
+                <p className="text-sm text-muted-foreground">
                   {donutSegments.find(s => s.id === hoveredSegment)?.label}
                 </p>
               </motion.div>
@@ -173,21 +173,21 @@ const LiveDataState = () => {
                 animate={{ opacity: 1 }}
                 className="text-center"
               >
-                <p className="text-sm md:text-lg font-bold text-foreground">
+                <p className="text-lg font-bold text-foreground">
                   {formatCurrency(TOTAL_MONTHLY)}
                 </p>
-                <p className="text-[10px] md:text-xs text-muted-foreground">Monthly</p>
+                <p className="text-xs text-muted-foreground">Monthly</p>
               </motion.div>
             )}
           </div>
         </div>
 
         {/* Allocation list with voting */}
-        <div className="flex flex-col gap-1 md:gap-3">
+        <div className="flex flex-col gap-3">
           {ALLOCATIONS.map((allocation) => (
             <motion.div
               key={allocation.id}
-              className={`flex items-center gap-2 md:gap-3 px-2 md:px-3 py-1 md:py-2 rounded-lg md:rounded-xl cursor-pointer transition-all ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-xl cursor-pointer transition-all ${
                 hoveredSegment === allocation.id ? 'bg-black/5' : 'hover:bg-black/3'
               }`}
               onMouseEnter={() => setHoveredSegment(allocation.id)}
@@ -196,25 +196,25 @@ const LiveDataState = () => {
               whileTap={{ scale: 0.98 }}
             >
               <div 
-                className="w-2 h-2 md:w-3 md:h-3 rounded-full flex-shrink-0"
+                className="w-3 h-3 rounded-full flex-shrink-0"
                 style={{ backgroundColor: allocation.color }}
               />
               <div className="flex-1 min-w-0">
-                <p className="text-[11px] md:text-base font-medium text-foreground">
+                <p className="text-base font-medium text-foreground">
                   {allocation.label}
                 </p>
               </div>
-              <div className="flex items-center gap-1 md:gap-1.5">
-                <Vote className="w-3 h-3 md:w-3.5 md:h-3.5 text-muted-foreground" />
+              <div className="flex items-center gap-1.5">
+                <Vote className="w-3.5 h-3.5 text-muted-foreground" />
                 <motion.span
                   key={animatedVotes[allocation.id]}
                   initial={{ y: -8, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  className="text-[10px] md:text-sm font-medium text-muted-foreground min-w-[20px] md:min-w-[28px]"
+                  className="text-sm font-medium text-muted-foreground min-w-[28px]"
                 >
                   {animatedVotes[allocation.id] || allocation.votes}
                 </motion.span>
-                <TrendingUp className="w-2.5 h-2.5 md:w-3 md:h-3 text-green-500" />
+                <TrendingUp className="w-3 h-3 text-green-500" />
               </div>
             </motion.div>
           ))}
@@ -226,7 +226,7 @@ const LiveDataState = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="absolute bottom-2 md:bottom-5 left-1/2 -translate-x-1/2 text-[10px] md:text-xs text-black/40 font-medium whitespace-nowrap"
+        className="absolute bottom-5 left-1/2 -translate-x-1/2 text-xs text-black/40 font-medium whitespace-nowrap"
       >
         Tap to vote • Live transparency
       </motion.p>
