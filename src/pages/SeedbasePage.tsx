@@ -15,7 +15,7 @@ import { cn } from '@/lib/utils';
 const roleTabs = {
   activator: ['Commit', 'Track', 'Giving'],
   trustee: ['Missions', 'Giving', 'Review'],
-  envoy: ['My Missions', 'Submit', 'Reports'],
+  envoy: ['My Missions', 'Submit', 'Giving'],
 };
 
 export default function SeedbasePage() {
@@ -275,17 +275,8 @@ function EnvoyContent({ tab }: { tab: number }) {
     );
   }
 
-  return (
-    <KeyGatedCard requiredKey="MissionKey">
-      <div className="space-y-4 p-5">
-        <h3 className="font-semibold text-lg">Past Reports</h3>
-        <div className="bg-muted/30 rounded-xl p-4 text-center">
-          <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-          <p className="text-muted-foreground">No reports yet</p>
-        </div>
-      </div>
-    </KeyGatedCard>
-  );
+  // Tab 2: Giving - Transparency Dashboard for Envoys
+  return <TransparencyDashboard viewMode="envoy" />;
 }
 
 function StatCard({ label, value, change }: { label: string; value: string; change: string }) {
