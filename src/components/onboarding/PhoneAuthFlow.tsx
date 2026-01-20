@@ -554,12 +554,30 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
     const normalizedPhone = pendingUser.phone;
     const keyType = getKeyTypeFromRole(selectedRole);
     
-    const newDbUser = await createUserDb({
-      phone: normalizedPhone,
-      username: username.toLowerCase(),
-      display_name: displayName || username,
-      active_role: selectedRole,
-    });
+    // Check for existing user first (may exist from partial onboarding)
+    let existingDbUser = await findUserByPhoneDb(normalizedPhone);
+    let newDbUser: DbDemoUser | null = null;
+    
+    if (existingDbUser) {
+      // Update existing user instead of creating new
+      newDbUser = await updateUser(existingDbUser.id, {
+        username: username.toLowerCase(),
+        display_name: displayName || username,
+        active_role: selectedRole,
+      });
+      // If update succeeded, use the existing user ID
+      if (newDbUser) {
+        newDbUser = { ...existingDbUser, ...newDbUser };
+      }
+    } else {
+      // Create new user
+      newDbUser = await createUserDb({
+        phone: normalizedPhone,
+        username: username.toLowerCase(),
+        display_name: displayName || username,
+        active_role: selectedRole,
+      });
+    }
     
     if (!newDbUser) {
       toast.error('Failed to create account');

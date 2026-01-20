@@ -8,7 +8,6 @@ import {
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useUser } from '@/contexts/UserContext';
-import { KeyGatedCard } from '@/components/shared/KeyGatedCard';
 import { useHaptic } from '@/hooks/useHaptic';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
@@ -241,6 +240,14 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
     toast.success('Transparency update published to feed!');
   };
   
+  // Helper function to apply dimming/highlight classes during tour
+  const getSectionClass = (sectionId: string) => {
+    if (!showTour) return '';
+    return highlightedSection === sectionId 
+      ? 'ring-2 ring-primary ring-offset-2 ring-offset-background relative z-[55]' 
+      : 'opacity-30 pointer-events-none';
+  };
+  
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -442,6 +449,127 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
         </motion.button>
       )}
       
+      {/* Active Votes - CORE FEATURE AT TOP */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{ delay: 0.05 }}
+        className={cn(
+          "bg-card rounded-2xl border border-border/50 p-5 transition-all duration-300",
+          getSectionClass('voting')
+        )}
+      >
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-10 h-10 rounded-xl bg-[#0000ff]/10 flex items-center justify-center">
+            <Vote className="h-5 w-5 text-[#0000ff]" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-lg">Active Votes</h3>
+            <p className="text-sm text-muted-foreground">Shape how funds are allocated</p>
+          </div>
+        </div>
+        
+        <div className="space-y-4">
+          {votes.map((vote, i) => {
+            const totalVotes = vote.yesVotes + vote.noVotes;
+            const yesPercentage = totalVotes > 0 ? (vote.yesVotes / totalVotes) * 100 : 50;
+            
+            return (
+              <motion.div
+                key={vote.id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.1 + i * 0.1 }}
+                className="p-4 rounded-xl bg-muted/30"
+              >
+                <div className="flex items-start justify-between mb-2">
+                  <div>
+                    <p className="font-medium">{vote.title}</p>
+                    <p className="text-sm text-muted-foreground">{vote.description}</p>
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                    <Clock className="h-3 w-3" />
+                    <span>{vote.deadline}</span>
+                  </div>
+                </div>
+                
+                {/* Progress Bar */}
+                <div className="h-3 bg-muted rounded-full overflow-hidden mb-3">
+                  <motion.div
+                    initial={{ width: '50%' }}
+                    animate={{ width: `${yesPercentage}%` }}
+                    transition={{ duration: 0.5, ease: 'easeOut' }}
+                    className="h-full bg-[#0000ff]"
+                  />
+                </div>
+                
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-4 text-sm">
+                    <span className="text-[#0000ff] font-medium">
+                      Yes: {vote.yesVotes}
+                    </span>
+                    <span className="text-destructive font-medium">
+                      No: {vote.noVotes}
+                    </span>
+                  </div>
+                  
+                  {vote.hasVoted ? (
+                    <div className="flex items-center gap-1 text-sm text-muted-foreground">
+                      <Check className="h-4 w-4 text-[#0000ff]" />
+                      <span>Voted</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2">
+                      <motion.button
+                        whileTap={{ scale: hasBaseKey ? 0.95 : 1 }}
+                        onClick={() => hasBaseKey && handleVote(vote.id, 'yes')}
+                        disabled={!hasBaseKey}
+                        className={cn(
+                          "px-4 py-2 rounded-xl text-sm font-medium transition-all",
+                          hasBaseKey
+                            ? "bg-[#0000ff] text-white shadow-[0_0_12px_rgba(0,0,255,0.3)] hover:shadow-[0_0_20px_rgba(0,0,255,0.5)]"
+                            : "bg-muted text-muted-foreground cursor-not-allowed"
+                        )}
+                      >
+                        Yes
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: hasBaseKey ? 0.95 : 1 }}
+                        onClick={() => hasBaseKey && handleVote(vote.id, 'no')}
+                        disabled={!hasBaseKey}
+                        className={cn(
+                          "px-4 py-2 rounded-xl text-sm font-medium transition-all",
+                          hasBaseKey
+                            ? "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                            : "bg-muted text-muted-foreground cursor-not-allowed"
+                        )}
+                      >
+                        No
+                      </motion.button>
+                    </div>
+                  )}
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
+        
+        {/* BaseKey CTA at bottom if not unlocked */}
+        {!hasBaseKey && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3 }}
+            className="mt-4 p-3 bg-muted/30 rounded-xl text-center border border-dashed border-muted-foreground/30"
+          >
+            <p className="text-sm text-muted-foreground flex items-center justify-center gap-2">
+              <Lock className="h-4 w-4" />
+              <span>Get BaseKey to cast your vote</span>
+            </p>
+          </motion.div>
+        )}
+      </motion.div>
+      
       {/* Allocation Pie Chart Section */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
@@ -449,7 +577,7 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
         transition={{ delay: 0.1 }}
         className={cn(
           "bg-card rounded-2xl border border-border/50 p-5 transition-all duration-300",
-          highlightedSection === 'allocation' && "ring-2 ring-primary ring-offset-2 ring-offset-background relative z-[55]"
+          getSectionClass('allocation')
         )}
       >
         <div className="flex items-center gap-3 mb-4">
@@ -565,7 +693,7 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
         transition={{ delay: 0.2 }}
         className={cn(
           "bg-card rounded-2xl border border-border/50 p-5 transition-all duration-300",
-          highlightedSection === 'transactions' && "ring-2 ring-primary ring-offset-2 ring-offset-background relative z-[55]"
+          getSectionClass('transactions')
         )}
       >
         <div className="flex items-center justify-between mb-4">
@@ -611,106 +739,6 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
         </div>
       </motion.div>
       
-      {/* Voting Section */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ delay: 0.3 }}
-        className={cn(
-          "transition-all duration-300",
-          highlightedSection === 'voting' && "ring-2 ring-primary ring-offset-2 ring-offset-background rounded-2xl relative z-[55]"
-        )}
-      >
-        <KeyGatedCard requiredKey="BaseKey" unlockMessage="Get BaseKey to vote on governance proposals">
-          <div className="bg-card rounded-2xl border border-border/50 p-5">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-                <Vote className="h-5 w-5 text-purple-500" />
-              </div>
-              <div>
-                <h3 className="font-semibold text-lg">Active Votes</h3>
-                <p className="text-sm text-muted-foreground">Cast your vote on proposals</p>
-              </div>
-            </div>
-            
-            <div className="space-y-4">
-              {votes.map((vote, i) => {
-                const totalVotes = vote.yesVotes + vote.noVotes;
-                const yesPercentage = totalVotes > 0 ? (vote.yesVotes / totalVotes) * 100 : 50;
-                
-                return (
-                  <motion.div
-                    key={vote.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 + i * 0.1 }}
-                    className="p-4 rounded-xl bg-muted/30"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <p className="font-medium">{vote.title}</p>
-                        <p className="text-sm text-muted-foreground">{vote.description}</p>
-                      </div>
-                      <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                        <Clock className="h-3 w-3" />
-                        <span>{vote.deadline}</span>
-                      </div>
-                    </div>
-                    
-                    {/* Progress Bar */}
-                    <div className="h-3 bg-muted rounded-full overflow-hidden mb-3">
-                      <motion.div
-                        initial={{ width: '50%' }}
-                        animate={{ width: `${yesPercentage}%` }}
-                        transition={{ duration: 0.5, ease: 'easeOut' }}
-                        className="h-full bg-gradient-to-r from-green-500 to-green-400"
-                      />
-                    </div>
-                    
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-4 text-sm">
-                        <span className="text-green-500 font-medium">
-                          Yes: {vote.yesVotes}
-                        </span>
-                        <span className="text-red-500 font-medium">
-                          No: {vote.noVotes}
-                        </span>
-                      </div>
-                      
-                      {vote.hasVoted ? (
-                        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                          <Check className="h-4 w-4 text-green-500" />
-                          <span>Voted</span>
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-2">
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleVote(vote.id, 'yes')}
-                            className="px-3 py-1.5 rounded-lg bg-green-500/10 text-green-500 text-sm font-medium hover:bg-green-500/20 transition-colors"
-                          >
-                            Yes
-                          </motion.button>
-                          <motion.button
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 0.95 }}
-                            onClick={() => handleVote(vote.id, 'no')}
-                            className="px-3 py-1.5 rounded-lg bg-red-500/10 text-red-500 text-sm font-medium hover:bg-red-500/20 transition-colors"
-                          >
-                            No
-                          </motion.button>
-                        </div>
-                      )}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </div>
-        </KeyGatedCard>
-      </motion.div>
-      
       {/* Trustee-only: Post Update */}
       {viewMode === 'trustee' && (
         <motion.div
@@ -738,7 +766,7 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
           transition={{ delay: 0.4 }}
           className={cn(
             "bg-card rounded-2xl border border-primary/30 p-5 transition-all duration-300",
-            highlightedSection === 'contribution' && "ring-2 ring-primary ring-offset-2 ring-offset-background relative z-[55]"
+            getSectionClass('contribution')
           )}
         >
           <div className="flex items-center gap-3 mb-4">
