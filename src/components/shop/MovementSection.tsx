@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, VolumeX, Maximize, Minimize } from "lucide-react";
 import seededHype1 from "@/assets/seeded-hype-1.mp4";
 import seededHype2 from "@/assets/seeded-hype-2.mp4";
-import parachuteImage from "@/assets/parachute-seeded.jpg";
+import parachuteVideo from "@/assets/parachute-video.mp4";
 import seededLogoWhite from "@/assets/seeded-logo-white.png";
 import seedbaseWordmarkWhite from "@/assets/seedbase-wordmark-white.png";
 
@@ -45,11 +45,12 @@ export function MovementSection() {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [showRestart, setShowRestart] = useState(false);
-  const [videosLoading, setVideosLoading] = useState({ hype1: true, hype2: true });
+  const [videosLoading, setVideosLoading] = useState({ hype1: true, hype2: true, parachute: true });
   
   const containerRef = useRef<HTMLDivElement>(null);
   const hype1Ref = useRef<HTMLVideoElement>(null);
   const hype2Ref = useRef<HTMLVideoElement>(null);
+  const parachuteRef = useRef<HTMLVideoElement>(null);
 
   // Intersection Observer for autoplay
   useEffect(() => {
@@ -110,6 +111,12 @@ export function MovementSection() {
         hype1Ref.current.currentTime = 0;
         hype1Ref.current.muted = isMuted;
         hype1Ref.current.play().catch(console.error);
+      }
+
+      if (scene === "parachute" && parachuteRef.current) {
+        parachuteRef.current.currentTime = 0;
+        parachuteRef.current.muted = isMuted;
+        parachuteRef.current.play().catch(console.error);
       }
     }, 200);
 
@@ -264,20 +271,32 @@ export function MovementSection() {
           </motion.div>
         )}
 
-        {/* SCENE 3: Parachute Shot */}
+        {/* SCENE 3: Parachute Video */}
         {scene === "parachute" && (
           <motion.div
             key="parachute"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.1 }}
+            transition={{ duration: 0.2 }}
             className="absolute inset-0"
           >
-            <img 
-              src={parachuteImage} 
-              alt="Parachute"
+            {/* Loading skeleton for parachute */}
+            {videosLoading.parachute && (
+              <div className="absolute inset-0 bg-black flex items-center justify-center z-10">
+                <div className="flex flex-col items-center gap-4">
+                  <div className="w-12 h-12 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  <span className="text-white/50 text-sm">Loading...</span>
+                </div>
+              </div>
+            )}
+            <video
+              ref={parachuteRef}
+              src={parachuteVideo}
               className="w-full h-full object-cover"
+              muted={isMuted}
+              playsInline
+              onCanPlay={() => setVideosLoading(prev => ({ ...prev, parachute: false }))}
             />
             <div className="absolute inset-0 bg-black/40" />
             <motion.div 
@@ -285,7 +304,7 @@ export function MovementSection() {
               initial={{ scale: 0, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               transition={{ 
-                delay: 0.3,
+                delay: 0.5,
                 type: "spring",
                 stiffness: 200,
                 damping: 15
