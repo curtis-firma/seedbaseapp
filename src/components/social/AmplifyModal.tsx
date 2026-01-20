@@ -69,6 +69,17 @@ export function AmplifyModal({
   
   const handleConfirmSend = () => {
     triggerHaptic('success');
+    
+    // Open external sharing URL
+    if (selectedPlatform === 'x') {
+      const twitterIntentUrl = `https://twitter.com/intent/tweet?text=${encodeURIComponent(fullCaption)}`;
+      window.open(twitterIntentUrl, '_blank', 'noopener,noreferrer');
+    } else if (selectedPlatform === 'base') {
+      // Warpcast is the social layer on Base/Farcaster
+      const warpcastUrl = `https://warpcast.com/~/compose?text=${encodeURIComponent(fullCaption)}`;
+      window.open(warpcastUrl, '_blank', 'noopener,noreferrer');
+    }
+    
     setShowSendOutModal(false);
     setShowSuccessScene(true);
     
