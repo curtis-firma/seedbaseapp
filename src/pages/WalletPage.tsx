@@ -13,6 +13,7 @@ import { trusteeWallets } from '@/data/mockData';
 import { AddFundsModal } from '@/components/wallet/AddFundsModal';
 import { WithdrawModal } from '@/components/wallet/WithdrawModal';
 import { SendModal } from '@/components/wallet/SendModal';
+import { KeyActivationModal } from '@/components/wallet/KeyActivationModal';
 import { truncateDisplayId } from '@/lib/supabase/demoApi';
 import { getWalletByUserId, updateWalletBalance } from '@/lib/supabase/demoApi';
 import { getPendingTransfers, getTransfersForUser, recordDeposit, recordWithdrawal, type DemoTransfer } from '@/lib/supabase/transfersApi';
@@ -500,6 +501,14 @@ function RecentActivitySection({
 }
 
 function KeysView({ user }: { user: any }) {
+  const [showActivationModal, setShowActivationModal] = useState(false);
+  const [selectedKeyType, setSelectedKeyType] = useState<'SeedKey' | 'BaseKey' | 'MissionKey'>('SeedKey');
+
+  const handleActivateKey = (keyType: 'SeedKey' | 'BaseKey' | 'MissionKey') => {
+    setSelectedKeyType(keyType);
+    setShowActivationModal(true);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 10 }}
@@ -550,6 +559,7 @@ function KeysView({ user }: { user: any }) {
               {!key.isActive && (
                 <motion.button
                   whileTap={{ scale: 0.95 }}
+                  onClick={() => handleActivateKey(key.type as 'SeedKey' | 'BaseKey' | 'MissionKey')}
                   className={cn(
                     "px-4 py-2 rounded-xl text-sm font-medium text-white",
                     config.gradient
@@ -565,6 +575,12 @@ function KeysView({ user }: { user: any }) {
           );
         })}
       </div>
+
+      <KeyActivationModal
+        isOpen={showActivationModal}
+        onClose={() => setShowActivationModal(false)}
+        keyType={selectedKeyType}
+      />
     </motion.div>
   );
 }

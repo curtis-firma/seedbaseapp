@@ -16,6 +16,7 @@ import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer 
 } from 'recharts';
 import { mockVotes, activatedUsers, projectionData, voteHistory } from '@/data/mockData';
+import { ShareVoteModal } from '@/components/governance/ShareVoteModal';
 
 export default function GovernancePage() {
   const { user } = useUser();
@@ -25,12 +26,16 @@ export default function GovernancePage() {
   
   const [votes, setVotes] = useState(mockVotes);
   const [seedAmount, setSeedAmount] = useState(100);
+  const [showShareModal, setShowShareModal] = useState(false);
+  const [lastVotedProposal, setLastVotedProposal] = useState<{ title: string; voteType: 'yes' | 'no' } | null>(null);
   
   const hasBaseKey = user?.keys?.some(k => k.type === 'BaseKey' && k.isActive) ?? false;
 
   const handleVote = (voteId: string, voteType: 'yes' | 'no') => {
     if (!hasBaseKey) return;
     haptic.medium();
+    
+    const vote = votes.find(v => v.id === voteId);
     
     setVotes(prev => prev.map(v => {
       if (v.id === voteId) {
@@ -46,6 +51,12 @@ export default function GovernancePage() {
     }));
     
     toast.success(`Vote cast for ${voteType === 'yes' ? 'Yes' : 'No'}!`);
+    
+    // Show share modal after voting
+    if (vote) {
+      setLastVotedProposal({ title: vote.title, voteType });
+      setTimeout(() => setShowShareModal(true), 500);
+    }
   };
 
   const handleCopyReferralLink = () => {
@@ -577,6 +588,16 @@ export default function GovernancePage() {
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Share Vote Modal */}
+      {lastVotedProposal && (
+        <ShareVoteModal
+          isOpen={showShareModal}
+          onClose={() => setShowShareModal(false)}
+          voteType={lastVotedProposal.voteType}
+          proposalTitle={lastVotedProposal.title}
+        />
+      )}
     </div>
   );
 }
