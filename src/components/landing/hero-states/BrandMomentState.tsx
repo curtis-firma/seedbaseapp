@@ -148,7 +148,7 @@ const GrowingSquares = () => {
             {Array.from({ length: bar.height }).map((_, squareIndex) => (
               <motion.div
                 key={squareIndex}
-                className="w-[clamp(6px,1.5vw,12px)] aspect-square relative z-10"
+                className="w-[clamp(8px,2vw,14px)] aspect-square relative z-10"
                 initial={{ opacity: 0, scale: 0, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{
