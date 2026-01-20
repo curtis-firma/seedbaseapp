@@ -1,11 +1,11 @@
 import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp-new.png';
-import seedWhite from '@/assets/seed-icon-white.png';
+import seedBlue from '@/assets/seed-icon-blue.png';
 
 /**
  * BrandMomentState - Hero canvas state showing generosity growth
  * Uses percentage-based sizing to scale properly across viewports
- * Blue background with white/inverted elements
+ * White background with blue elements
  */
 
 // Spinning orbital ring component with seed icons
@@ -34,14 +34,14 @@ const OrbitalRing = ({
       animate={{ rotate: reverse ? -360 : 360 }}
       transition={{ duration, repeat: Infinity, ease: "linear" }}
     >
-      {/* Ring circle */}
+      {/* Ring circle - blue on white */}
       <svg className="w-full h-full absolute" viewBox="0 0 100 100">
         <circle
           cx="50"
           cy="50"
           r="48"
           fill="none"
-          stroke="white"
+          stroke="rgba(0, 0, 255, 0.2)"
           strokeWidth="0.5"
           strokeDasharray="3 5"
           style={{ opacity }}
@@ -73,7 +73,7 @@ const OrbitalRing = ({
               ease: "easeInOut"
             }}
           >
-            <img src={seedWhite} alt="" className="w-full h-full opacity-80" />
+            <img src={seedBlue} alt="" className="w-full h-full opacity-80" />
           </motion.div>
         );
       })}
@@ -157,7 +157,7 @@ const GrowingSquares = () => {
                   ease: "backOut"
                 }}
               >
-                <img src={seedWhite} alt="" className="w-full h-full" />
+                <img src={seedBlue} alt="" className="w-full h-full" />
               </motion.div>
             ))}
           </motion.div>
@@ -169,30 +169,30 @@ const GrowingSquares = () => {
 
 const BrandMomentState = () => {
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-[#0000ff]">
+    <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-white">
       {/* "Generosity that grows" at the TOP */}
       <motion.p
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="absolute top-[8%] text-white/80 font-semibold tracking-wide z-20"
+        className="absolute top-[8%] text-black/70 font-semibold tracking-wide z-20"
         style={{ fontSize: 'clamp(14px, 5%, 24px)' }}
       >
         Generosity that grows
       </motion.p>
 
       {/* Spinning orbital rings with seed icons - percentage-based */}
-      <OrbitalRing radius="45%" duration={18} seedCount={3} opacity={0.12} />
-      <OrbitalRing radius="65%" duration={24} reverse seedCount={4} opacity={0.1} />
-      <OrbitalRing radius="85%" duration={30} seedCount={5} opacity={0.08} />
+      <OrbitalRing radius="45%" duration={18} seedCount={3} opacity={0.15} />
+      <OrbitalRing radius="65%" duration={24} reverse seedCount={4} opacity={0.12} />
+      <OrbitalRing radius="85%" duration={30} seedCount={5} opacity={0.1} />
 
-      {/* Grid dots pattern */}
-      <div className="absolute inset-0 opacity-10 pointer-events-none">
+      {/* Grid dots pattern - blue on white */}
+      <div className="absolute inset-0 opacity-20 pointer-events-none">
         <svg className="w-full h-full">
-          <pattern id="hero-dots-blue" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <circle cx="20" cy="20" r="1" fill="white" />
+          <pattern id="hero-dots-white" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
+            <circle cx="20" cy="20" r="1" fill="rgba(0, 0, 255, 0.4)" />
           </pattern>
-          <rect width="100%" height="100%" fill="url(#hero-dots-blue)" />
+          <rect width="100%" height="100%" fill="url(#hero-dots-white)" />
         </svg>
       </div>
       
@@ -212,7 +212,7 @@ const BrandMomentState = () => {
         <motion.img 
           src={seedbasePfp} 
           alt=""
-          className="w-full h-full rounded-full"
+          className="w-full h-full rounded-full ring-2 ring-[#0000ff]/20"
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
         />
