@@ -1,128 +1,384 @@
-import { motion } from 'framer-motion';
-import { Radio, Play, ShoppingBag, Users, ExternalLink, Headphones } from 'lucide-react';
+import { useState } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { ShoppingBag, Heart, Plus, Minus, X, Check, Wallet, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { MovementSection } from '@/components/shop/MovementSection';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+
+// Product images
+import cikHoodieGreyImg from "@/assets/products/cik-hoodie-grey.jpg";
+import christIsKingTeeImg from "@/assets/products/christ-is-king-tee-model.jpg";
+import gnrusHatImg from "@/assets/products/gnrus-hat-model.jpg";
+import seededSweatsGreyImg from "@/assets/products/seeded-sweats-grey.jpg";
+import cikBeanieGreyImg from "@/assets/products/cik-beanie-grey.jpg";
+import christIsKingCrewneckGreyImg from "@/assets/products/christ-is-king-crewneck-grey.jpg";
+import kingdomHoodieImg from "@/assets/products/kingdom-hoodie.jpg";
+
+const storeProducts = [
+  { id: 1, name: "Kingdom Hoodie", price: 89, category: "SEEDED", image: kingdomHoodieImg, description: "Premium heavyweight cotton hoodie" },
+  { id: 2, name: "SEEDED Sweats", price: 75, category: "SEEDED", image: seededSweatsGreyImg, description: "Comfortable everyday sweats" },
+  { id: 3, name: "CIK Hoodie", price: 89, category: "CIK", image: cikHoodieGreyImg, description: "Classic Christ is King hoodie" },
+  { id: 4, name: "CIK Beanie", price: 32, category: "CIK", image: cikBeanieGreyImg, description: "Warm knit beanie" },
+  { id: 5, name: "Christ is King Tee", price: 45, category: "Christ is King", image: christIsKingTeeImg, description: "Premium cotton tee" },
+  { id: 6, name: "Christ is King Crewneck", price: 95, category: "Christ is King", image: christIsKingCrewneckGreyImg, description: "Heavyweight crewneck" },
+  { id: 7, name: "GNRUS Hat", price: 35, category: "GNRUS", image: gnrusHatImg, description: "Adjustable snapback" },
+];
+
+const categories = ["All", "SEEDED", "CIK", "Christ is King", "GNRUS"];
+
+interface CartItem {
+  product: typeof storeProducts[0];
+  quantity: number;
+}
+
+type CheckoutStep = "cart" | "connecting" | "connected" | "processing" | "complete";
 
 export default function SeededPage() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [selectedProduct, setSelectedProduct] = useState<typeof storeProducts[0] | null>(null);
+  const [showCheckout, setShowCheckout] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>("cart");
+
+  const filteredProducts = selectedCategory === "All"
+    ? storeProducts
+    : storeProducts.filter(p => p.category === selectedCategory);
+
+  const addToCart = (product: typeof storeProducts[0]) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.product.id === product.id);
+      if (existing) {
+        return prev.map(item =>
+          item.product.id === product.id
+            ? { ...item, quantity: item.quantity + 1 }
+            : item
+        );
+      }
+      return [...prev, { product, quantity: 1 }];
+    });
+    toast.success(`Added ${product.name} to cart`);
+  };
+
+  const removeFromCart = (productId: number) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.product.id === productId);
+      if (existing && existing.quantity > 1) {
+        return prev.map(item =>
+          item.product.id === productId
+            ? { ...item, quantity: item.quantity - 1 }
+            : item
+        );
+      }
+      return prev.filter(item => item.product.id !== productId);
+    });
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + (item.product.price * item.quantity), 0);
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleBasePay = () => {
+    setCheckoutStep("connecting");
+    setTimeout(() => {
+      setCheckoutStep("connected");
+      setTimeout(() => {
+        setCheckoutStep("processing");
+        setTimeout(() => {
+          setCheckoutStep("complete");
+          setCart([]);
+        }, 1500);
+      }, 1000);
+    }, 2000);
+  };
+
+  const resetCheckout = () => {
+    setShowCheckout(false);
+    setCheckoutStep("cart");
+  };
+
   return (
     <div className="min-h-screen pb-8">
       {/* Header */}
       <header className="glass-strong border-b border-border/50">
-        <div className="px-4 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-seed flex items-center justify-center">
-              <Radio className="h-5 w-5 text-white" />
+        <div className="px-4 md:px-8 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-foreground flex items-center justify-center">
+                <ShoppingBag className="h-5 w-5 text-background" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold">Seeded Store</h1>
+                <p className="text-sm text-muted-foreground">Merch & Movement</p>
+              </div>
             </div>
-            <div>
-              <h1 className="text-xl font-bold">Seeded</h1>
-              <p className="text-sm text-muted-foreground">Community & Culture</p>
-            </div>
+
+            {/* Cart Button */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setShowCheckout(true)}
+              className="relative px-4 py-2 rounded-xl bg-foreground text-background font-medium flex items-center gap-2"
+            >
+              <ShoppingBag className="w-5 h-5" />
+              Cart
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center">
+                  {cartCount}
+                </span>
+              )}
+            </motion.button>
           </div>
         </div>
       </header>
 
-      <div className="px-4 py-4 space-y-4">
-        {/* Podcast Section */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-card rounded-2xl border border-border/50 overflow-hidden"
-        >
-          <div className="aspect-video bg-gradient-to-br from-seed to-seed-glow flex items-center justify-center">
+      <div className="px-4 md:px-8 py-6 space-y-6 max-w-7xl mx-auto">
+        {/* Mission Badge */}
+        <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-3">
+          <Heart className="w-5 h-5 text-rose-500" />
+          <span className="text-sm text-foreground">100% of proceeds go to missions worldwide</span>
+        </div>
+
+        {/* Category Pills */}
+        <div className="flex gap-2 flex-wrap">
+          {categories.map((cat) => (
             <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              className="w-16 h-16 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center"
+              key={cat}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => setSelectedCategory(cat)}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                selectedCategory === cat
+                  ? "bg-foreground text-background"
+                  : "bg-card text-muted-foreground border border-border hover:bg-muted"
+              }`}
             >
-              <Play className="h-8 w-8 text-white ml-1" />
+              {cat}
             </motion.button>
-          </div>
-          <div className="p-5">
-            <div className="flex items-center gap-2 mb-2">
-              <Headphones className="h-4 w-4 text-seed" />
-              <span className="text-sm font-medium text-seed">Latest Episode</span>
-            </div>
-            <h3 className="font-semibold text-lg mb-2">The Economics of Generosity</h3>
-            <p className="text-muted-foreground text-sm mb-4">
-              Exploring how commitment creates capacity and why locked value generates living impact.
-            </p>
-            <div className="flex items-center gap-4 text-sm text-muted-foreground">
-              <span>Episode 42</span>
-              <span>•</span>
-              <span>45 min</span>
-              <span>•</span>
-              <span>2 days ago</span>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Community Stats */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="grid grid-cols-3 gap-3"
-        >
-          {[
-            { label: 'Members', value: '2.4K', icon: Users },
-            { label: 'Episodes', value: '42', icon: Headphones },
-            { label: 'Products', value: '8', icon: ShoppingBag },
-          ].map((stat, i) => (
-            <div key={i} className="bg-card rounded-2xl border border-border/50 p-4 text-center">
-              <stat.icon className="h-5 w-5 mx-auto mb-2 text-muted-foreground" />
-              <p className="text-xl font-bold">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
-            </div>
           ))}
-        </motion.div>
+        </div>
 
-        {/* Shop Preview */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <h3 className="font-semibold text-lg mb-3">Shop</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {[
-              { name: 'Seed Tee', price: 35, emoji: '👕' },
-              { name: 'Impact Cap', price: 28, emoji: '🧢' },
-              { name: 'Grow Hoodie', price: 65, emoji: '🧥' },
-              { name: 'Seed Mug', price: 18, emoji: '☕' },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.2 + i * 0.05 }}
-                className="bg-card rounded-2xl border border-border/50 p-4"
-              >
-                <div className="text-4xl mb-3">{item.emoji}</div>
-                <p className="font-medium">{item.name}</p>
-                <p className="text-sm text-muted-foreground">${item.price}</p>
-              </motion.div>
-            ))}
-          </div>
-        </motion.div>
+        {/* Products Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+          {filteredProducts.map((product, index) => (
+            <motion.div
+              key={product.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className="rounded-2xl overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
+              onClick={() => setSelectedProduct(product)}
+            >
+              <div className="aspect-square relative overflow-hidden">
+                <img
+                  src={product.image}
+                  alt={product.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                />
+              </div>
+              <div className="p-4">
+                <p className="text-xs text-muted-foreground mb-1">{product.category}</p>
+                <h4 className="font-semibold text-foreground mb-1">{product.name}</h4>
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-lg text-foreground">${product.price}</span>
+                  <motion.button
+                    whileTap={{ scale: 0.95 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      addToCart(product);
+                    }}
+                    className="px-3 py-1.5 rounded-lg bg-foreground text-background text-sm font-medium"
+                  >
+                    Add
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          ))}
+        </div>
 
-        {/* Join Community */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3 }}
-          className="bg-gradient-to-br from-primary to-base-glow rounded-2xl p-5 text-white"
-        >
-          <h3 className="font-semibold text-lg mb-2">Join the Community</h3>
-          <p className="text-white/80 text-sm mb-4">
-            Connect with other Activators, Trustees, and Envoys building a better world.
-          </p>
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            className="flex items-center gap-2 px-4 py-3 bg-white/20 backdrop-blur-sm rounded-xl font-medium"
-          >
-            <ExternalLink className="h-4 w-4" />
-            Join Discord
-          </motion.button>
-        </motion.div>
+        {/* Movement Section */}
+        <div className="pt-8">
+          <h2 className="text-2xl font-bold text-foreground mb-4">The Movement</h2>
+          <MovementSection />
+        </div>
       </div>
+
+      {/* Product Quick View Modal */}
+      <Dialog open={!!selectedProduct} onOpenChange={() => setSelectedProduct(null)}>
+        <DialogContent className="max-w-lg">
+          {selectedProduct && (
+            <>
+              <div className="aspect-square rounded-xl overflow-hidden mb-4">
+                <img
+                  src={selectedProduct.image}
+                  alt={selectedProduct.name}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+              <DialogHeader>
+                <p className="text-sm text-muted-foreground">{selectedProduct.category}</p>
+                <DialogTitle className="text-2xl">{selectedProduct.name}</DialogTitle>
+              </DialogHeader>
+              <p className="text-muted-foreground">{selectedProduct.description}</p>
+              <div className="flex items-center justify-between mt-4">
+                <span className="text-2xl font-bold">${selectedProduct.price}</span>
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => {
+                    addToCart(selectedProduct);
+                    setSelectedProduct(null);
+                  }}
+                  className="px-6 py-3 rounded-xl bg-foreground text-background font-semibold"
+                >
+                  Add to Cart
+                </motion.button>
+              </div>
+            </>
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Checkout Modal */}
+      <AnimatePresence>
+        {showCheckout && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4"
+          >
+            <motion.div
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
+              className="bg-card rounded-2xl w-full max-w-md overflow-hidden border border-border shadow-lg"
+            >
+              {/* Connecting */}
+              {checkoutStep === "connecting" && (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-[#0052FF]/10 flex items-center justify-center mx-auto mb-6">
+                    <Loader2 className="w-8 h-8 text-[#0052FF] animate-spin" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-2">Connecting Wallet</h3>
+                  <p className="text-muted-foreground text-sm">Please confirm the connection...</p>
+                </div>
+              )}
+
+              {/* Connected */}
+              {checkoutStep === "connected" && (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-[#0052FF]/10 flex items-center justify-center mx-auto mb-6">
+                    <Wallet className="w-8 h-8 text-[#0052FF]" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-2">Wallet Connected</h3>
+                  <p className="text-muted-foreground text-sm mb-4">0x1234...5678</p>
+                  <p className="text-sm text-muted-foreground">Processing payment...</p>
+                </div>
+              )}
+
+              {/* Processing */}
+              {checkoutStep === "processing" && (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 rounded-2xl bg-[#0052FF]/10 flex items-center justify-center mx-auto mb-6">
+                    <Loader2 className="w-8 h-8 text-[#0052FF] animate-spin" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-2">Processing Payment</h3>
+                  <p className="text-muted-foreground text-sm">Confirming transaction on Base...</p>
+                </div>
+              )}
+
+              {/* Complete */}
+              {checkoutStep === "complete" && (
+                <div className="p-8 text-center">
+                  <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6">
+                    <Check className="w-8 h-8 text-emerald-600" />
+                  </div>
+                  <h3 className="text-xl font-bold text-foreground mb-2">Order Complete!</h3>
+                  <p className="text-muted-foreground text-sm mb-6">
+                    Thank you for supporting the mission. Your order will ship within 3-5 days.
+                  </p>
+                  <button
+                    onClick={resetCheckout}
+                    className="w-full py-3 bg-foreground text-background font-semibold rounded-xl"
+                  >
+                    Done
+                  </button>
+                </div>
+              )}
+
+              {/* Cart View */}
+              {checkoutStep === "cart" && (
+                <>
+                  <div className="p-4 border-b border-border flex items-center justify-between">
+                    <h3 className="font-bold text-lg text-foreground">Checkout</h3>
+                    <button
+                      onClick={resetCheckout}
+                      className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
+                    >
+                      <X className="w-4 h-4 text-foreground" />
+                    </button>
+                  </div>
+
+                  <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto">
+                    {cart.length === 0 ? (
+                      <div className="py-8 text-center">
+                        <ShoppingBag className="w-12 h-12 text-muted-foreground mx-auto mb-3" />
+                        <p className="text-muted-foreground">Your cart is empty</p>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="space-y-3">
+                          {cart.map((item) => (
+                            <div key={item.product.id} className="flex items-center gap-3">
+                              <div className="w-16 h-16 rounded-lg overflow-hidden">
+                                <img
+                                  src={item.product.image}
+                                  alt={item.product.name}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                              <div className="flex-1">
+                                <p className="font-medium text-foreground">{item.product.name}</p>
+                                <p className="text-sm text-muted-foreground">${item.product.price}</p>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <button
+                                  onClick={() => removeFromCart(item.product.id)}
+                                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
+                                >
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <span className="w-6 text-center">{item.quantity}</span>
+                                <button
+                                  onClick={() => addToCart(item.product)}
+                                  className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+
+                        <div className="pt-4 border-t border-border">
+                          <div className="flex justify-between mb-4">
+                            <span className="font-medium">Total</span>
+                            <span className="font-bold text-xl">${cartTotal}</span>
+                          </div>
+                          <button
+                            onClick={handleBasePay}
+                            className="w-full py-4 rounded-xl bg-foreground text-background font-semibold flex items-center justify-center gap-2"
+                          >
+                            <div className="w-5 h-5 rounded-sm bg-primary" />
+                            Pay with Base
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </>
+              )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
