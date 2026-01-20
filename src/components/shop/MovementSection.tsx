@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, VolumeX, Maximize, Minimize } from "lucide-react";
-import seededHype1 from "@/assets/seeded-hype-1.mp4";
+import seededHypeFull from "@/assets/seeded-hype-full.mp4";
 import seededHype2 from "@/assets/seeded-hype-2.mp4";
 import parachuteVideo from "@/assets/parachute-video.mp4";
 import seededLogoWhite from "@/assets/seeded-logo-white.png";
@@ -222,7 +222,7 @@ export function MovementSection() {
         )}
         <video
           ref={hype1Ref}
-          src={seededHype1}
+          src={seededHypeFull}
           className="w-full h-full object-cover"
           muted={isMuted}
           playsInline
