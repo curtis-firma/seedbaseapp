@@ -520,8 +520,11 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
 
                     <motion.button
                       whileTap={{ scale: 0.98 }}
-                      onClick={handleNext}
-                      className="flex items-center gap-2 px-6 py-3 bg-primary hover:bg-primary/90 rounded-xl text-white font-medium shadow-lg transition-colors"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleNext();
+                      }}
+                      className="flex items-center gap-2 px-6 py-3 bg-[#0000ff] hover:bg-[#0000ff]/90 rounded-xl text-white font-medium shadow-lg transition-colors relative z-10"
                     >
                       {slide.isFinal ? 'Start Exploring' : 'Next'}
                       <ChevronRight className="h-4 w-4" />
