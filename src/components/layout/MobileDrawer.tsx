@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  MessageCircle, BarChart3, ShoppingBag, Rocket, Settings, X, HelpCircle, LogOut, Vote
+  MessageCircle, BarChart3, ShoppingBag, Rocket, Settings, X, HelpCircle, LogOut, Vote, Users
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
@@ -9,6 +10,7 @@ import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Logo } from '@/components/shared/Logo';
 import { useSocialHandles } from '@/hooks/useSocialHandles';
+import { AffiliateExplainerModal } from '@/components/shared/AffiliateExplainerModal';
 
 const menuNav = [
   { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages & transfers', badge: 0 },
@@ -30,6 +32,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
   const navigate = useNavigate();
   const { username, displayName, activeRole, user, logout, isAuthenticated, avatarUrl } = useUser();
   const { xHandle, baseHandle, hasHandles } = useSocialHandles();
+  const [showAffiliateModal, setShowAffiliateModal] = useState(false);
   
   // Use avatarUrl from context for synced avatar
   const displayAvatar = avatarUrl || user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
@@ -159,6 +162,18 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
 
             {/* Footer */}
             <div className="p-4 border-t border-border/50 space-y-2">
+              {/* Affiliate Explainer Button */}
+              <motion.button
+                onClick={() => setShowAffiliateModal(true)}
+                className="w-full flex items-center justify-between p-3 rounded-xl bg-primary/5 hover:bg-primary/10 transition-colors border border-primary/20"
+                whileTap={{ scale: 0.98 }}
+              >
+                <div className="flex items-center gap-3">
+                  <Users className="h-5 w-5 text-primary" />
+                  <span className="font-medium text-sm">How Affiliates Work</span>
+                </div>
+              </motion.button>
+
               {/* Walkthrough Button */}
               <motion.button
                 onClick={handleShowWalkthroughClick}
@@ -190,6 +205,12 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
               </p>
             </div>
           </motion.div>
+          
+          {/* Affiliate Explainer Modal */}
+          <AffiliateExplainerModal 
+            isOpen={showAffiliateModal} 
+            onClose={() => setShowAffiliateModal(false)} 
+          />
         </>
       )}
     </AnimatePresence>

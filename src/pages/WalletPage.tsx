@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Wallet as WalletIcon, Lock, Clock, ArrowDownRight, ArrowUpRight,
   Key, CheckCircle2, XCircle, Sprout, Shield, Rocket, ChevronRight,
-  Layers, PiggyBank, Receipt, Users, Vote, AlertCircle, Plus, Banknote, Copy, History
+  Layers, PiggyBank, Receipt, Users, Vote, AlertCircle, Plus, Banknote, Copy, History, Info
 } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
@@ -14,6 +14,7 @@ import { AddFundsModal } from '@/components/wallet/AddFundsModal';
 import { WithdrawModal } from '@/components/wallet/WithdrawModal';
 import { SendModal } from '@/components/wallet/SendModal';
 import { KeyActivationModal } from '@/components/wallet/KeyActivationModal';
+import { AffiliateExplainerModal } from '@/components/shared/AffiliateExplainerModal';
 import { truncateDisplayId } from '@/lib/supabase/demoApi';
 import { getWalletByUserId, updateWalletBalance } from '@/lib/supabase/demoApi';
 import { getPendingTransfers, getTransfersForUser, recordDeposit, recordWithdrawal, type DemoTransfer } from '@/lib/supabase/transfersApi';
@@ -256,6 +257,7 @@ function PersonalWalletView({
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showSend, setShowSend] = useState(false);
+  const [showAffiliateModal, setShowAffiliateModal] = useState(false);
   const { activeRole } = useUser();
   const isActivator = activeRole === 'activator';
 
@@ -402,6 +404,18 @@ function PersonalWalletView({
         currentUserId={currentUserId} 
       />
 
+      {/* Affiliate Info */}
+      <motion.button
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.25 }}
+        onClick={() => setShowAffiliateModal(true)}
+        className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-primary/5 border border-primary/20 text-sm font-medium text-primary"
+      >
+        <Info className="h-4 w-4" />
+        How Affiliates Work
+      </motion.button>
+
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
@@ -410,6 +424,12 @@ function PersonalWalletView({
       >
         "USDC in. USDC out. Value stays."
       </motion.p>
+      
+      {/* Affiliate Modal */}
+      <AffiliateExplainerModal 
+        isOpen={showAffiliateModal} 
+        onClose={() => setShowAffiliateModal(false)} 
+      />
     </motion.div>
   );
 }
