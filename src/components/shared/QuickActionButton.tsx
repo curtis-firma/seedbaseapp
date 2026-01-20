@@ -3,15 +3,21 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, X, Send, FileText, Sprout, DollarSign, 
   Search, AtSign, Upload, Megaphone, Heart, Rocket,
-  Layers, Flag, Edit
+  Layers, Flag, Edit, Key, Sparkles, Loader2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
 import { useLocation } from 'react-router-dom';
 import { SendModal } from '@/components/wallet/SendModal';
 import { ComingSoonModal, useComingSoon } from '@/components/shared/ComingSoonModal';
+import { Slider } from '@/components/ui/slider';
 import { createPost } from '@/lib/supabase/postsApi';
+import { createCommitment } from '@/lib/supabase/commitmentsApi';
+import { createKey, getKeyByUserId } from '@/lib/supabase/demoApi';
+import { projectionData } from '@/data/mockData';
+import { Confetti } from '@/components/shared/Confetti';
 import { toast } from 'sonner';
+import { useHaptic } from '@/hooks/useHaptic';
 
 type ActionMode = 'menu' | 'quick-give' | 'new-post' | 'commit-seed' | 'launch-mission' | 'mission-update' | 'testimony';
 
@@ -24,17 +30,38 @@ export function QuickActionButton() {
   const [postType, setPostType] = useState<'update' | 'testimony' | 'harvest'>('update');
   const [showSendModal, setShowSendModal] = useState(false);
   const [showTooltip, setShowTooltip] = useState(false);
+  const [commitAmount, setCommitAmount] = useState(100);
+  const [commitYears, setCommitYears] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfetti, setShowConfetti] = useState(false);
   const { isOpen: isComingSoonOpen, featureName, showComingSoon, hideComingSoon } = useComingSoon();
-  const { viewRole } = useUser();
+  const { viewRole, refreshUserData } = useUser();
   const location = useLocation();
+  const haptic = useHaptic();
 
   // Hide FAB on One Accord page (has its own compose bar)
   const isOneAccordPage = location.pathname === '/app/oneaccord';
 
+  const getCurrentUserId = (): string | null => {
+    const sessionData = localStorage.getItem('seedbase-session');
+    if (sessionData) {
+      try {
+        const parsed = JSON.parse(sessionData);
+        return parsed.userId || null;
+      } catch {}
+    }
+    return null;
+  };
+
+  // Projection calculations
+  const projectedDistribution = commitAmount * 0.08 * commitYears;
+  const impactMultiplier = projectionData.networkMultiplier;
+  const livesImpacted = Math.round(commitAmount * projectionData.impactPerDollar / 100);
+  const networkGrowth = commitAmount * impactMultiplier;
+
   // Listen for welcome walkthrough completion to show tooltip
   useEffect(() => {
     const handleWelcomeComplete = () => {
-      // Only show if not already dismissed
       if (!localStorage.getItem('seedbase-quickaction-tooltip-seen')) {
         setShowTooltip(true);
       }
@@ -43,7 +70,6 @@ export function QuickActionButton() {
     window.addEventListener('welcome-walkthrough-complete', handleWelcomeComplete);
     return () => window.removeEventListener('welcome-walkthrough-complete', handleWelcomeComplete);
   }, []);
-
   // Auto-dismiss tooltip after 8 seconds
   useEffect(() => {
     if (showTooltip) {
@@ -53,7 +79,6 @@ export function QuickActionButton() {
       return () => clearTimeout(timer);
     }
   }, [showTooltip]);
-
   const dismissTooltip = () => {
     setShowTooltip(false);
     localStorage.setItem('seedbase-quickaction-tooltip-seen', 'true');
@@ -66,6 +91,8 @@ export function QuickActionButton() {
       setAmount('');
       setRecipient('');
       setPostContent('');
+      setCommitAmount(100);
+      setCommitYears(1);
     }, 300);
   };
 
@@ -73,11 +100,62 @@ export function QuickActionButton() {
     if (actionId === 'quick-give') {
       handleClose();
       setShowSendModal(true);
-    } else if (actionId === 'commit-seed' || actionId === 'launch-mission') {
+    } else if (actionId === 'launch-mission') {
       handleClose();
-      showComingSoon(actionId === 'commit-seed' ? 'Commit Seed' : 'Launch Mission');
+      showComingSoon('Launch Mission');
+    } else if (actionId === 'commit-seed') {
+      setMode('commit-seed');
     } else {
       setMode(actionId as ActionMode);
+    }
+  };
+
+  const handleCommitSeed = async () => {
+    const userId = getCurrentUserId();
+    if (!userId) {
+      toast.error('Please sign in first');
+      return;
+    }
+
+    setIsSubmitting(true);
+    haptic.medium();
+
+    try {
+      // Create the commitment
+      const commitment = await createCommitment({
+        user_id: userId,
+        amount: commitAmount,
+        years: commitYears,
+      });
+
+      if (!commitment) {
+        throw new Error('Failed to create commitment');
+      }
+
+      // Check if user already has SeedKey
+      const existingKey = await getKeyByUserId(userId);
+      if (!existingKey || existingKey.key_type !== 'SeedKey') {
+        // Create the SeedKey
+        await createKey(userId, 'SeedKey');
+      }
+
+      // Refresh user data
+      await refreshUserData();
+      
+      setShowConfetti(true);
+      haptic.success();
+      toast.success(`Committed $${commitAmount} for ${commitYears} year${commitYears > 1 ? 's' : ''}!`);
+      
+      setTimeout(() => {
+        setShowConfetti(false);
+        handleClose();
+      }, 2500);
+
+    } catch (err) {
+      console.error('Error committing seed:', err);
+      toast.error('Failed to commit seed');
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -206,6 +284,8 @@ export function QuickActionButton() {
 
   return (
     <>
+      {showConfetti && <Confetti isActive={showConfetti} />}
+      
       {/* Tooltip Highlight */}
       <AnimatePresence>
         {showTooltip && (
@@ -531,65 +611,106 @@ export function QuickActionButton() {
                       </motion.div>
                     )}
 
-                    {/* Commit Seed Mode */}
+                    {/* Commit Seed Mode - Interactive */}
                     {mode === 'commit-seed' && (
                       <motion.div
                         key="commit-seed"
                         initial={{ opacity: 0, x: 20 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: -20 }}
-                        className="space-y-4"
+                        className="space-y-6"
                       >
-                        {/* Amount */}
-                        <div className="text-center py-4">
+                        <div className="text-center">
                           <div className="w-16 h-16 rounded-2xl gradient-seed mx-auto mb-4 flex items-center justify-center">
                             <Sprout className="h-8 w-8 text-white" />
                           </div>
-                          <p className="text-sm text-muted-foreground mb-2">Commit Amount</p>
-                          <div className="relative inline-block">
-                            <span className="text-4xl font-bold">$</span>
-                            <input
-                              type="number"
-                              value={amount}
-                              onChange={(e) => setAmount(e.target.value)}
-                              placeholder="0"
-                              className="text-4xl font-bold bg-transparent outline-none w-32 text-center"
-                            />
+                          <p className="text-muted-foreground text-sm">Lock seed for lasting impact</p>
+                        </div>
+
+                        {/* Amount Slider */}
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <label className="text-sm font-medium">Commit Amount</label>
+                            <span className="text-lg font-bold text-primary">${commitAmount}</span>
+                          </div>
+                          <Slider
+                            value={[commitAmount]}
+                            onValueChange={([val]) => setCommitAmount(val)}
+                            min={10}
+                            max={10000}
+                            step={10}
+                            className="py-4"
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>$10</span>
+                            <span>$10,000</span>
                           </div>
                         </div>
 
-                        {/* Quick Amounts */}
-                        <div className="flex gap-2">
-                          {[100, 500, 1000, 5000].map((val) => (
-                            <button
-                              key={val}
-                              onClick={() => setAmount(val.toString())}
-                              className="flex-1 py-2 rounded-lg bg-muted hover:bg-muted/80 text-sm font-medium"
-                            >
-                              ${val.toLocaleString()}
-                            </button>
-                          ))}
+                        {/* Years Slider */}
+                        <div>
+                          <div className="flex items-center justify-between mb-2">
+                            <label className="text-sm font-medium">Lock Period</label>
+                            <span className="text-lg font-bold text-primary">{commitYears} year{commitYears > 1 ? 's' : ''}</span>
+                          </div>
+                          <Slider
+                            value={[commitYears]}
+                            onValueChange={([val]) => setCommitYears(val)}
+                            min={1}
+                            max={5}
+                            step={1}
+                            className="py-4"
+                          />
+                          <div className="flex justify-between text-xs text-muted-foreground">
+                            <span>1 year</span>
+                            <span>5 years</span>
+                          </div>
                         </div>
 
-                        {/* Info */}
-                        <div className="bg-seed/5 rounded-xl p-4 space-y-2">
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Lock Period</span>
-                            <span className="font-medium">12 months</span>
-                          </div>
-                          <div className="flex justify-between text-sm">
-                            <span className="text-muted-foreground">Expected Impact</span>
-                            <span className="font-medium text-seed">High</span>
+                        {/* Projections */}
+                        <div className="bg-muted/50 rounded-xl p-4 space-y-3">
+                          <h3 className="font-semibold text-sm flex items-center gap-2">
+                            <Sparkles className="h-4 w-4 text-primary" />
+                            Projected Impact
+                          </h3>
+                          <div className="grid grid-cols-2 gap-3">
+                            <div className="bg-background rounded-lg p-3">
+                              <p className="text-xs text-muted-foreground">Est. Distribution</p>
+                              <p className="font-bold text-primary">${projectedDistribution.toFixed(2)}/yr</p>
+                            </div>
+                            <div className="bg-background rounded-lg p-3">
+                              <p className="text-xs text-muted-foreground">Impact Multiplier</p>
+                              <p className="font-bold text-primary">{impactMultiplier.toFixed(1)}x</p>
+                            </div>
+                            <div className="bg-background rounded-lg p-3">
+                              <p className="text-xs text-muted-foreground">Lives Impacted</p>
+                              <p className="font-bold text-primary">~{livesImpacted}</p>
+                            </div>
+                            <div className="bg-background rounded-lg p-3">
+                              <p className="text-xs text-muted-foreground">Network Growth</p>
+                              <p className="font-bold text-primary">+${networkGrowth.toFixed(0)}</p>
+                            </div>
                           </div>
                         </div>
 
                         {/* Commit Button */}
                         <motion.button
                           whileTap={{ scale: 0.98 }}
-                          className="w-full py-4 gradient-seed rounded-xl text-white font-semibold flex items-center justify-center gap-2"
+                          onClick={handleCommitSeed}
+                          disabled={isSubmitting}
+                          className="w-full py-4 bg-[#0000ff] rounded-xl text-white font-semibold flex items-center justify-center gap-2 disabled:opacity-50"
                         >
-                          <Sprout className="h-5 w-5" />
-                          Commit Seed
+                          {isSubmitting ? (
+                            <>
+                              <Loader2 className="h-5 w-5 animate-spin" />
+                              Committing...
+                            </>
+                          ) : (
+                            <>
+                              <Key className="h-5 w-5" />
+                              Commit ${commitAmount} for {commitYears} Year{commitYears > 1 ? 's' : ''}
+                            </>
+                          )}
                         </motion.button>
 
                         <p className="text-xs text-center text-muted-foreground">

@@ -6,6 +6,7 @@ import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { FeedRenderer } from '@/components/seedfeed/FeedRenderer';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { QuickVoteCard } from '@/components/feed/QuickVoteCard';
+import { GlobalSearchModal } from '@/components/shared/GlobalSearchModal';
 import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
 import { FeedItem } from '@/types/seedbase';
@@ -72,6 +73,7 @@ export default function HomePage() {
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [forYouPosts, setForYouPosts] = useState<FeedItem[]>(forYouItems);
+  const [showSearchModal, setShowSearchModal] = useState(false);
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -271,6 +273,7 @@ export default function HomePage() {
               </motion.button>
               <motion.button
                 whileTap={{ scale: 0.95 }}
+                onClick={() => { haptic.light(); setShowSearchModal(true); }}
                 onTouchStart={handleButtonTap}
                 className="p-2.5 hover:bg-muted rounded-xl transition-colors active:bg-muted/80"
               >
@@ -417,6 +420,12 @@ export default function HomePage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Global Search Modal */}
+      <GlobalSearchModal
+        isOpen={showSearchModal}
+        onClose={() => setShowSearchModal(false)}
+      />
     </div>
   );
 }
