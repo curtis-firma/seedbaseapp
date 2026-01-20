@@ -17,12 +17,12 @@ const primaryNav = [
 ];
 
 const secondaryNav = [
-  { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord' },
-  { icon: BarChart3, label: 'Vault', path: '/app/vault' },
-  { icon: Vote, label: 'Governance', path: '/app/governance' },
-  { icon: ShoppingBag, label: 'Shop', path: '/app/seeded' },
-  { icon: Rocket, label: 'Launcher', path: '/app/launcher' },
-  { icon: Settings, label: 'Settings', path: '/app/settings' },
+  { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', badge: 0 },
+  { icon: BarChart3, label: 'Vault', path: '/app/vault', badge: 0 },
+  { icon: Vote, label: 'Governance', path: '/app/governance', badge: 3 },
+  { icon: ShoppingBag, label: 'Shop', path: '/app/seeded', badge: 0 },
+  { icon: Rocket, label: 'Launcher', path: '/app/launcher', badge: 0 },
+  { icon: Settings, label: 'Settings', path: '/app/settings', badge: 0 },
 ];
 
 export function Sidebar() {
@@ -120,7 +120,14 @@ export function Sidebar() {
                 whileHover={{ x: 4 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <Icon className="h-5 w-5 flex-shrink-0" />
+                <div className="relative">
+                  <Icon className="h-5 w-5 flex-shrink-0" />
+                  {item.badge > 0 && (
+                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#0000ff] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                      {item.badge}
+                    </span>
+                  )}
+                </div>
                 <AnimatePresence>
                   {!isCollapsed && (
                     <motion.span
