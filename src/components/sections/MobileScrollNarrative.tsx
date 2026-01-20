@@ -141,7 +141,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       {/* CTA Buttons - After hero */}
       <div className="flex flex-col gap-3 w-full">
         <EnterAppButton onClick={onEnterApp} fullWidth />
-        <LearnMoreButton onClick={scrollToSections} fullWidth variant="blue" />
+        <LearnMoreButton onClick={scrollToSections} fullWidth variant="black" />
       </div>
 
       {/* Yellow Hero Card Section - same looping rectangle as desktop */}
@@ -186,7 +186,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
 
         <div className="flex flex-col gap-3 w-full max-w-sm">
           <EnterAppButton onClick={onEnterApp} fullWidth />
-          <LearnMoreButton onClick={scrollToSections} fullWidth variant="blue" />
+          <LearnMoreButton onClick={scrollToSections} fullWidth variant="black" />
         </div>
 
         {/* Powered by CIK */}
