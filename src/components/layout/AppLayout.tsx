@@ -11,8 +11,11 @@ import { ProfileMenuTrigger } from '@/components/shared/ProfileMenuTrigger';
 import { PhoneAuthFlow } from '@/components/onboarding/PhoneAuthFlow';
 import { WelcomeWalkthrough } from '@/components/onboarding/WelcomeWalkthrough';
 import { OnboardingModal } from '@/components/shared/OnboardingModal';
+import { TutorialOverlay, useShouldShowTutorial } from '@/components/shared/TutorialOverlay';
 import { ViewingAsBadge } from '@/components/shared/ViewRoleBadge';
 import { useUser } from '@/contexts/UserContext';
+
+const TUTORIAL_FIRST_LOGIN_KEY = 'seedbase-first-login-tutorial-pending';
 
 interface AppLayoutProps {
   children: ReactNode;
@@ -25,6 +28,8 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
   const [forceDemo, setForceDemo] = useState(false);
   const [showWelcome, setShowWelcome] = useState(false);
   const [showWalkthrough, setShowWalkthrough] = useState(false);
+  const [showTutorial, setShowTutorial] = useState(false);
+  const shouldShowTutorial = useShouldShowTutorial();
   const { isAuthenticated, demoMode } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
@@ -69,6 +74,8 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
     // Auto-show welcome walkthrough for NEW users who haven't seen it
     if (isNewUser && !localStorage.getItem('seedbase-welcome-seen')) {
       setShowWelcome(true);
+      // Mark tutorial as pending for after welcome completes
+      localStorage.setItem(TUTORIAL_FIRST_LOGIN_KEY, 'true');
     }
     
     // User is already at /app/* route - no navigation needed
@@ -82,6 +89,13 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
     // If user clicked "Learn More", show full walkthrough
     if (showFull) {
       setShowWalkthrough(true);
+    } else {
+      // Check if tutorial should show (first login only)
+      const isPendingTutorial = localStorage.getItem(TUTORIAL_FIRST_LOGIN_KEY);
+      if (isPendingTutorial && shouldShowTutorial) {
+        // Small delay for smooth transition
+        setTimeout(() => setShowTutorial(true), 300);
+      }
     }
   };
 
@@ -91,6 +105,18 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
 
   const handleCloseWalkthrough = () => {
     setShowWalkthrough(false);
+    
+    // Check if tutorial should show after walkthrough closes (first login only)
+    const isPendingTutorial = localStorage.getItem(TUTORIAL_FIRST_LOGIN_KEY);
+    if (isPendingTutorial && shouldShowTutorial) {
+      setTimeout(() => setShowTutorial(true), 300);
+    }
+  };
+
+  const handleTutorialComplete = () => {
+    setShowTutorial(false);
+    // Clear the pending flag so tutorial never shows again
+    localStorage.removeItem(TUTORIAL_FIRST_LOGIN_KEY);
   };
 
   return (
@@ -132,6 +158,9 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
       
       {/* Full Onboarding Modal (manual / help mode) */}
       <OnboardingModal isOpen={showWalkthrough} onClose={handleCloseWalkthrough} />
+      
+      {/* Tutorial Overlay (first login only) */}
+      <TutorialOverlay isOpen={showTutorial} onComplete={handleTutorialComplete} />
     </div>
   );
 }
