@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Check, Heart, Megaphone, Bell, Layers, TrendingUp, Image, Search, X } from 'lucide-react';
+import { FileText, Check, Heart, Megaphone, Bell, Layers, TrendingUp, ImagePlus, Search, X, Upload, Loader2 } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
 import { createPost } from '@/lib/supabase/postsApi';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { mockSeedbases, demoProfiles } from '@/data/mockData';
 import type { ActivityItem } from '../SeedbaseActivityStream';
@@ -49,8 +50,12 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
   const [selectedType, setSelectedType] = useState(postTypes[0]?.id || 'update');
   const [content, setContent] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Search state
   const [selectedSeedbase, setSelectedSeedbase] = useState('Christ is King Seedbase');
@@ -78,10 +83,86 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
     setMentionedUsers(prev => prev.filter(h => h !== handle));
   };
 
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image under 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setImageUrl('');
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
+  };
+
+  const uploadImage = async (): Promise<string | null> => {
+    if (!imageFile) return imageUrl || null;
+    
+    setIsUploading(true);
+    try {
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `posts/${fileName}`;
+      
+      const { error: uploadError } = await supabase.storage
+        .from('post-images')
+        .upload(filePath, imageFile);
+      
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        toast({
+          title: "Upload failed",
+          description: "Could not upload image. Please try again.",
+          variant: "destructive",
+        });
+        return null;
+      }
+      
+      const { data: { publicUrl } } = supabase.storage
+        .from('post-images')
+        .getPublicUrl(filePath);
+      
+      return publicUrl;
+    } catch (err) {
+      console.error('Upload error:', err);
+      return null;
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSubmit = async () => {
     if (!content.trim()) return;
 
     setIsSubmitting(true);
+    
+    // Upload image first if selected
+    const uploadedImageUrl = await uploadImage();
     
     // Build content with mentions
     const mentionsText = mentionedUsers.length > 0 
@@ -96,7 +177,7 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
       body: fullContent,
       post_type: selectedType as any,
       seedbase_tag: selectedSeedbase,
-      image_url: imageUrl || undefined,
+      image_url: uploadedImageUrl || undefined,
     });
     
     setIsSuccess(true);
@@ -125,11 +206,16 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
     setSelectedType(postTypes[0]?.id || 'update');
     setContent('');
     setImageUrl('');
+    setImageFile(null);
+    setImagePreview(null);
     setIsSubmitting(false);
     setIsSuccess(false);
     setSelectedSeedbase('Christ is King Seedbase');
     setMentionSearch('');
     setMentionedUsers([]);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
     onClose();
   };
 
@@ -283,17 +369,47 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
               )}
             </div>
 
-            {/* Image URL */}
+            {/* Image Upload */}
             <div>
               <label className="text-sm font-medium mb-2 block flex items-center gap-1">
-                <Image className="h-4 w-4" />
-                Image URL (Optional)
+                <ImagePlus className="h-4 w-4" />
+                Add Image (Optional)
               </label>
-              <Input
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://..."
+              
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                onChange={handleImageSelect}
+                className="hidden"
               />
+              
+              {imagePreview ? (
+                <div className="relative rounded-xl overflow-hidden border border-border">
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
+                    className="w-full h-40 object-cover"
+                  />
+                  <button
+                    onClick={handleRemoveImage}
+                    className="absolute top-2 right-2 p-1.5 rounded-full bg-black/50 hover:bg-black/70 transition-colors"
+                  >
+                    <X className="h-4 w-4 text-white" />
+                  </button>
+                </div>
+              ) : (
+                <motion.button
+                  type="button"
+                  whileTap={{ scale: 0.98 }}
+                  onClick={() => fileInputRef.current?.click()}
+                  className="w-full py-8 border-2 border-dashed border-border rounded-xl flex flex-col items-center gap-2 text-muted-foreground hover:border-primary/50 hover:text-primary transition-colors"
+                >
+                  <Upload className="h-6 w-6" />
+                  <span className="text-sm font-medium">Click to upload image</span>
+                  <span className="text-xs">Max 5MB • JPG, PNG, GIF</span>
+                </motion.button>
+              )}
             </div>
 
             {/* Selected Seedbase indicator */}
@@ -305,13 +421,14 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               onClick={handleSubmit}
-              disabled={isSubmitting || !content.trim()}
+              disabled={isSubmitting || isUploading || !content.trim()}
               className={cn(
-                "w-full py-3 rounded-xl gradient-envoy text-white font-medium",
-                (isSubmitting || !content.trim()) && "opacity-70"
+                "w-full py-3 rounded-xl gradient-envoy text-white font-medium flex items-center justify-center gap-2",
+                (isSubmitting || isUploading || !content.trim()) && "opacity-70"
               )}
             >
-              {isSubmitting ? 'Publishing...' : 'Publish Update'}
+              {(isSubmitting || isUploading) && <Loader2 className="h-4 w-4 animate-spin" />}
+              {isUploading ? 'Uploading image...' : isSubmitting ? 'Publishing...' : 'Publish Update'}
             </motion.button>
           </div>
         )}
