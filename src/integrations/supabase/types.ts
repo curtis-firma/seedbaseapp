@@ -14,6 +14,86 @@ export type Database = {
   }
   public: {
     Tables: {
+      demo_comments: {
+        Row: {
+          author_id: string
+          body: string
+          created_at: string | null
+          id: string
+          likes: number | null
+          post_id: string
+        }
+        Insert: {
+          author_id: string
+          body: string
+          created_at?: string | null
+          id?: string
+          likes?: number | null
+          post_id: string
+        }
+        Update: {
+          author_id?: string
+          body?: string
+          created_at?: string | null
+          id?: string
+          likes?: number | null
+          post_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demo_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "demo_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      demo_commitments: {
+        Row: {
+          amount: number
+          committed_at: string | null
+          id: string
+          status: string | null
+          unlocks_at: string | null
+          user_id: string
+          years: number
+        }
+        Insert: {
+          amount: number
+          committed_at?: string | null
+          id?: string
+          status?: string | null
+          unlocks_at?: string | null
+          user_id: string
+          years?: number
+        }
+        Update: {
+          amount?: number
+          committed_at?: string | null
+          id?: string
+          status?: string | null
+          unlocks_at?: string | null
+          user_id?: string
+          years?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_commitments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_conversation_participants: {
         Row: {
           conversation_id: string | null
