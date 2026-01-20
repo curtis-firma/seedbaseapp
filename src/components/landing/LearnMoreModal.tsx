@@ -234,7 +234,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
                       As the network grows, seed appreciates. That appreciation creates surplus—you earn rewards, 
                       missions get funded, and your original seed is kept safe for return.
                     </p>
-                    <p>
+                    <p className="font-semibold italic">
                       No crypto knowledge needed. Use your debit card or Apple Pay. Withdraw to your bank anytime.
                     </p>
                   </motion.div>
