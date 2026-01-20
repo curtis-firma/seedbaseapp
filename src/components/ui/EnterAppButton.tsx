@@ -1,6 +1,6 @@
 import { ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import seedButtonIcon from "@/assets/seed-button-icon.png";
+import seedButtonIcon from "@/assets/seed-button-white.png";
 
 interface EnterAppButtonProps {
   onClick: () => void;

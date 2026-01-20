@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import FeedScrollState from './hero-states/FeedScrollState';
 import MissionVideoState from './hero-states/MissionVideoState';
 import NetworkFlowState from './hero-states/NetworkFlowState';
@@ -60,13 +60,17 @@ const HeroVisualCanvas = () => {
 
   return (
     <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] bg-[#FDDE02] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
-      <AnimatePresence mode="sync">
-        <div
+      <AnimatePresence mode="wait">
+        <motion.div
           key={activeState}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.8, ease: "easeInOut" }}
           className="absolute inset-0"
         >
           <ActiveComponent />
-        </div>
+        </motion.div>
       </AnimatePresence>
       
       {/* State indicators (subtle dots) */}
