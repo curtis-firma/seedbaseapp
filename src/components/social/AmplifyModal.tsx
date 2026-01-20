@@ -90,6 +90,32 @@ export function AmplifyModal({
     }, 2500);
   };
   
+  const handleCopyAndOpen = async () => {
+    // Copy caption first
+    await navigator.clipboard.writeText(fullCaption);
+    triggerHaptic('light');
+    toast.success('Caption copied! Paste it when the app opens.');
+    
+    // Small delay to ensure copy completes
+    setTimeout(() => {
+      if (selectedPlatform === 'x') {
+        // Open X/Twitter compose
+        window.open('https://twitter.com/compose/tweet', '_blank', 'noopener,noreferrer');
+      } else if (selectedPlatform === 'base') {
+        // Open Base app (Coinbase Wallet) via deep link
+        window.open('https://go.cb-w.com/', '_blank', 'noopener,noreferrer');
+      }
+      
+      setShowSendOutModal(false);
+      setShowSuccessScene(true);
+      
+      setTimeout(() => {
+        setShowSuccessScene(false);
+        onClose();
+      }, 2500);
+    }, 300);
+  };
+  
   if (!isOpen) return null;
 
   return (
@@ -287,6 +313,7 @@ export function AmplifyModal({
             
             {/* Action buttons */}
             <div className="p-4 border-t border-border space-y-3">
+              {/* Primary: Direct Share with Intent URL */}
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={handleConfirmSend}
@@ -294,12 +321,31 @@ export function AmplifyModal({
                   selectedPlatform === 'x' ? 'bg-black' : 'bg-[#0052FF]'
                 }`}
               >
-                Confirm & Send
+                <div className="flex items-center justify-center gap-2">
+                  <ExternalLink className="h-4 w-4" />
+                  Share Now
+                </div>
               </motion.button>
+              
+              {/* Secondary: Copy & Open Fallback */}
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={handleCopyAndOpen}
+                className="w-full py-3 bg-muted rounded-xl font-medium flex items-center justify-center gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Copy & Open App
+              </motion.button>
+              
+              <p className="text-xs text-muted-foreground text-center">
+                If text doesn't pre-fill, use "Copy & Open App"
+              </p>
+              
+              {/* Back */}
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={() => setShowSendOutModal(false)}
-                className="w-full py-3 bg-muted rounded-xl font-medium"
+                className="w-full py-2.5 text-muted-foreground text-sm"
               >
                 Back
               </motion.button>
