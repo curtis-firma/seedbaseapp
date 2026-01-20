@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { ComponentType } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import MissionVideoState from './hero-states/MissionVideoState';
 import FeedScrollState from './hero-states/FeedScrollState';
@@ -13,15 +14,17 @@ import MatrixMemeState from './hero-states/MatrixMemeState';
 // States cycle with smooth transitions - each controls its own background
 // Per-state durations allow videos to play fully
 const STATES = [
-  { id: 'mission-video', Component: MissionVideoState, duration: 8000 },
+  { id: 'mission-video', Component: MissionVideoState, duration: 12000 },
   { id: 'feed-scroll', Component: FeedScrollState, duration: 6000 },
-  { id: 'social-video', Component: SocialVideoState, duration: 7000 },
+  { id: 'social-video', Component: SocialVideoState, duration: 11000 },
   { id: 'matrix-meme', Component: MatrixMemeState, duration: 6000 },
   { id: 'network', Component: NetworkFlowState, duration: 5000 },
-  { id: 'app-sharing-video', Component: AppSharingVideoState, duration: 7000 },
+  { id: 'app-sharing-video', Component: AppSharingVideoState, duration: 11000 },
   { id: 'live', Component: LiveDataState, duration: 5000 },
   { id: 'brand', Component: BrandMomentState, duration: 5000 },
 ];
+
+const VIDEO_STATE_IDS = new Set(['mission-video', 'social-video', 'app-sharing-video']);
 
 const HeroVisualCanvas = () => {
   const [activeState, setActiveState] = useState(0);
@@ -58,21 +61,45 @@ const HeroVisualCanvas = () => {
     );
   }
 
+  const activeId = STATES[activeState].id;
   const ActiveComponent = STATES[activeState].Component;
+  const isVideoActive = VIDEO_STATE_IDS.has(activeId);
 
   return (
     <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
+      {/* Keep videos mounted to prevent playback glitches */}
+      {STATES.filter((s) => VIDEO_STATE_IDS.has(s.id)).map((state) => {
+        const VideoComponent = state.Component as unknown as ComponentType<{ active?: boolean }>;
+        const isActive = state.id === activeId;
+
+        return (
+          <motion.div
+            key={state.id}
+            className="absolute inset-0"
+            initial={false}
+            animate={{ opacity: isActive ? 1 : 0 }}
+            transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+            style={{ pointerEvents: isActive ? 'auto' : 'none' }}
+          >
+            <VideoComponent active={isActive} />
+          </motion.div>
+        );
+      })}
+
+      {/* Non-video states mount/unmount normally to keep perf high */}
       <AnimatePresence mode="sync">
-        <motion.div
-          key={activeState}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-          className="absolute inset-0"
-        >
-          <ActiveComponent />
-        </motion.div>
+        {!isVideoActive && (
+          <motion.div
+            key={activeState}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
+            className="absolute inset-0"
+          >
+            <ActiveComponent />
+          </motion.div>
+        )}
       </AnimatePresence>
       
       {/* State indicators */}

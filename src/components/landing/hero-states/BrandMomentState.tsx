@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp-new.png';
 import seedBlue from '@/assets/seed-icon-blue.png';
+import seedBlueSquare from '@/assets/seed-block-white-on-blue.png';
 
 /**
  * BrandMomentState - Hero canvas state showing generosity growth
@@ -157,7 +158,7 @@ const GrowingSquares = () => {
                   ease: "backOut"
                 }}
               >
-                <img src={seedBlue} alt="" className="w-full h-full" />
+                <img src={seedBlueSquare} alt="" className="w-full h-full" />
               </motion.div>
             ))}
           </motion.div>
