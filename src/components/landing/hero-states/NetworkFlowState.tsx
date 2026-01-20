@@ -1,8 +1,7 @@
 import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
-import seedbaseBlock from '@/assets/seedbase-block.svg';
 
-// Seed square block component for the blockchain chain
+// Seed square block component for the blockchain chain (white version for dark bg)
 const SeedBlock = ({ 
   index, 
   direction, 
@@ -13,17 +12,17 @@ const SeedBlock = ({
   totalBlocks: number;
 }) => {
   const delay = index * 0.12;
-  const distance = (index + 1) * 36; // spacing between blocks
+  const distance = (index + 1) * 36;
   
   return (
     <motion.div
       className="absolute top-1/2 -translate-y-1/2"
       style={{
-        [direction]: `calc(50% + 45px + ${distance}px)`, // Start from center + logo radius
+        [direction]: `calc(50% + 45px + ${distance}px)`,
       }}
       initial={{ opacity: 0, scale: 0 }}
       animate={{ 
-        opacity: [0, 0.7, 0.5],
+        opacity: [0, 0.8, 0.6],
         scale: [0, 1.1, 1],
       }}
       transition={{ 
@@ -32,7 +31,6 @@ const SeedBlock = ({
         ease: "easeOut",
       }}
     >
-      {/* Seed icon as block */}
       <motion.div
         className="relative"
         animate={{ 
@@ -45,21 +43,22 @@ const SeedBlock = ({
           ease: "easeInOut",
         }}
       >
-        <img 
-          src={seedbaseBlock}
-          alt=""
-          className="w-6 h-6 md:w-7 md:h-7"
+        {/* White seed block for dark background */}
+        <div 
+          className="w-6 h-6 md:w-7 md:h-7 rounded-md bg-white/80 flex items-center justify-center"
           style={{ 
-            opacity: 0.7 - (index * 0.08),
-            filter: `drop-shadow(0 0 ${4 + index}px rgba(0, 0, 255, 0.3))`,
+            opacity: 0.8 - (index * 0.08),
+            boxShadow: `0 0 ${6 + index}px rgba(255, 255, 255, 0.3)`,
           }}
-        />
+        >
+          <div className="w-3 h-3 md:w-3.5 md:h-3.5 rounded-full bg-black/60" />
+        </div>
       </motion.div>
       
       {/* Connecting line to next block */}
       {index < totalBlocks - 1 && (
         <motion.div
-          className="absolute top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-blue-400/30 to-blue-400/10"
+          className="absolute top-1/2 -translate-y-1/2 h-[2px] bg-gradient-to-r from-white/30 to-white/10"
           style={{
             width: '28px',
             [direction === 'left' ? 'right' : 'left']: '-30px',
@@ -84,8 +83,8 @@ const BlockchainChain = ({ direction, blockCount = 5 }: { direction: 'left' | 'r
           [direction]: '50%',
           width: `${blockCount * 36 + 50}px`,
           background: direction === 'left' 
-            ? 'linear-gradient(to left, rgba(0, 0, 255, 0.3), rgba(0, 0, 255, 0.05))'
-            : 'linear-gradient(to right, rgba(0, 0, 255, 0.3), rgba(0, 0, 255, 0.05))',
+            ? 'linear-gradient(to left, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.05))'
+            : 'linear-gradient(to right, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.05))',
         }}
         initial={{ scaleX: 0, opacity: 0 }}
         animate={{ scaleX: 1, opacity: 1 }}
@@ -105,7 +104,7 @@ const BlockchainChain = ({ direction, blockCount = 5 }: { direction: 'left' | 'r
   );
 };
 
-// Base-style segmented orbital ring with orbiting dots
+// White segmented orbital ring for dark background
 const SegmentedOrbitalRing = ({
   radius,
   duration,
@@ -123,13 +122,11 @@ const SegmentedOrbitalRing = ({
   dotCount?: number;
   strokeWidth?: number;
 }) => {
-  // Calculate dash array for segmented effect
   const circumference = 2 * Math.PI * radius;
   const segmentLength = circumference / segments;
   const dashLength = segmentLength * (1 - gapRatio);
   const gapLength = segmentLength * gapRatio;
   
-  // Generate dot positions evenly around the ring
   const dotPositions = Array.from({ length: dotCount }).map((_, i) => {
     const angle = (i / dotCount) * 360;
     return angle;
@@ -147,25 +144,25 @@ const SegmentedOrbitalRing = ({
       animate={{ rotate: reverse ? -360 : 360 }}
       transition={{ duration, repeat: Infinity, ease: "linear" }}
     >
-      {/* SVG for dashed ring */}
+      {/* SVG for dashed ring - white on black */}
       <svg className="w-full h-full" viewBox={`0 0 ${radius * 2} ${radius * 2}`}>
         <circle
           cx={radius}
           cy={radius}
           r={radius - strokeWidth / 2}
           fill="none"
-          stroke="rgba(0, 0, 255, 0.35)"
+          stroke="rgba(255, 255, 255, 0.25)"
           strokeWidth={strokeWidth}
           strokeDasharray={`${dashLength} ${gapLength}`}
           strokeLinecap="round"
         />
       </svg>
       
-      {/* Orbiting dots */}
+      {/* Orbiting dots - white */}
       {dotPositions.map((angle, i) => (
         <div
           key={i}
-          className="absolute bg-[#0000ff]/60 rounded-full"
+          className="absolute bg-white/50 rounded-full"
           style={{
             width: 6,
             height: 6,
@@ -181,18 +178,18 @@ const SegmentedOrbitalRing = ({
 
 const NetworkFlowState = () => {
   return (
-    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-white">
+    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-black">
       {/* Centered "Generosity onchain" text */}
       <motion.p
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="absolute top-6 md:top-8 left-0 right-0 text-center text-black/60 font-medium text-base md:text-lg lg:text-xl tracking-wide z-20"
+        className="absolute top-6 md:top-8 left-0 right-0 text-center text-white/70 font-medium text-base md:text-lg lg:text-xl tracking-wide z-20"
       >
         Generosity onchain
       </motion.p>
 
-      {/* Base-style spinning segmented orbital rings */}
+      {/* White spinning segmented orbital rings on black bg */}
       <SegmentedOrbitalRing radius={55} duration={15} segments={6} dotCount={2} strokeWidth={1.5} />
       <SegmentedOrbitalRing radius={85} duration={20} reverse segments={8} dotCount={3} strokeWidth={1.5} />
       <SegmentedOrbitalRing radius={115} duration={25} segments={10} dotCount={2} strokeWidth={1.5} />
@@ -209,9 +206,9 @@ const NetworkFlowState = () => {
         animate={{ scale: 1, opacity: 1 }}
         transition={{ duration: 0.6, delay: 0.2 }}
       >
-        {/* Glow effect behind logo */}
+        {/* Glow effect behind logo - white glow on black */}
         <motion.div
-          className="absolute inset-0 rounded-full bg-[#0000ff]/20"
+          className="absolute inset-0 rounded-full bg-white/20"
           style={{ 
             width: 90, 
             height: 90, 
@@ -231,7 +228,7 @@ const NetworkFlowState = () => {
         <motion.img
           src={seedbasePfp}
           alt="Seedbase"
-          className="w-18 h-18 md:w-20 md:h-20 rounded-full ring-3 ring-[#0000ff]/30 shadow-xl"
+          className="w-18 h-18 md:w-20 md:h-20 rounded-full ring-3 ring-white/30 shadow-xl"
           style={{ width: 72, height: 72 }}
           animate={{ 
             scale: [1, 1.03, 1]
@@ -240,9 +237,9 @@ const NetworkFlowState = () => {
         />
       </motion.div>
 
-      {/* Subtle pulsing nodes at chain ends */}
+      {/* Subtle pulsing nodes at chain ends - white */}
       <motion.div
-        className="absolute left-[8%] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#0000ff]/30"
+        className="absolute left-[8%] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white/30"
         animate={{ 
           scale: [1, 1.5, 1],
           opacity: [0.3, 0.5, 0.3],
@@ -250,7 +247,7 @@ const NetworkFlowState = () => {
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
       <motion.div
-        className="absolute right-[8%] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#0000ff]/30"
+        className="absolute right-[8%] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-white/30"
         animate={{ 
           scale: [1, 1.5, 1],
           opacity: [0.3, 0.5, 0.3],

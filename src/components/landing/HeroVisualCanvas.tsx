@@ -8,21 +8,18 @@ import BrandMomentState from './hero-states/BrandMomentState';
 import StaticBrandState from './hero-states/StaticBrandState';
 import SocialVideoState from './hero-states/SocialVideoState';
 import AppSharingVideoState from './hero-states/AppSharingVideoState';
-import IPhoneFeedVideoState from './hero-states/IPhoneFeedVideoState';
 
 // States cycle with smooth transitions - each controls its own background
+// Per-state durations allow videos to play fully
 const STATES = [
-  { id: 'mission-video', Component: MissionVideoState },
-  { id: 'feed-scroll', Component: FeedScrollState },
-  { id: 'social-video', Component: SocialVideoState },
-  { id: 'network', Component: NetworkFlowState },
-  { id: 'iphone-feed', Component: IPhoneFeedVideoState },
-  { id: 'app-sharing-video', Component: AppSharingVideoState },
-  { id: 'live', Component: LiveDataState },
-  { id: 'brand', Component: BrandMomentState },
+  { id: 'mission-video', Component: MissionVideoState, duration: 8000 },
+  { id: 'feed-scroll', Component: FeedScrollState, duration: 6000 },
+  { id: 'social-video', Component: SocialVideoState, duration: 7000 },
+  { id: 'network', Component: NetworkFlowState, duration: 5000 },
+  { id: 'app-sharing-video', Component: AppSharingVideoState, duration: 7000 },
+  { id: 'live', Component: LiveDataState, duration: 5000 },
+  { id: 'brand', Component: BrandMomentState, duration: 5000 },
 ];
-
-const STATE_DURATION = 5000; // 5 seconds per state
 
 const HeroVisualCanvas = () => {
   const [activeState, setActiveState] = useState(0);
@@ -38,13 +35,14 @@ const HeroVisualCanvas = () => {
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Rotate states
+  // Rotate states with per-state duration
   useEffect(() => {
     if (prefersReducedMotion) return;
 
+    const currentDuration = STATES[activeState].duration;
     const timeout = window.setTimeout(() => {
       setActiveState((prev) => (prev + 1) % STATES.length);
-    }, STATE_DURATION);
+    }, currentDuration);
 
     return () => window.clearTimeout(timeout);
   }, [prefersReducedMotion, activeState]);
@@ -62,13 +60,13 @@ const HeroVisualCanvas = () => {
 
   return (
     <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
-      <AnimatePresence mode="wait">
+      <AnimatePresence mode="sync">
         <motion.div
           key={activeState}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.6, ease: [0.4, 0, 0.2, 1] }}
+          transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
           className="absolute inset-0"
         >
           <ActiveComponent />

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import appSharingVideo from '@/assets/app-sharing-video.mp4';
 
 const AppSharingVideoState = () => {
   const [videoError, setVideoError] = useState(false);
@@ -7,12 +8,10 @@ const AppSharingVideoState = () => {
   const fallbackImage = "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=1200&q=80";
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.play().catch(console.error);
-      }
-    }, 100);
-    return () => clearTimeout(timer);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(console.error);
+    }
   }, []);
 
   return (
@@ -27,7 +26,7 @@ const AppSharingVideoState = () => {
           preload="auto"
           onError={() => setVideoError(true)}
         >
-          <source src="/src/assets/app-sharing-video.mp4" type="video/mp4" />
+          <source src={appSharingVideo} type="video/mp4" />
         </video>
       ) : (
         <img

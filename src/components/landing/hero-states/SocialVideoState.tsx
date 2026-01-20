@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import socialVideo from '@/assets/social-connection-video.mp4';
 
 const SocialVideoState = () => {
   const [videoError, setVideoError] = useState(false);
@@ -7,12 +8,10 @@ const SocialVideoState = () => {
   const fallbackImage = "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=1200&q=80";
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (videoRef.current) {
-        videoRef.current.play().catch(console.error);
-      }
-    }, 100);
-    return () => clearTimeout(timer);
+    if (videoRef.current) {
+      videoRef.current.currentTime = 0;
+      videoRef.current.play().catch(console.error);
+    }
   }, []);
 
   return (
@@ -27,7 +26,7 @@ const SocialVideoState = () => {
           preload="auto"
           onError={() => setVideoError(true)}
         >
-          <source src="/src/assets/social-connection-video.mp4" type="video/mp4" />
+          <source src={socialVideo} type="video/mp4" />
         </video>
       ) : (
         <img
