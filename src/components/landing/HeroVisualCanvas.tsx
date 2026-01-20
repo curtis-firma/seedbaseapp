@@ -22,17 +22,17 @@ interface HeroState {
   isVideo?: boolean;
 }
 
-// States cycle with smooth transitions
+// States cycle with smooth transitions - reduced durations for non-video
 const STATES: HeroState[] = [
   { id: 'mission-video', Component: MissionVideoState, duration: 15000, isVideo: true },
-  { id: 'feed-scroll', Component: FeedScrollState, duration: 8000 },
+  { id: 'feed-scroll', Component: FeedScrollState, duration: 4000 },
   { id: 'social-video', Component: SocialVideoState, duration: 12000, isVideo: true },
-  { id: 'token-tiles', Component: TokenTilesState, duration: 8000 },
-  { id: 'network', Component: NetworkFlowState, duration: 7000 },
+  { id: 'token-tiles', Component: TokenTilesState, duration: 4000 },
+  { id: 'network', Component: NetworkFlowState, duration: 4000 },
   { id: 'seeded-hype', Component: SeededHypeVideoState, duration: 20000, isVideo: true },
   { id: 'app-sharing-video', Component: AppSharingVideoState, duration: 12000, isVideo: true },
-  { id: 'live', Component: LiveDataState, duration: 8000 },
-  { id: 'brand', Component: BrandMomentState, duration: 7000 },
+  { id: 'live', Component: LiveDataState, duration: 5000 },
+  { id: 'brand', Component: BrandMomentState, duration: 5000 },
 ];
 
 const VIDEO_STATE_IDS = new Set(['mission-video', 'social-video', 'app-sharing-video', 'seeded-hype']);
@@ -117,11 +117,8 @@ const HeroVisualCanvas = () => {
             }}
             transition={quickFade}
           >
-            {isVideo ? (
-              <StateComponent active={isActive} onEnded={handleVideoEnded} />
-            ) : (
-              <StateComponent />
-            )}
+            {/* Pass active prop to ALL states so they can reset animations */}
+            <StateComponent active={isActive} onEnded={isVideo ? handleVideoEnded : undefined} />
           </motion.div>
         );
       })}
