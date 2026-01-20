@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
-import seedIconBlue from '@/assets/seed-icon-blue.png';
+import seedbaseBlock from '@/assets/seedbase-block.svg';
 
 // Seed square block component for the blockchain chain
 const SeedBlock = ({ 
@@ -46,12 +46,12 @@ const SeedBlock = ({
         }}
       >
         <img 
-          src={seedIconBlue}
+          src={seedbaseBlock}
           alt=""
           className="w-6 h-6 md:w-7 md:h-7"
           style={{ 
-            opacity: 0.6 - (index * 0.08),
-            filter: `drop-shadow(0 0 ${4 + index}px rgba(0, 0, 255, 0.2))`,
+            opacity: 0.7 - (index * 0.08),
+            filter: `drop-shadow(0 0 ${4 + index}px rgba(0, 0, 255, 0.3))`,
           }}
         />
       </motion.div>
