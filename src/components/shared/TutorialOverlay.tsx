@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronRight, X, Wallet, Home, MessageSquare, Sprout, Settings } from 'lucide-react';
+import { ChevronRight, X, Wallet, Home, MessageSquare, Sprout, Settings, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHaptic } from '@/hooks/useHaptic';
 
@@ -16,8 +16,7 @@ interface TutorialStep {
   title: string;
   description: string;
   icon: typeof Home;
-  position: 'bottom-nav' | 'fab' | 'header';
-  highlightIndex?: number;
+  targetSelector: string;
   gradient: string;
 }
 
@@ -27,60 +26,96 @@ const tutorialSteps: TutorialStep[] = [
     title: 'Your Feed',
     description: 'See real-time impact from your network. Every seed planted, every harvest reported.',
     icon: Home,
-    position: 'bottom-nav',
-    highlightIndex: 0,
+    targetSelector: '[data-tutorial="nav-home"]',
     gradient: 'from-blue-500 to-blue-600',
   },
   {
     id: 'wallet',
-    title: 'Your Wallet',
-    description: 'Manage your seed balance, send funds, and track your contributions.',
-    icon: Wallet,
-    position: 'bottom-nav',
-    highlightIndex: 1,
+    title: 'Your Profile',
+    description: 'Manage your wallet, track contributions, and see your impact metrics.',
+    icon: User,
+    targetSelector: '[data-tutorial="nav-user"]',
     gradient: 'from-emerald-500 to-emerald-600',
-  },
-  {
-    id: 'messages',
-    title: 'One Accord',
-    description: 'Connect with your community. Accept transfers and coordinate with others.',
-    icon: MessageSquare,
-    position: 'bottom-nav',
-    highlightIndex: 2,
-    gradient: 'from-purple-500 to-purple-600',
   },
   {
     id: 'quick-action',
     title: 'Quick Actions',
-    description: 'Tap the seed button to quickly give, post updates, or launch missions.',
+    description: 'Tap the seed button to quickly give, post updates, or commit seed.',
     icon: Sprout,
-    position: 'fab',
+    targetSelector: '[data-tutorial="quick-action"]',
     gradient: 'from-green-500 to-green-600',
   },
   {
     id: 'settings',
-    title: 'Your Profile',
+    title: 'Menu & Settings',
     description: 'Access settings, view your role, and manage your account from the sidebar.',
     icon: Settings,
-    position: 'header',
+    targetSelector: '[data-tutorial="profile-menu"]',
     gradient: 'from-orange-500 to-orange-600',
   },
 ];
 
+interface TargetRect {
+  top: number;
+  left: number;
+  width: number;
+  height: number;
+  centerX: number;
+  centerY: number;
+}
+
 export function TutorialOverlay({ isOpen, onComplete }: TutorialOverlayProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
+  const [targetRect, setTargetRect] = useState<TargetRect | null>(null);
   const { trigger } = useHaptic();
+
+  // Find and measure target element
+  const measureTarget = useCallback(() => {
+    const step = tutorialSteps[currentStep];
+    if (!step) return;
+    
+    const element = document.querySelector(step.targetSelector);
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      setTargetRect({
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height,
+        centerX: rect.left + rect.width / 2,
+        centerY: rect.top + rect.height / 2,
+      });
+    } else {
+      // Fallback positions if element not found
+      const fallbacks: Record<string, TargetRect> = {
+        home: { top: window.innerHeight - 70, left: window.innerWidth * 0.15, width: 50, height: 50, centerX: window.innerWidth * 0.15, centerY: window.innerHeight - 45 },
+        wallet: { top: window.innerHeight - 70, left: window.innerWidth * 0.85, width: 50, height: 50, centerX: window.innerWidth * 0.85, centerY: window.innerHeight - 45 },
+        'quick-action': { top: window.innerHeight - 140, left: window.innerWidth - 70, width: 56, height: 56, centerX: window.innerWidth - 42, centerY: window.innerHeight - 112 },
+        settings: { top: 16, left: window.innerWidth - 60, width: 40, height: 40, centerX: window.innerWidth - 40, centerY: 36 },
+      };
+      setTargetRect(fallbacks[step.id] || null);
+    }
+  }, [currentStep]);
 
   useEffect(() => {
     if (isOpen) {
-      // Small delay for smooth entrance after onboarding completes
       const timer = setTimeout(() => setIsVisible(true), 500);
       return () => clearTimeout(timer);
     } else {
       setIsVisible(false);
     }
   }, [isOpen]);
+
+  // Measure on step change and window resize
+  useLayoutEffect(() => {
+    if (isVisible) {
+      measureTarget();
+      const handleResize = () => measureTarget();
+      window.addEventListener('resize', handleResize);
+      return () => window.removeEventListener('resize', handleResize);
+    }
+  }, [isVisible, currentStep, measureTarget]);
 
   const handleNext = useCallback(() => {
     trigger('light');
@@ -105,51 +140,46 @@ export function TutorialOverlay({ isOpen, onComplete }: TutorialOverlayProps) {
 
   const step = tutorialSteps[currentStep];
 
-  // Calculate highlight position based on step
-  const getHighlightStyle = () => {
-    switch (step.position) {
-      case 'bottom-nav':
-        // Approximate positions for bottom nav items (5 items)
-        const navWidth = typeof window !== 'undefined' ? window.innerWidth : 375;
-        const itemWidth = navWidth / 5;
-        const left = itemWidth * (step.highlightIndex || 0) + itemWidth / 2 - 32;
-        return {
-          bottom: '70px',
-          left: `${left}px`,
-          width: '64px',
-          height: '64px',
-        };
-      case 'fab':
-        return {
-          bottom: '90px',
-          right: '16px',
-          width: '64px',
-          height: '64px',
-        };
-      case 'header':
-        return {
-          top: '12px',
-          left: '16px',
-          width: '48px',
-          height: '48px',
-        };
-      default:
-        return {};
+  // Calculate tooltip position based on target location
+  const getTooltipStyle = (): React.CSSProperties => {
+    if (!targetRect) return { bottom: '160px', left: '50%', transform: 'translateX(-50%)' };
+    
+    const padding = 16;
+    const tooltipWidth = 300;
+    const tooltipHeight = 180;
+    const viewportHeight = window.innerHeight;
+    const viewportWidth = window.innerWidth;
+    
+    // Determine if target is in top or bottom half
+    const isTargetInBottomHalf = targetRect.centerY > viewportHeight / 2;
+    
+    // Calculate horizontal position (center on target, but keep within viewport)
+    let left = targetRect.centerX - tooltipWidth / 2;
+    left = Math.max(padding, Math.min(left, viewportWidth - tooltipWidth - padding));
+    
+    if (isTargetInBottomHalf) {
+      // Show tooltip above target
+      return {
+        position: 'fixed' as const,
+        bottom: viewportHeight - targetRect.top + 24,
+        left,
+        width: tooltipWidth,
+      };
+    } else {
+      // Show tooltip below target
+      return {
+        position: 'fixed' as const,
+        top: targetRect.top + targetRect.height + 24,
+        left,
+        width: tooltipWidth,
+      };
     }
   };
 
-  const getTooltipPosition = () => {
-    switch (step.position) {
-      case 'bottom-nav':
-        return 'bottom-40 left-1/2 -translate-x-1/2';
-      case 'fab':
-        return 'bottom-44 right-4';
-      case 'header':
-        return 'top-20 left-4';
-      default:
-        return 'bottom-40 left-1/2 -translate-x-1/2';
-    }
-  };
+  // Spotlight radius
+  const spotlightRadius = targetRect 
+    ? Math.max(targetRect.width, targetRect.height) / 2 + 12 
+    : 40;
 
   if (!isOpen) return null;
 
@@ -161,32 +191,43 @@ export function TutorialOverlay({ isOpen, onComplete }: TutorialOverlayProps) {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-0 z-[100] pointer-events-none"
+          className="fixed inset-0 z-[100]"
         >
-          {/* Dark overlay with cutout */}
-          <div className="absolute inset-0 pointer-events-auto">
-            {/* Background overlay */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="absolute inset-0 bg-black/70 backdrop-blur-sm"
-              onClick={handleSkip}
+          {/* SVG Mask for spotlight effect */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-auto" onClick={handleSkip}>
+            <defs>
+              <mask id="spotlight-mask">
+                <rect width="100%" height="100%" fill="white" />
+                {targetRect && (
+                  <circle
+                    cx={targetRect.centerX}
+                    cy={targetRect.centerY}
+                    r={spotlightRadius}
+                    fill="black"
+                  />
+                )}
+              </mask>
+            </defs>
+            <rect 
+              width="100%" 
+              height="100%" 
+              fill="rgba(0,0,0,0.8)" 
+              mask="url(#spotlight-mask)"
             />
-            
-            {/* Highlight spotlight */}
+          </svg>
+
+          {/* Pulsing ring around target */}
+          {targetRect && (
             <motion.div
-              key={step.id}
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-              className="absolute rounded-full"
+              key={`ring-${step.id}`}
+              className="absolute pointer-events-none"
               style={{
-                ...getHighlightStyle(),
-                boxShadow: '0 0 0 4px rgba(255,255,255,0.3), 0 0 0 9999px rgba(0,0,0,0.7)',
+                left: targetRect.centerX - spotlightRadius,
+                top: targetRect.centerY - spotlightRadius,
+                width: spotlightRadius * 2,
+                height: spotlightRadius * 2,
               }}
             >
-              {/* Pulsing ring */}
               <motion.div
                 className="absolute inset-0 rounded-full border-2 border-white"
                 animate={{
@@ -200,19 +241,17 @@ export function TutorialOverlay({ isOpen, onComplete }: TutorialOverlayProps) {
                 }}
               />
             </motion.div>
-          </div>
+          )}
 
           {/* Tooltip card */}
           <motion.div
             key={`tooltip-${step.id}`}
-            initial={{ opacity: 0, y: step.position === 'header' ? -20 : 20, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: step.position === 'header' ? -20 : 20, scale: 0.95 }}
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300, delay: 0.1 }}
-            className={cn(
-              "absolute max-w-[300px] pointer-events-auto",
-              getTooltipPosition()
-            )}
+            className="pointer-events-auto"
+            style={getTooltipStyle()}
           >
             <div className="bg-card border border-border rounded-2xl shadow-2xl overflow-hidden">
               {/* Header with gradient */}
@@ -278,23 +317,6 @@ export function TutorialOverlay({ isOpen, onComplete }: TutorialOverlayProps) {
                 </div>
               </div>
             </div>
-
-            {/* Arrow pointer */}
-            <div
-              className={cn(
-                "absolute w-4 h-4 bg-card border-l border-b border-border rotate-[135deg]",
-                step.position === 'header' ? 'top-full left-8 -mt-2' : 'bottom-full left-1/2 -translate-x-1/2 mb-[-8px] rotate-[-45deg]'
-              )}
-              style={{
-                transform: step.position === 'fab' 
-                  ? 'translateX(0) rotate(-45deg)' 
-                  : step.position === 'header'
-                    ? 'rotate(135deg)'
-                    : 'translateX(-50%) rotate(-45deg)',
-                right: step.position === 'fab' ? '24px' : undefined,
-                left: step.position === 'fab' ? 'auto' : step.position === 'header' ? '24px' : '50%',
-              }}
-            />
           </motion.div>
 
           {/* Skip button in corner */}

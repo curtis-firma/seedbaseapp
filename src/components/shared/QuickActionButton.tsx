@@ -340,6 +340,7 @@ export function QuickActionButton() {
       {/* Floating Button - hidden on One Accord page */}
       {!isOneAccordPage && (
         <motion.button
+          data-tutorial="quick-action"
           onClick={() => {
             dismissTooltip();
             setIsOpen(true);

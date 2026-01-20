@@ -29,6 +29,7 @@ export function BottomNav() {
             return (
               <motion.button
                 key={item.path}
+                data-tutorial={`nav-${item.label.toLowerCase()}`}
                 onClick={() => navigate(item.path)}
                 className="relative flex flex-col items-center gap-1 px-6 py-2"
                 whileTap={{ scale: 0.95 }}

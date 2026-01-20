@@ -9,6 +9,7 @@ import { QuickVoteCard } from '@/components/feed/QuickVoteCard';
 import { GlobalSearchModal } from '@/components/shared/GlobalSearchModal';
 import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
+import { getUserFeedItems, type SeedbaseFeedItem } from '@/lib/seedbaseFeedIntegration';
 import { FeedItem } from '@/types/seedbase';
 import { Logo } from '@/components/shared/Logo';
 import { useHaptic } from '@/hooks/useHaptic';
@@ -187,9 +188,33 @@ export default function HomePage() {
     }
   }, [activeTab, haptic]);
 
-  // Network shows mockFeedItems + any DB posts, For You shows personalized items
+  // Network shows mockFeedItems + any DB posts, For You shows personalized items + user actions
   const networkFeed = [...mockFeedItems, ...posts.filter(p => !mockFeedItems.some(m => m.id === p.id))];
-  const currentFeed = activeTab === 0 ? networkFeed : forYouPosts;
+  
+  // Convert user-generated Seedbase actions to FeedItems and prepend to For You
+  const userFeedItems = getUserFeedItems().map((item): FeedItem => ({
+    id: item.id,
+    type: item.type === 'commitment' ? 'commitment' : item.type === 'harvest' ? 'harvest' : 'mission_update',
+    postType: item.type as any,
+    title: item.title,
+    content: item.body,
+    timestamp: item.timestamp,
+    likes: Math.floor(Math.random() * 50) + 5,
+    comments: Math.floor(Math.random() * 10),
+    author: {
+      name: item.author.name,
+      avatar: item.author.avatar || 'https://api.dicebear.com/7.x/initials/svg?seed=' + item.author.name,
+      handle: item.author.handle,
+      role: 'activator',
+      isVerified: true,
+    },
+    seedbase: { id: 'sb-cik', name: item.seedbase },
+    roleBadge: 'Activator',
+    totalRaised: item.amount,
+  }));
+  
+  const forYouFeed = [...userFeedItems, ...forYouPosts];
+  const currentFeed = activeTab === 0 ? networkFeed : forYouFeed;
 
   // Note: Walkthrough is now triggered via AppLayout
   const handleShowHelp = () => {
@@ -348,8 +373,8 @@ export default function HomePage() {
               </>
             ) : (
               <>
-                {/* Quick Vote Card at top of feed */}
-                {activeTab === 0 && <QuickVoteCard />}
+                {/* Quick Vote Card at top of For You feed */}
+                {activeTab === 1 && <QuickVoteCard />}
                 
                 <FeedRenderer items={currentFeed} />
 

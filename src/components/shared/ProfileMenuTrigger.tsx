@@ -37,6 +37,7 @@ export function ProfileMenuTrigger({ onOpen }: ProfileMenuTriggerProps) {
       <motion.button
         whileTap={{ scale: 0.95 }}
         onClick={onOpen}
+        data-tutorial="profile-menu"
         className="w-8 h-8 rounded-lg bg-muted/50 flex items-center justify-center"
       >
         <Menu className="h-4 w-4 text-muted-foreground" />

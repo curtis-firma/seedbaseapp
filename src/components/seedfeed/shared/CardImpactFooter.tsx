@@ -39,13 +39,13 @@ export function CardImpactFooter({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: 0.3 }}
       className={`
-        flex items-center justify-between py-3 px-4
+        flex flex-col sm:flex-row gap-3 py-3 px-4
         bg-muted/50 rounded-xl border border-border/50
         ${className}
       `}
     >
       {/* Total Amount */}
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 flex-1">
         <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
           <TrendingUp className="w-4 h-4 text-primary" />
         </div>
@@ -64,7 +64,9 @@ export function CardImpactFooter({
           whileTap={{ scale: 0.98 }}
           onClick={handleImpactClick}
           className="
-            flex items-center gap-2.5 px-4 py-2.5
+            w-full sm:w-auto
+            flex items-center justify-center sm:justify-start gap-2.5 
+            px-4 py-3 sm:py-2.5
             bg-[#0000ff] hover:bg-[#0000dd]
             text-white
             rounded-xl cursor-pointer

@@ -26,11 +26,11 @@ export function SwipeTabs({ tabs, activeTab, onTabChange, className }: SwipeTabs
           {activeTab === index && (
             <motion.div
               layoutId="active-tab"
-              className="absolute inset-0 bg-primary/10 border border-primary/20 rounded-lg shadow-sm"
+              className="absolute inset-0 bg-primary/25 border-2 border-primary/50 rounded-lg shadow-md"
               transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
             />
           )}
-          <span className="relative z-10">{tab}</span>
+          <span className="relative z-10 font-bold">{tab}</span>
         </motion.button>
       ))}
     </div>
