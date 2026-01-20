@@ -1,8 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Volume2, VolumeX, Play, Globe, Sprout, Maximize, Minimize } from "lucide-react";
-import seededHypeVideo1 from "@/assets/seeded-hype-1.mp4";
-import seededHypeVideo2 from "@/assets/seeded-hype-2.mp4";
+import seededHypeVideo from "@/assets/seeded-hype-full.mp4";
 import seededLogoWhite from "@/assets/seeded-logo-white.png";
 import seedbaseWordmarkWhite from "@/assets/seedbase-wordmark-white.png";
 
@@ -12,7 +11,6 @@ export function MovementSection() {
   const [phase, setPhase] = useState<Phase>("playing");
   const [isMuted, setIsMuted] = useState(true);
   const [hasStarted, setHasStarted] = useState(false);
-  const [currentVideoIndex, setCurrentVideoIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -21,8 +19,6 @@ export function MovementSection() {
   // Live stats animation
   const [seedCount, setSeedCount] = useState(12847);
   const [countryCount, setCountryCount] = useState(47);
-
-  const videos = [seededHypeVideo1, seededHypeVideo2];
 
   // Intersection Observer for autoplay
   useEffect(() => {
@@ -50,9 +46,6 @@ export function MovementSection() {
   useEffect(() => {
     if (isInView && !hasStarted && videoRef.current) {
       setHasStarted(true);
-      setCurrentVideoIndex(0);
-      videoRef.current.src = videos[0];
-      videoRef.current.load();
       videoRef.current.play().catch(console.error);
     }
   }, [isInView, hasStarted]);
@@ -81,28 +74,15 @@ export function MovementSection() {
   }, []);
 
   const handleVideoEnd = () => {
-    if (currentVideoIndex < videos.length - 1) {
-      const nextIndex = currentVideoIndex + 1;
-      setCurrentVideoIndex(nextIndex);
-      if (videoRef.current) {
-        videoRef.current.src = videos[nextIndex];
-        videoRef.current.load();
-        videoRef.current.play().catch(console.error);
-      }
-    } else {
-      setPhase("holding");
-      setTimeout(() => {
-        setPhase("logo");
-      }, 8000);
-    }
+    setPhase("holding");
+    setTimeout(() => {
+      setPhase("logo");
+    }, 8000);
   };
 
   const handlePlayClick = () => {
     setHasStarted(true);
-    setCurrentVideoIndex(0);
     if (videoRef.current) {
-      videoRef.current.src = videos[0];
-      videoRef.current.load();
       videoRef.current.play().catch(console.error);
     }
   };
@@ -130,11 +110,8 @@ export function MovementSection() {
 
   const restartVideo = () => {
     setHasStarted(true);
-    setCurrentVideoIndex(0);
     setPhase("playing");
     if (videoRef.current) {
-      videoRef.current.src = videos[0];
-      videoRef.current.load();
       videoRef.current.currentTime = 0;
       videoRef.current.play().catch(console.error);
     }
@@ -159,7 +136,7 @@ export function MovementSection() {
           >
             <video
               ref={videoRef}
-              src={videos[0]}
+              src={seededHypeVideo}
               className="w-full h-full object-cover"
               muted={isMuted}
               playsInline
@@ -254,21 +231,6 @@ export function MovementSection() {
                   <span className="text-white/70 text-xs md:text-sm">countries reached</span>
                 </motion.div>
               </motion.div>
-            )}
-
-            {/* Video Progress Indicator */}
-            {hasStarted && phase === "playing" && (
-              <div className="absolute top-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {videos.map((_, idx) => (
-                  <div 
-                    key={idx}
-                    className={`w-8 h-1 rounded-full transition-colors ${
-                      idx === currentVideoIndex ? 'bg-white' : 
-                      idx < currentVideoIndex ? 'bg-white/60' : 'bg-white/30'
-                    }`}
-                  />
-                ))}
-              </div>
             )}
           </motion.div>
         )}
