@@ -12,13 +12,10 @@ interface FeatureSquareCardProps {
 
 /**
  * FeatureSquareCard - Canonical grouped wrapper component
- * Combines colored outer background + white InnerCard as ONE unit
+ * Uses CSS transform scale to shrink uniformly on mobile
  * 
- * Sizing (InnerCard + consistent ~64px padding):
- * - Mobile: 300×300px (scales down smoothly)
- * - Small Mobile: 344×344px
- * - Tablet: 484×484px
- * - Desktop: 404×404px
+ * Fixed desktop size: 404×404px
+ * Scales down via transform on smaller viewports
  */
 const FeatureSquareCard = ({ 
   bgColor, 
@@ -28,40 +25,44 @@ const FeatureSquareCard = ({
   animate = false 
 }: FeatureSquareCardProps) => {
   return (
-    <motion.div 
-      initial={{ opacity: 0, scale: 0.95 }}
-      whileInView={{ opacity: 1, scale: 1 }}
-      viewport={{ once: true, margin: "-50px" }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
-      className={cn(
-        // LOCKED ASPECT RATIO - prevents distortion
-        "aspect-square",
-        // RESPONSIVE SIZE - scales down on small screens
-        "w-full",
-        "max-w-[300px]",
-        "sm:max-w-[344px]",
-        "md:max-w-[484px]",
-        "lg:max-w-[404px]",
-        // Outer styling
-        "rounded-3xl md:rounded-[32px]",
-        "flex items-center justify-center",
-        "overflow-hidden",
-        // Apply bgColor only if no bgImage
-        !bgImage && bgColor,
-        // Optional hover animation
-        animate && "transition-transform hover:scale-[1.01] duration-300",
-        className
-      )}
-      style={bgImage ? { 
-        backgroundImage: `url(${bgImage})`,
-        backgroundSize: 'cover',
-        backgroundPosition: 'center'
-      } : undefined}
-    >
-      <InnerCard>
-        {children}
-      </InnerCard>
-    </motion.div>
+    // Outer wrapper constrains the visual space taken
+    <div className={cn(
+      "flex items-center justify-center",
+      "w-full max-w-[280px] sm:max-w-[340px] md:max-w-[484px]",
+      "aspect-square"
+    )}>
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-50px" }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className={cn(
+          // Fixed desktop size
+          "w-[404px] h-[404px] aspect-square",
+          // Scale down uniformly on mobile
+          "scale-[0.69] sm:scale-[0.84] md:scale-100",
+          "origin-center",
+          // Outer styling
+          "rounded-3xl md:rounded-[32px]",
+          "flex items-center justify-center",
+          "overflow-hidden flex-shrink-0",
+          // Apply bgColor only if no bgImage
+          !bgImage && bgColor,
+          // Optional hover animation
+          animate && "transition-transform hover:scale-[1.01] duration-300",
+          className
+        )}
+        style={bgImage ? { 
+          backgroundImage: `url(${bgImage})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center'
+        } : undefined}
+      >
+        <InnerCard>
+          {children}
+        </InnerCard>
+      </motion.div>
+    </div>
   );
 };
 
