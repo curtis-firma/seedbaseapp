@@ -165,32 +165,32 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           setMode('user-select');
           triggerHaptic('light');
         }}
-        className="fixed bottom-24 right-4 md:right-8 z-30 w-14 h-14 rounded-full bg-[#0000ff] text-white shadow-lg flex items-center justify-center hover:bg-[#0000dd] transition-colors"
+        className="fixed bottom-20 right-4 md:right-8 z-40 w-14 h-14 rounded-full bg-[#0000ff] text-white shadow-lg flex items-center justify-center hover:bg-[#0000dd] transition-colors"
       >
         <Edit className="h-6 w-6" />
       </motion.button>
     );
   }
 
-  // USER-SELECT MODE: Show user search screen
+  // USER-SELECT MODE: Show user search screen (inverted colors)
   if (mode === 'user-select') {
     return (
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 20 }}
-        className="fixed inset-0 z-40 bg-background flex flex-col"
+        className="fixed inset-0 z-40 bg-[#0a0a0a] dark:bg-white flex flex-col"
         style={{ top: 0 }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-border/50">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10 dark:border-gray-200">
           <button
             onClick={handleCancel}
-            className="p-2 -ml-2 hover:bg-muted rounded-lg transition-colors"
+            className="p-2 -ml-2 hover:bg-white/10 dark:hover:bg-gray-100 rounded-lg transition-colors text-white dark:text-black"
           >
             <X className="h-5 w-5" />
           </button>
-          <h1 className="font-semibold text-lg">New Message</h1>
+          <h1 className="font-semibold text-lg text-white dark:text-black">New Message</h1>
           <div className="w-9" /> {/* Spacer for centering */}
         </div>
 
@@ -199,7 +199,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           <button className="flex-1 py-2.5 rounded-full bg-[#0000ff] text-white font-medium text-sm">
             Direct Message
           </button>
-          <button className="flex-1 py-2.5 rounded-full bg-muted text-muted-foreground font-medium text-sm" disabled>
+          <button className="flex-1 py-2.5 rounded-full bg-white/10 dark:bg-gray-100 text-gray-400 dark:text-gray-500 font-medium text-sm" disabled>
             Group Chat
           </button>
         </div>
@@ -207,28 +207,28 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
         {/* Search Input */}
         <div className="px-4 py-2">
           <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search for users..."
               autoFocus
-              className="w-full pl-12 pr-4 py-3 bg-muted/50 border-2 border-[#0000ff]/30 focus:border-[#0000ff] rounded-xl text-base outline-none transition-colors"
+              className="w-full pl-12 pr-4 py-3 bg-white/5 dark:bg-gray-100 border-2 border-[#0000ff]/30 focus:border-[#0000ff] rounded-xl text-base outline-none transition-colors text-white dark:text-black placeholder:text-gray-500"
             />
           </div>
         </div>
 
         {/* User List */}
-        <div className="flex-1 overflow-y-auto px-4">
-          <p className="text-xs font-semibold text-muted-foreground mb-3 mt-4 tracking-wide">RECENT</p>
+        <div className="flex-1 overflow-y-auto px-4 pb-20">
+          <p className="text-xs font-semibold text-gray-400 dark:text-gray-500 mb-3 mt-4 tracking-wide">RECENT</p>
           <div className="space-y-1">
             {filteredUsers.slice(0, 10).map((user) => (
               <motion.button
                 key={user.id}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleSelectUser(user)}
-                className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-muted/50 transition-colors"
+                className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-white/5 dark:hover:bg-gray-100 transition-colors"
               >
                 {user.avatar_url ? (
                   <img 
@@ -237,21 +237,21 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 ) : (
-                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center">
-                    <span className="text-lg font-semibold text-muted-foreground">
+                  <div className="w-12 h-12 rounded-full bg-white/10 dark:bg-gray-200 flex items-center justify-center">
+                    <span className="text-lg font-semibold text-gray-400 dark:text-gray-600">
                       {user.display_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase()}
                     </span>
                   </div>
                 )}
                 <div className="text-left">
-                  <p className="font-semibold">{user.display_name || user.username}</p>
-                  <p className="text-sm text-muted-foreground">@{user.username}</p>
+                  <p className="font-semibold text-white dark:text-black">{user.display_name || user.username}</p>
+                  <p className="text-sm text-gray-400 dark:text-gray-500">@{user.username}</p>
                 </div>
               </motion.button>
             ))}
             
             {filteredUsers.length === 0 && (
-              <div className="text-center py-12 text-muted-foreground">
+              <div className="text-center py-12 text-gray-400 dark:text-gray-500">
                 <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
                 <p>No users found</p>
               </div>
@@ -262,9 +262,9 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     );
   }
 
-  // COMPOSE MODE: Show message input area with selected user
+  // COMPOSE MODE: Show message input area with selected user (inverted colors)
   return (
-    <div className="fixed bottom-20 left-0 right-0 md:left-[260px] z-30 bg-card/95 backdrop-blur-xl border-t border-border/50">
+    <div className="fixed bottom-16 left-0 right-0 md:left-[260px] z-40 bg-[#1a1a1a] dark:bg-white/95 backdrop-blur-xl border-t border-white/10 dark:border-gray-200">
       <AnimatePresence>
         {/* Amount Picker Dropdown */}
         {showAmountPicker && (
@@ -272,16 +272,16 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute bottom-full left-0 right-0 bg-card border-t border-border/50 p-4"
+            className="absolute bottom-full left-0 right-0 bg-[#1a1a1a] dark:bg-white border-t border-white/10 dark:border-gray-200 p-4"
           >
             <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium">Send USDC</span>
+              <span className="text-sm font-medium text-white dark:text-black">Send USDC</span>
               <button
                 onClick={() => {
                   setShowAmountPicker(false);
                   setAttachUsdc(false);
                 }}
-                className="p-1.5 hover:bg-muted rounded-lg"
+                className="p-1.5 hover:bg-white/10 dark:hover:bg-gray-100 rounded-lg text-white dark:text-black"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -292,20 +292,20 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => handleAmountChange(-5)}
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80"
+                className="w-10 h-10 rounded-full bg-white/10 dark:bg-gray-100 flex items-center justify-center hover:bg-white/20 dark:hover:bg-gray-200 text-white dark:text-black"
               >
                 <Minus className="h-4 w-4" />
               </motion.button>
               
               <div className="text-center">
-                <p className="text-3xl font-bold">${amount}</p>
-                <p className="text-xs text-muted-foreground">USDC</p>
+                <p className="text-3xl font-bold text-white dark:text-black">${amount}</p>
+                <p className="text-xs text-gray-400 dark:text-gray-500">USDC</p>
               </div>
               
               <motion.button
                 whileTap={{ scale: 0.9 }}
                 onClick={() => handleAmountChange(5)}
-                className="w-10 h-10 rounded-full bg-muted flex items-center justify-center hover:bg-muted/80"
+                className="w-10 h-10 rounded-full bg-white/10 dark:bg-gray-100 flex items-center justify-center hover:bg-white/20 dark:hover:bg-gray-200 text-white dark:text-black"
               >
                 <Plus className="h-4 w-4" />
               </motion.button>
@@ -322,7 +322,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
                     "px-4 py-2 rounded-full text-sm font-medium transition-all",
                     amount === preset
                       ? "bg-[#0000ff] text-white"
-                      : "bg-muted hover:bg-muted/80"
+                      : "bg-white/10 dark:bg-gray-100 hover:bg-white/20 dark:hover:bg-gray-200 text-white dark:text-black"
                   )}
                 >
                   ${preset}
@@ -330,7 +330,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
               ))}
             </div>
 
-            <p className="text-xs text-muted-foreground text-center mt-3">
+            <p className="text-xs text-gray-400 dark:text-gray-500 text-center mt-3">
               Available: ${currentBalance.toFixed(2)}
             </p>
           </motion.div>
@@ -340,7 +340,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
       {/* Amount Preview Banner */}
       {attachUsdc && amount > 0 && !showAmountPicker && (
         <div className="px-4 pt-3">
-          <div className="flex items-center justify-between px-3 py-2 bg-[#0000ff]/5 border border-[#0000ff]/20 rounded-xl">
+          <div className="flex items-center justify-between px-3 py-2 bg-[#0000ff]/10 border border-[#0000ff]/30 rounded-xl">
             <div className="flex items-center gap-2">
               <DollarSign className="h-4 w-4 text-[#0000ff]" />
               <span className="text-sm text-[#0000ff] font-medium">
@@ -352,7 +352,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
                 setAttachUsdc(false);
                 setShowAmountPicker(false);
               }}
-              className="p-1 hover:bg-[#0000ff]/10 rounded-lg"
+              className="p-1 hover:bg-[#0000ff]/20 rounded-lg"
             >
               <X className="h-3.5 w-3.5 text-[#0000ff]" />
             </button>
@@ -364,8 +364,8 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
       {selectedUser && (
         <div className="px-4 pt-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-muted-foreground">To:</span>
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-muted rounded-full">
+            <span className="text-xs text-gray-400 dark:text-gray-500">To:</span>
+            <div className="flex items-center gap-1.5 px-2 py-1 bg-white/10 dark:bg-gray-100 rounded-full">
               {selectedUser.avatar_url ? (
                 <img 
                   src={selectedUser.avatar_url} 
@@ -373,19 +373,19 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
                   className="w-5 h-5 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-5 h-5 rounded-full bg-primary/20 flex items-center justify-center">
-                  <span className="text-[10px] font-medium text-primary">
+                <div className="w-5 h-5 rounded-full bg-[#0000ff]/20 flex items-center justify-center">
+                  <span className="text-[10px] font-medium text-[#0000ff]">
                     {selectedUser.username?.[0]?.toUpperCase()}
                   </span>
                 </div>
               )}
-              <span className="text-sm font-medium">{selectedUser.username}</span>
+              <span className="text-sm font-medium text-white dark:text-black">{selectedUser.username}</span>
               <button
                 onClick={() => {
                   setSelectedUser(null);
                   setMode('user-select');
                 }}
-                className="ml-1 p-0.5 hover:bg-background/50 rounded-full"
+                className="ml-1 p-0.5 hover:bg-white/10 dark:hover:bg-gray-200 rounded-full text-white dark:text-black"
               >
                 <X className="h-3 w-3" />
               </button>
@@ -411,7 +411,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
             "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all",
             attachUsdc
               ? "bg-[#22c55e] text-white"
-              : "bg-muted hover:bg-muted/80 text-muted-foreground"
+              : "bg-white/10 dark:bg-gray-100 hover:bg-white/20 dark:hover:bg-gray-200 text-gray-400 dark:text-gray-600"
           )}
         >
           <DollarSign className="h-5 w-5" />
@@ -424,7 +424,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
             onChange={(e) => setMessage(e.target.value)}
             placeholder="Type a message..."
             rows={1}
-            className="w-full bg-muted/50 border border-border/50 rounded-2xl py-2.5 px-4 text-sm outline-none focus:ring-2 ring-primary/30 focus:border-primary/50 transition-all resize-none min-h-[40px] max-h-24"
+            className="w-full bg-white/5 dark:bg-gray-100 border border-white/10 dark:border-gray-200 rounded-2xl py-2.5 px-4 text-sm outline-none focus:ring-2 ring-[#0000ff]/30 focus:border-[#0000ff]/50 transition-all resize-none min-h-[40px] max-h-24 text-white dark:text-black placeholder:text-gray-500"
             style={{ height: 'auto' }}
             onInput={(e) => {
               const target = e.target as HTMLTextAreaElement;
@@ -446,7 +446,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
             "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all",
             canSend && !isSending
               ? "bg-[#0000ff] text-white hover:bg-[#0000dd]"
-              : "bg-muted text-muted-foreground cursor-not-allowed"
+              : "bg-white/10 dark:bg-gray-200 text-gray-500 cursor-not-allowed"
           )}
         >
           {isSending ? (
