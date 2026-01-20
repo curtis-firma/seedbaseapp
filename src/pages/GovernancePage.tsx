@@ -356,6 +356,62 @@ export default function GovernancePage() {
 
         {/* Network Tab */}
         <TabsContent value="network" className="px-4 py-4 space-y-4">
+          {/* Leaderboard Section */}
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-[#0000ff]/10 to-[#0000ff]/5 border border-[#0000ff]/20">
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-[#0000ff]/20 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-[#0000ff]" />
+              </div>
+              <div>
+                <h2 className="font-semibold text-lg">Top Activators</h2>
+                <p className="text-xs text-muted-foreground">Leaderboard by network impact</p>
+              </div>
+            </div>
+            
+            <div className="space-y-2">
+              {[...activatedUsers]
+                .sort((a, b) => b.seedCommitted - a.seedCommitted)
+                .slice(0, 3)
+                .map((user, i) => (
+                  <motion.div
+                    key={user.id}
+                    initial={{ opacity: 0, x: -10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.1 }}
+                    className={cn(
+                      "p-3 rounded-xl flex items-center gap-3",
+                      i === 0 ? "bg-[#FFD700]/20 border border-[#FFD700]/30" :
+                      i === 1 ? "bg-[#C0C0C0]/20 border border-[#C0C0C0]/30" :
+                      "bg-[#CD7F32]/20 border border-[#CD7F32]/30"
+                    )}
+                  >
+                    <div className={cn(
+                      "w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm",
+                      i === 0 ? "bg-[#FFD700] text-black" :
+                      i === 1 ? "bg-[#C0C0C0] text-black" :
+                      "bg-[#CD7F32] text-white"
+                    )}>
+                      {i + 1}
+                    </div>
+                    <Avatar className="h-10 w-10">
+                      <AvatarImage src={user.avatar} alt={user.name} />
+                      <AvatarFallback className="bg-[#0000ff]/10 text-[#0000ff]">
+                        {user.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-sm truncate">{user.name}</p>
+                      <p className="text-xs text-muted-foreground">@{user.handle}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-[#0000ff]">${user.seedCommitted.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">seed value</p>
+                    </div>
+                  </motion.div>
+                ))}
+            </div>
+          </div>
+
           <div className="flex items-center justify-between">
             <h2 className="font-semibold text-lg">People You've Activated</h2>
             <span className="text-sm text-muted-foreground">{activatedUsers.length} total</span>

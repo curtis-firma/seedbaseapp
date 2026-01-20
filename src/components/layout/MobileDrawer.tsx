@@ -11,12 +11,12 @@ import { Logo } from '@/components/shared/Logo';
 import { useSocialHandles } from '@/hooks/useSocialHandles';
 
 const menuNav = [
-  { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages & transfers' },
-  { icon: BarChart3, label: 'Vault', path: '/app/vault', description: 'Analytics & data' },
-  { icon: Vote, label: 'Governance', path: '/app/governance', description: 'Vote & amplify' },
-  { icon: ShoppingBag, label: 'Shop', path: '/app/seeded', description: 'Merch & movement' },
-  { icon: Rocket, label: 'Launcher', path: '/app/launcher', description: 'Create new' },
-  { icon: Settings, label: 'Settings', path: '/app/settings', description: 'Preferences' },
+  { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages & transfers', badge: 0 },
+  { icon: BarChart3, label: 'Vault', path: '/app/vault', description: 'Analytics & data', badge: 0 },
+  { icon: Vote, label: 'Governance', path: '/app/governance', description: 'Vote & amplify', badge: 3 },
+  { icon: ShoppingBag, label: 'Shop', path: '/app/seeded', description: 'Merch & movement', badge: 0 },
+  { icon: Rocket, label: 'Launcher', path: '/app/launcher', description: 'Create new', badge: 0 },
+  { icon: Settings, label: 'Settings', path: '/app/settings', description: 'Preferences', badge: 0 },
 ];
 
 interface MobileDrawerProps {
@@ -134,8 +134,15 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
                       )}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <Icon className="h-5 w-5" />
-                      <div className="text-left">
+                      <div className="relative">
+                        <Icon className="h-5 w-5" />
+                        {item.badge > 0 && (
+                          <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#0000ff] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                            {item.badge}
+                          </span>
+                        )}
+                      </div>
+                      <div className="text-left flex-1">
                         <p className="font-medium">{item.label}</p>
                         <p className="text-xs text-muted-foreground">{item.description}</p>
                       </div>

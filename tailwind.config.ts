@@ -203,7 +203,7 @@ export default {
         "gentle-bounce": "gentle-bounce 2s ease-in-out infinite",
         "subtle-pulse": "subtle-pulse 3s ease-in-out infinite",
         "number-tick": "number-tick 2s ease-in-out infinite",
-        "icon-wiggle": "icon-wiggle 3s ease-in-out infinite",
+        "icon-wiggle": "icon-wiggle 0.5s ease-out",
         "progress-pulse": "progress-pulse 2s ease-in-out infinite",
         "bounce-subtle": "bounce-subtle 0.4s ease-out",
       },
