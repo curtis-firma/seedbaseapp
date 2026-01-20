@@ -107,7 +107,7 @@ const GrowingSquares = () => {
   ];
 
   return (
-    <div className="flex items-end justify-center gap-[1%] w-full px-[5%]">
+    <div className="flex items-end justify-center gap-[0.5%] w-full px-[2%] pb-0">
       {bars.map((bar, index) => {
         const animationDuration = bar.delay * 0.4 + bar.height * 0.08;
         
@@ -206,12 +206,12 @@ const BrandMomentState = () => {
         />
       </motion.div>
 
-      {/* Growing squares bar chart at bottom */}
+      {/* Growing squares bar chart at bottom - touches bottom edge */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 0.6 }}
-        className="absolute bottom-[5%] left-0 right-0 w-full"
+        className="absolute bottom-0 left-0 right-0 w-full pb-2"
       >
         <GrowingSquares />
       </motion.div>
