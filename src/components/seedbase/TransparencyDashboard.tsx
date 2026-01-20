@@ -3,7 +3,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, Users, Calendar, Package, TrendingUp, 
   Check, X, Clock, Send, Vote, ChevronRight,
-  PieChart as PieChartIcon, ArrowUpRight, Lock
+  PieChart as PieChartIcon, ArrowUpRight, Lock,
+  Sparkles, ChevronLeft, Eye
 } from 'lucide-react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { useUser } from '@/contexts/UserContext';
@@ -13,7 +14,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
 interface TransparencyDashboardProps {
-  viewMode: 'activator' | 'trustee';
+  viewMode: 'activator' | 'trustee' | 'envoy';
   className?: string;
 }
 
@@ -80,6 +81,36 @@ function getCategoryIcon(category: string) {
   return cat?.icon || Package;
 }
 
+// Tour steps configuration
+const tourSteps = [
+  {
+    id: 'allocation',
+    title: 'Allocation Breakdown',
+    description: 'See exactly how funds are distributed across categories like Rent, Salaries, Events, and Outreach.',
+    icon: PieChartIcon,
+  },
+  {
+    id: 'transactions',
+    title: 'Transaction History',
+    description: 'Every withdrawal is tagged and visible. Track exactly where funds go.',
+    icon: Eye,
+  },
+  {
+    id: 'voting',
+    title: 'Governance Voting',
+    description: 'Cast your vote on proposals to help shape how funds are allocated.',
+    icon: Vote,
+  },
+  {
+    id: 'contribution',
+    title: 'Your Contribution',
+    description: 'See how your seed grows and generates impact across the network.',
+    icon: TrendingUp,
+  },
+];
+
+const TOUR_STORAGE_KEY = 'transparency-dashboard-tour-completed';
+
 export function TransparencyDashboard({ viewMode, className }: TransparencyDashboardProps) {
   const { isKeyActive } = useUser();
   const haptic = useHaptic();
@@ -89,7 +120,22 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
   const [hoveredSegment, setHoveredSegment] = useState<string | null>(null);
   const [animatedTotal, setAnimatedTotal] = useState(0);
   
+  // Tour state
+  const [showTour, setShowTour] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+  const [highlightedSection, setHighlightedSection] = useState<string | null>(null);
+  
   const totalPool = 12500;
+  
+  // Check if tour should show on mount
+  useEffect(() => {
+    const tourCompleted = localStorage.getItem(TOUR_STORAGE_KEY);
+    if (!tourCompleted) {
+      // Delay to let dashboard animate in first
+      const timer = setTimeout(() => setShowTour(true), 1500);
+      return () => clearTimeout(timer);
+    }
+  }, []);
   
   // Animate total on mount
   useEffect(() => {
@@ -110,6 +156,49 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
     
     return () => clearInterval(timer);
   }, []);
+  
+  // Update highlighted section when tour step changes
+  useEffect(() => {
+    if (showTour && tourSteps[tourStep]) {
+      setHighlightedSection(tourSteps[tourStep].id);
+      haptic.light();
+    } else {
+      setHighlightedSection(null);
+    }
+  }, [tourStep, showTour]);
+  
+  const handleNextStep = () => {
+    if (tourStep < tourSteps.length - 1) {
+      setTourStep(prev => prev + 1);
+    } else {
+      completeTour();
+    }
+  };
+  
+  const handlePrevStep = () => {
+    if (tourStep > 0) {
+      setTourStep(prev => prev - 1);
+    }
+  };
+  
+  const completeTour = () => {
+    haptic.success();
+    setShowTour(false);
+    setHighlightedSection(null);
+    localStorage.setItem(TOUR_STORAGE_KEY, 'true');
+    toast.success('Tour completed! Explore the dashboard.');
+  };
+  
+  const skipTour = () => {
+    setShowTour(false);
+    setHighlightedSection(null);
+    localStorage.setItem(TOUR_STORAGE_KEY, 'true');
+  };
+  
+  const restartTour = () => {
+    setTourStep(0);
+    setShowTour(true);
+  };
   
   const handleVote = (voteId: string, choice: 'yes' | 'no') => {
     haptic.medium();
@@ -136,14 +225,124 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className={cn("space-y-6", className)}
+      className={cn("space-y-6 relative", className)}
     >
+      {/* Tour Overlay */}
+      <AnimatePresence>
+        {showTour && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 pointer-events-none"
+          >
+            {/* Backdrop */}
+            <div className="absolute inset-0 bg-black/60 pointer-events-auto" onClick={skipTour} />
+            
+            {/* Tour Card */}
+            <motion.div
+              key={tourStep}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -20, scale: 0.95 }}
+              className="absolute bottom-24 left-4 right-4 md:left-1/2 md:-translate-x-1/2 md:max-w-md bg-card rounded-2xl border border-border/50 shadow-2xl p-5 pointer-events-auto z-[60]"
+            >
+              {/* Progress dots */}
+              <div className="flex items-center justify-center gap-2 mb-4">
+                {tourSteps.map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className={cn(
+                      "w-2 h-2 rounded-full transition-colors",
+                      i === tourStep ? "bg-primary" : "bg-muted"
+                    )}
+                    animate={i === tourStep ? { scale: [1, 1.3, 1] } : {}}
+                    transition={{ duration: 0.5 }}
+                  />
+                ))}
+              </div>
+              
+              {/* Step content */}
+              <div className="text-center mb-6">
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                  className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4"
+                >
+                  {tourSteps[tourStep] && (() => {
+                    const StepIcon = tourSteps[tourStep].icon;
+                    return <StepIcon className="h-8 w-8 text-primary" />;
+                  })()}
+                </motion.div>
+                <h3 className="font-bold text-xl mb-2">{tourSteps[tourStep]?.title}</h3>
+                <p className="text-muted-foreground">{tourSteps[tourStep]?.description}</p>
+              </div>
+              
+              {/* Navigation */}
+              <div className="flex items-center justify-between">
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={skipTour}
+                  className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  Skip Tour
+                </motion.button>
+                
+                <div className="flex items-center gap-2">
+                  {tourStep > 0 && (
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handlePrevStep}
+                      className="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors"
+                    >
+                      <ChevronLeft className="h-5 w-5" />
+                    </motion.button>
+                  )}
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    onClick={handleNextStep}
+                    className="px-6 py-2.5 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium flex items-center gap-2"
+                  >
+                    <span>{tourStep === tourSteps.length - 1 ? 'Get Started' : 'Next'}</span>
+                    {tourStep === tourSteps.length - 1 ? (
+                      <Sparkles className="h-4 w-4" />
+                    ) : (
+                      <ChevronRight className="h-4 w-4" />
+                    )}
+                  </motion.button>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      {/* Restart Tour Button */}
+      {!showTour && (
+        <motion.button
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
+          onClick={restartTour}
+          className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-2"
+        >
+          <Sparkles className="h-4 w-4" />
+          <span>Take the Tour</span>
+        </motion.button>
+      )}
+      
       {/* Allocation Pie Chart Section */}
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.1 }}
-        className="bg-card rounded-2xl border border-border/50 p-5"
+        className={cn(
+          "bg-card rounded-2xl border border-border/50 p-5 transition-all duration-300",
+          highlightedSection === 'allocation' && "ring-2 ring-primary ring-offset-2 ring-offset-background relative z-[55]"
+        )}
       >
         <div className="flex items-center gap-3 mb-4">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
@@ -254,7 +453,10 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.2 }}
-        className="bg-card rounded-2xl border border-border/50 p-5"
+        className={cn(
+          "bg-card rounded-2xl border border-border/50 p-5 transition-all duration-300",
+          highlightedSection === 'transactions' && "ring-2 ring-primary ring-offset-2 ring-offset-background relative z-[55]"
+        )}
       >
         <div className="flex items-center justify-between mb-4">
           <h3 className="font-semibold text-lg">Recent Transactions</h3>
@@ -304,6 +506,10 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.3 }}
+        className={cn(
+          "transition-all duration-300",
+          highlightedSection === 'voting' && "ring-2 ring-primary ring-offset-2 ring-offset-background rounded-2xl relative z-[55]"
+        )}
       >
         <KeyGatedCard requiredKey="BaseKey" unlockMessage="Get BaseKey to vote on governance proposals">
           <div className="bg-card rounded-2xl border border-border/50 p-5">
@@ -414,13 +620,16 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
         </motion.div>
       )}
       
-      {/* Activator view: Your Contribution Summary */}
-      {viewMode === 'activator' && (
+      {/* Activator/Envoy view: Your Contribution Summary */}
+      {(viewMode === 'activator' || viewMode === 'envoy') && (
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.4 }}
-          className="bg-card rounded-2xl border border-primary/30 p-5"
+          className={cn(
+            "bg-card rounded-2xl border border-primary/30 p-5 transition-all duration-300",
+            highlightedSection === 'contribution' && "ring-2 ring-primary ring-offset-2 ring-offset-background relative z-[55]"
+          )}
         >
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
