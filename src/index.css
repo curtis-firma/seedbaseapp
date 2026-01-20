@@ -322,15 +322,7 @@
   animation: scale-in 0.5s ease-out 0.3s forwards;
 }
 
-/* Mobile card carousel scroll */
-@keyframes scroll-cards {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
-}
-
-.animate-scroll-cards {
-  animation: scroll-cards 30s linear infinite;
-}
+/* Legacy carousel scroll removed - now using vertical scroll narrative */
 
 /* Icon wiggle animation for slider */
 @keyframes icon-wiggle {

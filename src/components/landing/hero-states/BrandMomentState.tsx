@@ -2,6 +2,11 @@ import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp-new.png';
 import seedBlue from '@/assets/seedbase-seed-blue.svg';
 
+/**
+ * BrandMomentState - Hero canvas state showing generosity growth
+ * Uses percentage-based sizing to scale properly across viewports
+ */
+
 // Spinning orbital ring component with seed icons
 const OrbitalRing = ({ 
   radius, 
@@ -10,7 +15,7 @@ const OrbitalRing = ({
   seedCount = 4,
   opacity = 0.15
 }: { 
-  radius: number; 
+  radius: string; // Percentage-based (e.g., "25%")
   duration: number; 
   reverse?: boolean;
   seedCount?: number;
@@ -20,26 +25,24 @@ const OrbitalRing = ({
   
   return (
     <motion.div
-      className="absolute left-1/2 top-1/2"
+      className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
       style={{
-        width: radius * 2,
-        height: radius * 2,
-        marginLeft: -radius,
-        marginTop: -radius,
+        width: radius,
+        height: radius,
       }}
       animate={{ rotate: reverse ? -360 : 360 }}
       transition={{ duration, repeat: Infinity, ease: "linear" }}
     >
       {/* Ring circle */}
-      <svg className="w-full h-full absolute" viewBox={`0 0 ${radius * 2} ${radius * 2}`}>
+      <svg className="w-full h-full absolute" viewBox="0 0 100 100">
         <circle
-          cx={radius}
-          cy={radius}
-          r={radius - 2}
+          cx="50"
+          cy="50"
+          r="48"
           fill="none"
           stroke="currentColor"
-          strokeWidth="1"
-          strokeDasharray="6 10"
+          strokeWidth="0.5"
+          strokeDasharray="3 5"
           className="text-black"
           style={{ opacity }}
         />
@@ -47,15 +50,18 @@ const OrbitalRing = ({
       
       {/* Seed icons positioned along the ring */}
       {angles.map((angle, i) => {
-        const x = radius + (radius - 2) * Math.cos((angle * Math.PI) / 180) - 8;
-        const y = radius + (radius - 2) * Math.sin((angle * Math.PI) / 180) - 8;
+        const radian = (angle * Math.PI) / 180;
+        const x = 50 + 48 * Math.cos(radian);
+        const y = 50 + 48 * Math.sin(radian);
         return (
-          <motion.img
+          <motion.div
             key={i}
-            src={seedBlue}
-            alt=""
-            className="absolute w-4 h-4"
-            style={{ left: x, top: y }}
+            className="absolute w-[8%] h-[8%]"
+            style={{ 
+              left: `${x}%`, 
+              top: `${y}%`,
+              transform: 'translate(-50%, -50%)'
+            }}
             animate={{ 
               scale: [1, 1.2, 1],
               opacity: [0.6, 1, 0.6]
@@ -66,14 +72,16 @@ const OrbitalRing = ({
               delay: i * 0.5,
               ease: "easeInOut"
             }}
-          />
+          >
+            <img src={seedBlue} alt="" className="w-full h-full" />
+          </motion.div>
         );
       })}
     </motion.div>
   );
 };
 
-// Growing squares bar chart component - builds UP from bottom with glow
+// Growing squares bar chart component
 const GrowingSquares = () => {
   const bars = [
     { height: 3, delay: 0.8 },
@@ -96,29 +104,24 @@ const GrowingSquares = () => {
     { height: 10, delay: 2.5 },
     { height: 9, delay: 2.6 },
     { height: 11, delay: 2.7 },
-    { height: 13, delay: 2.8 },
-    { height: 10, delay: 2.9 },
-    { height: 12, delay: 3.0 },
-    { height: 11, delay: 3.1 },
-    { height: 14, delay: 3.2 },
   ];
 
   return (
-    <div className="flex items-end justify-between w-full px-8">
+    <div className="flex items-end justify-center gap-[1%] w-full px-[5%]">
       {bars.map((bar, index) => {
         const animationDuration = bar.delay * 0.4 + bar.height * 0.08;
         
         return (
           <motion.div
             key={index}
-            className="flex flex-col-reverse gap-0.5 items-center relative"
+            className="flex flex-col-reverse gap-[2px] items-center relative"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: bar.delay * 0.4, duration: 0.3 }}
           >
-            {/* Glow effect when complete (no blur to avoid fuzzy edges) */}
+            {/* Glow effect when complete */}
             <motion.div
-              className="absolute -inset-1 bg-blue-400/20 rounded-full shadow-glow"
+              className="absolute -inset-1 bg-blue-400/20 rounded-full"
               animate={{ 
                 opacity: [0, 0, 0.6, 0],
                 scale: [0.8, 1, 1.2, 1]
@@ -131,11 +134,9 @@ const GrowingSquares = () => {
             />
             
             {Array.from({ length: bar.height }).map((_, squareIndex) => (
-              <motion.img
+              <motion.div
                 key={squareIndex}
-                src={seedBlue}
-                alt=""
-                className="w-4 h-4 relative z-10"
+                className="w-[clamp(6px,1.5vw,12px)] aspect-square relative z-10"
                 initial={{ opacity: 0, scale: 0, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{
@@ -143,7 +144,9 @@ const GrowingSquares = () => {
                   duration: 0.25,
                   ease: "backOut"
                 }}
-              />
+              >
+                <img src={seedBlue} alt="" className="w-full h-full" />
+              </motion.div>
             ))}
           </motion.div>
         );
@@ -160,15 +163,16 @@ const BrandMomentState = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="absolute top-12 text-black/70 font-semibold text-2xl tracking-wide z-20"
+        className="absolute top-[8%] text-black/70 font-semibold tracking-wide z-20"
+        style={{ fontSize: 'clamp(14px, 5%, 24px)' }}
       >
         Generosity that grows
       </motion.p>
 
-      {/* Spinning orbital rings with seed icons - single set of desktop sizes */}
-      <OrbitalRing radius={80} duration={18} seedCount={3} opacity={0.12} />
-      <OrbitalRing radius={115} duration={24} reverse seedCount={4} opacity={0.1} />
-      <OrbitalRing radius={150} duration={30} seedCount={5} opacity={0.08} />
+      {/* Spinning orbital rings with seed icons - percentage-based */}
+      <OrbitalRing radius="45%" duration={18} seedCount={3} opacity={0.12} />
+      <OrbitalRing radius="65%" duration={24} reverse seedCount={4} opacity={0.1} />
+      <OrbitalRing radius="85%" duration={30} seedCount={5} opacity={0.08} />
 
       {/* Grid dots pattern */}
       <div className="absolute inset-0 opacity-5 pointer-events-none">
@@ -191,23 +195,23 @@ const BrandMomentState = () => {
           scale: { duration: 1.5, times: [0, 0.6, 1], ease: "easeOut" },
           opacity: { duration: 0.8 }
         }}
-        className="relative z-10"
+        className="relative z-10 w-[25%] max-w-[160px] aspect-square"
       >
         <motion.img 
           src={seedbasePfp} 
           alt=""
-          className="w-40 h-40 rounded-full"
+          className="w-full h-full rounded-full"
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
         />
       </motion.div>
 
-      {/* Growing squares bar chart at bottom - builds UP with glow */}
+      {/* Growing squares bar chart at bottom */}
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.8, duration: 0.6 }}
-        className="absolute bottom-4 left-0 right-0 w-full"
+        className="absolute bottom-[5%] left-0 right-0 w-full"
       >
         <GrowingSquares />
       </motion.div>
