@@ -8,6 +8,7 @@ import SeedFeedCard from "@/components/cards/SeedFeedCard";
 import HeroVisualCanvas from "@/components/landing/HeroVisualCanvas";
 import SeedCommitmentCard from "@/components/cards/SeedCommitmentCard";
 import MobileScrollNarrative from "@/components/sections/MobileScrollNarrative";
+import { useIsMobile } from "@/hooks/use-mobile";
 import DashboardCard from "@/components/cards/DashboardCard";
 import LedgerCard from "@/components/cards/LedgerCard";
 import GrowthReportCard from "@/components/cards/GrowthReportCard";
@@ -82,6 +83,7 @@ const ScrollingLandingPage = () => {
   const contentRef = useRef<HTMLDivElement>(null);
   const desktopSectionsRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const scrollToContent = () => {
     if (desktopSectionsRef.current) {
       desktopSectionsRef.current.scrollIntoView({
@@ -198,7 +200,8 @@ const ScrollingLandingPage = () => {
           {/* Hero Card Section - Dynamic Visual Canvas */}
           <section className="flex items-start pt-[32px] px-8 pointer-events-auto">
             <div className="w-full animate-content-reveal">
-              <HeroVisualCanvas />
+              {/* Only render on tablet/desktop to prevent double mounting */}
+              {!isMobile && <HeroVisualCanvas />}
             </div>
           </section>
 

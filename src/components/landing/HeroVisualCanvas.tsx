@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import type { ComponentType } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import MissionVideoState from './hero-states/MissionVideoState';
@@ -9,26 +9,44 @@ import BrandMomentState from './hero-states/BrandMomentState';
 import StaticBrandState from './hero-states/StaticBrandState';
 import SocialVideoState from './hero-states/SocialVideoState';
 import AppSharingVideoState from './hero-states/AppSharingVideoState';
-import MatrixMemeState from './hero-states/MatrixMemeState';
+import TokenTilesState from './hero-states/TokenTilesState';
+import SeededHypeVideoState from './hero-states/SeededHypeVideoState';
+import { useIsMobile } from '@/hooks/use-mobile';
+
+// Video state component type with onEnded callback
+type VideoStateComponent = ComponentType<{ active?: boolean; onEnded?: () => void }>;
+
+interface HeroState {
+  id: string;
+  Component: ComponentType<any>;
+  duration: number;
+  isVideo?: boolean;
+}
 
 // States cycle with smooth transitions - each controls its own background
 // Per-state durations allow videos to play fully
-const STATES = [
-  { id: 'mission-video', Component: MissionVideoState, duration: 12000 },
+const STATES: HeroState[] = [
+  { id: 'mission-video', Component: MissionVideoState, duration: 15000, isVideo: true },
   { id: 'feed-scroll', Component: FeedScrollState, duration: 6000 },
-  { id: 'social-video', Component: SocialVideoState, duration: 11000 },
-  { id: 'matrix-meme', Component: MatrixMemeState, duration: 6000 },
+  { id: 'social-video', Component: SocialVideoState, duration: 12000, isVideo: true },
+  { id: 'token-tiles', Component: TokenTilesState, duration: 6000 },
   { id: 'network', Component: NetworkFlowState, duration: 5000 },
-  { id: 'app-sharing-video', Component: AppSharingVideoState, duration: 11000 },
+  { id: 'seeded-hype', Component: SeededHypeVideoState, duration: 15000, isVideo: true },
+  { id: 'app-sharing-video', Component: AppSharingVideoState, duration: 12000, isVideo: true },
   { id: 'live', Component: LiveDataState, duration: 5000 },
   { id: 'brand', Component: BrandMomentState, duration: 5000 },
 ];
 
-const VIDEO_STATE_IDS = new Set(['mission-video', 'social-video', 'app-sharing-video']);
+const VIDEO_STATE_IDS = new Set(['mission-video', 'social-video', 'app-sharing-video', 'seeded-hype']);
 
-const HeroVisualCanvas = () => {
+interface HeroVisualCanvasProps {
+  forceRender?: boolean; // Used for conditional rendering in parent
+}
+
+const HeroVisualCanvas = ({ forceRender }: HeroVisualCanvasProps) => {
   const [activeState, setActiveState] = useState(0);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+  const timeoutRef = useRef<number | null>(null);
 
   // Detect reduced motion preference
   useEffect(() => {
@@ -40,17 +58,41 @@ const HeroVisualCanvas = () => {
     return () => mediaQuery.removeEventListener('change', handler);
   }, []);
 
-  // Rotate states with per-state duration
+  // Advance to next state
+  const advanceState = useCallback(() => {
+    if (timeoutRef.current) {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = null;
+    }
+    setActiveState((prev) => (prev + 1) % STATES.length);
+  }, []);
+
+  // Handle video ended - advance immediately
+  const handleVideoEnded = useCallback(() => {
+    advanceState();
+  }, [advanceState]);
+
+  // Rotate states with per-state duration (fallback timer for non-video states)
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    const currentDuration = STATES[activeState].duration;
-    const timeout = window.setTimeout(() => {
-      setActiveState((prev) => (prev + 1) % STATES.length);
-    }, currentDuration);
+    const currentState = STATES[activeState];
+    const isVideo = currentState.isVideo;
 
-    return () => window.clearTimeout(timeout);
-  }, [prefersReducedMotion, activeState]);
+    // For video states, duration is a maximum fallback
+    // Videos will call onEnded when they finish naturally
+    const timeout = window.setTimeout(() => {
+      advanceState();
+    }, currentState.duration);
+
+    timeoutRef.current = timeout;
+
+    return () => {
+      if (timeoutRef.current) {
+        window.clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [prefersReducedMotion, activeState, advanceState]);
 
   // Reduced motion fallback
   if (prefersReducedMotion) {
@@ -69,7 +111,7 @@ const HeroVisualCanvas = () => {
     <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
       {/* Keep videos mounted to prevent playback glitches */}
       {STATES.filter((s) => VIDEO_STATE_IDS.has(s.id)).map((state) => {
-        const VideoComponent = state.Component as unknown as ComponentType<{ active?: boolean }>;
+        const VideoComponent = state.Component as VideoStateComponent;
         const isActive = state.id === activeId;
 
         return (
@@ -81,7 +123,7 @@ const HeroVisualCanvas = () => {
             transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
             style={{ pointerEvents: isActive ? 'auto' : 'none' }}
           >
-            <VideoComponent active={isActive} />
+            <VideoComponent active={isActive} onEnded={handleVideoEnded} />
           </motion.div>
         );
       })}

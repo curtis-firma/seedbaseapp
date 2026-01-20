@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import seedBlueSquare from '@/assets/seed-block-white-on-blue.png';
+import seedSquareNode from '@/assets/seed-square-node.png';
 
 const BARS = [
   { height: 2, delay: 0.6 },
@@ -80,7 +80,7 @@ const GrowingSquares = () => {
                   ease: 'backOut',
                 }}
               >
-                <img src={seedBlueSquare} alt="" className="w-full h-full" />
+                <img src={seedSquareNode} alt="" className="w-full h-full" />
               </motion.div>
             ))}
           </motion.div>
