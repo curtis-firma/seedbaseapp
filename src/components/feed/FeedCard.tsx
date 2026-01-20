@@ -6,13 +6,12 @@ import { cn } from '@/lib/utils';
 import { EmbeddedCard } from './EmbeddedCard';
 import { ImpactDrawer } from './ImpactDrawer';
 import { SendModal } from '@/components/wallet/SendModal';
-import { ComingSoonModal, useComingSoon } from '@/components/shared/ComingSoonModal';
+import { CommentDrawer } from './CommentDrawer';
 import { toast } from 'sonner';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { useInView } from '@/hooks/useInView';
 import { getRandomImage, getCategoryFromName } from '@/lib/curatedImages';
 import { PostHeader } from '@/components/seedfeed/shared/PostHeader';
-import { PostActions } from '@/components/seedfeed/shared/PostActions';
 import { CardImpactFooter } from '@/components/seedfeed/shared/CardImpactFooter';
 import { AmplifyButton } from '@/components/social/AmplifyButton';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
@@ -35,9 +34,10 @@ const typeStyles: Record<string, string> = {
 export function FeedCard({ item, index }: FeedCardProps) {
   const [isLiked, setIsLiked] = useState(false);
   const [likeCount, setLikeCount] = useState(item.likes);
+  const [commentCount, setCommentCount] = useState(item.comments);
   const [isImpactDrawerOpen, setIsImpactDrawerOpen] = useState(false);
   const [showSendModal, setShowSendModal] = useState(false);
-  const { isOpen: isComingSoonOpen, featureName, showComingSoon, hideComingSoon } = useComingSoon();
+  const [showCommentDrawer, setShowCommentDrawer] = useState(false);
   const { ref: cardRef, isInView } = useInView<HTMLElement>({
     threshold: 0.15,
     rootMargin: '50px',
@@ -81,12 +81,12 @@ export function FeedCard({ item, index }: FeedCardProps) {
 
   const handleComment = () => {
     triggerHaptic('light');
-    showComingSoon('Comments');
+    setShowCommentDrawer(true);
   };
 
   const handleFollow = () => {
     triggerHaptic('light');
-    showComingSoon('Follow');
+    toast.info('Follow feature coming soon!');
   };
 
   const handleGive = () => {
@@ -294,9 +294,12 @@ export function FeedCard({ item, index }: FeedCardProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-3 md:gap-4">
                 {/* Comment */}
-                <button className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors">
+                <button 
+                  onClick={handleComment}
+                  className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+                >
                   <MessageCircle className="w-[18px] h-[18px]" />
-                  <span className="text-sm">{item.comments}</span>
+                  <span className="text-sm">{commentCount}</span>
                 </button>
                 {/* Share */}
                 <button onClick={handleShare} className="flex items-center text-muted-foreground hover:text-primary transition-colors">
@@ -354,11 +357,13 @@ export function FeedCard({ item, index }: FeedCardProps) {
         onClose={() => setShowSendModal(false)}
       />
 
-      {/* Coming Soon Modal */}
-      <ComingSoonModal
-        isOpen={isComingSoonOpen}
-        onClose={hideComingSoon}
-        featureName={featureName}
+      {/* Comment Drawer */}
+      <CommentDrawer
+        isOpen={showCommentDrawer}
+        onClose={() => setShowCommentDrawer(false)}
+        postId={item.id}
+        commentCount={commentCount}
+        onCommentAdded={() => setCommentCount(prev => prev + 1)}
       />
     </>
   );
