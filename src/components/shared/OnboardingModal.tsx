@@ -96,6 +96,7 @@ const roleData = {
 };
 
 type RoleKey = keyof typeof roleData;
+type RoleData = typeof roleData[RoleKey];
 
 // Animation variants
 const slideTransition = {
@@ -627,7 +628,7 @@ function RoleCard({
   index,
 }: { 
   roleKey: RoleKey;
-  data: typeof roleData.activator;
+  data: RoleData;
   isExpanded: boolean;
   onToggle: () => void;
   index: number;
@@ -711,11 +712,11 @@ function RoleCard({
               </div>
 
               {/* What you DON'T do (Trustee only) */}
-              {'whatYouDont' in data && data.whatYouDont && (
+              {'whatYouDont' in data && Array.isArray((data as typeof roleData.trustee).whatYouDont) && (
                 <div>
                   <p className="text-xs font-semibold text-white/70 uppercase tracking-wide mb-2">What you DON'T do</p>
                   <ul className="space-y-1.5">
-                    {data.whatYouDont.map((item, i) => (
+                    {(data as typeof roleData.trustee).whatYouDont.map((item, i) => (
                       <li key={i} className="text-sm text-white/90 flex items-start gap-2">
                         <XCircle className="h-4 w-4 text-white/70 flex-shrink-0 mt-0.5" />
                         <span>{item}</span>
@@ -739,11 +740,11 @@ function RoleCard({
               </div>
 
               {/* Requirements (Envoy only) */}
-              {'requirements' in data && data.requirements && (
+              {'requirements' in data && Array.isArray((data as typeof roleData.envoy).requirements) && (
                 <div>
                   <p className="text-xs font-semibold text-white/70 uppercase tracking-wide mb-2">Requirements</p>
                   <ul className="space-y-1.5">
-                    {data.requirements.map((item, i) => (
+                    {(data as typeof roleData.envoy).requirements.map((item, i) => (
                       <li key={i} className="text-sm text-white/90 flex items-start gap-2">
                         <CheckCircle2 className="h-4 w-4 text-white flex-shrink-0 mt-0.5" />
                         <span>{item}</span>
