@@ -96,22 +96,24 @@ export function MovementSection() {
     return () => clearTimeout(timeout);
   }, [scene, hasStarted]);
 
-  // Control videos based on scene
+  // Control videos based on scene - with delay for DOM mount
   useEffect(() => {
-    if (scene === "hype2-energy" && hype2Ref.current) {
-      hype2Ref.current.currentTime = 0;
-      hype2Ref.current.play().catch(console.error);
-    } else if (hype2Ref.current) {
-      hype2Ref.current.pause();
-    }
+    const timer = setTimeout(() => {
+      if (scene === "hype2-energy" && hype2Ref.current) {
+        hype2Ref.current.currentTime = 0;
+        hype2Ref.current.muted = isMuted;
+        hype2Ref.current.play().catch(console.error);
+      }
 
-    if (scene === "hype1-action" && hype1Ref.current) {
-      hype1Ref.current.currentTime = 0;
-      hype1Ref.current.play().catch(console.error);
-    } else if (hype1Ref.current) {
-      hype1Ref.current.pause();
-    }
-  }, [scene]);
+      if (scene === "hype1-action" && hype1Ref.current) {
+        hype1Ref.current.currentTime = 0;
+        hype1Ref.current.muted = isMuted;
+        hype1Ref.current.play().catch(console.error);
+      }
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [scene, isMuted]);
 
   // Fullscreen change listener
   useEffect(() => {
@@ -155,23 +157,9 @@ export function MovementSection() {
         isFullscreen ? "aspect-video" : "aspect-video md:aspect-[21/9]"
       }`}
     >
-      {/* Hidden videos for preloading */}
-      <video
-        ref={hype2Ref}
-        src={seededHype2}
-        className="hidden"
-        muted={isMuted}
-        playsInline
-        preload="auto"
-      />
-      <video
-        ref={hype1Ref}
-        src={seededHype1}
-        className="hidden"
-        muted={isMuted}
-        playsInline
-        preload="auto"
-      />
+      {/* Preload videos in background */}
+      <video src={seededHype1} preload="auto" className="hidden" muted />
+      <video src={seededHype2} preload="auto" className="hidden" muted />
 
       <AnimatePresence mode="wait">
         {/* SCENE 1: Intro Text - "DO YOU WANT TO LIVE?" */}
@@ -214,12 +202,12 @@ export function MovementSection() {
             transition={{ duration: 0.05 }}
             className="absolute inset-0"
           >
-            <video
+          <video
+              ref={hype2Ref}
               src={seededHype2}
               className="w-full h-full object-cover"
               muted={isMuted}
               playsInline
-              autoPlay
             />
             <div className="absolute inset-0 bg-black/30" />
             <motion.div 
@@ -292,12 +280,12 @@ export function MovementSection() {
             transition={{ duration: 0.05 }}
             className="absolute inset-0"
           >
-            <video
+          <video
+              ref={hype1Ref}
               src={seededHype1}
               className="w-full h-full object-cover"
               muted={isMuted}
               playsInline
-              autoPlay
             />
             <div className="absolute inset-0 bg-black/20" />
             <motion.div 
