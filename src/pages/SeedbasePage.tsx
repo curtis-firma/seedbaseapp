@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, TrendingUp, Target, Users, BarChart3, 
@@ -6,8 +6,19 @@ import {
 } from 'lucide-react';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { KeyGatedCard } from '@/components/shared/KeyGatedCard';
-import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { TransparencyDashboard } from '@/components/seedbase/TransparencyDashboard';
+import { SeedbaseCommandBar } from '@/components/seedbase/SeedbaseCommandBar';
+import { SeedbaseStatusPanel, type StatusData } from '@/components/seedbase/SeedbaseStatusPanel';
+import { SeedbaseActivityStream, initialSeedbaseActivity, type ActivityItem } from '@/components/seedbase/SeedbaseActivityStream';
+import { CommitSeedModal } from '@/components/seedbase/modals/CommitSeedModal';
+import { GiveToProvisionModal } from '@/components/seedbase/modals/GiveToProvisionModal';
+import { LaunchMissionModal } from '@/components/seedbase/modals/LaunchMissionModal';
+import { AllocateProvisionModal } from '@/components/seedbase/modals/AllocateProvisionModal';
+import { ApproveEnvoyModal } from '@/components/seedbase/modals/ApproveEnvoyModal';
+import { PostUpdateModal } from '@/components/seedbase/modals/PostUpdateModal';
+import { SubmitHarvestModal } from '@/components/seedbase/modals/SubmitHarvestModal';
+import { RequestFundsModal } from '@/components/seedbase/modals/RequestFundsModal';
+import { VotePendingModal } from '@/components/seedbase/modals/VotePendingModal';
 import { useUser } from '@/contexts/UserContext';
 import { mockSeedbases, mockMissions } from '@/data/mockData';
 import { cn } from '@/lib/utils';
@@ -18,53 +29,101 @@ const roleTabs = {
   envoy: ['My Missions', 'Submit', 'Giving'],
 };
 
+const STORAGE_KEY = 'seedbase-activity';
+const STATUS_STORAGE_KEY = 'seedbase-status';
+
 export default function SeedbasePage() {
-  const { viewRole, isKeyActive } = useUser();
+  const { viewRole } = useUser();
   const tabs = roleTabs[viewRole];
   const [activeTab, setActiveTab] = useState(0);
+  const [activeModal, setActiveModal] = useState<string | null>(null);
+  
+  // Activity stream state with persistence
+  const [activity, setActivity] = useState<ActivityItem[]>(() => {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    return stored ? JSON.parse(stored) : initialSeedbaseActivity;
+  });
 
-  const keyForRole = {
-    activator: 'SeedKey' as const,
-    trustee: 'BaseKey' as const,
-    envoy: 'MissionKey' as const,
+  // Status panel state with persistence
+  const [statusData, setStatusData] = useState<StatusData>(() => {
+    const stored = localStorage.getItem(STATUS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {
+      missions: 5,
+      votes: 2,
+      nextDistribution: '~$450',
+      provisionPool: 12500,
+      recentCommitments: 2400,
+    };
+  });
+
+  // Persist activity
+  useEffect(() => {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(activity));
+  }, [activity]);
+
+  // Persist status
+  useEffect(() => {
+    localStorage.setItem(STATUS_STORAGE_KEY, JSON.stringify(statusData));
+  }, [statusData]);
+
+  const handleAction = (actionId: string) => {
+    setActiveModal(actionId);
+  };
+
+  const handleTileClick = (tileId: string) => {
+    if (tileId === 'votes') {
+      setActiveModal('vote');
+    }
+    // Other tiles can open their own modals if needed
+  };
+
+  const addActivity = (newActivity: ActivityItem) => {
+    setActivity(prev => [newActivity, ...prev]);
+  };
+
+  const handleMissionCreated = () => {
+    setStatusData(prev => ({ ...prev, missions: prev.missions + 1 }));
+  };
+
+  const handleAllocationSuccess = (activity: ActivityItem, amount: number) => {
+    addActivity(activity);
+    setStatusData(prev => ({ ...prev, provisionPool: prev.provisionPool - amount }));
+  };
+
+  const handleVotesUpdated = (count: number) => {
+    setStatusData(prev => ({ ...prev, votes: count }));
   };
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen pb-24">
       {/* Header */}
       <header className="sticky top-0 z-30 glass-strong border-b border-border/50">
         <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between mb-2">
             <div>
-              <h1 className="text-xl font-bold">SeedBase Hub</h1>
+              <h1 className="text-xl font-bold">SeedBase Command Center</h1>
               <p className="text-sm text-muted-foreground capitalize">
-                {viewRole} View
+                {viewRole} Control Panel
               </p>
             </div>
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              className={cn(
-                "flex items-center gap-2 px-4 py-2.5 rounded-xl text-white font-medium",
-                "bg-primary hover:bg-primary/90"
-              )}
-            >
-              <Plus className="h-4 w-4" />
-              <span>
-                {viewRole === 'activator' && 'Commit Seed'}
-                {viewRole === 'trustee' && 'Launch Mission'}
-                {viewRole === 'envoy' && 'Submit Update'}
-              </span>
-            </motion.button>
           </div>
-
-          <SwipeTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabChange={setActiveTab}
-          />
         </div>
       </header>
+
+      {/* Command Bar */}
+      <SeedbaseCommandBar onAction={handleAction} activeVotes={statusData.votes} />
+
+      {/* Status Panel */}
+      <SeedbaseStatusPanel data={statusData} onTileClick={handleTileClick} />
+
+      {/* Tabs */}
+      <div className="px-4 py-2">
+        <SwipeTabs
+          tabs={tabs}
+          activeTab={activeTab}
+          onTabChange={setActiveTab}
+        />
+      </div>
 
       {/* Content */}
       <div className="px-4 py-4">
@@ -82,6 +141,59 @@ export default function SeedbasePage() {
           </motion.div>
         </AnimatePresence>
       </div>
+
+      {/* Activity Stream */}
+      <SeedbaseActivityStream items={activity} />
+
+      {/* Modals */}
+      <CommitSeedModal 
+        open={activeModal === 'commit-seed'} 
+        onClose={() => setActiveModal(null)} 
+        onSuccess={addActivity} 
+      />
+      <GiveToProvisionModal 
+        open={activeModal === 'give-provision'} 
+        onClose={() => setActiveModal(null)} 
+        onSuccess={addActivity} 
+      />
+      <LaunchMissionModal 
+        open={activeModal === 'launch-mission'} 
+        onClose={() => setActiveModal(null)} 
+        onSuccess={addActivity}
+        onMissionCreated={handleMissionCreated}
+      />
+      <AllocateProvisionModal 
+        open={activeModal === 'allocate-provision'} 
+        onClose={() => setActiveModal(null)} 
+        onSuccess={handleAllocationSuccess}
+        provisionBalance={statusData.provisionPool}
+      />
+      <ApproveEnvoyModal 
+        open={activeModal === 'approve-envoy'} 
+        onClose={() => setActiveModal(null)} 
+        onSuccess={addActivity} 
+      />
+      <PostUpdateModal 
+        open={activeModal === 'post-update'} 
+        onClose={() => setActiveModal(null)} 
+        onSuccess={addActivity} 
+      />
+      <SubmitHarvestModal 
+        open={activeModal === 'submit-harvest'} 
+        onClose={() => setActiveModal(null)} 
+        onSuccess={addActivity} 
+      />
+      <RequestFundsModal 
+        open={activeModal === 'request-funds'} 
+        onClose={() => setActiveModal(null)} 
+        onSuccess={addActivity} 
+      />
+      <VotePendingModal 
+        open={activeModal === 'vote'} 
+        onClose={() => setActiveModal(null)} 
+        onSuccess={addActivity}
+        onVotesUpdated={handleVotesUpdated}
+      />
     </div>
   );
 }
@@ -90,7 +202,6 @@ function ActivatorContent({ tab }: { tab: number }) {
   if (tab === 0) {
     return (
       <div className="space-y-4">
-        {/* Commit Card */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -101,8 +212,8 @@ function ActivatorContent({ tab }: { tab: number }) {
               <TrendingUp className="h-6 w-6 text-white" />
             </div>
             <div>
-              <h3 className="font-semibold text-lg">Commit Seed</h3>
-              <p className="text-sm text-muted-foreground">Lock USDC for impact</p>
+              <h3 className="font-semibold text-lg">Your Commitment</h3>
+              <p className="text-sm text-muted-foreground">Locked for impact</p>
             </div>
           </div>
           
@@ -116,17 +227,8 @@ function ActivatorContent({ tab }: { tab: number }) {
               <span className="font-semibold">$429,000</span>
             </div>
           </div>
-
-          <motion.button
-            whileHover={{ scale: 1.01 }}
-            whileTap={{ scale: 0.99 }}
-            className="w-full py-3 rounded-xl bg-primary hover:bg-primary/90 text-white font-medium"
-          >
-            Commit More
-          </motion.button>
         </motion.div>
 
-        {/* Seedbases List */}
         <div>
           <h3 className="font-semibold text-lg mb-3">Active Seedbases</h3>
           <div className="space-y-3">
@@ -161,30 +263,10 @@ function ActivatorContent({ tab }: { tab: number }) {
         <StatCard label="Total Committed" value="$5,000" change="+12%" />
         <StatCard label="Distributions Received" value="$450" change="+$125 this month" />
         <StatCard label="Impact Score" value="847" change="Top 15%" />
-        
-        <div className="bg-card rounded-2xl border border-border/50 p-5">
-          <h3 className="font-semibold mb-4">Commitment History</h3>
-          <div className="space-y-3">
-            {[
-              { date: 'Jan 15, 2024', amount: 2000, seedbase: 'Clean Water Initiative' },
-              { date: 'Feb 1, 2024', amount: 1500, seedbase: 'Education Forward' },
-              { date: 'Mar 10, 2024', amount: 1500, seedbase: 'Healthcare Access' },
-            ].map((item, i) => (
-              <div key={i} className="flex items-center justify-between py-2 border-b border-border/30 last:border-0">
-                <div>
-                  <p className="font-medium">${item.amount.toLocaleString()}</p>
-                  <p className="text-sm text-muted-foreground">{item.seedbase}</p>
-                </div>
-                <p className="text-sm text-muted-foreground">{item.date}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     );
   }
 
-  // Tab 2: Giving - Transparency Dashboard
   return <TransparencyDashboard viewMode="activator" />;
 }
 
@@ -197,16 +279,7 @@ function TrusteeContent({ tab }: { tab: number }) {
       <div className="space-y-4">
         {hasBaseKey ? (
           <>
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-lg">Active Missions</h3>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                className="flex items-center gap-1 text-sm text-primary font-medium"
-              >
-                <Plus className="h-4 w-4" />
-                Launch Mission
-              </motion.button>
-            </div>
+            <h3 className="font-semibold text-lg">Active Missions</h3>
             {mockMissions.map((mission, i) => (
               <MissionCard key={mission.id} mission={mission} index={i} />
             ))}
@@ -222,7 +295,6 @@ function TrusteeContent({ tab }: { tab: number }) {
     );
   }
 
-  // Tab 1: Giving - Transparency Dashboard
   if (tab === 1) {
     return <TransparencyDashboard viewMode="trustee" />;
   }
@@ -241,8 +313,6 @@ function TrusteeContent({ tab }: { tab: number }) {
 }
 
 function EnvoyContent({ tab }: { tab: number }) {
-  const { isKeyActive } = useUser();
-
   if (tab === 0) {
     return (
       <KeyGatedCard requiredKey="MissionKey" unlockMessage="Get approved as an Envoy to execute missions">
@@ -267,15 +337,11 @@ function EnvoyContent({ tab }: { tab: number }) {
               <p className="text-sm text-muted-foreground">Report your impact</p>
             </div>
           </div>
-          <motion.button className="w-full py-3 rounded-xl gradient-envoy text-white font-medium">
-            Create Report
-          </motion.button>
         </div>
       </KeyGatedCard>
     );
   }
 
-  // Tab 2: Giving - Transparency Dashboard for Envoys
   return <TransparencyDashboard viewMode="envoy" />;
 }
 
@@ -321,7 +387,6 @@ function MissionCard({ mission, index, showProgress = false }: { mission: any; i
         </span>
       </div>
 
-      {/* Progress Bar */}
       <div className="mb-3">
         <div className="flex justify-between text-sm mb-1">
           <span className="text-muted-foreground">Funding Progress</span>
@@ -341,25 +406,12 @@ function MissionCard({ mission, index, showProgress = false }: { mission: any; i
         </div>
       </div>
 
-      {/* Milestones */}
       <div className="flex items-center gap-2 text-sm">
         <CheckCircle2 className="h-4 w-4 text-primary" />
         <span className="text-muted-foreground">
           {completedMilestones}/{mission.milestones.length} milestones completed
         </span>
       </div>
-
-      {/* Impact Metrics */}
-      {mission.impactMetrics && (
-        <div className="flex flex-wrap gap-2 mt-3 pt-3 border-t border-border/50">
-          {mission.impactMetrics.slice(0, 3).map((metric: any, i: number) => (
-            <div key={i} className="flex items-center gap-1 px-2 py-1 bg-muted/50 rounded-lg text-sm">
-              <span>{metric.icon}</span>
-              <span className="font-medium">{metric.value}</span>
-            </div>
-          ))}
-        </div>
-      )}
     </motion.div>
   );
 }
