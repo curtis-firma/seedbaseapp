@@ -14,7 +14,8 @@ import cikBeanieGreyImg from "@/assets/products/cik-beanie-grey.jpg";
 import christIsKingCrewneckGreyImg from "@/assets/products/christ-is-king-crewneck-grey.jpg";
 import kingdomHoodieImg from "@/assets/products/kingdom-hoodie.jpg";
 import seededHoodieModelImg from "@/assets/products/seeded-hoodie-model.jpg";
-import cikMemeHoodieImg from "@/assets/products/cik-meme-hoodie.png";
+import gnrusHoodieImg from "@/assets/products/gnrus-hoodie.jpg";
+import ogCikMemeHoodieImg from "@/assets/products/og-cik-meme-hoodie-back.jpg";
 
 // Featured product
 const featuredProduct = {
@@ -35,8 +36,8 @@ const storeProducts = [
   { id: 5, name: "Christ is King Tee", price: 45, category: "Christ is King", image: christIsKingTeeImg, description: "Premium cotton tee", sizes: ["S", "M", "L", "XL", "XXL"] },
   { id: 6, name: "Christ is King Crewneck", price: 95, category: "Christ is King", image: christIsKingCrewneckGreyImg, description: "Heavyweight crewneck", sizes: ["S", "M", "L", "XL"] },
   { id: 7, name: "GNRUS Hat", price: 35, category: "GNRUS", image: gnrusHatImg, description: "Adjustable snapback", sizes: ["One Size"] },
-  { id: 8, name: "GNRUS Hoodie", price: 95, category: "GNRUS", image: cikHoodieGreyImg, description: "God's Not Real Until Seen - Premium hoodie", sizes: ["S", "M", "L", "XL", "XXL"] },
-  { id: 9, name: "OG CIK Meme Hoodie", price: 110, category: "CIK", image: cikMemeHoodieImg, description: "The iconic meme on the back. Model shown from behind.", sizes: ["S", "M", "L", "XL", "XXL"] },
+  { id: 8, name: "GNRUS Hoodie", price: 95, category: "GNRUS", image: gnrusHoodieImg, description: "God's Not Real Until Seen - Premium heavyweight hoodie", sizes: ["S", "M", "L", "XL", "XXL"] },
+  { id: 9, name: "OG CIK Meme Hoodie", price: 110, category: "CIK", image: ogCikMemeHoodieImg, description: "The iconic meme on the back. Model shown from behind.", sizes: ["S", "M", "L", "XL", "XXL"] },
 ];
 
 const categories = ["All", "SEEDED", "CIK", "Christ is King", "GNRUS"];
