@@ -12,38 +12,19 @@ const SeededHypeVideoState = ({ active = true, onEnded }: SeededHypeVideoStatePr
 
   const fallbackImage = "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&q=80";
 
-  // Video duration trimming constants
-  const START_TIME = 2.5; // Skip helicopter intro
-  const END_TIME_BUFFER = 1.5; // Reduced - was cutting too early
-
+  // Play/pause based on active state - video is pre-trimmed, no skip needed
   useEffect(() => {
     const el = videoRef.current;
     if (!el) return;
 
     if (active) {
-      el.currentTime = START_TIME;
+      el.currentTime = 0;
       const p = el.play();
       if (p) p.catch(() => {});
     } else {
       el.pause();
     }
   }, [active]);
-
-  // Monitor time to cut off before end
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el || !active) return;
-
-    const handleTimeUpdate = () => {
-      if (el.duration && el.currentTime >= el.duration - END_TIME_BUFFER) {
-        el.pause();
-        onEnded?.();
-      }
-    };
-
-    el.addEventListener('timeupdate', handleTimeUpdate);
-    return () => el.removeEventListener('timeupdate', handleTimeUpdate);
-  }, [active, onEnded]);
 
   const handleEnded = () => {
     onEnded?.();
