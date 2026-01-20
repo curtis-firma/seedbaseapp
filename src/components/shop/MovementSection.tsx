@@ -96,7 +96,7 @@ export function MovementSection() {
     return () => clearTimeout(timeout);
   }, [scene, hasStarted]);
 
-  // Control videos based on scene - with delay for DOM mount
+  // Control videos based on scene - with longer delay for DOM mount
   useEffect(() => {
     const timer = setTimeout(() => {
       if (scene === "hype2-energy" && hype2Ref.current) {
@@ -110,7 +110,7 @@ export function MovementSection() {
         hype1Ref.current.muted = isMuted;
         hype1Ref.current.play().catch(console.error);
       }
-    }, 100);
+    }, 200);
 
     return () => clearTimeout(timer);
   }, [scene, isMuted]);
@@ -157,9 +157,60 @@ export function MovementSection() {
         isFullscreen ? "aspect-video" : "aspect-video md:aspect-[21/9]"
       }`}
     >
-      {/* Preload videos in background */}
-      <video src={seededHype1} preload="auto" className="hidden" muted />
-      <video src={seededHype2} preload="auto" className="hidden" muted />
+      {/* Always-mounted videos - hidden when not active */}
+      <div className={`absolute inset-0 ${scene === "hype2-energy" ? "block" : "hidden"}`}>
+        <video
+          ref={hype2Ref}
+          src={seededHype2}
+          className="w-full h-full object-cover"
+          muted={isMuted}
+          playsInline
+          loop
+        />
+        <div className="absolute inset-0 bg-black/30" />
+        <motion.div 
+          className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.3 }}
+        >
+          <motion.span 
+            className="text-white text-3xl md:text-5xl font-black tracking-tight"
+            animate={{ opacity: [0, 1, 0.3, 1, 0.3, 1] }}
+            transition={{ duration: 2, times: [0, 0.2, 0.4, 0.6, 0.8, 1] }}
+          >
+            A LIFESTYLE
+          </motion.span>
+          <motion.span 
+            className="text-white text-2xl md:text-4xl font-bold tracking-tight mt-2"
+            animate={{ opacity: [0, 1, 0.3, 1, 0.3, 1] }}
+            transition={{ duration: 2, delay: 0.3, times: [0, 0.2, 0.4, 0.6, 0.8, 1] }}
+          >
+            OF RADICAL GENEROSITY
+          </motion.span>
+        </motion.div>
+      </div>
+
+      <div className={`absolute inset-0 ${scene === "hype1-action" ? "block" : "hidden"}`}>
+        <video
+          ref={hype1Ref}
+          src={seededHype1}
+          className="w-full h-full object-cover"
+          muted={isMuted}
+          playsInline
+        />
+        <div className="absolute inset-0 bg-black/20" />
+        <motion.div 
+          className="absolute bottom-8 left-8"
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ delay: 2 }}
+        >
+          <span className="text-white text-xl md:text-2xl font-bold tracking-wide opacity-90">
+            THIS IS REAL
+          </span>
+        </motion.div>
+      </div>
 
       <AnimatePresence mode="wait">
         {/* SCENE 1: Intro Text - "DO YOU WANT TO LIVE?" */}
@@ -192,50 +243,6 @@ export function MovementSection() {
           </motion.div>
         )}
 
-        {/* SCENE 2: Hype Video 2 - Energy */}
-        {scene === "hype2-energy" && (
-          <motion.div
-            key="hype2"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.05 }}
-            className="absolute inset-0"
-          >
-          <video
-              ref={hype2Ref}
-              src={seededHype2}
-              className="w-full h-full object-cover"
-              muted={isMuted}
-              playsInline
-            />
-            <div className="absolute inset-0 bg-black/30" />
-            <motion.div 
-              className="absolute inset-0 flex flex-col items-center justify-center text-center px-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 1 }}
-            >
-              <motion.span 
-                className="text-white text-3xl md:text-5xl font-black tracking-tight"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 1.2 }}
-              >
-                A LIFESTYLE
-              </motion.span>
-              <motion.span 
-                className="text-white text-2xl md:text-4xl font-bold tracking-tight mt-2"
-                initial={{ y: 20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{ delay: 1.5 }}
-              >
-                OF RADICAL GENEROSITY
-              </motion.span>
-            </motion.div>
-          </motion.div>
-        )}
-
         {/* SCENE 3: Parachute Shot */}
         {scene === "parachute" && (
           <motion.div
@@ -265,37 +272,6 @@ export function MovementSection() {
             >
               <span className="text-white text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter drop-shadow-2xl">
                 SEEDED
-              </span>
-            </motion.div>
-          </motion.div>
-        )}
-
-        {/* SCENE 4: Hype Video 1 - Real Action */}
-        {scene === "hype1-action" && (
-          <motion.div
-            key="hype1"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.05 }}
-            className="absolute inset-0"
-          >
-          <video
-              ref={hype1Ref}
-              src={seededHype1}
-              className="w-full h-full object-cover"
-              muted={isMuted}
-              playsInline
-            />
-            <div className="absolute inset-0 bg-black/20" />
-            <motion.div 
-              className="absolute bottom-8 left-8"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 2 }}
-            >
-              <span className="text-white text-xl md:text-2xl font-bold tracking-wide opacity-90">
-                THIS IS REAL
               </span>
             </motion.div>
           </motion.div>

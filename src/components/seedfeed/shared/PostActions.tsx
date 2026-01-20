@@ -58,66 +58,68 @@ export function PostActions({
   };
 
   return (
-    <div className={`flex items-center justify-between pt-3 ${className}`}>
-      {/* Left Actions */}
-      <div className="flex items-center gap-4">
-        {/* Comment */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={() => { haptic.light(); onComment?.(); }}
-          className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
-        >
-          <MessageCircle className="w-4.5 h-4.5" />
-          <span className="text-sm">{commentCount}</span>
-        </motion.button>
+    <div className={`flex flex-col gap-3 pt-3 ${className}`}>
+      {/* Row 1: Icons + Give */}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          {/* Comment */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={() => { haptic.light(); onComment?.(); }}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+          >
+            <MessageCircle className="w-4.5 h-4.5" />
+            <span className="text-sm">{commentCount}</span>
+          </motion.button>
 
-        {/* Impact Amount */}
-        {impactAmount !== undefined && (
-          <div className="flex items-center gap-1.5 text-seed">
-            <TrendingUp className="w-4.5 h-4.5" />
-            <span className="text-sm font-medium">${impactAmount.toLocaleString()}</span>
-          </div>
+          {/* Share */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={handleShare}
+            className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
+          >
+            <Share2 className="w-4.5 h-4.5" />
+          </motion.button>
+
+          {/* Like */}
+          <motion.button
+            whileTap={{ scale: 0.9 }}
+            onClick={handleLike}
+            className={`flex items-center gap-1.5 transition-colors ${
+              isLiked ? 'text-rose-500' : 'text-muted-foreground hover:text-rose-500'
+            }`}
+          >
+            <Heart className={`w-4.5 h-4.5 ${isLiked ? 'fill-current' : ''}`} />
+            <span className="text-sm">{likes}</span>
+          </motion.button>
+
+          {/* Impact Amount */}
+          {impactAmount !== undefined && (
+            <div className="flex items-center gap-1.5 text-seed">
+              <TrendingUp className="w-4 h-4" />
+              <span className="text-sm font-medium">${impactAmount.toLocaleString()}</span>
+            </div>
+          )}
+        </div>
+
+        {/* Give Button */}
+        {showGiveButton && (
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => { haptic.medium(); onGive?.(); }}
+            className="
+              flex items-center gap-1.5 px-4 py-1.5
+              bg-primary text-primary-foreground
+              rounded-xl font-medium text-sm
+              hover:bg-primary/90 transition-colors
+              shadow-sm
+            "
+          >
+            <Sprout className="w-4 h-4" />
+            <span>Give</span>
+          </motion.button>
         )}
-
-        {/* Share */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={handleShare}
-          className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors"
-        >
-          <Share2 className="w-4.5 h-4.5" />
-        </motion.button>
-
-        {/* Like */}
-        <motion.button
-          whileTap={{ scale: 0.9 }}
-          onClick={handleLike}
-          className={`flex items-center gap-1.5 transition-colors ${
-            isLiked ? 'text-rose-500' : 'text-muted-foreground hover:text-rose-500'
-          }`}
-        >
-          <Heart className={`w-4.5 h-4.5 ${isLiked ? 'fill-current' : ''}`} />
-          <span className="text-sm">{likes}</span>
-        </motion.button>
       </div>
-
-      {/* Give Button */}
-      {showGiveButton && (
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={() => { haptic.medium(); onGive?.(); }}
-          className="
-            flex items-center gap-1.5 px-4 py-1.5
-            bg-primary text-primary-foreground
-            rounded-xl font-medium text-sm
-            hover:bg-primary/90 transition-colors
-            shadow-sm
-          "
-        >
-          <Sprout className="w-4 h-4" />
-          <span>Give</span>
-        </motion.button>
-      )}
     </div>
   );
 }
