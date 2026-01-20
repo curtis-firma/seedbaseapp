@@ -1,76 +1,153 @@
 import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
 import seedSquareNode from '@/assets/seed-square-node.png';
-import { SegmentedOrbitalRing, BlockchainChain } from './shared';
 
 /**
  * NetworkFlowState - Hero canvas state showing blockchain/network generosity flow.
- * Blue background with white elements.
+ * WHITE background with blue elements (on a colored container).
  */
 const NetworkFlowState = () => {
   return (
-    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-base">
+    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-white">
       {/* Centered "Generosity onchain" text */}
       <motion.p
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8, delay: 0.5 }}
-        className="absolute top-6 md:top-8 left-0 right-0 text-center text-primary-foreground/70 font-medium text-base md:text-lg lg:text-xl tracking-wide z-20"
+        transition={{ duration: 0.8, delay: 0.3 }}
+        className="absolute top-6 md:top-8 left-0 right-0 text-center text-[#0000ff]/70 font-medium text-base md:text-lg lg:text-xl tracking-wide z-20"
       >
         Generosity onchain
       </motion.p>
 
-      {/* Spinning segmented orbital rings */}
-      <SegmentedOrbitalRing radius={55} duration={15} segments={6} dotCount={2} strokeWidth={1.5} />
-      <SegmentedOrbitalRing radius={85} duration={20} reverse segments={8} dotCount={3} strokeWidth={1.5} />
-      <SegmentedOrbitalRing radius={115} duration={25} segments={10} dotCount={2} strokeWidth={1.5} />
-      <SegmentedOrbitalRing radius={145} duration={30} reverse segments={12} dotCount={1} strokeWidth={1} />
-
-      {/* Blockchain chains extending from logo */}
-      <BlockchainChain direction="left" blockCount={5} />
-      <BlockchainChain direction="right" blockCount={5} />
-
-      {/* Central Seedbase logo */}
+      {/* Blue orbital rings */}
       <motion.div
-        className="relative z-10"
-        initial={{ scale: 0.8, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
+        className="absolute"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
       >
-        {/* Glow effect behind logo */}
-        <motion.div
-          className="absolute inset-0 rounded-full bg-primary-foreground/20"
-          style={{ width: 90, height: 90, left: '50%', top: '50%', marginLeft: -45, marginTop: -45 }}
-          animate={{ scale: [1, 1.4, 1], opacity: [0.2, 0.35, 0.2] }}
-          transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
-        />
-
-        {/* Central logo */}
-        <motion.img
-          src={seedbasePfp}
-          alt="Seedbase"
-          className="rounded-full ring-3 ring-primary-foreground/30 shadow-xl"
-          style={{ width: 72, height: 72 }}
-          animate={{ scale: [1, 1.03, 1] }}
-          transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
-        />
+        <svg width="200" height="200" className="opacity-20">
+          <circle cx="100" cy="100" r="60" fill="none" stroke="#0000ff" strokeWidth="1.5" strokeDasharray="8 12" />
+        </svg>
+      </motion.div>
+      
+      <motion.div
+        className="absolute"
+        animate={{ rotate: -360 }}
+        transition={{ duration: 30, repeat: Infinity, ease: 'linear' }}
+      >
+        <svg width="280" height="280" className="opacity-15">
+          <circle cx="140" cy="140" r="100" fill="none" stroke="#0000ff" strokeWidth="1" strokeDasharray="12 18" />
+        </svg>
       </motion.div>
 
-      {/* Pulsing nodes at chain ends */}
-      <motion.img
-        src={seedSquareNode}
-        alt=""
-        className="absolute left-[8%] top-1/2 -translate-y-1/2 w-6 h-6 rounded-md ring-1 ring-primary-foreground/25"
-        animate={{ scale: [1, 1.18, 1], opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 1 }}
-      />
-      <motion.img
-        src={seedSquareNode}
-        alt=""
-        className="absolute right-[8%] top-1/2 -translate-y-1/2 w-6 h-6 rounded-md ring-1 ring-primary-foreground/25"
-        animate={{ scale: [1, 1.18, 1], opacity: [0.7, 1, 0.7] }}
-        transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
-      />
+      <motion.div
+        className="absolute"
+        animate={{ rotate: 360 }}
+        transition={{ duration: 40, repeat: Infinity, ease: 'linear' }}
+      >
+        <svg width="360" height="360" className="opacity-10">
+          <circle cx="180" cy="180" r="140" fill="none" stroke="#0000ff" strokeWidth="1" strokeDasharray="16 24" />
+        </svg>
+      </motion.div>
+
+      {/* Blockchain chain - horizontal line with nodes */}
+      <div className="absolute left-[10%] right-[10%] top-1/2 -translate-y-1/2 flex items-center justify-between z-5">
+        {/* Left chain section */}
+        <div className="flex items-center gap-2">
+          <motion.img
+            src={seedSquareNode}
+            alt=""
+            className="w-6 h-6 md:w-8 md:h-8 rounded-md shadow-md"
+            animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut' }}
+          />
+          <motion.div
+            className="w-8 md:w-12 h-[2px] bg-[#0000ff]/30"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          />
+          <motion.img
+            src={seedSquareNode}
+            alt=""
+            className="w-5 h-5 md:w-6 md:h-6 rounded-md shadow-md"
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.3 }}
+          />
+          <motion.div
+            className="w-6 md:w-10 h-[2px] bg-[#0000ff]/30"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
+          />
+        </div>
+
+        {/* Central Seedbase logo */}
+        <motion.div
+          className="relative z-10"
+          initial={{ scale: 0.8, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.2 }}
+        >
+          {/* Glow effect behind logo */}
+          <motion.div
+            className="absolute inset-0 rounded-full bg-[#0000ff]/10"
+            style={{ width: 90, height: 90, left: '50%', top: '50%', marginLeft: -45, marginTop: -45 }}
+            animate={{ scale: [1, 1.3, 1], opacity: [0.1, 0.2, 0.1] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut' }}
+          />
+
+          {/* Central logo */}
+          <motion.img
+            src={seedbasePfp}
+            alt="Seedbase"
+            className="rounded-full ring-2 ring-[#0000ff]/20 shadow-lg"
+            style={{ width: 64, height: 64 }}
+            animate={{ scale: [1, 1.03, 1] }}
+            transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </motion.div>
+
+        {/* Right chain section */}
+        <div className="flex items-center gap-2">
+          <motion.div
+            className="w-6 md:w-10 h-[2px] bg-[#0000ff]/30"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.7, duration: 0.5 }}
+          />
+          <motion.img
+            src={seedSquareNode}
+            alt=""
+            className="w-5 h-5 md:w-6 md:h-6 rounded-md shadow-md"
+            animate={{ scale: [1, 1.08, 1] }}
+            transition={{ duration: 2.5, repeat: Infinity, ease: 'easeInOut', delay: 0.5 }}
+          />
+          <motion.div
+            className="w-8 md:w-12 h-[2px] bg-[#0000ff]/30"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.5, duration: 0.5 }}
+          />
+          <motion.img
+            src={seedSquareNode}
+            alt=""
+            className="w-6 h-6 md:w-8 md:h-8 rounded-md shadow-md"
+            animate={{ scale: [1, 1.1, 1], opacity: [0.8, 1, 0.8] }}
+            transition={{ duration: 2, repeat: Infinity, ease: 'easeInOut', delay: 0.2 }}
+          />
+        </div>
+      </div>
+
+      {/* Subtle grid dots pattern */}
+      <div className="absolute inset-0 opacity-10 pointer-events-none">
+        <svg className="w-full h-full">
+          <pattern id="network-dots" x="0" y="0" width="30" height="30" patternUnits="userSpaceOnUse">
+            <circle cx="15" cy="15" r="1" fill="#0000ff" />
+          </pattern>
+          <rect width="100%" height="100%" fill="url(#network-dots)" />
+        </svg>
+      </div>
     </div>
   );
 };

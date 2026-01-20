@@ -11,7 +11,6 @@ import SocialVideoState from './hero-states/SocialVideoState';
 import AppSharingVideoState from './hero-states/AppSharingVideoState';
 import TokenTilesState from './hero-states/TokenTilesState';
 import SeededHypeVideoState from './hero-states/SeededHypeVideoState';
-import { useIsMobile } from '@/hooks/use-mobile';
 
 // Video state component type with onEnded callback
 type VideoStateComponent = ComponentType<{ active?: boolean; onEnded?: () => void }>;
@@ -24,7 +23,6 @@ interface HeroState {
 }
 
 // States cycle with smooth transitions - each controls its own background
-// Per-state durations allow videos to play fully
 const STATES: HeroState[] = [
   { id: 'mission-video', Component: MissionVideoState, duration: 15000, isVideo: true },
   { id: 'feed-scroll', Component: FeedScrollState, duration: 6000 },
@@ -39,11 +37,7 @@ const STATES: HeroState[] = [
 
 const VIDEO_STATE_IDS = new Set(['mission-video', 'social-video', 'app-sharing-video', 'seeded-hype']);
 
-interface HeroVisualCanvasProps {
-  forceRender?: boolean; // Used for conditional rendering in parent
-}
-
-const HeroVisualCanvas = ({ forceRender }: HeroVisualCanvasProps) => {
+const HeroVisualCanvas = () => {
   const [activeState, setActiveState] = useState(0);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
   const timeoutRef = useRef<number | null>(null);
@@ -72,18 +66,13 @@ const HeroVisualCanvas = ({ forceRender }: HeroVisualCanvasProps) => {
     advanceState();
   }, [advanceState]);
 
-  // Rotate states with per-state duration (fallback timer for non-video states)
+  // Rotate states with per-state duration
   useEffect(() => {
     if (prefersReducedMotion) return;
 
-    const currentState = STATES[activeState];
-    const isVideo = currentState.isVideo;
-
-    // For video states, duration is a maximum fallback
-    // Videos will call onEnded when they finish naturally
     const timeout = window.setTimeout(() => {
       advanceState();
-    }, currentState.duration);
+    }, STATES[activeState].duration);
 
     timeoutRef.current = timeout;
 
@@ -107,51 +96,52 @@ const HeroVisualCanvas = ({ forceRender }: HeroVisualCanvasProps) => {
   const ActiveComponent = STATES[activeState].Component;
   const isVideoActive = VIDEO_STATE_IDS.has(activeId);
 
+  // Smooth crossfade transition config
+  const fadeTransition = {
+    duration: 1.2,
+    ease: [0.25, 0.1, 0.25, 1] as const, // Smooth cubic bezier
+  };
+
   return (
-    <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden">
-      {/* Keep videos mounted to prevent playback glitches */}
-      {STATES.filter((s) => VIDEO_STATE_IDS.has(s.id)).map((state) => {
-        const VideoComponent = state.Component as VideoStateComponent;
-        const isActive = state.id === activeId;
+    <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden bg-black">
+      {/* Keep ALL states mounted but fade between them for smooth transitions */}
+      {STATES.map((state, index) => {
+        const StateComponent = state.Component as VideoStateComponent;
+        const isActive = index === activeState;
+        const isVideo = VIDEO_STATE_IDS.has(state.id);
 
         return (
           <motion.div
             key={state.id}
             className="absolute inset-0"
             initial={false}
-            animate={{ opacity: isActive ? 1 : 0 }}
-            transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-            style={{ pointerEvents: isActive ? 'auto' : 'none' }}
+            animate={{ 
+              opacity: isActive ? 1 : 0,
+              scale: isActive ? 1 : 1.02,
+            }}
+            transition={fadeTransition}
+            style={{ 
+              pointerEvents: isActive ? 'auto' : 'none',
+              zIndex: isActive ? 10 : 1,
+            }}
           >
-            <VideoComponent active={isActive} onEnded={handleVideoEnded} />
+            {isVideo ? (
+              <StateComponent active={isActive} onEnded={handleVideoEnded} />
+            ) : (
+              <StateComponent />
+            )}
           </motion.div>
         );
       })}
-
-      {/* Non-video states mount/unmount normally to keep perf high */}
-      <AnimatePresence mode="sync">
-        {!isVideoActive && (
-          <motion.div
-            key={activeState}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.8, ease: [0.4, 0, 0.2, 1] }}
-            className="absolute inset-0"
-          >
-            <ActiveComponent />
-          </motion.div>
-        )}
-      </AnimatePresence>
       
       {/* State indicators */}
       <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 z-20">
         {STATES.map((_, index) => (
           <div
             key={index}
-            className={`w-1 h-1 md:w-1.5 md:h-1.5 rounded-full transition-all duration-300 ${
+            className={`w-1 h-1 md:w-1.5 md:h-1.5 rounded-full transition-all duration-500 ${
               index === activeState 
-                ? 'bg-white/70 scale-125' 
+                ? 'bg-white/80 scale-125' 
                 : 'bg-white/30'
             }`}
           />
