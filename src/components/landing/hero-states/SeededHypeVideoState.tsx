@@ -14,7 +14,7 @@ const SeededHypeVideoState = ({ active = true, onEnded }: SeededHypeVideoStatePr
 
   // Video duration trimming constants
   const START_TIME = 2.5; // Skip helicopter intro
-  const END_TIME_BUFFER = 3; // Cut helicopter at end
+  const END_TIME_BUFFER = 1.5; // Reduced - was cutting too early
 
   useEffect(() => {
     const el = videoRef.current;
