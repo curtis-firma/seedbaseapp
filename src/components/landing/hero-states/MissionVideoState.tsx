@@ -8,10 +8,10 @@ const MissionVideoState = () => {
   const fallbackImage = "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&q=80";
 
   return (
-    <div className="relative w-full h-full overflow-hidden">
+    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-black/5">
       {!videoError ? (
         <video
-          className="absolute inset-0 w-full h-full object-cover"
+          className="w-full h-full object-contain"
           autoPlay
           muted
           loop
@@ -25,7 +25,7 @@ const MissionVideoState = () => {
         <img
           src={fallbackImage}
           alt="Mission impact"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       )}
     </div>
