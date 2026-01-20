@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { FeedRenderer } from '@/components/seedfeed/FeedRenderer';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { QuickVoteCard } from '@/components/feed/QuickVoteCard';
 import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
 import { FeedItem } from '@/types/seedbase';
@@ -344,6 +345,9 @@ export default function HomePage() {
               </>
             ) : (
               <>
+                {/* Quick Vote Card at top of feed */}
+                {activeTab === 0 && <QuickVoteCard />}
+                
                 <FeedRenderer items={currentFeed} />
 
                 {/* Infinite Scroll Load More Trigger */}

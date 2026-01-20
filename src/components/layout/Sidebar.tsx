@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Home, Layers, User, MessageCircle, BarChart3, 
-  ShoppingBag, Rocket, Settings, ChevronLeft, ChevronRight
+  ShoppingBag, Rocket, Settings, ChevronLeft, ChevronRight, Vote
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
@@ -19,6 +19,7 @@ const primaryNav = [
 const secondaryNav = [
   { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord' },
   { icon: BarChart3, label: 'Vault', path: '/app/vault' },
+  { icon: Vote, label: 'Governance', path: '/app/governance' },
   { icon: ShoppingBag, label: 'Shop', path: '/app/seeded' },
   { icon: Rocket, label: 'Launcher', path: '/app/launcher' },
   { icon: Settings, label: 'Settings', path: '/app/settings' },
