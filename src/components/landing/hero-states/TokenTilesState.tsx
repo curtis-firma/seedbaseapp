@@ -10,24 +10,34 @@ interface Token {
   logoUrl: string;
 }
 
-// Static fallback tokens for Base ecosystem - includes $CIK meme
+// Static fallback tokens for Base ecosystem - includes CIK meme scattered throughout
 const FALLBACK_TOKENS: Token[] = [
-  { id: 'cik', symbol: '$CIK', name: 'Christ is King', logoUrl: cikMemeImage },
   { id: 'eth', symbol: 'ETH', name: 'Ethereum', logoUrl: 'https://assets.coingecko.com/coins/images/279/small/ethereum.png' },
+  { id: 'cik1', symbol: 'CIK', name: 'Christ is King', logoUrl: cikMemeImage },
   { id: 'base', symbol: 'BASE', name: 'Base', logoUrl: 'https://assets.coingecko.com/coins/images/31164/small/base.png' },
   { id: 'degen', symbol: 'DEGEN', name: 'Degen', logoUrl: 'https://assets.coingecko.com/coins/images/34515/small/degen.png' },
-  { id: 'cik2', symbol: '$CIK', name: 'Christ is King', logoUrl: cikMemeImage },
   { id: 'brett', symbol: 'BRETT', name: 'Brett', logoUrl: 'https://assets.coingecko.com/coins/images/35529/small/brett.png' },
+  { id: 'cik2', symbol: 'CIK', name: 'Christ is King', logoUrl: cikMemeImage },
   { id: 'toshi', symbol: 'TOSHI', name: 'Toshi', logoUrl: 'https://assets.coingecko.com/coins/images/31126/small/toshi.png' },
   { id: 'higher', symbol: 'HIGHER', name: 'Higher', logoUrl: 'https://assets.coingecko.com/coins/images/36084/small/higher.png' },
-  { id: 'cik3', symbol: '$CIK', name: 'Christ is King', logoUrl: cikMemeImage },
   { id: 'aero', symbol: 'AERO', name: 'Aerodrome', logoUrl: 'https://assets.coingecko.com/coins/images/31745/small/aero.png' },
+  { id: 'cik3', symbol: 'CIK', name: 'Christ is King', logoUrl: cikMemeImage },
   { id: 'well', symbol: 'WELL', name: 'Moonwell', logoUrl: 'https://assets.coingecko.com/coins/images/26133/small/well.png' },
   { id: 'mfer', symbol: '$mfer', name: 'mfer', logoUrl: 'https://assets.coingecko.com/coins/images/30256/small/mfer.png' },
 ];
 
 // Column fall speeds in seconds - varied for waterfall effect
 const COLUMN_SPEEDS = [14, 18, 16, 20];
+
+// Fisher-Yates shuffle with seed for consistency
+const shuffleArray = <T,>(array: T[]): T[] => {
+  const shuffled = [...array];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+};
 
 const TokenTilesState = () => {
   const [tokens, setTokens] = useState<Token[]>(FALLBACK_TOKENS);
@@ -38,9 +48,11 @@ const TokenTilesState = () => {
       try {
         const { data, error } = await supabase.functions.invoke('fetch-base-tokens');
         if (!error && data?.tokens?.length > 0) {
-          // Merge with CIK tokens
+          // Keep CIK tokens and merge with fetched ones
           const cikTokens = FALLBACK_TOKENS.filter(t => t.id.startsWith('cik'));
-          const merged = [...cikTokens, ...data.tokens.slice(0, 9)];
+          const otherTokens = data.tokens.slice(0, 9);
+          // Interleave CIK tokens with others
+          const merged = shuffleArray([...cikTokens, ...otherTokens]);
           setTokens(merged);
         }
       } catch {
@@ -50,10 +62,11 @@ const TokenTilesState = () => {
     fetchTokens();
   }, []);
 
-  // Split tokens into 4 columns with duplicates for seamless loop
+  // Shuffle and split tokens into 4 columns with duplicates for seamless loop
   const columns = useMemo(() => {
+    const shuffled = shuffleArray(tokens);
     const cols: Token[][] = [[], [], [], []];
-    tokens.forEach((token, i) => {
+    shuffled.forEach((token, i) => {
       cols[i % 4].push(token);
     });
     // Duplicate for seamless infinite scroll
