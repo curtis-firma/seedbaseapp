@@ -178,14 +178,24 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setViewRole(userRole);
   };
 
-  // Refresh user data from database (after avatar update)
+  // Refresh user data from database (after avatar/profile update)
   const refreshUserData = async () => {
     if (phoneNumber) {
       const dbUser = await findUserByPhone(phoneNumber);
-      if (dbUser?.avatar_url) {
-        setAvatarUrl(dbUser.avatar_url);
+      if (dbUser) {
+        // Update all user fields from database
+        if (dbUser.avatar_url) {
+          setAvatarUrl(dbUser.avatar_url);
+        }
+        if (dbUser.display_name) {
+          setDisplayName(dbUser.display_name);
+        }
+        if (dbUser.username) {
+          setUsername(dbUser.username);
+        }
         setUser(prev => ({
           ...prev,
+          name: dbUser.display_name || dbUser.username || prev.name,
           avatar: dbUser.avatar_url || prev.avatar,
         }));
       }
