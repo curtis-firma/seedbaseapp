@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, TrendingUp, Users, ShieldCheck, Ban, Bot, Award, Trophy, Info } from 'lucide-react';
+import { X, TrendingUp, Users, ShieldCheck, Ban, Bot, Award, Trophy, Info, ChevronRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { ImpactLeaderboard } from './ImpactLeaderboard';
+import { ImpactScoreBreakdownModal } from './ImpactScoreBreakdownModal';
 
 interface AffiliateExplainerModalProps {
   isOpen: boolean;
@@ -47,120 +49,132 @@ const principleItems = [
 ];
 
 export function AffiliateExplainerModal({ isOpen, onClose }: AffiliateExplainerModalProps) {
+  const [showBreakdown, setShowBreakdown] = useState(false);
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl gradient-seed flex items-center justify-center">
-              <Users className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <span className="block">How Activators</span>
-              <span className="block text-primary">Grow the Network</span>
-            </div>
-          </DialogTitle>
-        </DialogHeader>
-
-        <div className="space-y-5 pt-2">
-          {/* Impact Score Preview */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-4"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5 text-primary" />
-                <span className="font-semibold">Your Impact Score</span>
+    <>
+      <Dialog open={isOpen} onOpenChange={onClose}>
+        <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl gradient-seed flex items-center justify-center">
+                <Users className="h-5 w-5 text-white" />
               </div>
-              <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full font-medium">
-                Demo
-              </span>
-            </div>
-            <p className="text-3xl font-bold text-primary mb-1">1,240</p>
-            <p className="text-sm text-muted-foreground">
-              Earned by sharing verified impact moments
-            </p>
-          </motion.div>
+              <div>
+                <span className="block">How Activators</span>
+                <span className="block text-primary">Grow the Network</span>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
 
-          {/* Core Principles */}
-          <div className="space-y-3">
-            <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-              Core Principles
-            </h3>
-            {principleItems.map((item, i) => (
-              <motion.div
-                key={item.title}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-start gap-3 p-3 rounded-xl bg-muted/50"
-              >
-                <div className={cn("p-2 rounded-lg", item.bgColor)}>
-                  <item.icon className={cn("h-4 w-4", item.color)} />
+          <div className="space-y-5 pt-2">
+            {/* Impact Score Preview - Now clickable for breakdown */}
+            <motion.button
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => setShowBreakdown(true)}
+              className="w-full text-left bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20 rounded-2xl p-4 hover:border-primary/40 transition-colors group"
+            >
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <TrendingUp className="h-5 w-5 text-primary" />
+                  <span className="font-semibold">Your Impact Score</span>
                 </div>
-                <div>
-                  <p className="font-medium text-sm">{item.title}</p>
-                  <p className="text-xs text-muted-foreground">{item.description}</p>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-full font-medium">
+                    Demo
+                  </span>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-primary transition-colors" />
                 </div>
-              </motion.div>
-            ))}
-          </div>
+              </div>
+              <p className="text-3xl font-bold text-primary mb-1">1,240</p>
+              <p className="text-sm text-muted-foreground">
+                Tap to see how your score is calculated
+              </p>
+            </motion.button>
 
-          {/* Affiliate Pool */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
-            className="bg-muted/50 rounded-2xl p-4"
-          >
-            <div className="flex items-center gap-2 mb-2">
-              <Award className="h-5 w-5 text-seed" />
-              <span className="font-semibold">Affiliate Pool</span>
-              <span className="text-xs bg-seed/20 text-seed px-2 py-1 rounded-full font-medium ml-auto">
-                Demo
-              </span>
+            {/* Live Leaderboard */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+              className="bg-muted/30 rounded-2xl p-4"
+            >
+              <ImpactLeaderboard maxEntries={5} />
+            </motion.div>
+
+            {/* Core Principles - Collapsed into grid */}
+            <div className="space-y-3">
+              <h3 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
+                Core Principles
+              </h3>
+              <div className="grid grid-cols-2 gap-2">
+                {principleItems.map((item, i) => (
+                  <motion.div
+                    key={item.title}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: i * 0.05 }}
+                    className="flex items-center gap-2 p-2.5 rounded-xl bg-muted/50"
+                  >
+                    <div className={cn("p-1.5 rounded-lg", item.bgColor)}>
+                      <item.icon className={cn("h-3.5 w-3.5", item.color)} />
+                    </div>
+                    <p className="font-medium text-xs">{item.title}</p>
+                  </motion.div>
+                ))}
+              </div>
             </div>
-            <p className="text-2xl font-bold text-seed mb-1">$84,000</p>
-            <p className="text-sm text-muted-foreground">
-              Distributed to top activators monthly based on impact score
-            </p>
-          </motion.div>
 
-          {/* Leaderboard Teaser */}
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
-            className="border border-dashed border-border rounded-2xl p-4 text-center"
-          >
-            <Trophy className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-            <p className="font-semibold">Leaderboard</p>
-            <p className="text-sm text-muted-foreground">Coming Soon</p>
-          </motion.div>
+            {/* Affiliate Pool */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="bg-muted/50 rounded-2xl p-4"
+            >
+              <div className="flex items-center gap-2 mb-2">
+                <Award className="h-5 w-5 text-seed" />
+                <span className="font-semibold">Affiliate Pool</span>
+                <span className="text-xs bg-seed/20 text-seed px-2 py-1 rounded-full font-medium ml-auto">
+                  Demo
+                </span>
+              </div>
+              <p className="text-2xl font-bold text-seed mb-1">$84,000</p>
+              <p className="text-sm text-muted-foreground">
+                Distributed to top activators monthly based on impact score
+              </p>
+            </motion.div>
 
-          {/* Demo Handles Reference */}
-          <div className="bg-muted/30 rounded-xl p-3 text-center">
-            <p className="text-xs text-muted-foreground mb-1">Official Seedbase Handles</p>
-            <div className="flex items-center justify-center gap-4 text-sm font-medium">
-              <span>X: {DEMO_SOCIAL_HANDLES.x}</span>
-              <span className="text-muted-foreground">·</span>
-              <span>Base: {DEMO_SOCIAL_HANDLES.base}</span>
+            {/* Demo Handles Reference */}
+            <div className="bg-muted/30 rounded-xl p-3 text-center">
+              <p className="text-xs text-muted-foreground mb-1">Official Seedbase Handles</p>
+              <div className="flex items-center justify-center gap-4 text-sm font-medium">
+                <span>X: {DEMO_SOCIAL_HANDLES.x}</span>
+                <span className="text-muted-foreground">·</span>
+                <span>Base: {DEMO_SOCIAL_HANDLES.base}</span>
+              </div>
             </div>
-          </div>
 
-          {/* CTA */}
-          <motion.button
-            whileTap={{ scale: 0.98 }}
-            onClick={onClose}
-            className="w-full py-3 rounded-xl gradient-seed text-white font-semibold"
-          >
-            Got It
-          </motion.button>
-        </div>
-      </DialogContent>
-    </Dialog>
+            {/* CTA */}
+            <motion.button
+              whileTap={{ scale: 0.98 }}
+              onClick={onClose}
+              className="w-full py-3 rounded-xl gradient-seed text-white font-semibold"
+            >
+              Got It
+            </motion.button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Score Breakdown Modal */}
+      <ImpactScoreBreakdownModal 
+        isOpen={showBreakdown} 
+        onClose={() => setShowBreakdown(false)} 
+      />
+    </>
   );
 }
 
