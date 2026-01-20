@@ -104,7 +104,7 @@ const GrowingSquares = () => {
   ];
 
   return (
-    <div className="flex items-end justify-between w-full px-4 md:px-8">
+    <div className="flex items-end justify-between w-full px-2 md:px-8">
       {bars.map((bar, index) => {
         const animationDuration = bar.delay * 0.4 + bar.height * 0.08;
         
@@ -135,7 +135,7 @@ const GrowingSquares = () => {
                 key={squareIndex}
                 src={seedBlue}
                 alt=""
-                className="w-3 h-3 md:w-4 md:h-4 relative z-10"
+                className="w-2 h-2 md:w-4 md:h-4 relative z-10"
                 initial={{ opacity: 0, scale: 0, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 transition={{
@@ -160,15 +160,21 @@ const BrandMomentState = () => {
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="absolute top-6 md:top-8 lg:top-12 text-black/70 font-semibold text-lg md:text-xl lg:text-2xl tracking-wide z-20"
+        className="absolute top-4 md:top-8 lg:top-12 text-black/70 font-semibold text-sm md:text-xl lg:text-2xl tracking-wide z-20"
       >
         Generosity that grows
       </motion.p>
 
-      {/* Spinning orbital rings with seed icons */}
-      <OrbitalRing radius={80} duration={18} seedCount={3} opacity={0.12} />
-      <OrbitalRing radius={115} duration={24} reverse seedCount={4} opacity={0.1} />
-      <OrbitalRing radius={150} duration={30} seedCount={5} opacity={0.08} />
+      {/* Spinning orbital rings with seed icons - smaller on mobile */}
+      <div className="hidden md:block">
+        <OrbitalRing radius={80} duration={18} seedCount={3} opacity={0.12} />
+        <OrbitalRing radius={115} duration={24} reverse seedCount={4} opacity={0.1} />
+        <OrbitalRing radius={150} duration={30} seedCount={5} opacity={0.08} />
+      </div>
+      <div className="md:hidden">
+        <OrbitalRing radius={50} duration={18} seedCount={3} opacity={0.12} />
+        <OrbitalRing radius={70} duration={24} reverse seedCount={4} opacity={0.1} />
+      </div>
 
       {/* Grid dots pattern */}
       <div className="absolute inset-0 opacity-5 pointer-events-none">
@@ -196,7 +202,7 @@ const BrandMomentState = () => {
         <motion.img 
           src={seedbasePfp} 
           alt=""
-          className="w-28 h-28 md:w-32 md:h-32 lg:w-40 lg:h-40 rounded-full"
+          className="w-20 h-20 md:w-32 md:h-32 lg:w-40 lg:h-40 rounded-full"
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
         />
