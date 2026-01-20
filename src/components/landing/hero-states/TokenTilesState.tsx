@@ -25,18 +25,6 @@ const FALLBACK_TOKENS: Token[] = [
   { id: 'virtual', symbol: 'VIRTUAL', name: 'Virtual', logoUrl: 'https://assets.coingecko.com/coins/images/36167/small/virtual.png' },
 ];
 
-// Deterministic random for consistent layout
-const mulberry32 = (seed: number) => {
-  let a = seed;
-  return () => {
-    a |= 0;
-    a = (a + 0x6d2b79f5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-};
-
 const TokenTilesState = () => {
   const [tokens, setTokens] = useState<Token[]>(FALLBACK_TOKENS);
 
@@ -55,72 +43,65 @@ const TokenTilesState = () => {
     fetchTokens();
   }, []);
 
-  // Create 4 columns of tiles
-  const columns = useMemo(() => {
-    const cols: { token: Token; delay: number; speed: number }[][] = [[], [], [], []];
-    const r = mulberry32(42);
-    
-    // Fill each column with repeated tokens
-    for (let col = 0; col < 4; col++) {
-      const colTokens = [...tokens].sort(() => r() - 0.5);
-      // Repeat tokens to fill scrolling space
-      const repeated = [...colTokens, ...colTokens, ...colTokens];
-      cols[col] = repeated.map((token, i) => ({
-        token,
-        delay: r() * 0.5,
-        speed: 18 + r() * 8, // 18-26s per cycle
-      }));
+  // Create stable grid of tokens
+  const gridTokens = useMemo(() => {
+    // Create a 4x6 grid (24 tiles)
+    const grid: Token[] = [];
+    for (let i = 0; i < 24; i++) {
+      grid.push(tokens[i % tokens.length]);
     }
-    return cols;
+    return grid;
   }, [tokens]);
 
   return (
     <div className="relative w-full h-full overflow-hidden bg-white">
-      {/* 4 scrolling columns */}
-      <div className="absolute inset-0 flex gap-3 px-3 py-2">
-        {columns.map((col, colIndex) => (
-          <div key={colIndex} className="flex-1 relative overflow-hidden">
-            <motion.div
-              className="flex flex-col gap-3"
-              animate={{ y: ['-33.33%', '0%'] }}
-              transition={{
-                duration: col[0]?.speed || 20,
-                repeat: Infinity,
-                ease: 'linear',
-                delay: colIndex * 0.5,
-              }}
-            >
-              {col.map((item, i) => (
-                <motion.div
-                  key={`${item.token.id}-${i}`}
-                  className="bg-white rounded-xl shadow-lg border border-gray-100 p-2 flex flex-col items-center gap-1"
-                  initial={{ opacity: 0, scale: 0.9 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: item.delay, duration: 0.3 }}
-                >
-                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden bg-gray-100 flex items-center justify-center">
-                    <img
-                      src={item.token.logoUrl}
-                      alt={item.token.name}
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=' + item.token.symbol[0];
-                      }}
-                    />
-                  </div>
-                  <span className="text-[10px] md:text-xs font-medium text-gray-700 truncate max-w-full">
-                    {item.token.symbol}
-                  </span>
-                </motion.div>
-              ))}
-            </motion.div>
-          </div>
+      {/* Static grid of token tiles with subtle scroll effect */}
+      <motion.div 
+        className="absolute inset-0 flex flex-wrap gap-2 p-3 content-start"
+        initial={{ y: 0 }}
+        animate={{ y: [0, -20, 0] }}
+        transition={{
+          duration: 8,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      >
+        {gridTokens.map((token, i) => (
+          <motion.div
+            key={`${token.id}-${i}`}
+            className="bg-white rounded-xl shadow-lg border border-gray-100 p-2 flex flex-col items-center gap-1"
+            style={{ 
+              width: 'calc(25% - 6px)',
+              minWidth: '60px',
+            }}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ 
+              delay: i * 0.05, 
+              duration: 0.4,
+              ease: 'easeOut'
+            }}
+          >
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full overflow-hidden bg-gray-50 flex items-center justify-center shadow-sm">
+              <img
+                src={token.logoUrl}
+                alt={token.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  (e.target as HTMLImageElement).src = 'https://via.placeholder.com/40?text=' + token.symbol[0];
+                }}
+              />
+            </div>
+            <span className="text-[9px] md:text-[10px] font-medium text-gray-600 truncate max-w-full">
+              {token.symbol}
+            </span>
+          </motion.div>
         ))}
-      </div>
+      </motion.div>
 
       {/* Gradient overlays for smooth edges */}
-      <div className="absolute inset-x-0 top-0 h-8 bg-gradient-to-b from-white to-transparent pointer-events-none z-10" />
-      <div className="absolute inset-x-0 bottom-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none z-10" />
+      <div className="absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-white to-transparent pointer-events-none z-10" />
+      <div className="absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-white to-transparent pointer-events-none z-10" />
     </div>
   );
 };
