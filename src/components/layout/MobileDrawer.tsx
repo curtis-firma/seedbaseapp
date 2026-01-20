@@ -1,6 +1,6 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  MessageCircle, BarChart3, Radio, Rocket, Settings, X, HelpCircle, LogOut
+  MessageCircle, BarChart3, ShoppingBag, Rocket, Settings, X, HelpCircle, LogOut
 } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
@@ -12,7 +12,7 @@ import { Logo } from '@/components/shared/Logo';
 const menuNav = [
   { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages & transfers' },
   { icon: BarChart3, label: 'Vault', path: '/app/vault', description: 'Analytics & data' },
-  { icon: Radio, label: 'Seeded', path: '/app/seeded', description: 'Community hub' },
+  { icon: ShoppingBag, label: 'Shop', path: '/app/seeded', description: 'Merch & movement' },
   { icon: Rocket, label: 'Launcher', path: '/app/launcher', description: 'Create new' },
   { icon: Settings, label: 'Settings', path: '/app/settings', description: 'Preferences' },
 ];

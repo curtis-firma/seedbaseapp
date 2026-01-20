@@ -22,7 +22,8 @@ import gnrusHatImg from "@/assets/products/gnrus-hat-model.jpg";
 import seededSweatsGreyImg from "@/assets/products/seeded-sweats-grey.jpg";
 import cikBeanieGreyImg from "@/assets/products/cik-beanie-grey.jpg";
 import christIsKingCrewneckGreyImg from "@/assets/products/christ-is-king-crewneck-grey.jpg";
-import seededHoodieImage from "@/assets/seeded-hoodie-model.jpg";
+import kingdomHoodieImg from "@/assets/products/kingdom-hoodie.jpg";
+import { MovementSection } from "@/components/shop/MovementSection";
 
 interface MobileShopPageProps {
   onBack?: () => void;
@@ -30,7 +31,7 @@ interface MobileShopPageProps {
 }
 
 const storeProducts = [
-  { id: 1, name: "SEEDED Hoodie", price: 89, category: "SEEDED", image: seededHoodieImage },
+  { id: 1, name: "SEEDED Hoodie", price: 89, category: "SEEDED", image: kingdomHoodieImg },
   { id: 2, name: "SEEDED Sweats", price: 75, category: "SEEDED", image: seededSweatsGreyImg },
   { id: 3, name: "CIK Hoodie", price: 89, category: "CIK", image: cikHoodieGreyImg },
   { id: 4, name: "CIK Beanie", price: 32, category: "CIK", image: cikBeanieGreyImg },
@@ -153,7 +154,7 @@ export function MobileShopPage({ onBack, onOpenChat }: MobileShopPageProps) {
               <div className="flex items-stretch">
                 <div className="w-1/2 aspect-square">
                   <img 
-                    src={seededHoodieImage} 
+                    src={kingdomHoodieImg} 
                     alt="Seeded Hoodie" 
                     className="w-full h-full object-cover"
                   />
@@ -165,7 +166,7 @@ export function MobileShopPage({ onBack, onOpenChat }: MobileShopPageProps) {
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-lg text-foreground">$89</span>
                     <button 
-                      onClick={() => addToCart({ id: 1, name: "Seeded Baggy Hoodie", price: 89, category: "SEEDED", image: seededHoodieImage })}
+                      onClick={() => addToCart({ id: 1, name: "Seeded Baggy Hoodie", price: 89, category: "SEEDED", image: kingdomHoodieImg })}
                       className="px-3 py-1.5 rounded-lg bg-foreground text-background text-xs font-medium active:scale-[0.98] transition-transform"
                     >
                       Add
@@ -218,6 +219,12 @@ export function MobileShopPage({ onBack, onOpenChat }: MobileShopPageProps) {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Movement Section */}
+            <div className="pb-8">
+              <h3 className="text-lg font-bold text-foreground mb-4">The Movement</h3>
+              <MovementSection />
             </div>
           </motion.div>
         )}
