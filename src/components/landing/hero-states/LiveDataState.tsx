@@ -95,27 +95,27 @@ const LiveDataState = () => {
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-center p-[5%] overflow-hidden">
+    <div className="relative w-full h-full flex flex-col items-center justify-start p-[4%] pt-[3%] overflow-hidden">
       <Confetti isActive={showConfetti} />
 
-      {/* Centered Header */}
+      {/* Centered Header - compact */}
       <motion.div
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="text-center mb-[3%]"
+        className="text-center mb-[2%]"
       >
-        <div className="flex items-center justify-center gap-2 mb-1">
-          <Vote className="w-[4%] min-w-4 max-w-5 aspect-square text-primary" />
-          <span className="text-[3.5%] min-text-sm font-semibold text-foreground" style={{ fontSize: 'clamp(12px, 3.5%, 16px)' }}>Transparent Voting</span>
+        <div className="flex items-center justify-center gap-1.5 mb-0.5">
+          <Vote className="w-3 h-3 md:w-4 md:h-4 text-primary" />
+          <span className="text-xs md:text-sm font-semibold text-foreground">Transparent Voting</span>
         </div>
-        <p className="text-muted-foreground" style={{ fontSize: 'clamp(10px, 3%, 14px)' }}>{CHURCH_NAME}</p>
+        <p className="text-[10px] md:text-xs text-muted-foreground">{CHURCH_NAME}</p>
       </motion.div>
 
-      {/* Main content - stacked vertically for consistent scaling */}
-      <div className="flex flex-col items-center gap-[4%] w-full max-w-[90%]">
-        {/* Donut Chart - percentage-based sizing */}
-        <div className="relative w-[40%] aspect-square max-w-[180px]">
+      {/* Main content - horizontal layout to fit in rectangle */}
+      <div className="flex flex-row items-center justify-center gap-[4%] w-full flex-1">
+        {/* Donut Chart - sized to fit */}
+        <div className="relative w-[35%] max-w-[140px] aspect-square flex-shrink-0">
           <svg viewBox="0 0 100 100" className="w-full h-full -rotate-90">
             {donutSegments.map((segment, index) => {
               const radius = 38;
@@ -135,7 +135,7 @@ const LiveDataState = () => {
                   r={radius}
                   fill="none"
                   stroke={segment.color}
-                  strokeWidth={isHovered ? 18 : 16}
+                  strokeWidth={isHovered ? 16 : 14}
                   strokeDasharray={`${strokeDasharray} ${circumference}`}
                   strokeDashoffset={strokeDashoffset}
                   className="cursor-pointer transition-all duration-200"
@@ -163,10 +163,10 @@ const LiveDataState = () => {
                 animate={{ opacity: 1, scale: 1 }}
                 className="text-center"
               >
-                <p className="font-bold text-foreground" style={{ fontSize: 'clamp(16px, 5%, 24px)' }}>
+                <p className="text-base md:text-xl font-bold text-foreground">
                   {donutSegments.find(s => s.id === hoveredSegment)?.percentage}%
                 </p>
-                <p className="text-muted-foreground" style={{ fontSize: 'clamp(8px, 2.5%, 12px)' }}>
+                <p className="text-[8px] md:text-[10px] text-muted-foreground">
                   {donutSegments.find(s => s.id === hoveredSegment)?.label}
                 </p>
               </motion.div>
@@ -177,21 +177,21 @@ const LiveDataState = () => {
                 animate={{ opacity: 1 }}
                 className="text-center"
               >
-                <p className="font-bold text-foreground" style={{ fontSize: 'clamp(12px, 4%, 18px)' }}>
+                <p className="text-sm md:text-base font-bold text-foreground">
                   {formatCurrency(TOTAL_MONTHLY)}
                 </p>
-                <p className="text-muted-foreground" style={{ fontSize: 'clamp(8px, 2.5%, 11px)' }}>Monthly</p>
+                <p className="text-[8px] md:text-[10px] text-muted-foreground">Monthly</p>
               </motion.div>
             )}
           </div>
         </div>
 
-        {/* Allocation list - 2x2 grid for compact display */}
-        <div className="grid grid-cols-2 gap-2 w-full">
+        {/* Allocation list - vertical stack */}
+        <div className="flex flex-col gap-1 md:gap-1.5 flex-shrink-0">
           {ALLOCATIONS.map((allocation) => (
             <motion.div
               key={allocation.id}
-              className={`flex items-center gap-2 px-2 py-1.5 rounded-lg cursor-pointer transition-all ${
+              className={`flex items-center gap-1.5 md:gap-2 px-2 py-1 rounded-lg cursor-pointer transition-all ${
                 hoveredSegment === allocation.id ? 'bg-black/5' : 'hover:bg-black/3'
               }`}
               onMouseEnter={() => setHoveredSegment(allocation.id)}
@@ -200,25 +200,22 @@ const LiveDataState = () => {
               whileTap={{ scale: 0.98 }}
             >
               <div 
-                className="w-2.5 h-2.5 rounded-full flex-shrink-0"
+                className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full flex-shrink-0"
                 style={{ backgroundColor: allocation.color }}
               />
-              <div className="flex-1 min-w-0">
-                <p className="font-medium text-foreground truncate" style={{ fontSize: 'clamp(10px, 3%, 14px)' }}>
-                  {allocation.label}
-                </p>
-              </div>
-              <div className="flex items-center gap-1">
+              <p className="text-[10px] md:text-xs font-medium text-foreground">
+                {allocation.label}
+              </p>
+              <div className="flex items-center gap-0.5 md:gap-1">
                 <motion.span
                   key={animatedVotes[allocation.id]}
                   initial={{ y: -4, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
-                  className="font-medium text-muted-foreground"
-                  style={{ fontSize: 'clamp(9px, 2.5%, 12px)' }}
+                  className="text-[9px] md:text-[10px] font-medium text-muted-foreground"
                 >
                   {animatedVotes[allocation.id] || allocation.votes}
                 </motion.span>
-                <TrendingUp className="w-2.5 h-2.5 text-green-500" />
+                <TrendingUp className="w-2 h-2 md:w-2.5 md:h-2.5 text-green-500" />
               </div>
             </motion.div>
           ))}
@@ -230,8 +227,7 @@ const LiveDataState = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 0.5 }}
-        className="absolute bottom-[3%] left-1/2 -translate-x-1/2 text-black/40 font-medium whitespace-nowrap"
-        style={{ fontSize: 'clamp(8px, 2.5%, 12px)' }}
+        className="text-[8px] md:text-[10px] text-black/40 font-medium mt-auto pt-1"
       >
         Tap to vote • Live transparency
       </motion.p>
