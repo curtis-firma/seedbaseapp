@@ -62,13 +62,22 @@ export function FeedRenderer({ items }: FeedRendererProps) {
         }
 
         // V2 cards wrapped in PostCard
+        // Fallback avatar using DiceBear for consistent generation
+        const getFallbackAvatar = (name: string) => 
+          `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(name)}&backgroundColor=0000ff`;
+        
         const author = item.author || {
           name: item.seedbase?.name || 'SeedfeedHQ',
-          avatar: item.seedbase?.name ? '⛪' : '',
+          avatar: getFallbackAvatar(item.seedbase?.name || 'SeedfeedHQ'),
           handle: 'seedfeedhq',
           isVerified: true,
           role: 'trustee',
         };
+        
+        // Fix emoji avatars - replace with real profile photos
+        if (author.avatar && (author.avatar.length <= 4 || !author.avatar.startsWith('http'))) {
+          author.avatar = getFallbackAvatar(author.name);
+        }
 
         const isOfficial = author.handle === 'seedfeedhq' || author.name === 'SeedfeedHQ';
 

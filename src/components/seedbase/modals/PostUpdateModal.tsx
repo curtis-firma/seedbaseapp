@@ -1,13 +1,16 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { FileText, Check, Heart, Megaphone, Bell, Layers, TrendingUp, Image } from 'lucide-react';
+import { FileText, Check, Heart, Megaphone, Bell, Layers, TrendingUp, Image, Search, X } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { useUser } from '@/contexts/UserContext';
 import { createPost } from '@/lib/supabase/postsApi';
 import { cn } from '@/lib/utils';
+import { mockSeedbases, demoProfiles } from '@/data/mockData';
 import type { ActivityItem } from '../SeedbaseActivityStream';
 
 interface PostUpdateModalProps {
@@ -32,6 +35,13 @@ const postTypesByRole = {
   ],
 };
 
+// Combine all demo users for mention search
+const allDemoUsers = [
+  ...demoProfiles.activators,
+  ...demoProfiles.trustees,
+  ...demoProfiles.envoys,
+];
+
 export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalProps) {
   const { viewRole, user } = useUser();
   const { toast } = useToast();
@@ -41,19 +51,51 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
   const [imageUrl, setImageUrl] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  
+  // Search state
+  const [selectedSeedbase, setSelectedSeedbase] = useState('Christ is King Seedbase');
+  const [mentionSearch, setMentionSearch] = useState('');
+  const [mentionedUsers, setMentionedUsers] = useState<string[]>([]);
+  const [showMentionResults, setShowMentionResults] = useState(false);
+
+  // Filter users based on search
+  const filteredUsers = mentionSearch.length >= 1
+    ? allDemoUsers.filter(u => 
+        u.name.toLowerCase().includes(mentionSearch.toLowerCase()) ||
+        u.handle.toLowerCase().includes(mentionSearch.toLowerCase())
+      ).slice(0, 5)
+    : [];
+
+  const handleAddMention = (handle: string) => {
+    if (!mentionedUsers.includes(handle)) {
+      setMentionedUsers(prev => [...prev, handle]);
+    }
+    setMentionSearch('');
+    setShowMentionResults(false);
+  };
+
+  const handleRemoveMention = (handle: string) => {
+    setMentionedUsers(prev => prev.filter(h => h !== handle));
+  };
 
   const handleSubmit = async () => {
     if (!content.trim()) return;
 
     setIsSubmitting(true);
     
+    // Build content with mentions
+    const mentionsText = mentionedUsers.length > 0 
+      ? `\n\ncc: ${mentionedUsers.map(h => `@${h}`).join(' ')}`
+      : '';
+    const fullContent = content + mentionsText;
+    
     // Create real post in database
     const userId = localStorage.getItem('demo_user_id') || user?.id || 'demo-user';
     await createPost({
       author_id: userId,
-      body: content,
+      body: fullContent,
       post_type: selectedType as any,
-      seedbase_tag: 'Christ is King Seedbase',
+      seedbase_tag: selectedSeedbase,
       image_url: imageUrl || undefined,
     });
     
@@ -85,12 +127,15 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
     setImageUrl('');
     setIsSubmitting(false);
     setIsSuccess(false);
+    setSelectedSeedbase('Christ is King Seedbase');
+    setMentionSearch('');
+    setMentionedUsers([]);
     onClose();
   };
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <div className="w-10 h-10 rounded-xl gradient-envoy flex items-center justify-center">
@@ -144,6 +189,26 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
               </div>
             </div>
 
+            {/* Seedbase Selector */}
+            <div>
+              <label className="text-sm font-medium mb-2 block">Tag Seedbase</label>
+              <Select value={selectedSeedbase} onValueChange={setSelectedSeedbase}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a Seedbase..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {mockSeedbases.map((sb) => (
+                    <SelectItem key={sb.id} value={sb.name}>
+                      <div className="flex items-center gap-2">
+                        <span className="text-lg">{sb.logo}</span>
+                        <span>{sb.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             {/* Content */}
             <div>
               <label className="text-sm font-medium mb-2 block">Content *</label>
@@ -159,6 +224,65 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
               </p>
             </div>
 
+            {/* Mention Users */}
+            <div className="relative">
+              <label className="text-sm font-medium mb-2 block flex items-center gap-1">
+                <Search className="h-4 w-4" />
+                Mention Users (Optional)
+              </label>
+              <Input
+                value={mentionSearch}
+                onChange={(e) => {
+                  setMentionSearch(e.target.value);
+                  setShowMentionResults(e.target.value.length >= 1);
+                }}
+                onFocus={() => setShowMentionResults(mentionSearch.length >= 1)}
+                placeholder="Search @username to mention..."
+              />
+              
+              {/* Search Results Dropdown */}
+              {showMentionResults && filteredUsers.length > 0 && (
+                <div className="absolute z-10 w-full mt-1 bg-card border border-border rounded-lg shadow-lg max-h-40 overflow-y-auto">
+                  {filteredUsers.map(user => (
+                    <button
+                      key={user.id}
+                      onClick={() => handleAddMention(user.handle)}
+                      className="w-full p-2 hover:bg-muted flex items-center gap-2 text-left"
+                    >
+                      <Avatar className="h-6 w-6">
+                        <AvatarImage src={user.avatar} alt={user.name} />
+                        <AvatarFallback>{user.name.charAt(0)}</AvatarFallback>
+                      </Avatar>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium truncate">{user.name}</p>
+                        <p className="text-xs text-muted-foreground">@{user.handle}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              {/* Selected Mentions as Chips */}
+              {mentionedUsers.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {mentionedUsers.map(handle => (
+                    <span 
+                      key={handle} 
+                      className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary rounded-full text-xs font-medium"
+                    >
+                      @{handle}
+                      <button 
+                        onClick={() => handleRemoveMention(handle)}
+                        className="hover:bg-primary/20 rounded-full p-0.5"
+                      >
+                        <X className="h-3 w-3" />
+                      </button>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+
             {/* Image URL */}
             <div>
               <label className="text-sm font-medium mb-2 block flex items-center gap-1">
@@ -172,9 +296,9 @@ export function PostUpdateModal({ open, onClose, onSuccess }: PostUpdateModalPro
               />
             </div>
 
-            {/* Auto-tag indicator */}
+            {/* Selected Seedbase indicator */}
             <div className="bg-muted/50 rounded-lg px-3 py-2 text-sm text-muted-foreground">
-              📍 Will be tagged to <span className="font-medium text-foreground">Christ is King Seedbase</span>
+              📍 Will be tagged to <span className="font-medium text-foreground">{selectedSeedbase}</span>
             </div>
 
             <motion.button

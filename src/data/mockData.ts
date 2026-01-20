@@ -430,8 +430,8 @@ export const mockFeedItems: FeedItem[] = [
     title: '',
     content: '"Before Seedbase, my children had no school. Now they learn every day. My daughter wants to be a doctor. Thank you for believing in us." — Maria, Guatemala',
     author: {
-      name: 'Guatemala Medical Clinic',
-      avatar: '🇬🇹',
+      name: 'Maria Rodriguez',
+      avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=100&h=100&fit=crop',
       role: 'envoy',
       handle: 'guatemalahope',
       isVerified: false,
@@ -542,7 +542,7 @@ export const mockFeedItems: FeedItem[] = [
     content: 'Surplus Distributed: $12,500\nChrist is King Seedbase → 3 missions\nYour Impact Number: $890 contributed',
     author: {
       name: 'Christ is King Seedbase',
-      avatar: '⛪',
+      avatar: 'https://images.unsplash.com/photo-1438232992991-995b7058bbb3?w=100&h=100&fit=crop',
       role: 'trustee',
       handle: 'cikseedbase',
       isVerified: true,
@@ -614,8 +614,8 @@ export const mockFeedItems: FeedItem[] = [
     title: '',
     content: '"My children no longer walk 5km for water. Now they have time to study. My oldest just passed her exams. Thank you." — Grace, Kenya',
     author: {
-      name: 'Clean Water Wells Kenya',
-      avatar: '🇰🇪',
+      name: 'Grace Wanjiku',
+      avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&h=100&fit=crop',
       role: 'envoy',
       handle: 'kenyawells',
       isVerified: false,
@@ -816,7 +816,7 @@ export const mockFeedItems: FeedItem[] = [
     content: 'Hope City Church distributed $4,200 to community outreach this month.\nMeals program expanded to 3 new neighborhoods.',
     author: {
       name: 'Hope City Church',
-      avatar: '🏘️',
+      avatar: 'https://images.unsplash.com/photo-1478147427282-58a87a120781?w=100&h=100&fit=crop',
       role: 'trustee',
       handle: 'hopecity',
       isVerified: true,
