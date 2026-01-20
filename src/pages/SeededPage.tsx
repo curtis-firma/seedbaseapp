@@ -13,15 +13,27 @@ import seededSweatsGreyImg from "@/assets/products/seeded-sweats-grey.jpg";
 import cikBeanieGreyImg from "@/assets/products/cik-beanie-grey.jpg";
 import christIsKingCrewneckGreyImg from "@/assets/products/christ-is-king-crewneck-grey.jpg";
 import kingdomHoodieImg from "@/assets/products/kingdom-hoodie.jpg";
+import seededHoodieModelImg from "@/assets/products/seeded-hoodie-model.jpg";
+
+// Featured product
+const featuredProduct = {
+  id: 0,
+  name: "SEEDED Hoodie",
+  price: 99,
+  category: "SEEDED",
+  image: seededHoodieModelImg,
+  description: "Premium heavyweight cotton hoodie. The signature piece of the movement.",
+  sizes: ["S", "M", "L", "XL", "XXL"],
+};
 
 const storeProducts = [
-  { id: 1, name: "Kingdom Hoodie", price: 89, category: "SEEDED", image: kingdomHoodieImg, description: "Premium heavyweight cotton hoodie" },
-  { id: 2, name: "SEEDED Sweats", price: 75, category: "SEEDED", image: seededSweatsGreyImg, description: "Comfortable everyday sweats" },
-  { id: 3, name: "CIK Hoodie", price: 89, category: "CIK", image: cikHoodieGreyImg, description: "Classic Christ is King hoodie" },
-  { id: 4, name: "CIK Beanie", price: 32, category: "CIK", image: cikBeanieGreyImg, description: "Warm knit beanie" },
-  { id: 5, name: "Christ is King Tee", price: 45, category: "Christ is King", image: christIsKingTeeImg, description: "Premium cotton tee" },
-  { id: 6, name: "Christ is King Crewneck", price: 95, category: "Christ is King", image: christIsKingCrewneckGreyImg, description: "Heavyweight crewneck" },
-  { id: 7, name: "GNRUS Hat", price: 35, category: "GNRUS", image: gnrusHatImg, description: "Adjustable snapback" },
+  { id: 1, name: "Kingdom Hoodie", price: 89, category: "SEEDED", image: kingdomHoodieImg, description: "Premium heavyweight cotton hoodie", sizes: ["S", "M", "L", "XL"] },
+  { id: 2, name: "SEEDED Sweats", price: 75, category: "SEEDED", image: seededSweatsGreyImg, description: "Comfortable everyday sweats", sizes: ["S", "M", "L", "XL"] },
+  { id: 3, name: "CIK Hoodie", price: 89, category: "CIK", image: cikHoodieGreyImg, description: "Classic Christ is King hoodie", sizes: ["S", "M", "L", "XL"] },
+  { id: 4, name: "CIK Beanie", price: 32, category: "CIK", image: cikBeanieGreyImg, description: "Warm knit beanie", sizes: ["One Size"] },
+  { id: 5, name: "Christ is King Tee", price: 45, category: "Christ is King", image: christIsKingTeeImg, description: "Premium cotton tee", sizes: ["S", "M", "L", "XL", "XXL"] },
+  { id: 6, name: "Christ is King Crewneck", price: 95, category: "Christ is King", image: christIsKingCrewneckGreyImg, description: "Heavyweight crewneck", sizes: ["S", "M", "L", "XL"] },
+  { id: 7, name: "GNRUS Hat", price: 35, category: "GNRUS", image: gnrusHatImg, description: "Adjustable snapback", sizes: ["One Size"] },
 ];
 
 const categories = ["All", "SEEDED", "CIK", "Christ is King", "GNRUS"];
@@ -29,6 +41,7 @@ const categories = ["All", "SEEDED", "CIK", "Christ is King", "GNRUS"];
 interface CartItem {
   product: typeof storeProducts[0];
   quantity: number;
+  size: string;
 }
 
 type CheckoutStep = "cart" | "connecting" | "connected" | "processing" | "complete";
@@ -37,6 +50,7 @@ export default function SeededPage() {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [selectedProduct, setSelectedProduct] = useState<typeof storeProducts[0] | null>(null);
+  const [selectedSize, setSelectedSize] = useState<string>("");
   const [showCheckout, setShowCheckout] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState<CheckoutStep>("cart");
 
@@ -44,32 +58,37 @@ export default function SeededPage() {
     ? storeProducts
     : storeProducts.filter(p => p.category === selectedCategory);
 
-  const addToCart = (product: typeof storeProducts[0]) => {
+  const addToCart = (product: typeof storeProducts[0], size: string) => {
+    if (!size) {
+      toast.error("Please select a size");
+      return;
+    }
     setCart(prev => {
-      const existing = prev.find(item => item.product.id === product.id);
+      const existing = prev.find(item => item.product.id === product.id && item.size === size);
       if (existing) {
         return prev.map(item =>
-          item.product.id === product.id
+          item.product.id === product.id && item.size === size
             ? { ...item, quantity: item.quantity + 1 }
             : item
         );
       }
-      return [...prev, { product, quantity: 1 }];
+      return [...prev, { product, quantity: 1, size }];
     });
-    toast.success(`Added ${product.name} to cart`);
+    toast.success(`Added ${product.name} (${size}) to cart`);
+    setSelectedSize("");
   };
 
-  const removeFromCart = (productId: number) => {
+  const removeFromCart = (productId: number, size: string) => {
     setCart(prev => {
-      const existing = prev.find(item => item.product.id === productId);
+      const existing = prev.find(item => item.product.id === productId && item.size === size);
       if (existing && existing.quantity > 1) {
         return prev.map(item =>
-          item.product.id === productId
+          item.product.id === productId && item.size === size
             ? { ...item, quantity: item.quantity - 1 }
             : item
         );
       }
-      return prev.filter(item => item.product.id !== productId);
+      return prev.filter(item => !(item.product.id === productId && item.size === size));
     });
   };
 
@@ -129,12 +148,75 @@ export default function SeededPage() {
         </div>
       </header>
 
-      <div className="px-4 md:px-8 py-6 space-y-6 max-w-7xl mx-auto">
+      <div className="px-4 md:px-8 py-6 space-y-8 max-w-7xl mx-auto">
+        {/* Movement Section - AT TOP */}
+        <div>
+          <h2 className="text-2xl font-bold text-foreground mb-4">The Movement</h2>
+          <MovementSection />
+        </div>
+
         {/* Mission Badge */}
         <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/20 flex items-center gap-3">
           <Heart className="w-5 h-5 text-rose-500" />
           <span className="text-sm text-foreground">100% of proceeds go to missions worldwide</span>
         </div>
+
+        {/* Featured Product */}
+        <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="rounded-2xl overflow-hidden bg-card border border-border shadow-lg"
+        >
+          <div className="grid md:grid-cols-2">
+            <div className="aspect-square md:aspect-auto relative overflow-hidden">
+              <img
+                src={featuredProduct.image}
+                alt={featuredProduct.name}
+                className="w-full h-full object-cover"
+              />
+              <div className="absolute top-4 left-4">
+                <span className="px-3 py-1.5 rounded-lg bg-foreground text-background text-xs font-bold">
+                  FEATURED
+                </span>
+              </div>
+            </div>
+            <div className="p-6 md:p-8 flex flex-col justify-center">
+              <p className="text-sm text-muted-foreground mb-2">{featuredProduct.category}</p>
+              <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-2">{featuredProduct.name}</h3>
+              <p className="text-muted-foreground mb-4">{featuredProduct.description}</p>
+              <p className="text-3xl font-bold text-foreground mb-6">${featuredProduct.price}</p>
+              
+              {/* Size Selector */}
+              <div className="mb-6">
+                <p className="text-sm font-medium text-foreground mb-3">Select Size</p>
+                <div className="flex flex-wrap gap-2">
+                  {featuredProduct.sizes.map((size) => (
+                    <motion.button
+                      key={size}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        selectedSize === size
+                          ? "bg-foreground text-background"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {size}
+                    </motion.button>
+                  ))}
+                </div>
+              </div>
+
+              <motion.button
+                whileTap={{ scale: 0.98 }}
+                onClick={() => addToCart(featuredProduct as any, selectedSize)}
+                className="w-full py-4 rounded-xl bg-foreground text-background font-semibold text-lg"
+              >
+                Add to Cart
+              </motion.button>
+            </div>
+          </div>
+        </motion.div>
 
         {/* Category Pills */}
         <div className="flex gap-2 flex-wrap">
@@ -163,7 +245,10 @@ export default function SeededPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.05 }}
               className="rounded-2xl overflow-hidden bg-card border border-border shadow-sm hover:shadow-md transition-shadow cursor-pointer group"
-              onClick={() => setSelectedProduct(product)}
+              onClick={() => {
+                setSelectedProduct(product);
+                setSelectedSize("");
+              }}
             >
               <div className="aspect-square relative overflow-hidden">
                 <img
@@ -175,28 +260,10 @@ export default function SeededPage() {
               <div className="p-4">
                 <p className="text-xs text-muted-foreground mb-1">{product.category}</p>
                 <h4 className="font-semibold text-foreground mb-1">{product.name}</h4>
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-lg text-foreground">${product.price}</span>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      addToCart(product);
-                    }}
-                    className="px-3 py-1.5 rounded-lg bg-foreground text-background text-sm font-medium"
-                  >
-                    Add
-                  </motion.button>
-                </div>
+                <span className="font-bold text-lg text-foreground">${product.price}</span>
               </div>
             </motion.div>
           ))}
-        </div>
-
-        {/* Movement Section */}
-        <div className="pt-8">
-          <h2 className="text-2xl font-bold text-foreground mb-4">The Movement</h2>
-          <MovementSection />
         </div>
       </div>
 
@@ -217,19 +284,39 @@ export default function SeededPage() {
                 <DialogTitle className="text-2xl">{selectedProduct.name}</DialogTitle>
               </DialogHeader>
               <p className="text-muted-foreground">{selectedProduct.description}</p>
-              <div className="flex items-center justify-between mt-4">
-                <span className="text-2xl font-bold">${selectedProduct.price}</span>
-                <motion.button
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => {
-                    addToCart(selectedProduct);
-                    setSelectedProduct(null);
-                  }}
-                  className="px-6 py-3 rounded-xl bg-foreground text-background font-semibold"
-                >
-                  Add to Cart
-                </motion.button>
+              <p className="text-2xl font-bold mt-2">${selectedProduct.price}</p>
+              
+              {/* Size Selector */}
+              <div className="mt-4">
+                <p className="text-sm font-medium text-foreground mb-3">Select Size</p>
+                <div className="flex flex-wrap gap-2">
+                  {selectedProduct.sizes.map((size) => (
+                    <motion.button
+                      key={size}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setSelectedSize(size)}
+                      className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                        selectedSize === size
+                          ? "bg-foreground text-background"
+                          : "bg-muted text-muted-foreground hover:bg-muted/80"
+                      }`}
+                    >
+                      {size}
+                    </motion.button>
+                  ))}
+                </div>
               </div>
+
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={() => {
+                  addToCart(selectedProduct, selectedSize);
+                  if (selectedSize) setSelectedProduct(null);
+                }}
+                className="w-full py-4 rounded-xl bg-foreground text-background font-semibold mt-4"
+              >
+                Add to Cart
+              </motion.button>
             </>
           )}
         </DialogContent>
@@ -326,7 +413,7 @@ export default function SeededPage() {
                       <>
                         <div className="space-y-3">
                           {cart.map((item) => (
-                            <div key={item.product.id} className="flex items-center gap-3">
+                            <div key={`${item.product.id}-${item.size}`} className="flex items-center gap-3">
                               <div className="w-16 h-16 rounded-lg overflow-hidden">
                                 <img
                                   src={item.product.image}
@@ -336,18 +423,18 @@ export default function SeededPage() {
                               </div>
                               <div className="flex-1">
                                 <p className="font-medium text-foreground">{item.product.name}</p>
-                                <p className="text-sm text-muted-foreground">${item.product.price}</p>
+                                <p className="text-sm text-muted-foreground">${item.product.price} • {item.size}</p>
                               </div>
                               <div className="flex items-center gap-2">
                                 <button
-                                  onClick={() => removeFromCart(item.product.id)}
+                                  onClick={() => removeFromCart(item.product.id, item.size)}
                                   className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
                                 >
                                   <Minus className="w-4 h-4" />
                                 </button>
                                 <span className="w-6 text-center">{item.quantity}</span>
                                 <button
-                                  onClick={() => addToCart(item.product)}
+                                  onClick={() => addToCart(item.product, item.size)}
                                   className="w-8 h-8 rounded-full bg-muted flex items-center justify-center"
                                 >
                                   <Plus className="w-4 h-4" />
