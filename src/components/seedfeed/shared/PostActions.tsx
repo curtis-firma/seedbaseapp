@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { MessageCircle, Share2, Heart, TrendingUp, Sprout } from 'lucide-react';
 import { useState } from 'react';
 import { useHaptic } from '@/hooks/useHaptic';
+import { AmplifyButton } from '@/components/social/AmplifyButton';
 
 interface PostActionsProps {
   commentCount: number;
@@ -13,6 +14,8 @@ interface PostActionsProps {
   onLike?: () => void;
   onGive?: () => void;
   showGiveButton?: boolean;
+  showAmplify?: boolean;
+  amplifyContent?: string;
   className?: string;
 }
 
@@ -26,6 +29,8 @@ export function PostActions({
   onLike,
   onGive,
   showGiveButton = true,
+  showAmplify = true,
+  amplifyContent = 'Check out this impact on Seedbase!',
   className = '',
 }: PostActionsProps) {
   const [isLiked, setIsLiked] = useState(initialLiked);
@@ -120,6 +125,17 @@ export function PostActions({
           </motion.button>
         )}
       </div>
+
+      {/* Row 2: Amplify Button */}
+      {showAmplify && (
+        <div className="flex">
+          <AmplifyButton 
+            content={amplifyContent}
+            impactSummary={impactAmount ? `$${impactAmount.toLocaleString()} impact` : undefined}
+            variant="small"
+          />
+        </div>
+      )}
     </div>
   );
 }
