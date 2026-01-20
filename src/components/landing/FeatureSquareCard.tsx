@@ -28,8 +28,8 @@ const FeatureSquareCard = ({
     // Outer wrapper constrains the visual space taken, with proper margins
     <div className={cn(
       "flex items-center justify-center",
-      // Respect page padding on mobile (16px each side = 32px total)
-      "w-full max-w-[calc(100%-32px)] sm:max-w-[340px] md:max-w-[484px]",
+      // Constrain on mobile so the square never touches the screen edge
+      "w-full max-w-[280px] sm:max-w-[340px] md:max-w-[484px]",
       "aspect-square",
       "mx-auto"
     )}>
