@@ -2285,3 +2285,93 @@ export const transparencyFeedItems: FeedItem[] = [
     comments: 8,
   },
 ];
+
+// ============= Governance Data =============
+export const mockVotes = [
+  {
+    id: 'vote-1',
+    title: 'Increase Events Budget 5%',
+    description: 'Proposal to increase the quarterly events budget to support more community gatherings.',
+    yesVotes: 67,
+    noVotes: 22,
+    deadline: '3 days left',
+    hasVoted: false,
+    userVote: null as 'yes' | 'no' | null,
+  },
+  {
+    id: 'vote-2',
+    title: 'New Outreach Partner',
+    description: 'Approve partnership with Hope Foundation for international outreach.',
+    yesVotes: 55,
+    noVotes: 8,
+    deadline: '5 days left',
+    hasVoted: false,
+    userVote: null as 'yes' | 'no' | null,
+  },
+  {
+    id: 'vote-3',
+    title: 'Q2 Mission Allocation',
+    description: 'Allocate 60% of Q2 surplus to Guatemala mission.',
+    yesVotes: 103,
+    noVotes: 9,
+    deadline: '7 days left',
+    hasVoted: false,
+    userVote: null as 'yes' | 'no' | null,
+  },
+];
+
+export const activatedUsers = [
+  { 
+    id: 'ref-1', 
+    name: 'Maria Santos', 
+    handle: 'maria', 
+    avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
+    joinedDate: new Date('2025-01-05'),
+    seedCommitted: 2500,
+  },
+  { 
+    id: 'ref-2', 
+    name: 'James Wilson', 
+    handle: 'jameswilson', 
+    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
+    joinedDate: new Date('2025-01-08'),
+    seedCommitted: 1200,
+  },
+  { 
+    id: 'ref-3', 
+    name: 'Priya Patel', 
+    handle: 'priya', 
+    avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&h=100&fit=crop',
+    joinedDate: new Date('2025-01-12'),
+    seedCommitted: 5000,
+  },
+  { 
+    id: 'ref-4', 
+    name: 'David Chen', 
+    handle: 'davidc', 
+    avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop',
+    joinedDate: new Date('2025-01-15'),
+    seedCommitted: 750,
+  },
+  { 
+    id: 'ref-5', 
+    name: 'Sarah Johnson', 
+    handle: 'sarahj', 
+    avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
+    joinedDate: new Date('2025-01-18'),
+    seedCommitted: 3200,
+  },
+];
+
+export const projectionData = {
+  monthlyGrowthRate: 0.08, // 8% monthly growth
+  networkMultiplier: 2.3,  // Each $1 creates $2.30 impact
+  impactPerDollar: 4.5,    // 4.5 lives impacted per $100
+};
+
+export const voteHistory = [
+  { id: 'vh-1', title: 'Q4 Budget Allocation', result: 'passed' as const, yesVotes: 89, noVotes: 12, date: 'Dec 15, 2024' },
+  { id: 'vh-2', title: 'New Mission Approval', result: 'passed' as const, yesVotes: 56, noVotes: 8, date: 'Nov 20, 2024' },
+  { id: 'vh-3', title: 'Emergency Relief Fund', result: 'passed' as const, yesVotes: 112, noVotes: 3, date: 'Oct 5, 2024' },
+  { id: 'vh-4', title: 'Salary Increase Proposal', result: 'failed' as const, yesVotes: 34, noVotes: 45, date: 'Sep 18, 2024' },
+];
