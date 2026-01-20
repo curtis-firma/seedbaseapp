@@ -116,7 +116,7 @@ export function MovementSection() {
       if (scene === "parachute" && parachuteRef.current) {
         parachuteRef.current.currentTime = 0;
         parachuteRef.current.muted = isMuted;
-        parachuteRef.current.playbackRate = 0.5; // Slow motion effect
+        // Removed slow-motion playbackRate as it causes glitches in some browsers
         parachuteRef.current.play().catch(console.error);
       }
     }, 200);
