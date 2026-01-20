@@ -154,11 +154,10 @@ const SegmentedOrbitalRing = ({
           cy={radius}
           r={radius - strokeWidth / 2}
           fill="none"
-          stroke="white"
+          stroke="rgba(0, 0, 255, 0.35)"
           strokeWidth={strokeWidth}
           strokeDasharray={`${dashLength} ${gapLength}`}
           strokeLinecap="round"
-          opacity={0.6}
         />
       </svg>
       
@@ -166,7 +165,7 @@ const SegmentedOrbitalRing = ({
       {dotPositions.map((angle, i) => (
         <div
           key={i}
-          className="absolute bg-white rounded-full"
+          className="absolute bg-[#0000ff]/60 rounded-full"
           style={{
             width: 6,
             height: 6,
@@ -182,13 +181,13 @@ const SegmentedOrbitalRing = ({
 
 const NetworkFlowState = () => {
   return (
-    <div className="relative w-full h-full overflow-hidden flex items-center justify-center">
+    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-white">
       {/* Centered "Generosity onchain" text */}
       <motion.p
         initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.5 }}
-        className="absolute top-6 md:top-8 left-0 right-0 text-center text-black/50 font-medium text-base md:text-lg lg:text-xl tracking-wide z-20"
+        className="absolute top-6 md:top-8 left-0 right-0 text-center text-black/60 font-medium text-base md:text-lg lg:text-xl tracking-wide z-20"
       >
         Generosity onchain
       </motion.p>
@@ -212,7 +211,7 @@ const NetworkFlowState = () => {
       >
         {/* Glow effect behind logo */}
         <motion.div
-          className="absolute inset-0 rounded-full bg-blue-500/15"
+          className="absolute inset-0 rounded-full bg-[#0000ff]/20"
           style={{ 
             width: 90, 
             height: 90, 
@@ -223,7 +222,7 @@ const NetworkFlowState = () => {
           }}
           animate={{ 
             scale: [1, 1.4, 1],
-            opacity: [0.15, 0.25, 0.15]
+            opacity: [0.2, 0.35, 0.2]
           }}
           transition={{ duration: 2.5, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -232,7 +231,7 @@ const NetworkFlowState = () => {
         <motion.img
           src={seedbasePfp}
           alt="Seedbase"
-          className="w-18 h-18 md:w-20 md:h-20 rounded-full ring-3 ring-white/60 shadow-xl"
+          className="w-18 h-18 md:w-20 md:h-20 rounded-full ring-3 ring-[#0000ff]/30 shadow-xl"
           style={{ width: 72, height: 72 }}
           animate={{ 
             scale: [1, 1.03, 1]
@@ -243,18 +242,18 @@ const NetworkFlowState = () => {
 
       {/* Subtle pulsing nodes at chain ends */}
       <motion.div
-        className="absolute left-[8%] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-500/20"
+        className="absolute left-[8%] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#0000ff]/30"
         animate={{ 
           scale: [1, 1.5, 1],
-          opacity: [0.2, 0.4, 0.2],
+          opacity: [0.3, 0.5, 0.3],
         }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1 }}
       />
       <motion.div
-        className="absolute right-[8%] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-blue-500/20"
+        className="absolute right-[8%] top-1/2 -translate-y-1/2 w-3 h-3 rounded-full bg-[#0000ff]/30"
         animate={{ 
           scale: [1, 1.5, 1],
-          opacity: [0.2, 0.4, 0.2],
+          opacity: [0.3, 0.5, 0.3],
         }}
         transition={{ duration: 2, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
       />
