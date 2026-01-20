@@ -9,7 +9,6 @@ import {
   type DemoWallet,
   type DemoKey
 } from '@/lib/supabase/demoApi';
-import { loadUserByPhone as loadLocalUserByPhone } from '@/lib/demoAuth';
 
 interface UserContextType {
   user: User;
@@ -153,9 +152,8 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(true);
     setDemoMode(demoUser.phone.startsWith('demo:'));
     
-    // Load avatar from local storage if available
-    const localUser = loadLocalUserByPhone(demoUser.phone);
-    const avatar = localUser?.avatarUrl || demoUser.avatar_url || null;
+    // Avatar comes from database (Supabase storage URL)
+    const avatar = demoUser.avatar_url || null;
     setAvatarUrl(avatar);
     
     // Save session
@@ -180,15 +178,15 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setViewRole(userRole);
   };
 
-  // Refresh user data from localStorage (after avatar update)
-  const refreshUserData = () => {
+  // Refresh user data from database (after avatar update)
+  const refreshUserData = async () => {
     if (phoneNumber) {
-      const localUser = loadLocalUserByPhone(phoneNumber);
-      if (localUser?.avatarUrl) {
-        setAvatarUrl(localUser.avatarUrl);
+      const dbUser = await findUserByPhone(phoneNumber);
+      if (dbUser?.avatar_url) {
+        setAvatarUrl(dbUser.avatar_url);
         setUser(prev => ({
           ...prev,
-          avatar: localUser.avatarUrl || prev.avatar,
+          avatar: dbUser.avatar_url || prev.avatar,
         }));
       }
     }
