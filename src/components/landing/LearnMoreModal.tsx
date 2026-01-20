@@ -90,12 +90,25 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
           <motion.div variants={itemVariants}>
             <button
               onClick={() => setShowDetails(!showDetails)}
-              className="w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl border border-border bg-muted/30 hover:bg-muted/50 transition-colors"
+              className={`w-full flex items-center justify-between gap-2 px-4 py-3 rounded-xl border transition-all duration-200 ${
+                showDetails 
+                  ? 'border-primary bg-primary/10 text-primary' 
+                  : 'border-border bg-muted/30 hover:bg-muted/50 text-foreground'
+              }`}
             >
-              <span className="text-sm font-medium text-foreground">
-                {showDetails ? "Hide details" : "How it works →"}
+              <span className="text-sm font-medium flex items-center gap-1.5">
+                {showDetails ? "Hide details" : "How it works"}
+                {!showDetails && (
+                  <motion.span
+                    animate={{ x: [0, 4, 0] }}
+                    transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
+                    className="inline-block"
+                  >
+                    →
+                  </motion.span>
+                )}
               </span>
-              <ChevronDown className={`w-4 h-4 text-muted-foreground transition-transform duration-200 ${showDetails ? 'rotate-180' : ''}`} />
+              <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showDetails ? 'rotate-180 text-primary' : 'text-muted-foreground'}`} />
             </button>
             
             <AnimatePresence mode="wait">
