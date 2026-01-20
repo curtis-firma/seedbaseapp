@@ -1,16 +1,31 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import seedbasePfp from '@/assets/seedbase-pfp-new.png';
 import { OrbitalRing, GrowingSquares } from './shared';
+
+interface BrandMomentStateProps {
+  active?: boolean;
+}
 
 /**
  * BrandMomentState - Hero canvas state showing generosity growth.
  * White background with blue elements.
  */
-const BrandMomentState = () => {
+const BrandMomentState = ({ active = true }: BrandMomentStateProps) => {
+  const [animationKey, setAnimationKey] = useState(0);
+
+  // Reset animation when becoming active
+  useEffect(() => {
+    if (active) {
+      setAnimationKey(prev => prev + 1);
+    }
+  }, [active]);
+
   return (
     <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden bg-white">
       {/* "Generosity that grows" at the TOP */}
       <motion.p
+        key={`title-${animationKey}`}
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2 }}
@@ -37,6 +52,7 @@ const BrandMomentState = () => {
 
       {/* Seedbase circular logo with glow */}
       <motion.div
+        key={`logo-${animationKey}`}
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: [0.8, 1.05, 1], opacity: 1 }}
         transition={{
@@ -58,10 +74,10 @@ const BrandMomentState = () => {
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 0.6 }}
+        transition={{ delay: 0.2, duration: 0.3 }}
         className="absolute bottom-0 left-0 right-0 w-full pb-2"
       >
-        <GrowingSquares />
+        <GrowingSquares key={`squares-${animationKey}`} />
       </motion.div>
     </div>
   );

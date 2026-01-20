@@ -25,11 +25,23 @@ const ALLOCATIONS: Allocation[] = [
  * LiveDataState - Hero canvas state showing transparent voting
  * Uses percentage-based sizing to scale properly across viewports
  */
-const LiveDataState = () => {
+interface LiveDataStateProps {
+  active?: boolean;
+}
+
+const LiveDataState = ({ active = true }: LiveDataStateProps) => {
   const [hoveredSegment, setHoveredSegment] = useState<string | null>(null);
   const [votes, setVotes] = useState<Record<string, number>>({});
   const [animatedVotes, setAnimatedVotes] = useState<Record<string, number>>({});
   const [showConfetti, setShowConfetti] = useState(false);
+  const [animationKey, setAnimationKey] = useState(0);
+
+  // Reset animation when becoming active
+  useEffect(() => {
+    if (active) {
+      setAnimationKey(prev => prev + 1);
+    }
+  }, [active]);
 
   // Initialize votes from allocation data
   useEffect(() => {
@@ -129,7 +141,7 @@ const LiveDataState = () => {
               
               return (
                 <motion.circle
-                  key={segment.id}
+                  key={`${segment.id}-${animationKey}`}
                   cx="50"
                   cy="50"
                   r={radius}
