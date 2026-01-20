@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  Plus, TrendingUp, Target, Users, BarChart3, 
-  FileText, Upload, CheckCircle2, Clock, ArrowRight
+  TrendingUp, Target, FileText, Upload, CheckCircle2
 } from 'lucide-react';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { KeyGatedCard } from '@/components/shared/KeyGatedCard';
@@ -19,9 +18,20 @@ import { PostUpdateModal } from '@/components/seedbase/modals/PostUpdateModal';
 import { SubmitHarvestModal } from '@/components/seedbase/modals/SubmitHarvestModal';
 import { RequestFundsModal } from '@/components/seedbase/modals/RequestFundsModal';
 import { VotePendingModal } from '@/components/seedbase/modals/VotePendingModal';
+import { MissionsDetailModal } from '@/components/seedbase/modals/MissionsDetailModal';
+import { ProvisionDetailModal } from '@/components/seedbase/modals/ProvisionDetailModal';
+import { CommitmentsDetailModal } from '@/components/seedbase/modals/CommitmentsDetailModal';
+import { DistributionDetailModal } from '@/components/seedbase/modals/DistributionDetailModal';
 import { useUser } from '@/contexts/UserContext';
-import { mockSeedbases, mockMissions } from '@/data/mockData';
+import { mockSeedbases, mockMissions, demoProfiles } from '@/data/mockData';
 import { cn } from '@/lib/utils';
+import { 
+  createCommitmentFeedItem, 
+  createMissionFeedItem, 
+  createAllocationFeedItem,
+  createHarvestFeedItem,
+  createEnvoyUpdateFeedItem
+} from '@/lib/seedbaseFeedIntegration';
 
 const roleTabs = {
   activator: ['Commit', 'Track', 'Giving'],
@@ -33,7 +43,7 @@ const STORAGE_KEY = 'seedbase-activity';
 const STATUS_STORAGE_KEY = 'seedbase-status';
 
 export default function SeedbasePage() {
-  const { viewRole } = useUser();
+  const { viewRole, user, displayName, username, avatarUrl } = useUser();
   const tabs = roleTabs[viewRole];
   const [activeTab, setActiveTab] = useState(0);
   const [activeModal, setActiveModal] = useState<string | null>(null);
@@ -70,24 +80,84 @@ export default function SeedbasePage() {
     setActiveModal(actionId);
   };
 
+  // User info for feed integration
+  const userInfo = {
+    userName: displayName || username || 'User',
+    userAvatar: avatarUrl || user?.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`,
+    userHandle: username || 'user',
+  };
+
   const handleTileClick = (tileId: string) => {
-    if (tileId === 'votes') {
-      setActiveModal('vote');
-    }
-    // Other tiles can open their own modals if needed
+    // Map tile IDs to detail modals
+    const tileModalMap: Record<string, string> = {
+      'missions': 'missions-detail',
+      'votes': 'vote',
+      'distribution': 'distribution-detail',
+      'provision': 'provision-detail',
+      'commitments': 'commitments-detail',
+    };
+    setActiveModal(tileModalMap[tileId] || null);
   };
 
   const addActivity = (newActivity: ActivityItem) => {
     setActivity(prev => [newActivity, ...prev]);
   };
 
-  const handleMissionCreated = () => {
+  // Enhanced handlers with feed integration
+  const handleCommitSuccess = (activity: ActivityItem) => {
+    addActivity(activity);
+    if (activity.amount) {
+      setStatusData(prev => ({ ...prev, recentCommitments: prev.recentCommitments + activity.amount! }));
+      // Add to global feed
+      createCommitmentFeedItem({
+        amount: activity.amount,
+        years: 3, // Default
+        ...userInfo,
+      });
+    }
+  };
+
+  const handleMissionCreated = (mission?: { name: string; goal: number; envoy: string }) => {
     setStatusData(prev => ({ ...prev, missions: prev.missions + 1 }));
+    if (mission) {
+      createMissionFeedItem({
+        missionName: mission.name,
+        goal: mission.goal,
+        envoyName: mission.envoy,
+        ...userInfo,
+      });
+    }
   };
 
   const handleAllocationSuccess = (activity: ActivityItem, amount: number) => {
     addActivity(activity);
     setStatusData(prev => ({ ...prev, provisionPool: prev.provisionPool - amount }));
+    // Extract mission name from activity description
+    const missionMatch = activity.description.match(/to (.+)$/);
+    createAllocationFeedItem({
+      missionName: missionMatch ? missionMatch[1] : 'a mission',
+      amount,
+      ...userInfo,
+    });
+  };
+
+  const handleHarvestSuccess = (activity: ActivityItem) => {
+    addActivity(activity);
+    const weekMatch = activity.description.match(/Week (\d+)/);
+    createHarvestFeedItem({
+      missionName: 'Active Mission',
+      weekNumber: weekMatch ? weekMatch[1] : '1',
+      ...userInfo,
+    });
+  };
+
+  const handlePostSuccess = (activity: ActivityItem) => {
+    addActivity(activity);
+    createEnvoyUpdateFeedItem({
+      postType: 'update',
+      content: activity.description,
+      ...userInfo,
+    });
   };
 
   const handleVotesUpdated = (count: number) => {
@@ -96,19 +166,11 @@ export default function SeedbasePage() {
 
   return (
     <div className="min-h-screen pb-24">
-      {/* Header */}
-      <header className="sticky top-0 z-30 glass-strong border-b border-border/50">
-        <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-2">
-            <div>
-              <h1 className="text-xl font-bold">SeedBase Command Center</h1>
-              <p className="text-sm text-muted-foreground capitalize">
-                {viewRole} Control Panel
-              </p>
-            </div>
-          </div>
-        </div>
-      </header>
+      {/* Page Title - subtle, not a second header */}
+      <div className="px-4 pt-4 pb-2">
+        <h1 className="text-lg font-semibold">Command Center</h1>
+        <p className="text-sm text-muted-foreground capitalize">{viewRole} Control Panel</p>
+      </div>
 
       {/* Command Bar */}
       <SeedbaseCommandBar onAction={handleAction} activeVotes={statusData.votes} />
@@ -149,7 +211,7 @@ export default function SeedbasePage() {
       <CommitSeedModal 
         open={activeModal === 'commit-seed'} 
         onClose={() => setActiveModal(null)} 
-        onSuccess={addActivity} 
+        onSuccess={handleCommitSuccess} 
       />
       <GiveToProvisionModal 
         open={activeModal === 'give-provision'} 
@@ -176,12 +238,12 @@ export default function SeedbasePage() {
       <PostUpdateModal 
         open={activeModal === 'post-update'} 
         onClose={() => setActiveModal(null)} 
-        onSuccess={addActivity} 
+        onSuccess={handlePostSuccess} 
       />
       <SubmitHarvestModal 
         open={activeModal === 'submit-harvest'} 
         onClose={() => setActiveModal(null)} 
-        onSuccess={addActivity} 
+        onSuccess={handleHarvestSuccess} 
       />
       <RequestFundsModal 
         open={activeModal === 'request-funds'} 
@@ -193,6 +255,31 @@ export default function SeedbasePage() {
         onClose={() => setActiveModal(null)} 
         onSuccess={addActivity}
         onVotesUpdated={handleVotesUpdated}
+      />
+
+      {/* Detail Modals */}
+      <MissionsDetailModal
+        open={activeModal === 'missions-detail'}
+        onClose={() => setActiveModal(null)}
+        onLaunchMission={() => setActiveModal('launch-mission')}
+      />
+      <ProvisionDetailModal
+        open={activeModal === 'provision-detail'}
+        onClose={() => setActiveModal(null)}
+        balance={statusData.provisionPool}
+        onAllocate={() => setActiveModal('allocate-provision')}
+        onGive={() => setActiveModal('give-provision')}
+      />
+      <CommitmentsDetailModal
+        open={activeModal === 'commitments-detail'}
+        onClose={() => setActiveModal(null)}
+        recentTotal={statusData.recentCommitments}
+        onCommitSeed={() => setActiveModal('commit-seed')}
+      />
+      <DistributionDetailModal
+        open={activeModal === 'distribution-detail'}
+        onClose={() => setActiveModal(null)}
+        estimatedAmount={statusData.nextDistribution}
       />
     </div>
   );
