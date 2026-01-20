@@ -116,6 +116,7 @@ export function MovementSection() {
       if (scene === "parachute" && parachuteRef.current) {
         parachuteRef.current.currentTime = 0;
         parachuteRef.current.muted = isMuted;
+        parachuteRef.current.playbackRate = 0.5; // Slow motion effect
         parachuteRef.current.play().catch(console.error);
       }
     }, 200);
@@ -299,20 +300,29 @@ export function MovementSection() {
               onCanPlay={() => setVideosLoading(prev => ({ ...prev, parachute: false }))}
             />
             <div className="absolute inset-0 bg-black/40" />
+            {/* Seeded logo descending like a parachute from top */}
             <motion.div 
-              className="absolute inset-0 flex items-center justify-center"
-              initial={{ scale: 0, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
+              className="absolute inset-0 flex flex-col items-center justify-center"
+              initial={{ y: -200, opacity: 0, scale: 0.8 }}
+              animate={{ y: 0, opacity: 1, scale: 1 }}
               transition={{ 
-                delay: 0.5,
-                type: "spring",
-                stiffness: 200,
-                damping: 15
+                delay: 0.3,
+                duration: 1.5,
+                ease: [0.25, 0.46, 0.45, 0.94] // Smooth easing like floating down
               }}
             >
-              <span className="text-white text-6xl md:text-8xl lg:text-9xl font-black tracking-tighter drop-shadow-2xl">
-                SEEDED
-              </span>
+              <motion.img
+                src={seededLogoWhite}
+                alt="SEEDED"
+                className="h-20 md:h-32 lg:h-40 object-contain drop-shadow-2xl"
+                animate={{ y: [0, -8, 0] }}
+                transition={{ 
+                  delay: 1.8,
+                  duration: 2,
+                  repeat: Infinity,
+                  ease: "easeInOut"
+                }}
+              />
             </motion.div>
           </motion.div>
         )}
