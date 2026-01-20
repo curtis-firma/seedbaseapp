@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, Variants, AnimatePresence } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, ChevronDown } from "lucide-react";
+import { ExternalLink, ChevronDown, Loader2 } from "lucide-react";
 
 interface LearnMoreModalProps {
   open: boolean;
@@ -12,13 +12,16 @@ interface LearnMoreModalProps {
 
 const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProps) => {
   const [showDetails, setShowDetails] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleGetStarted = () => {
+    setIsLoading(true);
     onOpenChange(false);
     // Smooth scroll to top before showing login
     window.scrollTo({ top: 0, behavior: 'smooth' });
     // Delay login modal to allow scroll to complete
     setTimeout(() => {
+      setIsLoading(false);
       onGetStarted();
     }, 300);
   };
@@ -93,16 +96,25 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
               <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${showDetails ? 'rotate-180' : ''}`} />
             </button>
             
-            <AnimatePresence>
+            <AnimatePresence mode="wait">
               {showDetails && (
                 <motion.div
                   initial={{ height: 0, opacity: 0 }}
                   animate={{ height: "auto", opacity: 1 }}
                   exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
+                  transition={{ 
+                    height: { duration: 0.3, ease: [0.4, 0, 0.2, 1] },
+                    opacity: { duration: 0.2, delay: showDetails ? 0.1 : 0 }
+                  }}
                   className="overflow-hidden"
                 >
-                  <div className="pt-3 space-y-3 text-sm text-muted-foreground leading-relaxed">
+                  <motion.div 
+                    className="pt-3 space-y-3 text-sm text-muted-foreground leading-relaxed"
+                    initial={{ y: -8, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: -8, opacity: 0 }}
+                    transition={{ duration: 0.25, delay: 0.05 }}
+                  >
                     <p>
                       As the network grows, seed appreciates. That appreciation creates surplus—you earn rewards, 
                       missions get funded, and your original seed is kept safe for return.
@@ -110,7 +122,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
                     <p>
                       No crypto knowledge needed. Use your debit card or Apple Pay. Withdraw to your bank anytime.
                     </p>
-                  </div>
+                  </motion.div>
                 </motion.div>
               )}
             </AnimatePresence>
@@ -184,9 +196,17 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
           >
             <Button
               onClick={handleGetStarted}
+              disabled={isLoading}
               className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-11 rounded-xl"
             >
-              Get Started
+              {isLoading ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Loading...
+                </>
+              ) : (
+                "Get Started"
+              )}
             </Button>
             <Button
               onClick={handleReadLightPaper}
