@@ -3,10 +3,11 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, X, Send, FileText, Sprout, DollarSign, 
   Search, AtSign, Upload, Megaphone, Heart, Rocket,
-  Layers, Flag
+  Layers, Flag, Edit
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
+import { useLocation } from 'react-router-dom';
 import { SendModal } from '@/components/wallet/SendModal';
 import { ComingSoonModal, useComingSoon } from '@/components/shared/ComingSoonModal';
 import { createPost } from '@/lib/supabase/postsApi';
@@ -25,6 +26,10 @@ export function QuickActionButton() {
   const [showTooltip, setShowTooltip] = useState(false);
   const { isOpen: isComingSoonOpen, featureName, showComingSoon, hideComingSoon } = useComingSoon();
   const { viewRole } = useUser();
+  const location = useLocation();
+
+  // Hide FAB on One Accord page (has its own compose bar)
+  const isOneAccordPage = location.pathname === '/app/oneaccord';
 
   // Listen for welcome walkthrough completion to show tooltip
   useEffect(() => {
@@ -252,26 +257,27 @@ export function QuickActionButton() {
         )}
       </AnimatePresence>
 
-      {/* Floating Button */}
-      <motion.button
-        onClick={() => {
-          dismissTooltip();
-          setIsOpen(true);
-        }}
-        className={cn(
-          "fixed z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-elevated",
-          "bottom-24 right-4 md:bottom-8 md:right-8",
-          viewRole === 'activator' && "gradient-seed",
-          viewRole === 'trustee' && "gradient-trust",
-          viewRole === 'envoy' && "gradient-envoy"
-        )}
-        whileHover={{ scale: 1.05 }}
-        whileTap={{ scale: 0.95 }}
-        animate={{ rotate: isOpen ? 45 : 0 }}
-      >
-        <Plus className="h-6 w-6" />
-      </motion.button>
-
+      {/* Floating Button - hidden on One Accord page */}
+      {!isOneAccordPage && (
+        <motion.button
+          onClick={() => {
+            dismissTooltip();
+            setIsOpen(true);
+          }}
+          className={cn(
+            "fixed z-40 w-14 h-14 rounded-2xl text-white flex items-center justify-center shadow-elevated",
+            "bottom-24 right-4 md:bottom-8 md:right-8",
+            viewRole === 'activator' && "gradient-seed",
+            viewRole === 'trustee' && "gradient-trust",
+            viewRole === 'envoy' && "gradient-envoy"
+          )}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+          animate={{ rotate: isOpen ? 45 : 0 }}
+        >
+          <Plus className="h-6 w-6" />
+        </motion.button>
+      )}
       {/* Modal */}
       <AnimatePresence>
         {isOpen && (
