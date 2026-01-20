@@ -187,7 +187,10 @@ const ScrollingLandingPage = () => {
         <LearnMoreModal 
           open={showLearnMore} 
           onOpenChange={setShowLearnMore}
-          onGetStarted={() => setShowLoginModal(true)}
+          onGetStarted={() => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+            setTimeout(() => setShowLoginModal(true), 300);
+          }}
         />
 
         {/* Right - Scrolling Content (tablet and desktop) */}
