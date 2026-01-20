@@ -7,13 +7,14 @@ import {
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { KeyGatedCard } from '@/components/shared/KeyGatedCard';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
+import { TransparencyDashboard } from '@/components/seedbase/TransparencyDashboard';
 import { useUser } from '@/contexts/UserContext';
 import { mockSeedbases, mockMissions } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 
 const roleTabs = {
-  activator: ['Commit', 'Track', 'Grow'],
-  trustee: ['Missions', 'Govern', 'Review'],
+  activator: ['Commit', 'Track', 'Giving'],
+  trustee: ['Missions', 'Giving', 'Review'],
   envoy: ['My Missions', 'Submit', 'Reports'],
 };
 
@@ -183,43 +184,8 @@ function ActivatorContent({ tab }: { tab: number }) {
     );
   }
 
-  return (
-    <div className="space-y-4">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="bg-card rounded-2xl border border-border/50 p-5"
-      >
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-xl gradient-base flex items-center justify-center">
-            <Users className="h-6 w-6 text-white" />
-          </div>
-          <div>
-            <h3 className="font-semibold text-lg">Affiliate Program</h3>
-            <p className="text-sm text-muted-foreground">Grow the network, earn rewards</p>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div className="bg-muted/50 rounded-xl p-3 text-center">
-            <p className="text-2xl font-bold">12</p>
-            <p className="text-xs text-muted-foreground">Referrals</p>
-          </div>
-          <div className="bg-muted/50 rounded-xl p-3 text-center">
-            <p className="text-2xl font-bold">$350</p>
-            <p className="text-xs text-muted-foreground">Earned</p>
-          </div>
-        </div>
-
-        <motion.button
-          whileTap={{ scale: 0.98 }}
-          className="w-full py-3 rounded-xl border-2 border-primary text-primary font-medium"
-        >
-          Share Invite Link
-        </motion.button>
-      </motion.div>
-    </div>
-  );
+  // Tab 2: Giving - Transparency Dashboard
+  return <TransparencyDashboard viewMode="activator" />;
 }
 
 function TrusteeContent({ tab }: { tab: number }) {
@@ -256,16 +222,9 @@ function TrusteeContent({ tab }: { tab: number }) {
     );
   }
 
+  // Tab 1: Giving - Transparency Dashboard
   if (tab === 1) {
-    return (
-      <KeyGatedCard requiredKey="BaseKey">
-        <div className="space-y-4 p-5">
-          <h3 className="font-semibold text-lg">Governance Dashboard</h3>
-          <StatCard label="Pending Approvals" value="3" change="2 envoys, 1 mission" />
-          <StatCard label="Seedbase Health" value="94%" change="Excellent" />
-        </div>
-      </KeyGatedCard>
-    );
+    return <TransparencyDashboard viewMode="trustee" />;
   }
 
   return (

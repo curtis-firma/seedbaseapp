@@ -2,14 +2,15 @@ import { motion } from 'framer-motion';
 import { 
   Settings as SettingsIcon, User, Bell, Shield, Palette, 
   HelpCircle, FileText, LogOut, ChevronRight, Moon, Sun, Play,
-  Trash2, Bug, ChevronDown, Camera, Check
+  Trash2, Bug, ChevronDown, Camera, Check, Edit, X
 } from 'lucide-react';
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
 import { clearAllDemoData, getSessionPhone, listUsers, truncateHexId } from '@/lib/demoAuth';
-import { uploadAvatar, updateUser, findUserByPhone } from '@/lib/supabase/demoApi';
+import { uploadAvatar, updateUser, findUserByPhone, isUsernameTaken } from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
+import { Input } from '@/components/ui/input';
 
 export default function SettingsPage() {
   const [isDark, setIsDark] = useState(false);
@@ -19,6 +20,13 @@ export default function SettingsPage() {
   const [isUploadingAvatar, setIsUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { logout, startDemo, isAuthenticated, username, displayName, activeRole, walletDisplayId, keyType, keyDisplayId, demoMode, phoneNumber, avatarUrl, refreshUserData } = useUser();
+  
+  // Profile editing state
+  const [editingProfile, setEditingProfile] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState('');
+  const [newUsername, setNewUsername] = useState('');
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [usernameError, setUsernameError] = useState<string | null>(null);
 
   const handleResetDemo = () => {
     clearAllDemoData();
@@ -89,6 +97,76 @@ export default function SettingsPage() {
     setAvatarPreview(null);
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
+    }
+  };
+
+  // Profile editing handlers
+  const handleEditProfile = () => {
+    setNewDisplayName(displayName || '');
+    setNewUsername(username || '');
+    setUsernameError(null);
+    setEditingProfile(true);
+  };
+
+  const handleCancelEdit = () => {
+    setEditingProfile(false);
+    setNewDisplayName('');
+    setNewUsername('');
+    setUsernameError(null);
+  };
+
+  const handleSaveProfile = async () => {
+    if (!phoneNumber) return;
+    
+    // Validate username
+    const trimmedUsername = newUsername.trim().toLowerCase();
+    if (trimmedUsername.length < 3 || trimmedUsername.length > 20) {
+      setUsernameError('Username must be 3-20 characters');
+      return;
+    }
+    if (!/^[a-z0-9_]+$/.test(trimmedUsername)) {
+      setUsernameError('Only letters, numbers, and underscores allowed');
+      return;
+    }
+    
+    setIsSavingProfile(true);
+    setUsernameError(null);
+    
+    try {
+      const user = await findUserByPhone(phoneNumber);
+      if (!user) {
+        toast.error('User not found');
+        return;
+      }
+      
+      // Check if username is taken (if changed)
+      if (trimmedUsername !== username?.toLowerCase()) {
+        const taken = await isUsernameTaken(trimmedUsername, user.id);
+        if (taken) {
+          setUsernameError('Username already taken');
+          setIsSavingProfile(false);
+          return;
+        }
+      }
+      
+      // Update user
+      const updated = await updateUser(user.id, {
+        username: trimmedUsername,
+        display_name: newDisplayName.trim() || trimmedUsername,
+      });
+      
+      if (updated) {
+        refreshUserData();
+        toast.success('Profile updated!');
+        setEditingProfile(false);
+      } else {
+        toast.error('Failed to update profile');
+      }
+    } catch (err) {
+      console.error('Profile update error:', err);
+      toast.error('Failed to update profile');
+    } finally {
+      setIsSavingProfile(false);
     }
   };
 
@@ -166,34 +244,100 @@ export default function SettingsPage() {
               </label>
             </div>
             
-            {/* User Info + Save/Cancel */}
+            {/* User Info + Edit/Save/Cancel */}
             <div className="flex-1">
-              <p className="font-semibold text-lg">{displayName || username || 'User'}</p>
-              <p className="text-sm text-muted-foreground">@{username || 'username'}</p>
-              
-              {avatarFile && (
-                <div className="flex gap-2 mt-3">
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleSaveAvatar}
-                    disabled={isUploadingAvatar}
-                    className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-medium flex items-center gap-2"
-                  >
-                    {isUploadingAvatar ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Check className="w-4 h-4" />
+              {editingProfile ? (
+                <div className="space-y-3">
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Display Name</label>
+                    <Input
+                      value={newDisplayName}
+                      onChange={(e) => setNewDisplayName(e.target.value)}
+                      placeholder="Display name"
+                      className="h-9"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground mb-1 block">Username</label>
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">@</span>
+                      <Input
+                        value={newUsername}
+                        onChange={(e) => {
+                          setNewUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''));
+                          setUsernameError(null);
+                        }}
+                        placeholder="username"
+                        className="h-9 pl-7"
+                      />
+                    </div>
+                    {usernameError && (
+                      <p className="text-xs text-destructive mt-1">{usernameError}</p>
                     )}
-                    {isUploadingAvatar ? 'Saving...' : 'Save Photo'}
-                  </motion.button>
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={handleCancelAvatar}
-                    className="px-4 py-2 rounded-xl bg-muted text-sm font-medium"
-                  >
-                    Cancel
-                  </motion.button>
+                  </div>
+                  <div className="flex gap-2">
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleSaveProfile}
+                      disabled={isSavingProfile}
+                      className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-medium flex items-center gap-2"
+                    >
+                      {isSavingProfile ? (
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                      ) : (
+                        <Check className="w-4 h-4" />
+                      )}
+                      {isSavingProfile ? 'Saving...' : 'Save'}
+                    </motion.button>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleCancelEdit}
+                      className="px-4 py-2 rounded-xl bg-muted text-sm font-medium flex items-center gap-2"
+                    >
+                      <X className="w-4 h-4" />
+                      Cancel
+                    </motion.button>
+                  </div>
                 </div>
+              ) : (
+                <>
+                  <div className="flex items-center gap-2">
+                    <p className="font-semibold text-lg">{displayName || username || 'User'}</p>
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleEditProfile}
+                      className="p-1.5 rounded-lg hover:bg-muted transition-colors"
+                    >
+                      <Edit className="w-4 h-4 text-muted-foreground" />
+                    </motion.button>
+                  </div>
+                  <p className="text-sm text-muted-foreground">@{username || 'username'}</p>
+                  
+                  {avatarFile && (
+                    <div className="flex gap-2 mt-3">
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleSaveAvatar}
+                        disabled={isUploadingAvatar}
+                        className="px-4 py-2 rounded-xl bg-primary hover:bg-primary/90 text-white text-sm font-medium flex items-center gap-2"
+                      >
+                        {isUploadingAvatar ? (
+                          <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                        ) : (
+                          <Check className="w-4 h-4" />
+                        )}
+                        {isUploadingAvatar ? 'Saving...' : 'Save Photo'}
+                      </motion.button>
+                      <motion.button
+                        whileTap={{ scale: 0.95 }}
+                        onClick={handleCancelAvatar}
+                        className="px-4 py-2 rounded-xl bg-muted text-sm font-medium"
+                      >
+                        Cancel
+                      </motion.button>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>

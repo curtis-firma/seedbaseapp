@@ -8,6 +8,8 @@ import { MilestoneCardV2 } from './cards/MilestoneCardV2';
 import { VoteCardV2 } from './cards/VoteCardV2';
 import { TithingCardV2 } from './cards/TithingCardV2';
 import { RecipientCardV2 } from './cards/RecipientCardV2';
+import { TransparencyCard } from '@/components/feed/TransparencyCard';
+import { useNavigate } from 'react-router-dom';
 
 // Simple hash function for deterministic variant selection
 function hashCode(str: string): number {
@@ -20,10 +22,13 @@ function hashCode(str: string): number {
   return Math.abs(hash);
 }
 
-type CardVariant = 'current' | 'v2-announcement' | 'v2-deployment' | 'v2-impact' | 'v2-milestone' | 'v2-vote' | 'v2-tithing' | 'v2-recipient';
+type CardVariant = 'current' | 'v2-announcement' | 'v2-deployment' | 'v2-impact' | 'v2-milestone' | 'v2-vote' | 'v2-tithing' | 'v2-recipient' | 'v2-transparency';
 
 function getCardVariant(item: FeedItem): CardVariant {
   const hash = hashCode(item.id);
+  
+  // Transparency cards always use transparency variant
+  if (item.postType === 'transparency' || item.type === 'transparency') return 'v2-transparency';
   
   // Use V2 cards for ~40% of items for variety
   if (hash % 5 > 1) return 'current';
@@ -44,6 +49,8 @@ interface FeedRendererProps {
 }
 
 export function FeedRenderer({ items }: FeedRendererProps) {
+  const navigate = useNavigate();
+  
   return (
     <>
       {items.map((item, index) => {
@@ -125,6 +132,17 @@ export function FeedRenderer({ items }: FeedRendererProps) {
                 imageUrl={item.embeddedCard?.imageUrl}
                 missionName={item.mission?.name}
                 location="Guatemala"
+              />
+            )}
+            {variant === 'v2-transparency' && (
+              <TransparencyCard
+                seedbaseName={item.seedbase?.name || 'Seedbase'}
+                reportType="quarterly"
+                metrics={item.embeddedCard?.stats?.map(s => ({
+                  label: String(s.label),
+                  value: String(s.value),
+                })) || []}
+                onView={() => navigate('/app/seedbase')}
               />
             )}
           </PostCard>
