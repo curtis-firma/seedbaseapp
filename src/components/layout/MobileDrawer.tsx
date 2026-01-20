@@ -83,9 +83,13 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
               </motion.button>
             </div>
 
-            {/* User Profile Section - Full width below header */}
+            {/* User Profile Section - Clickable to navigate to profile */}
             {username && (
-              <div className="px-6 py-4 border-b border-border/50">
+              <motion.div 
+                className="px-6 py-4 border-b border-border/50 cursor-pointer hover:bg-muted/50 transition-colors"
+                onClick={() => handleNavigate('/app/profile')}
+                whileTap={{ scale: 0.98 }}
+              >
                 <div className="flex items-center gap-4">
                   <Avatar className="h-14 w-14 border-2 border-primary/20">
                     <AvatarImage src={displayAvatar} alt={displayName || username} />
@@ -93,7 +97,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
                       {(displayName || username || 'U').charAt(0).toUpperCase()}
                     </AvatarFallback>
                   </Avatar>
-                  <div>
+                  <div className="flex-1">
                     <p className="font-semibold text-lg">{displayName || username}</p>
                     <p className="text-sm text-muted-foreground">@{username}</p>
                     {hasHandles && (
@@ -104,8 +108,9 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
                       </p>
                     )}
                   </div>
+                  <span className="text-xs text-muted-foreground">View Profile →</span>
                 </div>
-              </div>
+              </motion.div>
             )}
 
             {/* View Role Switcher */}
