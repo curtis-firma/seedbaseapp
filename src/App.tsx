@@ -21,6 +21,7 @@ import SeededPage from "./pages/SeededPage";
 import LauncherPage from "./pages/LauncherPage";
 import SettingsPage from "./pages/SettingsPage";
 import GovernancePage from "./pages/GovernancePage";
+import ProfilePage from "./pages/ProfilePage";
 import NotFound from "./pages/NotFound";
 
 // Landing Page (outside AppLayout)
@@ -90,6 +91,7 @@ const App = () => (
             <Route path="/app/launcher" element={<AppLayout><LauncherPage /></AppLayout>} />
             <Route path="/app/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
             <Route path="/app/governance" element={<AppLayout><GovernancePage /></AppLayout>} />
+            <Route path="/app/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
             
             {/* 404 */}
             <Route path="*" element={<NotFound />} />

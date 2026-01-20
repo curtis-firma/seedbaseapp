@@ -381,3 +381,18 @@ export async function uploadAvatar(userId: string, file: File): Promise<string |
   const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
   return data.publicUrl;
 }
+
+// Get ALL keys for a user (active + inactive)
+export async function getAllKeysByUserId(userId: string): Promise<DemoKey[]> {
+  const { data, error } = await supabase
+    .from('demo_keys')
+    .select('*')
+    .eq('user_id', userId)
+    .order('created_at', { ascending: false });
+  
+  if (error) {
+    console.error('Error getting all keys:', error);
+    return [];
+  }
+  return (data || []).map(castToDemoKey);
+}
