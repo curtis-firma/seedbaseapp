@@ -34,10 +34,8 @@ const EnterAppButton = ({ onClick, fullWidth = false, className }: EnterAppButto
         aria-hidden="true"
         className={cn(
           "absolute left-4 w-5 h-5 object-contain",
-          "brightness-0 invert", // Convert blue to white
           "transition-transform duration-300 ease-out",
           "group-hover:-translate-x-10 group-focus-visible:-translate-x-10",
-          // Reduced motion: no animation
           "motion-reduce:transition-none motion-reduce:group-hover:translate-x-0 motion-reduce:group-focus-visible:translate-x-0"
         )}
       />
