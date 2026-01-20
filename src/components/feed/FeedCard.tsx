@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { motion } from 'framer-motion';
-import { Plus, Sprout } from 'lucide-react';
+import { Plus, Sprout, MessageCircle, Share2, Heart } from 'lucide-react';
 import { FeedItem } from '@/types/seedbase';
 import { cn } from '@/lib/utils';
 import { EmbeddedCard } from './EmbeddedCard';
@@ -289,23 +289,48 @@ export function FeedCard({ item, index }: FeedCardProps) {
 
         {/* Actions Bar - Using Shared PostActions */}
         <div className="px-4 pb-4 border-t border-border/30 mt-2">
-          <div className="flex items-center justify-between">
-            <PostActions
-              commentCount={item.comments}
-              likeCount={likeCount}
-              impactAmount={item.impactFlow?.amount ? item.impactFlow.amount / 1000 : undefined}
-              isLiked={isLiked}
-              onComment={handleComment}
-              onShare={handleShare}
-              onLike={handleLike}
-              onGive={handleGive}
-              showGiveButton={true}
-            />
-            <AmplifyButton
-              variant="inline"
-              content={`${item.author?.name || 'Someone'} just made an impact! ${item.content?.slice(0, 80)}...\n\n#Seedbase`}
-              impactSummary={`Impact from ${item.author?.name || 'the network'}`}
-            />
+          <div className="flex flex-col gap-3 pt-3">
+            {/* Top row: icons + Give button */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3 md:gap-4">
+                {/* Comment */}
+                <button className="flex items-center gap-1.5 text-muted-foreground hover:text-primary transition-colors">
+                  <MessageCircle className="w-[18px] h-[18px]" />
+                  <span className="text-sm">{item.comments}</span>
+                </button>
+                {/* Share */}
+                <button onClick={handleShare} className="flex items-center text-muted-foreground hover:text-primary transition-colors">
+                  <Share2 className="w-[18px] h-[18px]" />
+                </button>
+                {/* Like */}
+                <button
+                  onClick={handleLike}
+                  className={`flex items-center gap-1.5 transition-colors ${
+                    isLiked ? 'text-rose-500' : 'text-muted-foreground hover:text-rose-500'
+                  }`}
+                >
+                  <Heart className={`w-[18px] h-[18px] ${isLiked ? 'fill-current' : ''}`} />
+                  <span className="text-sm">{likeCount}</span>
+                </button>
+              </div>
+              {/* Give Button */}
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleGive}
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-primary text-primary-foreground rounded-xl font-medium text-sm hover:bg-primary/90 transition-colors shadow-sm"
+              >
+                <Sprout className="w-4 h-4" />
+                <span>Give</span>
+              </motion.button>
+            </div>
+            {/* Bottom row: Amplify (full width on mobile) */}
+            <div className="flex justify-end">
+              <AmplifyButton
+                variant="inline"
+                content={`${item.author?.name || 'Someone'} just made an impact! ${item.content?.slice(0, 80)}...\n\n#Seedbase`}
+                impactSummary={`Impact from ${item.author?.name || 'the network'}`}
+              />
+            </div>
           </div>
         </div>
       </motion.article>
