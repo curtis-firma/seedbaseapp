@@ -7,7 +7,8 @@ import {
 import { useState, useRef } from 'react';
 import { cn } from '@/lib/utils';
 import { useUser } from '@/contexts/UserContext';
-import { clearAllDemoData, getSessionPhone, loadUserByPhone, listUsers, truncateHexId, saveUser, DemoUser } from '@/lib/demoAuth';
+import { clearAllDemoData, getSessionPhone, listUsers, truncateHexId } from '@/lib/demoAuth';
+import { uploadAvatar, updateUser, findUserByPhone } from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
 
 export default function SettingsPage() {
@@ -25,13 +26,9 @@ export default function SettingsPage() {
     toast.success('All demo data cleared. Refresh to start fresh.');
   };
 
-  // Get current user avatar - prioritize avatarUrl from context, then localStorage, then DiceBear
+  // Get current user avatar - prioritize avatarUrl from context, then DiceBear
   const getCurrentAvatarUrl = () => {
     if (avatarUrl) return avatarUrl;
-    if (phoneNumber) {
-      const user = loadUserByPhone(phoneNumber);
-      return user?.avatarUrl || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
-    }
     return `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
   };
 
@@ -50,22 +47,37 @@ export default function SettingsPage() {
   };
 
   const handleSaveAvatar = async () => {
-    if (!avatarPreview || !phoneNumber) return;
+    if (!avatarFile || !phoneNumber) return;
     
     setIsUploadingAvatar(true);
     try {
-      // For demo, we store the data URL directly in localStorage
-      const user = loadUserByPhone(phoneNumber);
-      if (user) {
-        user.avatarUrl = avatarPreview;
-        saveUser(user);
+      // Find the user in the database
+      const user = await findUserByPhone(phoneNumber);
+      if (!user) {
+        toast.error('User not found');
+        return;
+      }
+      
+      // Upload to Supabase Storage
+      const publicUrl = await uploadAvatar(user.id, avatarFile);
+      if (!publicUrl) {
+        toast.error('Failed to upload photo');
+        return;
+      }
+      
+      // Update user's avatar_url in database
+      const updated = await updateUser(user.id, { avatar_url: publicUrl });
+      if (updated) {
         // Refresh user data in context to sync avatar everywhere
         refreshUserData();
         toast.success('Profile photo updated!');
         setAvatarFile(null);
-        // Keep preview showing new avatar
+        setAvatarPreview(null);
+      } else {
+        toast.error('Failed to update profile');
       }
     } catch (err) {
+      console.error('Avatar upload error:', err);
       toast.error('Failed to update photo');
     } finally {
       setIsUploadingAvatar(false);
