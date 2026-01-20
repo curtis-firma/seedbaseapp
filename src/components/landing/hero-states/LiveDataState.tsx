@@ -95,7 +95,7 @@ const LiveDataState = () => {
   };
 
   return (
-    <div className="relative w-full h-full flex flex-col items-center justify-start p-[4%] pt-[3%] overflow-hidden">
+    <div className="relative w-full h-full flex flex-col items-center justify-start p-[4%] pt-[3%] overflow-hidden bg-white">
       <Confetti isActive={showConfetti} />
 
       {/* Centered Header - compact */}

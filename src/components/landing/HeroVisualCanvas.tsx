@@ -22,17 +22,17 @@ interface HeroState {
   isVideo?: boolean;
 }
 
-// States cycle with smooth transitions - each controls its own background
+// States cycle with smooth transitions - increased durations for visibility
 const STATES: HeroState[] = [
   { id: 'mission-video', Component: MissionVideoState, duration: 15000, isVideo: true },
-  { id: 'feed-scroll', Component: FeedScrollState, duration: 6000 },
+  { id: 'feed-scroll', Component: FeedScrollState, duration: 8000 },
   { id: 'social-video', Component: SocialVideoState, duration: 12000, isVideo: true },
-  { id: 'token-tiles', Component: TokenTilesState, duration: 6000 },
-  { id: 'network', Component: NetworkFlowState, duration: 5000 },
+  { id: 'token-tiles', Component: TokenTilesState, duration: 8000 },
+  { id: 'network', Component: NetworkFlowState, duration: 7000 },
   { id: 'seeded-hype', Component: SeededHypeVideoState, duration: 15000, isVideo: true },
   { id: 'app-sharing-video', Component: AppSharingVideoState, duration: 12000, isVideo: true },
-  { id: 'live', Component: LiveDataState, duration: 5000 },
-  { id: 'brand', Component: BrandMomentState, duration: 5000 },
+  { id: 'live', Component: LiveDataState, duration: 8000 },
+  { id: 'brand', Component: BrandMomentState, duration: 7000 },
 ];
 
 const VIDEO_STATE_IDS = new Set(['mission-video', 'social-video', 'app-sharing-video', 'seeded-hype']);
@@ -93,46 +93,34 @@ const HeroVisualCanvas = () => {
   }
 
   const activeId = STATES[activeState].id;
-  const ActiveComponent = STATES[activeState].Component;
+  const ActiveComponent = STATES[activeState].Component as VideoStateComponent;
   const isVideoActive = VIDEO_STATE_IDS.has(activeId);
 
   // Smooth crossfade transition config
   const fadeTransition = {
-    duration: 1.2,
-    ease: [0.25, 0.1, 0.25, 1] as const, // Smooth cubic bezier
+    duration: 0.8,
+    ease: [0.4, 0, 0.2, 1] as const,
   };
 
   return (
     <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden bg-black">
-      {/* Keep ALL states mounted but fade between them for smooth transitions */}
-      {STATES.map((state, index) => {
-        const StateComponent = state.Component as VideoStateComponent;
-        const isActive = index === activeState;
-        const isVideo = VIDEO_STATE_IDS.has(state.id);
-
-        return (
-          <motion.div
-            key={state.id}
-            className="absolute inset-0"
-            initial={false}
-            animate={{ 
-              opacity: isActive ? 1 : 0,
-              scale: isActive ? 1 : 1.02,
-            }}
-            transition={fadeTransition}
-            style={{ 
-              pointerEvents: isActive ? 'auto' : 'none',
-              zIndex: isActive ? 10 : 1,
-            }}
-          >
-            {isVideo ? (
-              <StateComponent active={isActive} onEnded={handleVideoEnded} />
-            ) : (
-              <StateComponent />
-            )}
-          </motion.div>
-        );
-      })}
+      {/* Single state mounted at a time with AnimatePresence for clean transitions */}
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeId}
+          className="absolute inset-0"
+          initial={{ opacity: 0, scale: 1.02 }}
+          animate={{ opacity: 1, scale: 1 }}
+          exit={{ opacity: 0, scale: 0.98 }}
+          transition={fadeTransition}
+        >
+          {isVideoActive ? (
+            <ActiveComponent active={true} onEnded={handleVideoEnded} />
+          ) : (
+            <ActiveComponent />
+          )}
+        </motion.div>
+      </AnimatePresence>
       
       {/* State indicators */}
       <div className="absolute bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 md:gap-2 z-20">
