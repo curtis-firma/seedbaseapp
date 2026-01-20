@@ -92,18 +92,17 @@ const HeroVisualCanvas = () => {
     );
   }
 
-  // Slide transition config - smooth horizontal swipe
-  const slideTransition = {
-    duration: 0.5,
-    ease: [0.32, 0.72, 0, 1] as const,
+  // Quick fade transition - no sliding
+  const quickFade = {
+    duration: 0.25,
+    ease: 'easeOut' as const,
   };
 
   return (
     <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden bg-white">
-      {/* Keep ALL states mounted - toggle opacity and position for smooth transitions */}
+      {/* Keep ALL states mounted - quick opacity toggle for instant switching */}
       {STATES.map((state, index) => {
         const isActive = index === activeState;
-        const isPrev = index === (activeState - 1 + STATES.length) % STATES.length;
         const isVideo = VIDEO_STATE_IDS.has(state.id);
         const StateComponent = state.Component as VideoStateComponent;
 
@@ -113,11 +112,10 @@ const HeroVisualCanvas = () => {
             className="absolute inset-0"
             initial={false}
             animate={{
-              x: isActive ? 0 : isPrev ? '-100%' : '100%',
-              opacity: isActive || isPrev ? 1 : 0,
-              zIndex: isActive ? 10 : isPrev ? 5 : 0,
+              opacity: isActive ? 1 : 0,
+              zIndex: isActive ? 10 : 0,
             }}
-            transition={slideTransition}
+            transition={quickFade}
           >
             {isVideo ? (
               <StateComponent active={isActive} onEnded={handleVideoEnded} />
