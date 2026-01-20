@@ -153,7 +153,7 @@ export default function OneAccordPage() {
 
   // One Accord uses inverted colors - dark when system is light, light when system is dark
   return (
-    <div className="min-h-screen pb-36 bg-[#0a0a0a] dark:bg-white">
+    <div className="min-h-screen flex flex-col bg-[#0a0a0a] dark:bg-white">
       {/* Confetti Animation */}
       <Confetti isActive={showConfetti} />
       
@@ -179,42 +179,47 @@ export default function OneAccordPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0, x: -20 }}
+            className="flex flex-col min-h-screen"
           >
-            {/* Header - inverted colors */}
-            <header className="sticky top-0 z-20 bg-[#0a0a0a]/95 dark:bg-white/95 backdrop-blur-xl border-b border-white/10 dark:border-gray-200">
-              <div className="px-4 py-4 flex items-center justify-between">
-                <div>
-                  <h1 className="text-xl font-bold text-white dark:text-black">OneAccord</h1>
-                  <p className="text-sm text-gray-400 dark:text-gray-500">Messages & Transfers</p>
+            {/* Sticky Header Section - locked to top */}
+            <div className="sticky top-0 z-30 bg-[#0a0a0a] dark:bg-white">
+              {/* Header - inverted colors */}
+              <header className="bg-[#0a0a0a]/95 dark:bg-white/95 backdrop-blur-xl border-b border-white/10 dark:border-gray-200">
+                <div className="px-4 py-4 flex items-center justify-between">
+                  <div>
+                    <h1 className="text-xl font-bold text-white dark:text-black">OneAccord</h1>
+                    <p className="text-sm text-gray-400 dark:text-gray-500">Messages & Transfers</p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <motion.button
+                      whileTap={{ scale: 0.95 }}
+                      onClick={loadTransfers}
+                      className="p-2 rounded-xl bg-white/10 dark:bg-gray-100 hover:bg-white/20 dark:hover:bg-gray-200 transition-colors text-white dark:text-black"
+                    >
+                      <RefreshCw className="h-5 w-5" />
+                    </motion.button>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <motion.button
-                    whileTap={{ scale: 0.95 }}
-                    onClick={loadTransfers}
-                    className="p-2 rounded-xl bg-white/10 dark:bg-gray-100 hover:bg-white/20 dark:hover:bg-gray-200 transition-colors text-white dark:text-black"
-                  >
-                    <RefreshCw className="h-5 w-5" />
-                  </motion.button>
-                </div>
-              </div>
-            </header>
+              </header>
 
-            {/* Info Banner - inverted colors */}
-            <div className="px-4 py-3">
-              <div className="bg-[#0000ff]/10 border border-[#0000ff]/30 rounded-xl p-4">
-                <p className="text-sm text-white dark:text-black">
-                  <span className="font-semibold">All transfers arrive here.</span> Accept USDC transfers to move them to your wallet.
-                </p>
+              {/* Info Banner - inverted colors */}
+              <div className="px-4 py-3">
+                <div className="bg-[#0000ff]/10 border border-[#0000ff]/30 rounded-xl p-4">
+                  <p className="text-sm text-white dark:text-black">
+                    <span className="font-semibold">All transfers arrive here.</span> Accept USDC transfers to move them to your wallet.
+                  </p>
+                </div>
               </div>
             </div>
 
+            {/* Scrollable Messages Section */}
             {isLoading ? (
               <div className="px-4 py-12 text-center">
                 <div className="w-8 h-8 border-2 border-[#0000ff] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
                 <p className="text-gray-400 dark:text-gray-500">Loading messages...</p>
               </div>
             ) : (
-              <div className="px-4 py-2">
+              <div className="flex-1 overflow-y-auto px-4 py-2 pb-36">
                 {/* ALWAYS show demo messages first */}
                 {/* Pending Section */}
                 <div className="mb-6">
