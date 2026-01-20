@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { toast } from 'sonner';
 import { triggerHaptic } from '@/hooks/useHaptic';
+import { Confetti } from '@/components/shared/Confetti';
 
 interface AmplifyModalProps {
   isOpen: boolean;
@@ -25,6 +26,7 @@ export function AmplifyModal({
   const { username } = useUser();
   const [showSendOutModal, setShowSendOutModal] = useState(false);
   const [selectedPlatform, setSelectedPlatform] = useState<'x' | 'base' | null>(null);
+  const [showSuccessScene, setShowSuccessScene] = useState(false);
   
   // Get stored handles
   const [xHandle, setXHandle] = useState<string>('');
@@ -67,9 +69,14 @@ export function AmplifyModal({
   
   const handleConfirmSend = () => {
     triggerHaptic('success');
-    toast.success(`Demo: Posted to ${selectedPlatform === 'x' ? 'X' : 'Base'}!`);
     setShowSendOutModal(false);
-    onClose();
+    setShowSuccessScene(true);
+    
+    // Auto-close after 2.5s
+    setTimeout(() => {
+      setShowSuccessScene(false);
+      onClose();
+    }, 2500);
   };
   
   if (!isOpen) return null;
@@ -216,89 +223,133 @@ export function AmplifyModal({
         </motion.div>
       )}
       
-      {/* Send Out Confirmation Modal */}
-      {showSendOutModal && (
+      {/* Success Scene - Cinematic Amplify Confirmation */}
+      {showSuccessScene && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
-          onClick={() => setShowSendOutModal(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center"
+          onClick={() => {
+            setShowSuccessScene(false);
+            onClose();
+          }}
         >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm bg-card rounded-2xl overflow-hidden"
-          >
-            {/* Header */}
-            <div className="p-4 border-b border-border text-center">
-              <div className="w-12 h-12 rounded-full bg-[#0000ff]/10 flex items-center justify-center mx-auto mb-3">
-                {selectedPlatform === 'x' ? (
-                  <svg className="h-6 w-6 text-black dark:text-white" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
-                  </svg>
-                ) : (
-                  <svg className="h-6 w-6 text-[#0052FF]" viewBox="0 0 24 24" fill="currentColor">
-                    <circle cx="12" cy="12" r="10" />
-                  </svg>
-                )}
-              </div>
-              <h2 className="font-semibold text-lg">Ready to send this out?</h2>
-            </div>
-            
-            {/* Content */}
-            <div className="p-4 space-y-4">
-              <div className="bg-muted/50 rounded-xl p-3 max-h-32 overflow-y-auto">
-                <p className="text-sm text-muted-foreground whitespace-pre-wrap">{fullCaption}</p>
-              </div>
+          {/* Platform-colored background */}
+          <motion.div 
+            className={`absolute inset-0 ${
+              selectedPlatform === 'x' 
+                ? 'bg-black' 
+                : 'bg-gradient-to-br from-[#0052FF] to-[#0033AA]'
+            }`}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.3 }}
+          />
+          
+          {/* Success content */}
+          <div className="relative z-10 flex flex-col items-center">
+            {/* Animated checkmark circle */}
+            <motion.div 
+              className="relative w-32 h-32 md:w-40 md:h-40"
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ 
+                delay: 0.1,
+                type: "spring",
+                stiffness: 200,
+                damping: 15
+              }}
+            >
+              {/* Outer ring */}
+              <svg className="w-full h-full" viewBox="0 0 100 100">
+                <motion.circle 
+                  cx="50"
+                  cy="50"
+                  r="45"
+                  fill="none"
+                  stroke="white"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  initial={{ pathLength: 0, opacity: 0 }}
+                  animate={{ pathLength: 1, opacity: 1 }}
+                  transition={{ delay: 0.3, duration: 0.8, ease: "easeOut" }}
+                />
+              </svg>
               
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground">Destination:</span>
-                <span className="font-medium flex items-center gap-1">
-                  {selectedPlatform === 'x' ? 'X (Twitter)' : 'Base Network'}
-                  <ExternalLink className="h-3 w-3" />
-                </span>
-              </div>
-              
-              <div className="flex items-center gap-2 text-sm">
-                <span className="text-muted-foreground">Referral link:</span>
-                <span className="font-medium text-[#0000ff]">Included ✓</span>
-              </div>
-            </div>
-            
-            {/* Actions */}
-            <div className="p-4 border-t border-border space-y-3">
-              <motion.button
-                whileTap={{ scale: 0.98 }}
-                onClick={handleConfirmSend}
-                className="w-full flex items-center justify-center gap-2 py-3.5 bg-[#0000ff] text-white rounded-xl font-semibold"
+              {/* Platform logo in center */}
+              <motion.div 
+                className="absolute inset-0 flex items-center justify-center"
+                initial={{ scale: 0, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ delay: 0.5, type: "spring", stiffness: 300, damping: 20 }}
               >
-                <Check className="h-5 w-5" />
-                Send
-              </motion.button>
-              
-              <div className="flex gap-3">
-                <motion.button
-                  whileTap={{ scale: 0.98 }}
-                  onClick={handleCopyCaption}
-                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-muted rounded-xl font-medium text-sm"
-                >
-                  <Copy className="h-4 w-4" />
-                  Copy Caption
-                </motion.button>
-                <motion.button
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => setShowSendOutModal(false)}
-                  className="flex-1 py-3 bg-muted rounded-xl font-medium text-sm"
-                >
-                  Cancel
-                </motion.button>
-              </div>
-            </div>
-          </motion.div>
+                {selectedPlatform === 'x' ? (
+                  <motion.svg 
+                    className="h-12 w-12 md:h-16 md:w-16 text-white" 
+                    viewBox="0 0 24 24" 
+                    fill="currentColor"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ delay: 0.8, duration: 0.5 }}
+                  >
+                    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                  </motion.svg>
+                ) : (
+                  <motion.div
+                    className="h-14 w-14 md:h-18 md:w-18 rounded-full bg-white flex items-center justify-center"
+                    animate={{ scale: [1, 1.1, 1] }}
+                    transition={{ delay: 0.8, duration: 0.5 }}
+                  >
+                    <div className="h-8 w-8 md:h-10 md:w-10 rounded-full bg-[#0052FF]" />
+                  </motion.div>
+                )}
+              </motion.div>
+            </motion.div>
+            
+            {/* Success text */}
+            <motion.h2 
+              className="text-white text-3xl md:text-4xl font-bold mt-8 tracking-tight"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.6, duration: 0.4 }}
+            >
+              Amplified!
+            </motion.h2>
+            
+            {/* Platform subtitle */}
+            <motion.p 
+              className="text-white/70 text-lg mt-3"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.4 }}
+            >
+              {selectedPlatform === 'x' ? 'Posted to X' : 'Sent on Base'}
+            </motion.p>
+            
+            {/* Handle */}
+            <motion.p 
+              className="text-white/50 mt-2 text-sm"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1, duration: 0.4 }}
+            >
+              {selectedPlatform === 'x' && xHandle && `@${xHandle.replace('@', '')}`}
+              {selectedPlatform === 'base' && baseHandle && `@${baseHandle.replace('@', '')}`}
+            </motion.p>
+            
+            {/* Tap to dismiss hint */}
+            <motion.p 
+              className="text-white/30 text-xs mt-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 1.5, duration: 0.4 }}
+            >
+              Tap to dismiss
+            </motion.p>
+          </div>
+          
+          {/* Confetti overlay */}
+          <Confetti isActive={true} duration={2500} />
         </motion.div>
       )}
     </AnimatePresence>
