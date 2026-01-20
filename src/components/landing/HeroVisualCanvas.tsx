@@ -8,6 +8,7 @@ import BrandMomentState from './hero-states/BrandMomentState';
 import StaticBrandState from './hero-states/StaticBrandState';
 import SocialVideoState from './hero-states/SocialVideoState';
 import AppSharingVideoState from './hero-states/AppSharingVideoState';
+import MatrixMemeState from './hero-states/MatrixMemeState';
 
 // States cycle with smooth transitions - each controls its own background
 // Per-state durations allow videos to play fully
@@ -15,6 +16,7 @@ const STATES = [
   { id: 'mission-video', Component: MissionVideoState, duration: 8000 },
   { id: 'feed-scroll', Component: FeedScrollState, duration: 6000 },
   { id: 'social-video', Component: SocialVideoState, duration: 7000 },
+  { id: 'matrix-meme', Component: MatrixMemeState, duration: 6000 },
   { id: 'network', Component: NetworkFlowState, duration: 5000 },
   { id: 'app-sharing-video', Component: AppSharingVideoState, duration: 7000 },
   { id: 'live', Component: LiveDataState, duration: 5000 },

@@ -178,7 +178,7 @@ const SegmentedOrbitalRing = ({
 
 const NetworkFlowState = () => {
   return (
-    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-black">
+    <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-[#0000ff]">
       {/* Centered "Generosity onchain" text */}
       <motion.p
         initial={{ opacity: 0, y: -10 }}
