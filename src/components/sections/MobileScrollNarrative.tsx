@@ -159,7 +159,7 @@ const MobileScrollNarrative = ({ onEnterApp }: MobileScrollNarrativeProps) => {
       </div>
 
       {/* Seedbase Logo Above Footer - All Views */}
-      <section className="py-8 flex justify-center">
+      <section className="py-4 flex justify-center">
         <button 
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
           className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg w-full flex justify-center"
