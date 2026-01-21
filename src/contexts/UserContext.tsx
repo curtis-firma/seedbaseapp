@@ -41,6 +41,7 @@ const UserContext = createContext<UserContextType | undefined>(undefined);
 
 // Session storage key
 const SESSION_KEY = 'seedbase-session';
+const AVATAR_CACHE_KEY = 'seedbase-avatar-cache';
 
 interface SessionData {
   userId: string;
@@ -63,6 +64,20 @@ function loadSession(): SessionData | null {
 
 function clearSessionData() {
   localStorage.removeItem(SESSION_KEY);
+  localStorage.removeItem(AVATAR_CACHE_KEY);
+}
+
+// Cache avatar URL for faster loading
+function cacheAvatarUrl(url: string | null) {
+  if (url) {
+    localStorage.setItem(AVATAR_CACHE_KEY, url);
+  } else {
+    localStorage.removeItem(AVATAR_CACHE_KEY);
+  }
+}
+
+function getCachedAvatarUrl(): string | null {
+  return localStorage.getItem(AVATAR_CACHE_KEY);
 }
 
 export function UserProvider({ children }: { children: ReactNode }) {
@@ -90,6 +105,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
 
   const restoreSession = async () => {
     const session = loadSession();
+    
+    // Immediately set cached avatar for faster UI
+    const cachedAvatar = getCachedAvatarUrl();
+    if (cachedAvatar) {
+      setAvatarUrl(cachedAvatar);
+    }
     
     if (session?.userId) {
       try {
@@ -152,9 +173,10 @@ export function UserProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(true);
     setDemoMode(demoUser.phone.startsWith('demo:'));
     
-    // Avatar comes from database (Supabase storage URL)
+    // Avatar comes from database (Supabase storage URL) - also cache locally
     const avatar = demoUser.avatar_url || null;
     setAvatarUrl(avatar);
+    cacheAvatarUrl(avatar);
     
     // Save session
     saveSession({ userId: demoUser.id, phone: demoUser.phone });
@@ -183,10 +205,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     if (phoneNumber) {
       const dbUser = await findUserByPhone(phoneNumber);
       if (dbUser) {
-        // Update all user fields from database
-        if (dbUser.avatar_url) {
-          setAvatarUrl(dbUser.avatar_url);
-        }
+        // Update all user fields from database and cache avatar
+        const newAvatarUrl = dbUser.avatar_url || null;
+        setAvatarUrl(newAvatarUrl);
+        cacheAvatarUrl(newAvatarUrl);
+        
         if (dbUser.display_name) {
           setDisplayName(dbUser.display_name);
         }
@@ -196,7 +219,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
         setUser(prev => ({
           ...prev,
           name: dbUser.display_name || dbUser.username || prev.name,
-          avatar: dbUser.avatar_url || prev.avatar,
+          avatar: newAvatarUrl || prev.avatar,
         }));
       }
     }
