@@ -106,6 +106,11 @@ const STICKER_PACKS = [
   }
 ];
 
+// Giphy API configuration
+const GIPHY_API_KEY = 'yDGalSnHlj4NNLSBixhm3e2cUoRHjnSA';
+const GIPHY_SEARCH_URL = 'https://api.giphy.com/v1/gifs/search';
+const GIPHY_TRENDING_URL = 'https://api.giphy.com/v1/gifs/trending';
+
 // Popular GIF search terms for trending
 const TRENDING_TERMS = ['thank you', 'celebrate', 'happy', 'love', 'excited', 'wow'];
 
@@ -132,22 +137,32 @@ export function GifStickerPicker({ isOpen, onClose, onSelect }: GifStickerPicker
     return pack;
   });
 
-  // Simulated GIF search (since we don't have Tenor API key yet)
+  // Search GIFs using Giphy API
   const searchGifs = useCallback(async (query: string) => {
     setIsLoadingGifs(true);
-    await new Promise(resolve => setTimeout(resolve, 800));
-    
-    const placeholderGifs = [
-      'https://media.giphy.com/media/3o7abKhOpu0NwenH3O/giphy.gif',
-      'https://media.giphy.com/media/xT5LMHxhOfscxPfIfm/giphy.gif',
-      'https://media.giphy.com/media/l0MYt5jPR6QX5pnqM/giphy.gif',
-      'https://media.giphy.com/media/26u4cqiYI30juCOGY/giphy.gif',
-      'https://media.giphy.com/media/g9582DNuQppxC/giphy.gif',
-      'https://media.giphy.com/media/3oz8xIsloV7zOmt81G/giphy.gif',
-    ];
-    
-    setGifs(placeholderGifs);
-    setIsLoadingGifs(false);
+    try {
+      const url = query === 'trending' 
+        ? `${GIPHY_TRENDING_URL}?api_key=${GIPHY_API_KEY}&limit=20&rating=g`
+        : `${GIPHY_SEARCH_URL}?api_key=${GIPHY_API_KEY}&q=${encodeURIComponent(query)}&limit=20&rating=g`;
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      if (data.data && Array.isArray(data.data)) {
+        // Extract the fixed_height or downsized URLs for better performance
+        const gifUrls = data.data.map((gif: any) => 
+          gif.images?.fixed_height?.url || gif.images?.downsized?.url || gif.images?.original?.url
+        ).filter(Boolean);
+        setGifs(gifUrls);
+      } else {
+        setGifs([]);
+      }
+    } catch (error) {
+      console.error('Error fetching GIFs:', error);
+      setGifs([]);
+    } finally {
+      setIsLoadingGifs(false);
+    }
   }, []);
 
   useEffect(() => {
