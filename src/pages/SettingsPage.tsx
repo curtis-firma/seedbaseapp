@@ -72,7 +72,7 @@ export default function SettingsPage() {
       // Upload to Supabase Storage
       const publicUrl = await uploadAvatar(user.id, avatarFile);
       if (!publicUrl) {
-        toast.error('Failed to upload photo');
+        toast.error('Failed to upload photo. Please try a smaller image.');
         return;
       }
       
@@ -80,16 +80,19 @@ export default function SettingsPage() {
       const updated = await updateUser(user.id, { avatar_url: publicUrl });
       if (updated) {
         // Refresh user data in context to sync avatar everywhere
-        refreshUserData();
+        await refreshUserData();
         toast.success('Profile photo updated!');
         setAvatarFile(null);
         setAvatarPreview(null);
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       } else {
-        toast.error('Failed to update profile');
+        toast.error('Failed to save profile photo');
       }
     } catch (err) {
       console.error('Avatar upload error:', err);
-      toast.error('Failed to update photo');
+      toast.error('Failed to update photo. Please try again.');
     } finally {
       setIsUploadingAvatar(false);
     }

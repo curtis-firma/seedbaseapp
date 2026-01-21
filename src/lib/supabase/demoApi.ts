@@ -366,24 +366,40 @@ export async function countDemoUsers(): Promise<number> {
 
 // Upload avatar to storage
 export async function uploadAvatar(userId: string, file: File): Promise<string | null> {
-  const fileExt = file.name.split('.').pop();
-  const fileName = `${userId}-${Date.now()}.${fileExt}`;
-  const filePath = `${fileName}`;
-  
-  const { error: uploadError } = await supabase.storage
-    .from('avatars')
-    .upload(filePath, file, {
-      cacheControl: '3600',
-      upsert: true,
-    });
-  
-  if (uploadError) {
-    console.error('Error uploading avatar:', uploadError);
+  try {
+    const fileExt = file.name.split('.').pop()?.toLowerCase() || 'jpg';
+    const fileName = `${userId}-${Date.now()}.${fileExt}`;
+    const filePath = fileName;
+    
+    // Convert file to ArrayBuffer for more reliable upload
+    const arrayBuffer = await file.arrayBuffer();
+    
+    const { data: uploadData, error: uploadError } = await supabase.storage
+      .from('avatars')
+      .upload(filePath, arrayBuffer, {
+        contentType: file.type || 'image/jpeg',
+        cacheControl: '3600',
+        upsert: true,
+      });
+    
+    if (uploadError) {
+      console.error('Error uploading avatar:', uploadError);
+      return null;
+    }
+    
+    // Get the public URL
+    const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
+    
+    if (!data?.publicUrl) {
+      console.error('Failed to get public URL for avatar');
+      return null;
+    }
+    
+    return data.publicUrl;
+  } catch (err) {
+    console.error('Avatar upload exception:', err);
     return null;
   }
-  
-  const { data } = supabase.storage.from('avatars').getPublicUrl(filePath);
-  return data.publicUrl;
 }
 
 // Get ALL keys for a user (active + inactive)
