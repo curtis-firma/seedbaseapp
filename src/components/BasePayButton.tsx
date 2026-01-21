@@ -23,10 +23,11 @@ export function BasePayButton({
   onClick,
   fullWidth = false,
 }: BasePayButtonProps) {
+  // Size configurations following Base 1× padding rule
   const sizes = {
-    sm: "h-10 px-4 text-sm gap-2.5",
-    md: "h-12 px-5 text-base gap-3",
-    lg: "h-14 px-6 text-lg gap-3.5",
+    sm: "h-12 px-5 text-sm gap-3", // 16px icon → 20px padding
+    md: "h-14 px-6 text-base gap-3.5", // 20px icon → 24px padding
+    lg: "h-16 px-8 text-lg gap-4", // 24px icon → 32px padding
   };
 
   const iconSizes = {
@@ -67,7 +68,8 @@ export function BasePayButton({
     <button
       onClick={onClick}
       className={cn(
-        "inline-flex items-center justify-center font-semibold rounded-full transition-all duration-200",
+        // Base-style: rounded rectangle (NOT pill)
+        "inline-flex items-center justify-center font-semibold rounded-xl transition-all duration-200",
         "hover:opacity-90 active:scale-[0.98]",
         sizes[size],
         getStyles(),

@@ -636,24 +636,50 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           />
         </div>
 
-        {/* Send Button */}
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={handleSend}
-          disabled={!canSend || isSending}
-          className={cn(
-            "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all",
-            canSend && !isSending
-              ? "bg-gradient-to-r from-[#0000ff] to-purple-600 text-white shadow-lg hover:shadow-xl"
-              : "bg-gray-200 text-gray-400 cursor-not-allowed"
-          )}
-        >
-          {isSending ? (
-            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-          ) : (
-            <Send className="h-5 w-5" />
-          )}
-        </motion.button>
+        {/* Send Button - Base Pay style when USDC attached, regular send otherwise */}
+        {attachUsdc && amount > 0 ? (
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSend}
+            disabled={!canSend || isSending}
+            className={cn(
+              // Base-style button: rounded rectangle
+              "flex-shrink-0 h-10 px-4 rounded-xl font-semibold text-sm",
+              "inline-flex items-center justify-center gap-2",
+              "transition-all duration-200",
+              canSend && !isSending
+                ? "bg-foreground text-background"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+            )}
+          >
+            {isSending ? (
+              <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <span className="w-4 h-4 rounded-sm flex-shrink-0 bg-[#0000ff]" />
+                <span>Pay</span>
+              </>
+            )}
+          </motion.button>
+        ) : (
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSend}
+            disabled={!canSend || isSending}
+            className={cn(
+              "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all",
+              canSend && !isSending
+                ? "bg-gradient-to-r from-[#0000ff] to-purple-600 text-white shadow-lg hover:shadow-xl"
+                : "bg-gray-200 text-gray-400 cursor-not-allowed"
+            )}
+          >
+            {isSending ? (
+              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <Send className="h-5 w-5" />
+            )}
+          </motion.button>
+        )}
       </div>
 
       {/* GIF/Sticker Picker */}
