@@ -21,6 +21,8 @@ import { Confetti } from '@/components/shared/Confetti';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { AmplifyPromptModal } from '@/components/social/AmplifyPromptModal';
 import { AmplifyButton } from '@/components/social/AmplifyButton';
+import { MessageReactions } from '@/components/oneaccord/MessageReactions';
+import { MessageThread } from '@/components/oneaccord/MessageThread';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
 
 // Message type icons and styles - Fun colorful design
@@ -303,6 +305,20 @@ export default function OneAccordPage() {
                             <p className="text-sm text-gray-600 whitespace-pre-line">{message.body}</p>
                           </div>
                           
+                          {/* Reactions & Reply */}
+                          <div className="flex items-center gap-4 mb-3">
+                            <MessageReactions messageId={message.id} />
+                            <MessageThread
+                              messageId={message.id}
+                              originalMessage={{
+                                from: message.from,
+                                avatar: message.avatar,
+                                body: message.body,
+                                timestamp: message.timestamp,
+                              }}
+                            />
+                          </div>
+                          
                           {message.hasAcceptButton && (
                             <div className="flex gap-2">
                               {acceptedDemoIds.has(message.id) ? (
@@ -404,7 +420,22 @@ export default function OneAccordPage() {
                             </div>
                             <p className="font-medium text-sm text-gray-900">{message.title}</p>
                             <p className="text-sm text-gray-600 line-clamp-2">{message.body}</p>
-                            <p className="text-xs text-gray-400 mt-1">
+                            
+                            {/* Reactions & Reply */}
+                            <div className="flex items-center gap-4 mt-2">
+                              <MessageReactions messageId={`all-${message.id}`} />
+                              <MessageThread
+                                messageId={`all-${message.id}`}
+                                originalMessage={{
+                                  from: message.from,
+                                  avatar: message.avatar,
+                                  body: message.body,
+                                  timestamp: message.timestamp,
+                                }}
+                              />
+                            </div>
+                            
+                            <p className="text-xs text-gray-400 mt-2">
                               {formatDistanceToNow(message.timestamp, { addSuffix: true })}
                             </p>
                             
