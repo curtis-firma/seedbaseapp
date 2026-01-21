@@ -36,7 +36,16 @@ seedDemoDataIfEmpty();
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
+    // Scroll both window and document for maximum compatibility
     window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
+    // Also reset any scrollable main content area
+    const mainElement = document.querySelector('main');
+    if (mainElement) {
+      mainElement.scrollTop = 0;
+    }
   }, [pathname]);
   return null;
 }

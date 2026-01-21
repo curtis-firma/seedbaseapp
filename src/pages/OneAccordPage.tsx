@@ -239,7 +239,7 @@ export default function OneAccordPage() {
                 <p className="text-white/60 dark:text-gray-600">Loading messages...</p>
               </div>
             ) : (
-              <div className="flex-1 overflow-y-auto px-4 py-2 pb-36">
+              <div className="flex-1 overflow-y-auto px-4 py-2 pb-48">
                 {/* ALWAYS show demo messages first */}
                 {/* Pending Section */}
                 <div className="mb-6">

@@ -13,6 +13,7 @@ import { WelcomeWalkthrough } from '@/components/onboarding/WelcomeWalkthrough';
 import { OnboardingModal } from '@/components/shared/OnboardingModal';
 import { TutorialOverlay, useShouldShowTutorial } from '@/components/shared/TutorialOverlay';
 import { ViewingAsBadge } from '@/components/shared/ViewRoleBadge';
+import { Logo } from '@/components/shared/Logo';
 import { useUser } from '@/contexts/UserContext';
 
 const TUTORIAL_FIRST_LOGIN_KEY = 'seedbase-first-login-tutorial-pending';
@@ -137,7 +138,9 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
           <div className="z-10">
             <ProfileMenuTrigger onOpen={() => setIsDrawerOpen(true)} />
           </div>
-          <span className="font-bold text-lg absolute left-1/2 -translate-x-1/2">Seedbase</span>
+          <div className="absolute left-1/2 -translate-x-1/2">
+            <Logo variant="wordmark" size="sm" />
+          </div>
           <div className="w-10" /> {/* Spacer for centering */}
         </div>
       </div>

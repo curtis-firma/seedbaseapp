@@ -264,7 +264,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
 
   // COMPOSE MODE: Show message input area with selected user (inverted colors)
   return (
-    <div className="fixed bottom-16 left-0 right-0 md:left-[260px] z-40 bg-[#1a1a1a] dark:bg-white/95 backdrop-blur-xl border-t border-white/10 dark:border-gray-200">
+    <div className="fixed bottom-20 left-0 right-0 md:left-[260px] z-40 bg-[#1a1a1a] dark:bg-white/95 backdrop-blur-xl border-t-2 border-[#0000ff]/30 shadow-[0_-4px_20px_rgba(0,0,255,0.15)]">
       <AnimatePresence>
         {/* Amount Picker Dropdown */}
         {showAmountPicker && (
@@ -364,7 +364,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
       {selectedUser && (
         <div className="px-4 pt-3">
           <div className="flex items-center gap-2">
-            <span className="text-xs text-white/60 dark:text-gray-500">To:</span>
+            <span className="text-sm font-medium text-white dark:text-gray-600">To:</span>
             <div className="flex items-center gap-1.5 px-2 py-1 bg-white/10 dark:bg-gray-100 rounded-full">
               {selectedUser.avatar_url ? (
                 <img 
@@ -422,9 +422,9 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           <textarea
             value={message}
             onChange={(e) => setMessage(e.target.value)}
-            placeholder="Type a message..."
+            placeholder="Write your message here..."
             rows={1}
-            className="w-full bg-white/5 dark:bg-gray-100 border border-white/10 dark:border-gray-200 rounded-2xl py-2.5 px-4 text-sm outline-none focus:ring-2 ring-[#0000ff]/30 focus:border-[#0000ff]/50 transition-all resize-none min-h-[40px] max-h-24 text-white dark:text-black placeholder:text-gray-500"
+            className="w-full bg-white/10 dark:bg-gray-100 border-2 border-white/20 dark:border-gray-200 rounded-2xl py-3 px-4 text-base outline-none focus:ring-2 ring-[#0000ff]/50 focus:border-[#0000ff] transition-all resize-none min-h-[48px] max-h-24 text-white dark:text-black placeholder:text-white/60 dark:placeholder:text-gray-400"
             style={{ height: 'auto' }}
             onInput={(e) => {
               const target = e.target as HTMLTextAreaElement;
