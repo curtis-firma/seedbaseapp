@@ -12,12 +12,12 @@ interface TypographyProps {
   as?: keyof JSX.IntrinsicElements;
 }
 
-// H1 Hero: text-[44px] md:text-[64px] font-semibold tracking-[-0.03em] leading-[0.95]
+// H1 Hero: text-[48px] md:text-[72px] font-bold tracking-[-0.03em] leading-[0.95]
 export const Heading = ({ children, className, as: Component = "h1" }: TypographyProps) => {
   return (
     <Component
       className={cn(
-        "text-[44px] md:text-[64px] font-semibold tracking-[-0.03em] leading-[0.95] text-foreground",
+        "text-[48px] md:text-[72px] font-bold tracking-[-0.03em] leading-[0.95] text-foreground",
         className
       )}
     >
@@ -26,12 +26,12 @@ export const Heading = ({ children, className, as: Component = "h1" }: Typograph
   );
 };
 
-// H2 Section: text-[28px] md:text-[40px] font-semibold tracking-[-0.02em] leading-[1.05]
+// H2 Section: text-[32px] md:text-[48px] font-bold tracking-[-0.02em] leading-[1.05]
 export const Subheading = ({ children, className, as: Component = "h2" }: TypographyProps) => {
   return (
     <Component
       className={cn(
-        "text-[28px] md:text-[40px] font-semibold tracking-[-0.02em] leading-[1.05] text-foreground",
+        "text-[32px] md:text-[48px] font-bold tracking-[-0.02em] leading-[1.05] text-foreground",
         className
       )}
     >

@@ -288,11 +288,11 @@ function PersonalWalletView({
         animate={{ opacity: 1, y: 0 }}
         className="bg-gradient-to-br from-primary to-base-glow rounded-2xl p-5 text-white"
       >
-        <div className="flex items-center gap-2 mb-1">
+        <div className="flex items-center gap-2 mb-2">
           <WalletIcon className="h-5 w-5 opacity-80" />
           <span className="text-sm opacity-80">Personal Balance</span>
         </div>
-        <p className="text-3xl font-bold mb-1">
+        <p className="text-4xl md:text-5xl font-bold mb-1 tracking-tight">
           ${balance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
         </p>
         <p className="text-sm opacity-80 mb-3">USDC</p>

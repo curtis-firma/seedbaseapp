@@ -110,11 +110,12 @@ export default function HomePage() {
         if (feedItems.length === 0) {
           const moreMockItems = generateMoreMockItems(posts.length, POSTS_PER_PAGE);
           setPosts(prev => [...prev, ...moreMockItems]);
-          // Keep hasMore true for infinite feel, but slow down after many pages
-          setHasMore(page < 10);
+          // Always keep hasMore true for truly infinite feel
+          setHasMore(true);
         } else {
           setPosts(prev => [...prev, ...feedItems]);
-          setHasMore(feedItems.length === POSTS_PER_PAGE);
+          // Keep going even if we got less than full page
+          setHasMore(true);
         }
       }
       
@@ -125,12 +126,13 @@ export default function HomePage() {
       if (reset) {
         setPosts(mockFeedItems);
       } else {
-        // Generate more mock items for infinite scroll
-        const moreMockItems = generateMoreMockItems(posts.length, POSTS_PER_PAGE);
-        setPosts(prev => [...prev, ...moreMockItems]);
-      }
-      setHasMore(page < 10);
-    } finally {
+      // Generate more mock items for infinite scroll
+      const moreMockItems = generateMoreMockItems(posts.length, POSTS_PER_PAGE);
+      setPosts(prev => [...prev, ...moreMockItems]);
+    }
+    // Always keep hasMore true for infinite feel
+    setHasMore(true);
+  } finally {
       setIsLoading(false);
       setIsLoadingMore(false);
     }
@@ -384,8 +386,11 @@ export default function HomePage() {
                     <motion.div 
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
-                      className="flex flex-col items-center gap-2"
+                      className="flex flex-col items-center gap-3"
                     >
+                      {/* Show skeleton cards during load */}
+                      <SkeletonCard />
+                      <SkeletonCard />
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}

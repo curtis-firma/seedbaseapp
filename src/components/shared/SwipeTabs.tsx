@@ -8,6 +8,12 @@ interface SwipeTabsProps {
   className?: string;
 }
 
+const tabTransition = {
+  type: 'spring' as const,
+  stiffness: 400,
+  damping: 30,
+};
+
 export function SwipeTabs({ tabs, activeTab, onTabChange, className }: SwipeTabsProps) {
   return (
     <div className={cn("flex gap-1 p-1 bg-muted/50 rounded-xl", className)}>
@@ -21,13 +27,16 @@ export function SwipeTabs({ tabs, activeTab, onTabChange, className }: SwipeTabs
               ? "text-primary font-semibold"
               : "text-muted-foreground hover:text-foreground"
           )}
-          whileTap={{ scale: 0.98 }}
+          whileTap={{ scale: 0.97 }}
+          whileHover={{ scale: 1.02 }}
+          transition={tabTransition}
         >
           {activeTab === index && (
             <motion.div
               layoutId="active-tab"
               className="absolute inset-0 bg-primary/25 border-2 border-primary/50 rounded-lg shadow-md"
-              transition={{ type: 'spring', bounce: 0.2, duration: 0.6 }}
+              initial={false}
+              transition={tabTransition}
             />
           )}
           <span className="relative z-10 font-bold">{tab}</span>
