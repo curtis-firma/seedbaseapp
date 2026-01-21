@@ -6,7 +6,6 @@ import { useHaptic } from '@/hooks/useHaptic';
 
 const navItems = [
   { icon: Home, label: 'Home', path: '/app' },
-  { icon: MessageCircle, label: 'Accord', path: '/app/oneaccord', featured: true },
   { icon: Layers, label: 'Seedbase', path: '/app/seedbase' },
   { icon: User, label: 'User', path: '/app/wallet' },
 ];

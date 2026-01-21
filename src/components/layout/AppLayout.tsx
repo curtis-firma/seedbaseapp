@@ -1,7 +1,8 @@
 import { ReactNode, useState, useEffect } from 'react';
 import { useSwipeable } from 'react-swipeable';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { MessageCircle } from 'lucide-react';
 import { BottomNav } from './BottomNav';
 import { Sidebar } from './Sidebar';
 import { MobileDrawer } from './MobileDrawer';
@@ -15,6 +16,7 @@ import { TutorialOverlay, useShouldShowTutorial } from '@/components/shared/Tuto
 import { ViewingAsBadge } from '@/components/shared/ViewRoleBadge';
 import { Logo } from '@/components/shared/Logo';
 import { useUser } from '@/contexts/UserContext';
+import { cn } from '@/lib/utils';
 
 const TUTORIAL_FIRST_LOGIN_KEY = 'seedbase-first-login-tutorial-pending';
 
@@ -141,7 +143,26 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
           <div className="absolute left-1/2 -translate-x-1/2">
             <Logo variant="wordmark" size="sm" />
           </div>
-          <div className="w-10" /> {/* Spacer for centering */}
+          <motion.button
+            onClick={() => navigate('/app/oneaccord')}
+            className={cn(
+              "relative p-2 rounded-xl transition-colors",
+              location.pathname === '/app/oneaccord' 
+                ? "bg-primary/10" 
+                : "bg-gradient-to-r from-[#0000ff]/10 to-purple-500/10"
+            )}
+            whileTap={{ scale: 0.95 }}
+          >
+            <MessageCircle 
+              className={cn(
+                "h-5 w-5",
+                location.pathname === '/app/oneaccord' ? "text-primary" : "text-[#0000ff]"
+              )} 
+            />
+            {location.pathname !== '/app/oneaccord' && (
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#0000ff] rounded-full" />
+            )}
+          </motion.button>
         </div>
       </div>
       
