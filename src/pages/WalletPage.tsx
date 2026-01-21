@@ -13,6 +13,7 @@ import { trusteeWallets } from '@/data/mockData';
 import { AddFundsModal } from '@/components/wallet/AddFundsModal';
 import { WithdrawModal } from '@/components/wallet/WithdrawModal';
 import { SendModal } from '@/components/wallet/SendModal';
+import { RequestModal } from '@/components/wallet/RequestModal';
 import { KeyActivationModal } from '@/components/wallet/KeyActivationModal';
 import { AffiliateExplainerModal } from '@/components/shared/AffiliateExplainerModal';
 import { truncateDisplayId } from '@/lib/supabase/demoApi';
@@ -257,6 +258,7 @@ function PersonalWalletView({
   const [showAddFunds, setShowAddFunds] = useState(false);
   const [showWithdraw, setShowWithdraw] = useState(false);
   const [showSend, setShowSend] = useState(false);
+  const [showRequest, setShowRequest] = useState(false);
   const [showAffiliateModal, setShowAffiliateModal] = useState(false);
   const { activeRole } = useUser();
   const isActivator = activeRole === 'activator';
@@ -328,7 +330,7 @@ function PersonalWalletView({
         <div className="flex gap-2">
           <motion.button
             whileTap={{ scale: 0.98 }}
-            onClick={() => toast.info('Request feature coming soon - use Send for now!')}
+            onClick={() => setShowRequest(true)}
             className="flex-1 flex items-center justify-center gap-2 py-3 bg-white/15 backdrop-blur-sm rounded-xl font-medium text-sm"
           >
             <ArrowDownRight className="h-4 w-4" />
@@ -360,6 +362,11 @@ function PersonalWalletView({
       <SendModal
         isOpen={showSend}
         onClose={() => setShowSend(false)}
+        onSuccess={onRefresh}
+      />
+      <RequestModal
+        isOpen={showRequest}
+        onClose={() => setShowRequest(false)}
         onSuccess={onRefresh}
       />
 
