@@ -65,7 +65,7 @@ export function PostCard({
       ref={ref}
       initial={{ opacity: 0, y: 20 }}
       animate={isVisible ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-      transition={{ duration: 0.3, delay: Math.min(index * 0.05, 0.3) }}
+      transition={{ duration: 0.2, delay: 0 }}
       className={`
         bg-card border border-border/50 rounded-2xl
         shadow-sm hover:shadow-md transition-shadow

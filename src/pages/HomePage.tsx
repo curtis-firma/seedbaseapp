@@ -64,9 +64,9 @@ function generateMoreMockItems(existingCount: number, count: number): FeedItem[]
   return newItems;
 }
 
-// Role badge config
+// Role badge config - Activator is GREEN (seed), Trustee is purple, Envoy is orange
 const roleConfig = {
-  activator: { label: 'Activator', bg: 'bg-[#0000ff]/20', text: 'text-[#0000ff]', border: 'border-[#0000ff]/30' },
+  activator: { label: 'Activator', bg: 'bg-seed/20', text: 'text-seed', border: 'border-seed/30' },
   trustee: { label: 'Trustee', bg: 'bg-purple-500/20', text: 'text-purple-500', border: 'border-purple-500/30' },
   envoy: { label: 'Envoy', bg: 'bg-orange-500/20', text: 'text-orange-500', border: 'border-orange-500/30' },
 };
@@ -316,15 +316,7 @@ export default function HomePage() {
               >
                 <Search className="h-5 w-5 text-muted-foreground" />
               </motion.button>
-              <motion.button
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { haptic.light(); navigate('/app/oneaccord'); }}
-                className="relative p-2.5 hover:bg-muted rounded-xl transition-colors active:bg-muted/80"
-                title="Messages & Transfers"
-              >
-                <MessageCircle className="h-5 w-5 text-muted-foreground" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full" />
-              </motion.button>
+              {/* Message icon removed - already in AppLayout header */}
             </div>
           </div>
 

@@ -17,7 +17,7 @@ const pageVariants: Variants = {
     y: 0,
     scale: 1,
     transition: {
-      duration: 0.3,
+      duration: 0.15,
       ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },
@@ -26,7 +26,7 @@ const pageVariants: Variants = {
     y: -10,
     scale: 0.99,
     transition: {
-      duration: 0.2,
+      duration: 0.1,
       ease: [0.25, 0.46, 0.45, 0.94] as const,
     },
   },

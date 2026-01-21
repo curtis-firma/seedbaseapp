@@ -289,9 +289,36 @@ function ActivatorContent({ tab }: { tab: number }) {
   if (tab === 0) {
     return (
       <div className="space-y-4">
+        {/* Transparency Summary at TOP for Activators (Bug #14) */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
+          className="bg-gradient-to-br from-primary/5 to-trust/5 rounded-2xl border border-primary/20 p-4"
+        >
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="font-semibold text-sm">Transparency Overview</h3>
+            <span className="text-xs text-muted-foreground">See all in "Giving" tab</span>
+          </div>
+          <div className="grid grid-cols-3 gap-3 text-center">
+            <div className="bg-card rounded-xl p-2">
+              <p className="text-lg font-bold text-primary">$12.5K</p>
+              <p className="text-[10px] text-muted-foreground">Pool</p>
+            </div>
+            <div className="bg-card rounded-xl p-2">
+              <p className="text-lg font-bold text-seed">2</p>
+              <p className="text-[10px] text-muted-foreground">Votes Open</p>
+            </div>
+            <div className="bg-card rounded-xl p-2">
+              <p className="text-lg font-bold text-trust">5</p>
+              <p className="text-[10px] text-muted-foreground">Missions</p>
+            </div>
+          </div>
+        </motion.div>
+        
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
           className="bg-card rounded-2xl border border-border/50 shadow-card p-5"
         >
           <div className="flex items-center gap-3 mb-4">

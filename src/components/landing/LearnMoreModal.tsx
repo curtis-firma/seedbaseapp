@@ -114,7 +114,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
   };
 
   const handleReadLightPaper = () => {
-    window.open("https://claude.ai/public/artifacts/74db03fe-e309-4c96-a235-a7ee0f1a40a1", "_blank");
+    window.open("/SB_LightPaper.html", "_blank");
   };
 
   const toggleRole = (role: RoleType) => {

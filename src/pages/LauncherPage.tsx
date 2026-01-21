@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion';
 import { Rocket, Layers, DollarSign, ChevronRight, Plus, Target, Shield, Sprout } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const launchOptions = [
   {
@@ -32,6 +34,23 @@ const launchOptions = [
 
 export default function LauncherPage() {
   const { isKeyActive } = useUser();
+  const navigate = useNavigate();
+
+  const handleLaunch = (option: typeof launchOptions[0]) => {
+    const hasKey = isKeyActive(option.requiredKey);
+    
+    if (!hasKey) {
+      toast.info(`Requires ${option.requiredKey} to unlock this feature`);
+      return;
+    }
+    
+    // Navigate based on action
+    if (option.id === 'mission' || option.id === 'seedbase') {
+      navigate('/app/seedbase');
+    } else if (option.id === 'commitment') {
+      navigate('/app/wallet');
+    }
+  };
 
   return (
     <div className="min-h-screen pb-8">
@@ -64,8 +83,9 @@ export default function LauncherPage() {
               transition={{ delay: i * 0.1 }}
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
+              onClick={() => handleLaunch(option)}
               className={cn(
-                "w-full bg-card rounded-2xl border border-border/50 p-5 flex items-center gap-4 text-left",
+                "w-full bg-card rounded-2xl border border-border/50 p-5 flex items-center gap-4 text-left cursor-pointer",
                 !hasKey && "opacity-60"
               )}
             >

@@ -610,8 +610,9 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
     saveUser(finalUser);
     setSessionPhone(finalUser.phone);
     
-    if (dbUser) {
-      loginWithUser(dbUser, wallet, key);
+    // Use newDbUser (the just-created/updated user) instead of potentially stale dbUser
+    if (newDbUser) {
+      loginWithUser(newDbUser as any, wallet, key);
     }
     trigger('success');
     toast.success(`Welcome to Seedbase, @${username}!`);

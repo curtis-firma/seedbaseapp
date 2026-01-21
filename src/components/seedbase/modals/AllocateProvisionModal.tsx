@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Layers, Check, Target } from 'lucide-react';
+import { Layers, Check, Target, Users, Building, Zap, Calendar, Megaphone } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -16,26 +16,31 @@ interface AllocateProvisionModalProps {
   provisionBalance?: number;
 }
 
+// Extended categories for transparency + voting data generation
 const categories = [
-  { id: 'operations', label: 'Operations' },
-  { id: 'outreach', label: 'Outreach' },
-  { id: 'emergency', label: 'Emergency' },
-  { id: 'general', label: 'General' },
+  { id: 'mission', label: 'Mission', icon: Target },
+  { id: 'salary', label: 'Salary', icon: Users },
+  { id: 'rent', label: 'Rent', icon: Building },
+  { id: 'utilities', label: 'Utilities', icon: Zap },
+  { id: 'events', label: 'Events', icon: Calendar },
+  { id: 'marketing', label: 'Marketing', icon: Megaphone },
 ];
 
 export function AllocateProvisionModal({ open, onClose, onSuccess, provisionBalance = 12500 }: AllocateProvisionModalProps) {
   const { toast } = useToast();
   const [missionId, setMissionId] = useState('');
   const [amount, setAmount] = useState<number | string>(1000);
-  const [category, setCategory] = useState('general');
+  const [category, setCategory] = useState('mission');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  const selectedMission = mockMissions.find(m => m.id === missionId);
+  const selectedMission = category === 'mission' ? mockMissions.find(m => m.id === missionId) : null;
   const numAmount = typeof amount === 'string' ? parseFloat(amount) : amount;
 
   const handleSubmit = async () => {
-    if (!missionId || !numAmount || numAmount <= 0) return;
+    // For mission category, require mission selection; for others, just need amount
+    if (category === 'mission' && !missionId) return;
+    if (!numAmount || numAmount <= 0) return;
 
     setIsSubmitting(true);
     
@@ -43,16 +48,19 @@ export function AllocateProvisionModal({ open, onClose, onSuccess, provisionBala
     
     setIsSuccess(true);
     
+    const categoryLabel = categories.find(c => c.id === category)?.label || 'General';
+    const targetName = selectedMission?.title || categoryLabel;
+    
     toast({
       title: "Funds Allocated!",
-      description: `$${numAmount.toLocaleString()} sent to ${selectedMission?.title}`,
+      description: `$${numAmount.toLocaleString()} allocated to ${targetName}`,
     });
 
     onSuccess({
       id: `allocate-${Date.now()}`,
       type: 'provision_allocated',
-      title: 'Provision Allocated',
-      description: `$${numAmount.toLocaleString()} allocated to ${selectedMission?.title}`,
+      title: `${categoryLabel} Allocation`,
+      description: `$${numAmount.toLocaleString()} allocated to ${targetName}`,
       timestamp: new Date(),
       amount: numAmount,
     }, numAmount);
@@ -65,13 +73,13 @@ export function AllocateProvisionModal({ open, onClose, onSuccess, provisionBala
   const handleClose = () => {
     setMissionId('');
     setAmount(1000);
-    setCategory('general');
+    setCategory('mission');
     setIsSubmitting(false);
     setIsSuccess(false);
     onClose();
   };
 
-  const isValid = missionId && numAmount > 0 && numAmount <= provisionBalance;
+  const isValid = (category === 'mission' ? missionId : true) && numAmount > 0 && numAmount <= provisionBalance;
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
@@ -112,25 +120,53 @@ export function AllocateProvisionModal({ open, onClose, onSuccess, provisionBala
               <p className="text-2xl font-bold">${provisionBalance.toLocaleString()}</p>
             </div>
 
-            {/* Mission Selection */}
+            {/* Category Selection - FIRST */}
             <div>
-              <label className="text-sm font-medium mb-2 block">Select Mission *</label>
-              <Select value={missionId} onValueChange={setMissionId}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a mission..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {mockMissions.filter(m => m.status === 'active').map((mission) => (
-                    <SelectItem key={mission.id} value={mission.id}>
-                      <div className="flex items-center gap-2">
-                        <Target className="h-4 w-4 text-primary" />
-                        <span>{mission.title}</span>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <label className="text-sm font-medium mb-2 block">Allocation Category *</label>
+              <div className="flex flex-wrap gap-2">
+                {categories.map((cat) => {
+                  const Icon = cat.icon;
+                  return (
+                    <motion.button
+                      key={cat.id}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => setCategory(cat.id)}
+                      className={cn(
+                        "px-3 py-1.5 rounded-lg text-sm font-medium transition-all flex items-center gap-1.5",
+                        category === cat.id
+                          ? "bg-primary text-white"
+                          : "bg-muted hover:bg-muted/80"
+                      )}
+                    >
+                      <Icon className="h-3.5 w-3.5" />
+                      {cat.label}
+                    </motion.button>
+                  );
+                })}
+              </div>
             </div>
+
+            {/* Mission Selection - Only show when category is 'mission' */}
+            {category === 'mission' && (
+              <div>
+                <label className="text-sm font-medium mb-2 block">Select Mission *</label>
+                <Select value={missionId} onValueChange={setMissionId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Choose a mission..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {mockMissions.filter(m => m.status === 'active').map((mission) => (
+                      <SelectItem key={mission.id} value={mission.id}>
+                        <div className="flex items-center gap-2">
+                          <Target className="h-4 w-4 text-primary" />
+                          <span>{mission.title}</span>
+                        </div>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
 
             {/* Amount */}
             <div>
@@ -151,30 +187,8 @@ export function AllocateProvisionModal({ open, onClose, onSuccess, provisionBala
               )}
             </div>
 
-            {/* Category */}
-            <div>
-              <label className="text-sm font-medium mb-2 block">Category</label>
-              <div className="flex flex-wrap gap-2">
-                {categories.map((cat) => (
-                  <motion.button
-                    key={cat.id}
-                    whileTap={{ scale: 0.95 }}
-                    onClick={() => setCategory(cat.id)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-lg text-sm font-medium transition-all",
-                      category === cat.id
-                        ? "bg-primary text-white"
-                        : "bg-muted hover:bg-muted/80"
-                    )}
-                  >
-                    {cat.label}
-                  </motion.button>
-                ))}
-              </div>
-            </div>
-
             {/* Preview */}
-            {selectedMission && numAmount > 0 && (
+            {numAmount > 0 && numAmount <= provisionBalance && (
               <div className="bg-primary/10 rounded-xl p-4 border border-primary/20">
                 <p className="text-sm text-muted-foreground mb-1">After Allocation</p>
                 <p className="font-medium">
