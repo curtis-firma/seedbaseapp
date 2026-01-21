@@ -23,15 +23,15 @@ import { AmplifyPromptModal } from '@/components/social/AmplifyPromptModal';
 import { AmplifyButton } from '@/components/social/AmplifyButton';
 import seedbasePfp from '@/assets/seedbase-pfp.png';
 
-// Message type icons and styles - Using blue (base) for branding
+// Message type icons and styles - Fun colorful design
 const messageTypeConfig: Record<string, { icon: typeof DollarSign; gradient: string; bgColor: string }> = {
-  distribution: { icon: DollarSign, gradient: 'gradient-base', bgColor: 'bg-[#0000ff]/30' },
-  transfer: { icon: Send, gradient: 'gradient-base', bgColor: 'bg-[#0000ff]/30' },
-  harvest: { icon: FileText, gradient: 'gradient-envoy', bgColor: 'bg-orange-500/30' },
-  governance: { icon: Vote, gradient: 'gradient-trust', bgColor: 'bg-purple-500/30' },
-  milestone: { icon: Sprout, gradient: 'gradient-base', bgColor: 'bg-[#0000ff]/30' },
-  system: { icon: Bell, gradient: 'gradient-base', bgColor: 'bg-white/20 dark:bg-gray-200' },
-  update: { icon: FileText, gradient: 'gradient-envoy', bgColor: 'bg-orange-500/30' },
+  distribution: { icon: DollarSign, gradient: 'bg-gradient-to-br from-blue-500 to-purple-600', bgColor: 'bg-blue-100' },
+  transfer: { icon: Send, gradient: 'bg-gradient-to-br from-blue-500 to-purple-600', bgColor: 'bg-blue-100' },
+  harvest: { icon: FileText, gradient: 'bg-gradient-to-br from-orange-500 to-red-500', bgColor: 'bg-orange-100' },
+  governance: { icon: Vote, gradient: 'bg-gradient-to-br from-purple-500 to-pink-500', bgColor: 'bg-purple-100' },
+  milestone: { icon: Sprout, gradient: 'bg-gradient-to-br from-green-500 to-teal-500', bgColor: 'bg-green-100' },
+  system: { icon: Bell, gradient: 'bg-gradient-to-br from-gray-500 to-gray-600', bgColor: 'bg-gray-100' },
+  update: { icon: FileText, gradient: 'bg-gradient-to-br from-orange-500 to-red-500', bgColor: 'bg-orange-100' },
 };
 
 export default function OneAccordPage() {
@@ -43,18 +43,15 @@ export default function OneAccordPage() {
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [acceptedTransferId, setAcceptedTransferId] = useState<string | null>(null);
-  // Amplify prompt state
   const [showAmplifyPrompt, setShowAmplifyPrompt] = useState(false);
   const [amplifyContent, setAmplifyContent] = useState('');
   const [amplifySummary, setAmplifySummary] = useState('');
-  // Persist accepted demo IDs in localStorage
   const [acceptedDemoIds, setAcceptedDemoIds] = useState<Set<string>>(() => {
     const saved = localStorage.getItem('seedbase-accepted-demo-ids');
     return saved ? new Set(JSON.parse(saved)) : new Set();
   });
   const navigate = useNavigate();
 
-  // Get current user ID from session
   const getCurrentUserId = (): string | null => {
     const sessionData = localStorage.getItem('seedbase-session');
     if (sessionData) {
@@ -92,7 +89,6 @@ export default function OneAccordPage() {
     loadTransfers();
   }, []);
 
-  // Subscribe to realtime transfer updates
   useRealtimeTransfers({
     userId: getCurrentUserId(),
     onInsert: (transfer) => {
@@ -109,20 +105,17 @@ export default function OneAccordPage() {
   const handleAccept = async (transfer: DemoTransfer) => {
     const updated = await acceptTransfer(transfer.id);
     if (updated) {
-      // Show success state with confetti
       setAcceptedTransferId(transfer.id);
       setShowConfetti(true);
       triggerHaptic('success');
       
       toast.success(`Accepted $${transfer.amount} from @${transfer.from_user?.username || 'user'}`);
       
-      // Delay removal to show success animation, then show Amplify prompt
       setTimeout(() => {
         setShowConfetti(false);
         setAcceptedTransferId(null);
         loadTransfers();
         
-        // Show amplify prompt
         setAmplifyContent(`Just accepted $${transfer.amount} USDC from @${transfer.from_user?.username || 'user'}! 🙏\n\nGenerosity in motion through @Seedbase.`);
         setAmplifySummary(`You accepted $${transfer.amount} USDC from ${transfer.from_user?.display_name || transfer.from_user?.username || 'a supporter'}`);
         setShowAmplifyPrompt(true);
@@ -144,7 +137,6 @@ export default function OneAccordPage() {
   };
 
   const handleDemoAccept = (messageId: string, message?: { from: string; amount?: number; title?: string }) => {
-    // Add to accepted set and persist to localStorage
     const newAcceptedIds = new Set(acceptedDemoIds);
     newAcceptedIds.add(messageId);
     setAcceptedDemoIds(newAcceptedIds);
@@ -157,7 +149,6 @@ export default function OneAccordPage() {
     setTimeout(() => {
       setShowConfetti(false);
       
-      // Show amplify prompt for demo accepts too
       if (message) {
         const amount = message.amount || 0;
         setAmplifyContent(`${message.title || `Received $${amount} USDC`} from ${message.from}! 🙏\n\nTransparency and trust in action through @Seedbase.`);
@@ -169,12 +160,9 @@ export default function OneAccordPage() {
 
   const currentUserId = getCurrentUserId();
 
-  // Always show demo messages first, then any real transfers below
-
-  // One Accord uses inverted colors - dark when system is light, light when system is dark
+  // Light mode design - clean and fun like Telegram
   return (
-    <div className="min-h-screen flex flex-col bg-[#0a0a0a] dark:bg-white">
-      {/* Confetti Animation */}
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <Confetti isActive={showConfetti} />
       
       <AnimatePresence mode="wait">
@@ -201,20 +189,22 @@ export default function OneAccordPage() {
             exit={{ opacity: 0, x: -20 }}
             className="flex flex-col min-h-screen"
           >
-            {/* Sticky Header Section - locked to top */}
-            <div className="sticky top-0 z-30 bg-[#0a0a0a] dark:bg-white">
-              {/* Header - inverted colors */}
-              <header className="bg-[#0a0a0a]/95 dark:bg-white/95 backdrop-blur-xl border-b border-white/10 dark:border-gray-200">
+            {/* Sticky Header */}
+            <div className="sticky top-0 z-30 bg-white shadow-sm">
+              <header className="bg-white border-b border-gray-200">
                 <div className="px-4 py-4 flex items-center justify-between">
                   <div>
-                    <h1 className="text-xl font-bold text-white dark:text-black">OneAccord</h1>
-                    <p className="text-sm text-white/60 dark:text-gray-600">Messages & Transfers</p>
+                    <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                      OneAccord
+                      <span className="text-lg">💬</span>
+                    </h1>
+                    <p className="text-sm text-gray-500">Messages & Transfers</p>
                   </div>
                   <div className="flex items-center gap-2">
                     <motion.button
                       whileTap={{ scale: 0.95 }}
                       onClick={loadTransfers}
-                      className="p-2 rounded-xl bg-white/10 dark:bg-gray-100 hover:bg-white/20 dark:hover:bg-gray-200 transition-colors text-white dark:text-black"
+                      className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700"
                     >
                       <RefreshCw className="h-5 w-5" />
                     </motion.button>
@@ -222,34 +212,33 @@ export default function OneAccordPage() {
                 </div>
               </header>
 
-              {/* Info Banner - inverted colors */}
-              <div className="px-4 py-3">
-                <div className="bg-[#0000ff]/10 border border-[#0000ff]/30 rounded-xl p-4">
-                  <p className="text-sm text-white dark:text-black">
-                    <span className="font-semibold">All transfers arrive here.</span> Accept USDC transfers to move them to your wallet.
+              {/* Info Banner */}
+              <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100">
+                <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-blue-100">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-semibold">✨ All transfers arrive here.</span> Accept USDC transfers to move them to your wallet.
                   </p>
                 </div>
               </div>
             </div>
 
-            {/* Scrollable Messages Section */}
+            {/* Scrollable Messages */}
             {isLoading ? (
               <div className="px-4 py-12 text-center">
-                <div className="w-8 h-8 border-2 border-[#0000ff] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-white/60 dark:text-gray-600">Loading messages...</p>
+                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+                <p className="text-gray-500">Loading messages...</p>
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto px-4 py-2 pb-48">
-                {/* ALWAYS show demo messages first */}
                 {/* Pending Section */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
-                    <h2 className="font-semibold text-white dark:text-black">Pending</h2>
-                    <span className="px-2 py-0.5 bg-[#0000ff]/20 text-[#0000ff] rounded-full text-xs font-medium">
+                    <h2 className="font-semibold text-gray-900">Pending</h2>
+                    <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium">
                       {oneAccordMessages.filter(m => !m.isRead && m.hasAcceptButton).length}
                     </span>
                   </div>
-                  <div className="space-y-2">
+                  <div className="space-y-3">
                     {oneAccordMessages.filter(m => m.hasAcceptButton && m.status === 'pending').map((message, i) => {
                       const config = messageTypeConfig[message.type] || messageTypeConfig.system;
                       const IconComponent = config.icon;
@@ -261,18 +250,18 @@ export default function OneAccordPage() {
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.05 }}
                           className={cn(
-                            "bg-[#1a1a1a] dark:bg-gray-50 rounded-2xl border p-4",
-                            !message.isRead ? "border-[#0000ff]/30" : "border-white/10 dark:border-gray-200"
+                            "bg-white rounded-2xl border shadow-sm p-4",
+                            !message.isRead ? "border-blue-200 ring-1 ring-blue-100" : "border-gray-200"
                           )}
                         >
-                        <div className="flex items-start gap-3 mb-3">
+                          <div className="flex items-start gap-3 mb-3">
                             {message.avatar.startsWith('http') ? (
                               <img 
                                 src={message.avatar}
                                 alt={message.from}
                                 className="w-10 h-10 rounded-full object-cover"
                               />
-                          ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
+                            ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
                               <img 
                                 src={seedbasePfp}
                                 alt="Seedbase"
@@ -289,64 +278,67 @@ export default function OneAccordPage() {
                             )}
                             <div className="flex-1">
                               <div className="flex items-center gap-2">
-                                <p className="font-semibold text-white dark:text-black">{message.from}</p>
+                                <p className="font-semibold text-gray-900">{message.from}</p>
                                 <span className={cn(
-                                  "text-[10px] px-1.5 py-0.5 rounded font-medium uppercase text-white dark:text-black",
-                                  config.bgColor
+                                  "text-[10px] px-1.5 py-0.5 rounded font-medium uppercase",
+                                  config.bgColor,
+                                  "text-gray-700"
                                 )}>
                                   {message.fromRole}
                                 </span>
                               </div>
-                              <p className="text-xs text-white/50 dark:text-gray-500">
+                              <p className="text-xs text-gray-500">
                                 {formatDistanceToNow(message.timestamp, { addSuffix: true })}
                               </p>
                             </div>
                             {message.amount && (
-                              <p className="text-xl font-bold text-[#0000ff]">${message.amount.toLocaleString()}</p>
+                              <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                ${message.amount.toLocaleString()}
+                              </p>
                             )}
                           </div>
                           
                           <div className="mb-3">
-                            <p className="font-medium text-white dark:text-black">{message.title}</p>
-                            <p className="text-sm text-white/70 dark:text-gray-600 whitespace-pre-line">{message.body}</p>
+                            <p className="font-medium text-gray-900">{message.title}</p>
+                            <p className="text-sm text-gray-600 whitespace-pre-line">{message.body}</p>
                           </div>
                           
                           {message.hasAcceptButton && (
                             <div className="flex gap-2">
-                                {acceptedDemoIds.has(message.id) ? (
-                                  <div className="flex gap-2">
-                                    <motion.div
-                                      initial={{ scale: 0.95 }}
-                                      animate={{ scale: [1, 1.05, 1] }}
-                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff] border-2 border-[#0000ff] rounded-xl text-white font-medium cursor-not-allowed"
-                                    >
-                                      <Check className="h-5 w-5" />
-                                      Accepted
-                                    </motion.div>
-                                    <AmplifyButton
-                                      variant="small"
-                                      content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
-                                      impactSummary={message.title}
-                                    />
-                                  </div>
-                                ) : (
-                                  <>
-                                    <motion.button
-                                      whileTap={{ scale: 0.98 }}
-                                      onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
-                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff] rounded-xl text-white font-medium shadow-[0_0_20px_rgba(0,0,255,0.4)] hover:shadow-[0_0_30px_rgba(0,0,255,0.6)] transition-shadow"
-                                    >
-                                      <Check className="h-4 w-4" />
-                                      Accept
-                                    </motion.button>
-                                    <motion.button
-                                      whileTap={{ scale: 0.98 }}
-                                      className="px-4 py-3 bg-white/10 dark:bg-gray-100 rounded-xl"
-                                    >
-                                      <X className="h-4 w-4 text-white/60 dark:text-gray-500" />
-                                    </motion.button>
-                                  </>
-                                )}
+                              {acceptedDemoIds.has(message.id) ? (
+                                <div className="flex gap-2 w-full">
+                                  <motion.div
+                                    initial={{ scale: 0.95 }}
+                                    animate={{ scale: [1, 1.05, 1] }}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium cursor-not-allowed"
+                                  >
+                                    <Check className="h-5 w-5" />
+                                    Accepted ✨
+                                  </motion.div>
+                                  <AmplifyButton
+                                    variant="small"
+                                    content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
+                                    impactSummary={message.title}
+                                  />
+                                </div>
+                              ) : (
+                                <>
+                                  <motion.button
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium shadow-lg hover:shadow-xl transition-shadow"
+                                  >
+                                    <Check className="h-4 w-4" />
+                                    Accept
+                                  </motion.button>
+                                  <motion.button
+                                    whileTap={{ scale: 0.98 }}
+                                    className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                                  >
+                                    <X className="h-4 w-4 text-gray-500" />
+                                  </motion.button>
+                                </>
+                              )}
                             </div>
                           )}
                         </motion.div>
@@ -355,8 +347,8 @@ export default function OneAccordPage() {
                   </div>
                 </div>
 
-                {/* All Demo Messages */}
-                <h2 className="font-semibold mb-3 text-white dark:text-black">All Messages</h2>
+                {/* All Messages */}
+                <h2 className="font-semibold mb-3 text-gray-900">All Messages</h2>
                 <div className="space-y-2">
                   {oneAccordMessages.filter(m => m.status !== 'pending' || !m.hasAcceptButton).map((message, i) => {
                     const config = messageTypeConfig[message.type] || messageTypeConfig.system;
@@ -370,8 +362,8 @@ export default function OneAccordPage() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.03 }}
                         className={cn(
-                          "bg-[#1a1a1a] dark:bg-gray-50 rounded-xl border p-4",
-                          !message.isRead ? "border-[#0000ff]/30" : "border-white/10 dark:border-gray-200"
+                          "bg-white rounded-xl border p-4",
+                          !message.isRead ? "border-blue-200" : "border-gray-200"
                         )}
                       >
                         <div className="flex items-start gap-3">
@@ -388,37 +380,36 @@ export default function OneAccordPage() {
                               className="w-10 h-10 rounded-full object-cover"
                             />
                           ) : (
-                            <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.bgColor)}>
+                            <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.gradient)}>
                               {message.avatar.length <= 2 ? (
-                                <span className="text-lg text-white dark:text-black">{message.avatar}</span>
+                                <span className="text-lg">{message.avatar}</span>
                               ) : (
-                                <IconComponent className="h-5 w-5 text-white dark:text-black" />
+                                <IconComponent className="h-5 w-5 text-white" />
                               )}
                             </div>
                           )}
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
-                              <p className="font-medium truncate text-white dark:text-black">{message.from}</p>
+                              <p className="font-medium truncate text-gray-900">{message.from}</p>
                               {message.status === 'accepted' && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#0000ff]/20 text-[#0000ff] font-medium">
-                                  Accepted
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
+                                  Accepted ✓
                                 </span>
                               )}
                               {message.status === 'review' && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-500/20 text-yellow-500 font-medium">
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 font-medium">
                                   In Review
                                 </span>
                               )}
                             </div>
-                            <p className="font-medium text-sm text-white dark:text-black">{message.title}</p>
-                            <p className="text-sm text-white/70 dark:text-gray-600 line-clamp-2">{message.body}</p>
-                            <p className="text-xs text-white/50 dark:text-gray-500 mt-1">
+                            <p className="font-medium text-sm text-gray-900">{message.title}</p>
+                            <p className="text-sm text-gray-600 line-clamp-2">{message.body}</p>
+                            <p className="text-xs text-gray-400 mt-1">
                               {formatDistanceToNow(message.timestamp, { addSuffix: true })}
                             </p>
                             
-                            {/* Amplify button for eligible messages */}
                             {isAmplifiable && (
-                              <div className="mt-3 pt-3 border-t border-white/20 dark:border-gray-200">
+                              <div className="mt-3 pt-3 border-t border-gray-100">
                                 <AmplifyButton
                                   variant="inline"
                                   content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
@@ -430,7 +421,7 @@ export default function OneAccordPage() {
                           {message.amount && (
                             <p className={cn(
                               "font-semibold text-lg",
-                              message.status === 'accepted' ? "text-[#0000ff]" : "text-white dark:text-black"
+                              message.status === 'accepted' ? "text-green-600" : "text-gray-900"
                             )}>
                               ${message.amount.toLocaleString()}
                             </p>
@@ -441,20 +432,20 @@ export default function OneAccordPage() {
                   })}
                 </div>
 
-                {/* Real Transfers Section - Only show if there are real transfers */}
+                {/* Real Transfers Section */}
                 {(pendingTransfers.length > 0 || recentTransfers.length > 0) && (
                   <>
                     <div className="my-6 flex items-center gap-3">
-                      <div className="h-px flex-1 bg-border" />
-                      <span className="text-xs font-medium text-muted-foreground">YOUR TRANSFERS</span>
-                      <div className="h-px flex-1 bg-border" />
+                      <div className="h-px flex-1 bg-gray-200" />
+                      <span className="text-xs font-medium text-gray-500">YOUR TRANSFERS</span>
+                      <div className="h-px flex-1 bg-gray-200" />
                     </div>
 
                     {pendingTransfers.length > 0 && (
                       <div className="mb-4">
                         <div className="flex items-center gap-2 mb-3">
-                          <h2 className="font-semibold">Pending Transfers</h2>
-                          <span className="px-2 py-0.5 bg-primary/10 text-primary rounded-full text-xs font-medium">
+                          <h2 className="font-semibold text-gray-900">Pending Transfers</h2>
+                          <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium">
                             {pendingTransfers.length}
                           </span>
                         </div>
@@ -465,7 +456,7 @@ export default function OneAccordPage() {
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
                               transition={{ delay: i * 0.05 }}
-                              className="bg-card rounded-2xl border border-primary/30 p-4"
+                              className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-4 shadow-sm"
                             >
                               <div className="flex items-center gap-3 mb-3">
                                 {transfer.from_user?.avatar_url ? (
@@ -475,21 +466,23 @@ export default function OneAccordPage() {
                                     className="w-10 h-10 rounded-full object-cover"
                                   />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
                                     <DollarSign className="h-5 w-5 text-white" />
                                   </div>
                                 )}
                                 <div className="flex-1">
-                                  <p className="font-semibold">@{transfer.from_user?.username || 'unknown'}</p>
-                                  <p className="text-xs text-muted-foreground">
+                                  <p className="font-semibold text-gray-900">@{transfer.from_user?.username || 'unknown'}</p>
+                                  <p className="text-xs text-gray-500">
                                     {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
                                   </p>
                                 </div>
-                                <p className="text-xl font-bold text-primary">${transfer.amount.toFixed(2)}</p>
+                                <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                  ${transfer.amount.toFixed(2)}
+                                </p>
                               </div>
                               
                               {transfer.purpose && (
-                                <p className="text-sm text-muted-foreground mb-3">"{transfer.purpose}"</p>
+                                <p className="text-sm text-gray-600 mb-3">"{transfer.purpose}"</p>
                               )}
                               
                               <div className="flex gap-2">
@@ -497,17 +490,17 @@ export default function OneAccordPage() {
                                   <motion.div
                                     initial={{ scale: 0.95 }}
                                     animate={{ scale: [1, 1.05, 1] }}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary rounded-xl text-white font-medium"
+                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium"
                                   >
                                     <Check className="h-5 w-5" />
-                                    Accepted!
+                                    Accepted! ✨
                                   </motion.div>
                                 ) : (
                                   <>
                                     <motion.button
                                       whileTap={{ scale: 0.98 }}
                                       onClick={() => handleAccept(transfer)}
-                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-primary hover:bg-primary/90 rounded-xl text-white font-medium"
+                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 rounded-xl text-white font-medium shadow-lg"
                                     >
                                       <Check className="h-4 w-4" />
                                       Accept
@@ -515,9 +508,9 @@ export default function OneAccordPage() {
                                     <motion.button
                                       whileTap={{ scale: 0.98 }}
                                       onClick={() => handleDecline(transfer)}
-                                      className="px-4 py-3 bg-muted rounded-xl"
+                                      className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
                                     >
-                                      <X className="h-4 w-4 text-muted-foreground" />
+                                      <X className="h-4 w-4 text-gray-500" />
                                     </motion.button>
                                   </>
                                 )}
@@ -530,7 +523,7 @@ export default function OneAccordPage() {
 
                     {recentTransfers.filter(t => t.status !== 'pending').length > 0 && (
                       <div>
-                        <h2 className="font-semibold mb-3">Recent Activity</h2>
+                        <h2 className="font-semibold mb-3 text-gray-900">Recent Activity</h2>
                         <div className="space-y-2">
                           {recentTransfers.filter(t => t.status !== 'pending').map((transfer, i) => {
                             const isIncoming = transfer.to_user_id === currentUserId;
@@ -543,28 +536,28 @@ export default function OneAccordPage() {
                                 animate={{ opacity: 1, y: 0 }}
                                 transition={{ delay: i * 0.03 }}
                                 onClick={() => setSelectedTransfer(transfer)}
-                                className="w-full bg-card rounded-xl border border-border/50 p-4 flex items-center gap-4 text-left"
+                                className="w-full bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4 text-left hover:bg-gray-50 transition-colors"
                               >
                                 <div className={cn(
                                   "w-10 h-10 rounded-full flex items-center justify-center",
-                                  isAccepted ? "bg-base/10" : "bg-muted"
+                                  isAccepted ? "bg-green-100" : "bg-gray-100"
                                 )}>
                                   <DollarSign className={cn(
                                     "h-5 w-5",
-                                    isAccepted ? "text-base" : "text-muted-foreground"
+                                    isAccepted ? "text-green-600" : "text-gray-400"
                                   )} />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="font-medium truncate">
+                                  <p className="font-medium truncate text-gray-900">
                                     {isIncoming ? `From @${transfer.from_user?.username || 'user'}` : `To @${transfer.to_user?.username || 'user'}`}
                                   </p>
-                                  <p className="text-sm text-muted-foreground">
-                                    {transfer.status === 'accepted' ? 'Accepted' : 'Declined'} • {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
+                                  <p className="text-sm text-gray-500">
+                                    {transfer.status === 'accepted' ? 'Accepted ✓' : 'Declined'} • {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
                                   </p>
                                 </div>
                                 <p className={cn(
                                   "font-semibold",
-                                  isIncoming && isAccepted ? "text-primary" : "text-foreground"
+                                  isIncoming && isAccepted ? "text-green-600" : "text-gray-900"
                                 )}>
                                   {isIncoming ? '+' : '-'}${transfer.amount.toFixed(2)}
                                 </p>
@@ -588,7 +581,6 @@ export default function OneAccordPage() {
         onSuccess={loadTransfers}
       />
 
-      {/* Inline Compose Bar */}
       <InlineComposeBar onSuccess={loadTransfers} />
 
       <ComposeMessageModal
@@ -600,7 +592,6 @@ export default function OneAccordPage() {
         }}
       />
       
-      {/* Amplify Prompt Modal */}
       <AmplifyPromptModal
         isOpen={showAmplifyPrompt}
         onClose={() => setShowAmplifyPrompt(false)}
@@ -632,21 +623,21 @@ function TransferDetailView({
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0 }}
-      className="flex flex-col min-h-screen"
+      className="flex flex-col min-h-screen bg-gray-50"
     >
       {/* Header */}
-      <header className="sticky top-0 z-30 glass-strong border-b border-border/50">
+      <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
         <div className="px-4 py-4 flex items-center gap-4">
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={onBack}
-            className="p-2 -ml-2 hover:bg-muted rounded-xl"
+            className="p-2 -ml-2 hover:bg-gray-100 rounded-xl"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-5 w-5 text-gray-700" />
           </motion.button>
           <div>
-            <h1 className="font-semibold">Transfer Details</h1>
-            <p className="text-xs text-muted-foreground capitalize">{transfer.status}</p>
+            <h1 className="font-semibold text-gray-900">Transfer Details</h1>
+            <p className="text-xs text-gray-500 capitalize">{transfer.status}</p>
           </div>
         </div>
       </header>
@@ -656,60 +647,59 @@ function TransferDetailView({
         <div className="text-center mb-8">
           <div className={cn(
             "w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center",
-            transfer.status === 'accepted' ? "bg-primary" : 
-            transfer.status === 'declined' ? "bg-muted" : "gradient-base"
+            transfer.status === 'accepted' ? "bg-gradient-to-br from-green-400 to-emerald-500" : 
+            transfer.status === 'declined' ? "bg-gray-200" : "bg-gradient-to-br from-blue-500 to-purple-600"
           )}>
             <DollarSign className={cn(
               "h-8 w-8",
-              transfer.status === 'declined' ? "text-muted-foreground" : "text-white"
+              transfer.status === 'declined' ? "text-gray-400" : "text-white"
             )} />
           </div>
-          <p className="text-4xl font-bold mb-2">
+          <p className="text-4xl font-bold text-gray-900 mb-2">
             {isIncoming ? '+' : '-'}${transfer.amount.toFixed(2)}
           </p>
-          <p className="text-muted-foreground">USDC</p>
+          <p className="text-gray-500">USDC</p>
         </div>
 
-        <div className="bg-card rounded-2xl border border-border/50 divide-y divide-border/50">
+        <div className="bg-white rounded-2xl border border-gray-200 divide-y divide-gray-100 shadow-sm">
           <div className="p-4 flex justify-between">
-            <span className="text-muted-foreground">From</span>
-            <span className="font-medium">@{transfer.from_user?.username || 'unknown'}</span>
+            <span className="text-gray-500">From</span>
+            <span className="font-medium text-gray-900">@{transfer.from_user?.username || 'unknown'}</span>
           </div>
           <div className="p-4 flex justify-between">
-            <span className="text-muted-foreground">To</span>
-            <span className="font-medium">@{transfer.to_user?.username || 'unknown'}</span>
+            <span className="text-gray-500">To</span>
+            <span className="font-medium text-gray-900">@{transfer.to_user?.username || 'unknown'}</span>
           </div>
           {transfer.purpose && (
             <div className="p-4 flex justify-between">
-              <span className="text-muted-foreground">Purpose</span>
-              <span className="font-medium">{transfer.purpose}</span>
+              <span className="text-gray-500">Purpose</span>
+              <span className="font-medium text-gray-900">{transfer.purpose}</span>
             </div>
           )}
           <div className="p-4 flex justify-between">
-            <span className="text-muted-foreground">Status</span>
+            <span className="text-gray-500">Status</span>
             <span className={cn(
               "font-medium capitalize",
-              transfer.status === 'accepted' && "text-primary",
-              transfer.status === 'declined' && "text-destructive"
+              transfer.status === 'accepted' && "text-green-600",
+              transfer.status === 'declined' && "text-red-500"
             )}>
               {transfer.status}
             </span>
           </div>
           <div className="p-4 flex justify-between">
-            <span className="text-muted-foreground">Date</span>
-            <span className="font-medium">
+            <span className="text-gray-500">Date</span>
+            <span className="font-medium text-gray-900">
               {new Date(transfer.created_at).toLocaleDateString()}
             </span>
           </div>
         </div>
 
-        {/* Actions for pending incoming transfers */}
         {isPending && isIncoming && (
           <div className="mt-6 space-y-3">
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={onAccept}
-              className="w-full py-4 bg-primary hover:bg-primary/90 rounded-2xl text-white font-semibold flex items-center justify-center gap-2"
+              className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 rounded-2xl text-white font-semibold flex items-center justify-center gap-2 shadow-lg"
             >
               <Check className="h-5 w-5" />
               Accept Transfer
@@ -717,7 +707,7 @@ function TransferDetailView({
             <motion.button
               whileTap={{ scale: 0.98 }}
               onClick={onDecline}
-              className="w-full py-4 bg-muted rounded-2xl font-semibold flex items-center justify-center gap-2"
+              className="w-full py-4 bg-gray-100 hover:bg-gray-200 rounded-2xl font-semibold flex items-center justify-center gap-2 text-gray-700"
             >
               <X className="h-5 w-5" />
               Decline

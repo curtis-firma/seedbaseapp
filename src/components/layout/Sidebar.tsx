@@ -17,7 +17,7 @@ const primaryNav = [
 ];
 
 const secondaryNav = [
-  { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', badge: 0 },
+  { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', badge: 0, featured: true },
   { icon: BarChart3, label: 'Vault', path: '/app/vault', badge: 0 },
   { icon: Vote, label: 'Governance', path: '/app/governance', badge: 3 },
   { icon: ShoppingBag, label: 'Shop', path: '/app/seeded', badge: 0 },
@@ -106,16 +106,19 @@ export function Sidebar() {
           {secondaryNav.map((item) => {
             const isActive = location.pathname === item.path;
             const Icon = item.icon;
+            const isFeatured = 'featured' in item && item.featured;
 
             return (
               <motion.button
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={cn(
-                  "relative w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-colors",
+                  "relative w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
                   isActive 
-                    ? "text-primary" 
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                    ? "text-white bg-gradient-to-r from-[#0000ff] to-purple-600" 
+                    : isFeatured
+                      ? "bg-gradient-to-r from-[#0000ff]/10 to-purple-500/10 text-[#0000ff] border border-[#0000ff]/20 hover:from-[#0000ff]/20 hover:to-purple-500/20"
+                      : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
                 whileHover={{ x: 4 }}
                 whileTap={{ scale: 0.98 }}
@@ -130,14 +133,21 @@ export function Sidebar() {
                 </div>
                 <AnimatePresence>
                   {!isCollapsed && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="font-medium"
-                    >
-                      {item.label}
-                    </motion.span>
+                    <motion.div className="flex items-center gap-2">
+                      <motion.span
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="font-medium"
+                      >
+                        {item.label}
+                      </motion.span>
+                      {isFeatured && !isActive && (
+                        <span className="text-[10px] px-1.5 py-0.5 bg-gradient-to-r from-[#0000ff] to-purple-600 text-white rounded-full font-medium">
+                          💬
+                        </span>
+                      )}
+                    </motion.div>
                   )}
                 </AnimatePresence>
               </motion.button>

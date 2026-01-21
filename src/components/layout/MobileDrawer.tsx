@@ -13,7 +13,7 @@ import { useSocialHandles } from '@/hooks/useSocialHandles';
 import { AffiliateExplainerModal } from '@/components/shared/AffiliateExplainerModal';
 
 const menuNav = [
-  { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages & transfers', badge: 0 },
+  { icon: MessageCircle, label: 'OneAccord', path: '/app/oneaccord', description: 'Messages, emojis & transfers 💬', badge: 0, featured: true },
   { icon: BarChart3, label: 'Vault', path: '/app/vault', description: 'Analytics & data', badge: 0 },
   { icon: Vote, label: 'Governance', path: '/app/governance', description: 'Vote & amplify', badge: 3 },
   { icon: ShoppingBag, label: 'Shop', path: '/app/seeded', description: 'Merch & movement', badge: 0 },
@@ -129,21 +129,24 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
                 {menuNav.map((item) => {
                   const isActive = location.pathname === item.path;
                   const Icon = item.icon;
+                  const isFeatured = 'featured' in item && item.featured;
 
                   return (
                     <motion.button
                       key={item.path}
                       onClick={() => handleNavigate(item.path)}
                       className={cn(
-                        "w-full flex items-center gap-3 p-3 rounded-xl transition-colors",
+                        "w-full flex items-center gap-3 p-3 rounded-xl transition-all",
                         isActive 
-                          ? "bg-primary/10 text-primary" 
-                          : "hover:bg-muted"
+                          ? "bg-gradient-to-r from-[#0000ff] to-purple-600 text-white" 
+                          : isFeatured
+                            ? "bg-gradient-to-r from-[#0000ff]/10 to-purple-500/10 border border-[#0000ff]/20"
+                            : "hover:bg-muted"
                       )}
                       whileTap={{ scale: 0.98 }}
                     >
                       <div className="relative">
-                        <Icon className="h-5 w-5" />
+                        <Icon className={cn("h-5 w-5", isFeatured && !isActive && "text-[#0000ff]")} />
                         {item.badge > 0 && (
                           <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#0000ff] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                             {item.badge}
@@ -151,8 +154,8 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
                         )}
                       </div>
                       <div className="text-left flex-1">
-                        <p className="font-medium">{item.label}</p>
-                        <p className="text-xs text-muted-foreground">{item.description}</p>
+                        <p className={cn("font-medium", isFeatured && !isActive && "text-[#0000ff]")}>{item.label}</p>
+                        <p className={cn("text-xs", isActive ? "text-white/70" : "text-muted-foreground")}>{item.description}</p>
                       </div>
                     </motion.button>
                   );
