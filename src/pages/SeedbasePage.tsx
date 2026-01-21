@@ -166,9 +166,9 @@ export default function SeedbasePage() {
 
   return (
     <div className="min-h-screen pb-24">
-      {/* Page Title - subtle, not a second header */}
+      {/* Page Title - bold and confident */}
       <div className="px-4 pt-4 pb-2">
-        <h1 className="text-lg font-semibold">Command Center</h1>
+        <h1 className="text-2xl md:text-3xl font-bold">Command Center</h1>
         <p className="text-sm text-muted-foreground capitalize">{viewRole} Control Panel</p>
       </div>
 
@@ -437,11 +437,13 @@ function StatCard({ label, value, change }: { label: string; value: string; chan
     <motion.div
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="bg-card rounded-2xl border border-border/50 p-5"
+      whileHover={{ scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className="bg-card rounded-2xl border border-border/50 p-5 transition-shadow hover:shadow-card cursor-pointer"
     >
       <p className="text-sm text-muted-foreground mb-1">{label}</p>
-      <p className="text-2xl font-bold mb-1">{value}</p>
-      <p className="text-sm text-primary">{change}</p>
+      <p className="text-3xl md:text-4xl font-bold mb-1 tracking-tight">{value}</p>
+      <p className="text-sm text-primary font-medium">{change}</p>
     </motion.div>
   );
 }

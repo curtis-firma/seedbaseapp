@@ -46,7 +46,7 @@ export function Sidebar() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
             >
-              <Logo variant="icon" size="md" />
+              <Logo variant="icon" size="lg" />
             </motion.div>
           ) : (
             <motion.div

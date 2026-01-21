@@ -190,6 +190,20 @@
     background-size: 200% 100%;
   }
   
+  /* Seed motif dark mode visibility */
+  .seed-motif {
+    @apply dark:brightness-110 dark:contrast-110;
+  }
+  
+  /* Chart dark mode colors */
+  .dark .recharts-cartesian-axis-tick-value {
+    fill: hsl(var(--muted-foreground));
+  }
+  
+  .dark .recharts-line {
+    stroke: hsl(221 83% 65%);
+  }
+  
   .hide-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
