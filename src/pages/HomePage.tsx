@@ -11,7 +11,7 @@ import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
 import { getUserFeedItems, type SeedbaseFeedItem } from '@/lib/seedbaseFeedIntegration';
 import { FeedItem } from '@/types/seedbase';
-import { Logo } from '@/components/shared/Logo';
+import { useUser } from '@/contexts/UserContext';
 import { useHaptic } from '@/hooks/useHaptic';
 import { toast } from 'sonner';
 
@@ -64,6 +64,13 @@ function generateMoreMockItems(existingCount: number, count: number): FeedItem[]
   return newItems;
 }
 
+// Role badge config
+const roleConfig = {
+  activator: { label: 'Activator', bg: 'bg-[#0000ff]/20', text: 'text-[#0000ff]', border: 'border-[#0000ff]/30' },
+  trustee: { label: 'Trustee', bg: 'bg-purple-500/20', text: 'text-purple-500', border: 'border-purple-500/30' },
+  envoy: { label: 'Envoy', bg: 'bg-orange-500/20', text: 'text-orange-500', border: 'border-orange-500/30' },
+};
+
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -79,6 +86,7 @@ export default function HomePage() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
   const haptic = useHaptic();
+  const { viewRole } = useUser();
 
   const POSTS_PER_PAGE = 10;
 
@@ -286,7 +294,9 @@ export default function HomePage() {
         <div className="px-4 py-4">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-3">
-              <Logo variant="wordmark" size="sm" />
+              <span className={`px-3 py-1.5 rounded-full text-sm font-semibold border ${roleConfig[viewRole].bg} ${roleConfig[viewRole].text} ${roleConfig[viewRole].border}`}>
+                {roleConfig[viewRole].label}
+              </span>
             </div>
             <div className="flex items-center gap-1">
               <motion.button
