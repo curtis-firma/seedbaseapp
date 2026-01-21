@@ -2,7 +2,6 @@ import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { cn } from "@/lib/utils";
 import seedButtonIcon from "@/assets/seed-button-white.png";
-import seedSquareNode from "@/assets/seed-square-node.png";
 
 interface EnterAppButtonProps {
   onClick: () => void;
@@ -31,20 +30,6 @@ const EnterAppButton = ({ onClick, fullWidth = false, className }: EnterAppButto
       transition={{ type: 'spring', stiffness: 400, damping: 25 }}
       aria-label="Enter SeedBase app"
     >
-      {/* Seed motif block - shifts back on hover */}
-      <motion.img
-        src={seedSquareNode}
-        alt=""
-        aria-hidden="true"
-        className={cn(
-          "absolute -left-2 top-1/2 -translate-y-1/2 w-8 h-8 object-contain opacity-50",
-          "dark:brightness-110"
-        )}
-        initial={{ x: 0 }}
-        whileHover={{ x: -20, opacity: 0 }}
-        transition={{ duration: 0.3 }}
-      />
-
       {/* Seed icon - absolute left, slides out on hover */}
       <img
         src={seedButtonIcon}

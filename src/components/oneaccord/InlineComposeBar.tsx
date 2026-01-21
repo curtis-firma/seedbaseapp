@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DollarSign, Send, Plus, Minus, X, Search, Edit, MessageCircle, Smile, Hash } from 'lucide-react';
+import { DollarSign, Send, Plus, Minus, X, Search, Edit, MessageCircle, Smile, Hash, ImageIcon } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { cn } from '@/lib/utils';
 import { getAllCompletedUsers, searchUsers, getWalletByUserId, type DemoUser } from '@/lib/supabase/demoApi';
@@ -8,6 +8,7 @@ import { createTransfer } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { GifStickerPicker } from './GifStickerPicker';
 
 interface InlineComposeBarProps {
   onSuccess?: () => void;
@@ -40,6 +41,8 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
   const [showTagSuggestions, setShowTagSuggestions] = useState(false);
   const [tagFilter, setTagFilter] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [showGifPicker, setShowGifPicker] = useState(false);
+  const [attachedMedia, setAttachedMedia] = useState<{ url: string; type: 'gif' | 'sticker' } | null>(null);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -137,6 +140,17 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     setAttachUsdc(false);
     setShowAmountPicker(false);
     setSelectedTags([]);
+    setAttachedMedia(null);
+  };
+
+  const handleMediaSelect = (url: string, type: 'gif' | 'sticker') => {
+    if (type === 'sticker') {
+      // For stickers, append to message
+      setMessage(prev => prev + url);
+    } else {
+      // For GIFs, attach as media
+      setAttachedMedia({ url, type });
+    }
   };
 
   const handleEmojiClick = (emojiData: { emoji: string }) => {
@@ -575,9 +589,34 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
         >
           <Hash className="h-5 w-5" />
         </motion.button>
+
+        {/* GIF/Sticker Button */}
+        <motion.button
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setShowGifPicker(true)}
+          className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-all"
+        >
+          <ImageIcon className="h-5 w-5" />
+        </motion.button>
         
         {/* Message Input */}
         <div className="flex-1 relative">
+          {/* Attached GIF Preview */}
+          {attachedMedia?.type === 'gif' && (
+            <div className="mb-2 relative inline-block">
+              <img 
+                src={attachedMedia.url} 
+                alt="Attached GIF" 
+                className="h-16 rounded-lg object-cover"
+              />
+              <button
+                onClick={() => setAttachedMedia(null)}
+                className="absolute -top-2 -right-2 w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </div>
+          )}
           <textarea
             ref={textareaRef}
             value={message}
@@ -616,6 +655,13 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           )}
         </motion.button>
       </div>
+
+      {/* GIF/Sticker Picker */}
+      <GifStickerPicker
+        isOpen={showGifPicker}
+        onClose={() => setShowGifPicker(false)}
+        onSelect={handleMediaSelect}
+      />
     </div>
   );
 }
