@@ -318,7 +318,7 @@ export default function OneAccordPage() {
                                     <motion.div
                                       initial={{ scale: 0.95 }}
                                       animate={{ scale: [1, 1.05, 1] }}
-                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff]/20 border-2 border-[#0000ff] rounded-xl text-[#0000ff] font-medium cursor-not-allowed"
+                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-[#0000ff] border-2 border-[#0000ff] rounded-xl text-white font-medium cursor-not-allowed"
                                     >
                                       <Check className="h-5 w-5" />
                                       Accepted
