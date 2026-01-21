@@ -48,6 +48,13 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "demo_comments_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "demo_comments_post_id_fkey"
             columns: ["post_id"]
             isOneToOne: false
@@ -92,6 +99,13 @@ export type Database = {
             referencedRelation: "demo_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "demo_commitments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       demo_conversation_participants: {
@@ -125,6 +139,13 @@ export type Database = {
             referencedRelation: "demo_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "demo_conversation_participants_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       demo_conversations: {
@@ -149,6 +170,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "demo_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demo_conversations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
             referencedColumns: ["id"]
           },
         ]
@@ -184,6 +212,13 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "demo_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demo_keys_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
             referencedColumns: ["id"]
           },
         ]
@@ -226,6 +261,13 @@ export type Database = {
             columns: ["sender_id"]
             isOneToOne: false
             referencedRelation: "demo_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demo_messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
             referencedColumns: ["id"]
           },
           {
@@ -282,6 +324,13 @@ export type Database = {
             referencedRelation: "demo_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "demo_posts_author_id_fkey"
+            columns: ["author_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
       demo_transfers: {
@@ -324,10 +373,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "demo_transfers_from_user_id_fkey"
+            columns: ["from_user_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "demo_transfers_to_user_id_fkey"
             columns: ["to_user_id"]
             isOneToOne: false
             referencedRelation: "demo_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demo_transfers_to_user_id_fkey"
+            columns: ["to_user_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
             referencedColumns: ["id"]
           },
         ]
@@ -401,11 +464,50 @@ export type Database = {
             referencedRelation: "demo_users"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "demo_wallets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
+            referencedColumns: ["id"]
+          },
         ]
       }
     }
     Views: {
-      [_ in never]: never
+      demo_users_public: {
+        Row: {
+          active_role: string | null
+          avatar_url: string | null
+          created_at: string | null
+          display_name: string | null
+          id: string | null
+          last_login_at: string | null
+          onboarding_complete: boolean | null
+          username: string | null
+        }
+        Insert: {
+          active_role?: string | null
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+          last_login_at?: string | null
+          onboarding_complete?: boolean | null
+          username?: string | null
+        }
+        Update: {
+          active_role?: string | null
+          avatar_url?: string | null
+          created_at?: string | null
+          display_name?: string | null
+          id?: string | null
+          last_login_at?: string | null
+          onboarding_complete?: boolean | null
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never

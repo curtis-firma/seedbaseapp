@@ -85,11 +85,11 @@ export async function findUserByPhone(phone: string): Promise<DemoUser | null> {
   return data ? castToDemoUser(data) : null;
 }
 
-// Find user by username
+// Find user by username (uses public view - no phone exposed)
 export async function findUserByUsername(username: string): Promise<DemoUser | null> {
   const normalizedUsername = username.toLowerCase().replace(/^@/, '');
   const { data, error } = await supabase
-    .from('demo_users')
+    .from('demo_users_public')
     .select('*')
     .ilike('username', normalizedUsername)
     .maybeSingle();
@@ -98,13 +98,14 @@ export async function findUserByUsername(username: string): Promise<DemoUser | n
     console.error('Error finding user by username:', error);
     return null;
   }
-  return data ? castToDemoUser(data) : null;
+  // Add empty phone since view doesn't include it
+  return data ? castToDemoUser({ ...data, phone: '' }) : null;
 }
 
-// Get user by ID
+// Get user by ID (uses public view - no phone exposed for general lookups)
 export async function getUserById(userId: string): Promise<DemoUser | null> {
   const { data, error } = await supabase
-    .from('demo_users')
+    .from('demo_users_public')
     .select('*')
     .eq('id', userId)
     .maybeSingle();
@@ -113,7 +114,8 @@ export async function getUserById(userId: string): Promise<DemoUser | null> {
     console.error('Error getting user by ID:', error);
     return null;
   }
-  return data ? castToDemoUser(data) : null;
+  // Add empty phone since view doesn't include it
+  return data ? castToDemoUser({ ...data, phone: '' }) : null;
 }
 
 // Create new user (returns the created user)
@@ -284,12 +286,12 @@ export async function createKey(userId: string, keyType: 'SeedKey' | 'BaseKey' |
   return data ? castToDemoKey(data) : null;
 }
 
-// Search users by username or display name
+// Search users by username or display name (uses public view - no phone exposed)
 export async function searchUsers(query: string, excludeUserId?: string, limit = 20): Promise<DemoUser[]> {
   const searchPattern = `%${query.toLowerCase().replace(/^@/, '')}%`;
   
   let dbQuery = supabase
-    .from('demo_users')
+    .from('demo_users_public')
     .select('*')
     .eq('onboarding_complete', true)
     .or(`username.ilike.${searchPattern},display_name.ilike.${searchPattern}`)
@@ -305,13 +307,14 @@ export async function searchUsers(query: string, excludeUserId?: string, limit =
     console.error('Error searching users:', error);
     return [];
   }
-  return (data || []).map(castToDemoUser);
+  // Add empty phone since view doesn't include it
+  return (data || []).map(d => castToDemoUser({ ...d, phone: '' }));
 }
 
-// Get all completed users (for Send modal)
+// Get all completed users (for Send modal) - uses public view - no phone exposed
 export async function getAllCompletedUsers(excludeUserId?: string, limit = 50): Promise<DemoUser[]> {
   let query = supabase
-    .from('demo_users')
+    .from('demo_users_public')
     .select('*')
     .eq('onboarding_complete', true)
     .order('username')
@@ -327,7 +330,8 @@ export async function getAllCompletedUsers(excludeUserId?: string, limit = 50): 
     console.error('Error getting all users:', error);
     return [];
   }
-  return (data || []).map(castToDemoUser);
+  // Add empty phone since view doesn't include it
+  return (data || []).map(d => castToDemoUser({ ...d, phone: '' }));
 }
 
 // Get full user data with wallet and key
