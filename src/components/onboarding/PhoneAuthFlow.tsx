@@ -769,6 +769,33 @@ export function PhoneAuthFlow({ isOpen, onComplete, forceDemo = false, asModal =
                   <ArrowRight className="h-5 w-5" />
                 </motion.button>
               </div>
+
+              {/* Divider */}
+              <div className="flex items-center gap-3 my-6">
+                <div className="flex-1 h-px bg-border" />
+                <span className="text-sm text-muted-foreground">or</span>
+                <div className="flex-1 h-px bg-border" />
+              </div>
+
+              {/* Sign in with Base button */}
+              <div className="mb-6">
+                <button
+                  onClick={() => {
+                    trigger('light');
+                    toast.info('Sign in with Base coming soon');
+                  }}
+                  className={cn(
+                    "w-full rounded-xl h-14 px-6 text-base font-semibold",
+                    "inline-flex items-center justify-center gap-3.5",
+                    "bg-background text-foreground border border-border",
+                    "hover:bg-muted transition-all duration-200 active:scale-[0.98]"
+                  )}
+                >
+                  {/* Blue square icon */}
+                  <span className="w-5 h-5 rounded-sm flex-shrink-0 bg-[#0000ff]" />
+                  <span>Sign in with Base</span>
+                </button>
+              </div>
               
               <button
                 onClick={handleTryDemo}

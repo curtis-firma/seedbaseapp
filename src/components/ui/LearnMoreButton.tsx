@@ -17,7 +17,8 @@ const LearnMoreButton = ({ onClick, fullWidth = false, variant = "black", classN
       variant="outline"
       onClick={onClick}
       className={cn(
-        "group rounded-xl py-5 h-auto text-lg font-semibold border-2 min-h-[44px]",
+        // Base-style: rounded rectangle, matching EnterAppButton height
+        "group rounded-xl h-14 px-6 text-base font-semibold border-2",
         "transition-colors duration-200",
         // Variant styling
         isBlue

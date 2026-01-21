@@ -25,29 +25,21 @@ const FeatureSquareCard = ({
   animate = false 
 }: FeatureSquareCardProps) => {
   return (
-    // Outer wrapper - full width of parent, card scales inside
-    // Parent (MobileScrollNarrative) has px-4 padding, so this respects that
-    <div className={cn(
-      "flex items-center justify-center",
-      // Full width on mobile to align with buttons/hero, constrained on larger screens
-      "w-full sm:max-w-[340px] md:max-w-[484px]",
-      "aspect-square",
-      "mx-auto"
-    )}>
+    // Outer wrapper - centers the fixed-size card
+    <div className="flex items-center justify-center w-full mx-auto">
       <motion.div 
         initial={{ opacity: 0, scale: 0.95 }}
         whileInView={{ opacity: 1, scale: 1 }}
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={cn(
-          // Use percentage-based width to fill container, max out at 404px for desktop
-          "w-full max-w-[404px] aspect-square",
-          // No scale transform - let container control size
-          "origin-center",
+          // FIXED SIZE: 340x340px - locked, no responsive variation
+          // This matches the "See generosity spread" reference box
+          "w-[340px] h-[340px] flex-shrink-0",
           // Outer styling
           "rounded-3xl md:rounded-[32px]",
           "flex items-center justify-center",
-          "overflow-hidden flex-shrink-0",
+          "overflow-hidden",
           // Apply bgColor only if no bgImage
           !bgImage && bgColor,
           // Optional hover animation

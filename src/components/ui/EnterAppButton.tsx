@@ -14,15 +14,16 @@ const EnterAppButton = ({ onClick, fullWidth = false, className }: EnterAppButto
     <motion.button
       onClick={onClick}
       className={cn(
-        "group relative overflow-hidden py-5 rounded-xl font-bold text-lg bg-[#0000ff] text-white",
+        // Base-style: rounded rectangle, NOT pill
+        "group relative overflow-hidden rounded-xl font-semibold text-base bg-[#0000ff] text-white",
+        // Height: h-14 (56px) with proper horizontal padding for icon space
+        "h-14 px-14",
         "flex items-center justify-center",
         "focus:outline-none focus-visible:ring-2 focus-visible:ring-[#0000ff] focus-visible:ring-offset-2",
         // Responsive width
         fullWidth 
           ? "w-full" 
           : "w-fit max-w-[340px] md:max-w-[380px] lg:max-w-[340px]",
-        // Padding for icon space
-        "px-14",
         className
       )}
       whileHover={{ scale: 1.02, backgroundColor: "#0000dd" }}
