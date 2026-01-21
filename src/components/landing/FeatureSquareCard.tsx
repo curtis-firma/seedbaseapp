@@ -33,9 +33,12 @@ const FeatureSquareCard = ({
         viewport={{ once: true, margin: "-50px" }}
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={cn(
-          // FIXED SIZE: 340x340px - locked, no responsive variation
-          // This matches the "See generosity spread" reference box
-          "w-[340px] h-[340px] flex-shrink-0",
+          // RESPONSIVE SIZE:
+          // Mobile: max-width 280px, responsive with aspect-square
+          // Tablet/Desktop: Fixed 420x420px (matches HeroVisualCanvas lg height)
+          "w-full max-w-[280px] aspect-square",
+          "md:max-w-none md:w-[420px] md:h-[420px] md:aspect-auto",
+          "flex-shrink-0",
           // Outer styling
           "rounded-3xl md:rounded-[32px]",
           "flex items-center justify-center",

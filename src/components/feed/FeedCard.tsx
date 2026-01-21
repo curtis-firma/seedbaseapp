@@ -172,9 +172,9 @@ export function FeedCard({ item, index }: FeedCardProps) {
           : { opacity: 0, y: 30, scale: 0.98 }
         }
         transition={{ 
-          duration: 0.4, 
+          duration: 0.25, 
           ease: [0.25, 0.46, 0.45, 0.94],
-          delay: Math.min(index * 0.05, 0.2)
+          delay: 0
         }}
         className={cn(
           "bg-card rounded-2xl border border-border/50 shadow-card overflow-hidden",

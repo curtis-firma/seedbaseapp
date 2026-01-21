@@ -110,7 +110,12 @@ export function WithdrawModal({ isOpen, onClose, balance, onSuccess }: WithdrawM
           >
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border/50">
-              <h2 className="text-lg font-bold">Withdraw to Bank</h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-lg font-bold">Withdraw to Bank</h2>
+                <span className="px-2 py-1 bg-orange-500/20 text-orange-600 text-xs font-medium rounded">
+                  Demo
+                </span>
+              </div>
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleClose}

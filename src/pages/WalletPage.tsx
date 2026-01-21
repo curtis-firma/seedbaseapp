@@ -328,10 +328,11 @@ function PersonalWalletView({
         <div className="flex gap-2">
           <motion.button
             whileTap={{ scale: 0.98 }}
+            onClick={() => toast.info('Request feature coming soon - use Send for now!')}
             className="flex-1 flex items-center justify-center gap-2 py-3 bg-white/15 backdrop-blur-sm rounded-xl font-medium text-sm"
           >
             <ArrowDownRight className="h-4 w-4" />
-            Receive
+            Request
           </motion.button>
           <motion.button
             whileTap={{ scale: 0.98 }}
