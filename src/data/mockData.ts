@@ -606,6 +606,57 @@ export const mockFeedItems: FeedItem[] = [
     likes: 78,
     comments: 15,
   },
+  // VIDEO POST 1: Seeded Hype Video
+  {
+    id: 'video-1',
+    type: 'mission_update',
+    postType: 'mission_update',
+    title: '',
+    content: 'Watch how your generosity is spreading across the globe. This is what Kingdom impact looks like! 🌍✨',
+    author: {
+      name: 'SeedfeedHQ',
+      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop',
+      role: 'trustee' as const,
+      handle: 'seedfeedhq',
+      isVerified: true,
+    },
+    roleBadge: 'Official' as const,
+    seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
+    media: {
+      type: 'video' as const,
+      url: '/src/assets/seeded-hype-full.mp4',
+    },
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4),
+    likes: 312,
+    comments: 48,
+  },
+  // VIDEO POST 2: Mission Video
+  {
+    id: 'video-2',
+    type: 'mission_update',
+    postType: 'mission_update',
+    title: '',
+    content: 'A glimpse into our mission work on the ground. Every seed planted bears fruit. 🌱',
+    author: {
+      name: 'Sarah Kimani',
+      avatar: 'https://images.unsplash.com/photo-1531123897727-8f129e1688ce?w=100&h=100&fit=crop',
+      role: 'envoy' as const,
+      handle: 'sarah',
+      isVerified: true,
+    },
+    roleBadge: 'Envoy' as const,
+    mission: { id: 'm-cik-1', name: 'Guatemala Medical Clinic' },
+    seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
+    media: {
+      type: 'video' as const,
+      url: '/src/assets/mission-video.mp4',
+    },
+    timestamp: new Date(Date.now() - 1000 * 60 * 60 * 10),
+    likes: 189,
+    comments: 32,
+    yourSeed: 125,
+    yourImpactPercentage: 0.45,
+  },
   // Position 5: Testimony from water recipient - MOVED UP from position 16
   {
     id: 'nf-16',

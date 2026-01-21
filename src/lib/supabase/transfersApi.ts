@@ -307,3 +307,31 @@ export async function recordWithdrawal(
   
   return castToDemoTransfer(data);
 }
+
+// Create a payment request (does NOT deduct from sender - just records pending request)
+export async function createPaymentRequest(
+  fromUserId: string,  // Person being requested (will pay)
+  toUserId: string,    // Person making request (will receive)
+  amount: number,
+  message?: string
+): Promise<DemoTransfer | null> {
+  // Create transfer in pending state without deducting funds
+  const { data, error } = await supabase
+    .from('demo_transfers')
+    .insert({
+      from_user_id: fromUserId,
+      to_user_id: toUserId,
+      amount,
+      purpose: message || 'Payment Request',
+      status: 'pending',
+    })
+    .select()
+    .single();
+  
+  if (error) {
+    console.error('Error creating payment request:', error);
+    return null;
+  }
+  
+  return castToDemoTransfer(data);
+}
