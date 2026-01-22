@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DollarSign, Send, Plus, Minus, X, Search, Edit, MessageCircle, Smile, Hash, ImageIcon } from 'lucide-react';
+import { DollarSign, Send, Plus, Minus, X, Search, Edit, MessageCircle, Smile, Hash, ImageIcon, Mic, Play, Pause, ChevronLeft } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { cn } from '@/lib/utils';
 import { getAllCompletedUsers, searchUsers, getWalletByUserId, type DemoUser } from '@/lib/supabase/demoApi';
 import { createTransfer } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
 import { triggerHaptic } from '@/hooks/useHaptic';
+import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { GifStickerPicker } from './GifStickerPicker';
 
@@ -23,6 +24,13 @@ const SEEDBASE_TAGS = [
   { tag: '@seedbasexyz/harvest', label: 'Harvest Report', emoji: '🌾', color: 'bg-orange-500' },
   { tag: '@seedbasexyz/governance', label: 'Governance', emoji: '🗳️', color: 'bg-purple-500' },
 ];
+
+// Format duration as MM:SS
+const formatDuration = (seconds: number): string => {
+  const mins = Math.floor(seconds / 60);
+  const secs = seconds % 60;
+  return `${mins}:${secs.toString().padStart(2, '0')}`;
+};
 
 export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
   const [mode, setMode] = useState<'idle' | 'user-select' | 'compose'>('idle');
@@ -43,8 +51,24 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [showGifPicker, setShowGifPicker] = useState(false);
   const [attachedMedia, setAttachedMedia] = useState<{ url: string; type: 'gif' | 'sticker' } | null>(null);
+  const [showVoicePreview, setShowVoicePreview] = useState(false);
+  const [isPlayingPreview, setIsPlayingPreview] = useState(false);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
+
+  // Voice recorder hook
+  const {
+    isRecording,
+    duration,
+    audioBlob,
+    audioUrl,
+    volume,
+    startRecording,
+    stopRecording,
+    cancelRecording,
+    clearRecording
+  } = useVoiceRecorder();
 
   useEffect(() => {
     loadUsers();
@@ -141,6 +165,10 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     setShowAmountPicker(false);
     setSelectedTags([]);
     setAttachedMedia(null);
+    // Clear voice recording
+    clearRecording();
+    setShowVoicePreview(false);
+    setIsPlayingPreview(false);
   };
 
   const handleMediaSelect = (url: string, type: 'gif' | 'sticker') => {
@@ -188,8 +216,11 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
       return;
     }
     
-    if (!message.trim() && !attachUsdc) {
-      toast.error('Please enter a message or attach USDC');
+    // Allow voice message as valid content
+    const hasVoiceMessage = audioBlob !== null;
+    
+    if (!message.trim() && !attachUsdc && !hasVoiceMessage) {
+      toast.error('Please enter a message, record audio, or attach USDC');
       return;
     }
 
@@ -202,21 +233,29 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     triggerHaptic('medium');
 
     try {
-      if (attachUsdc && amount > 0 && currentUserId) {
+      // Build message content including voice message indicator
+      const messageContent = hasVoiceMessage 
+        ? `🎤 Voice message (${formatDuration(duration)})${message.trim() ? ` - ${message.trim()}` : ''}`
+        : message.trim() || 'Direct transfer';
+
+      if ((attachUsdc && amount > 0 && currentUserId) || hasVoiceMessage || message.trim()) {
         await createTransfer(
-          currentUserId,
+          currentUserId!,
           selectedUser.id,
-          amount,
-          message.trim() || 'Direct transfer'
+          attachUsdc ? amount : 0,
+          messageContent
         );
       }
 
       triggerHaptic('success');
-      toast.success(
-        attachUsdc && amount > 0
+      
+      const successMessage = hasVoiceMessage
+        ? `Voice message sent to @${selectedUser.username}${attachUsdc ? ` with $${amount} USDC` : ''}`
+        : attachUsdc && amount > 0
           ? `Sent $${amount} USDC to @${selectedUser.username}`
-          : `Message sent to @${selectedUser.username}`
-      );
+          : `Message sent to @${selectedUser.username}`;
+      
+      toast.success(successMessage);
       
       handleCancel();
       onSuccess?.();
@@ -228,7 +267,55 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     }
   };
 
-  const canSend = selectedUser && (message.trim() || (attachUsdc && amount > 0));
+  const canSend = selectedUser && (message.trim() || (attachUsdc && amount > 0) || audioBlob);
+  
+  // Show mic button when no content and no USDC and no media
+  const showMicButton = !message.trim() && !attachUsdc && !attachedMedia && !audioBlob;
+  
+  // Handle voice preview playback
+  const handlePlayPreview = () => {
+    if (!audioUrl) return;
+    
+    if (isPlayingPreview && audioPreviewRef.current) {
+      audioPreviewRef.current.pause();
+      audioPreviewRef.current.currentTime = 0;
+      setIsPlayingPreview(false);
+    } else {
+      if (audioPreviewRef.current) {
+        audioPreviewRef.current.pause();
+      }
+      const audio = new Audio(audioUrl);
+      audioPreviewRef.current = audio;
+      audio.onended = () => setIsPlayingPreview(false);
+      audio.play();
+      setIsPlayingPreview(true);
+    }
+    triggerHaptic('light');
+  };
+  
+  // Handle recording start (pointer down)
+  const handleRecordStart = async (e: React.PointerEvent) => {
+    e.preventDefault();
+    triggerHaptic('medium');
+    await startRecording();
+  };
+  
+  // Handle recording stop (pointer up)
+  const handleRecordStop = () => {
+    if (isRecording) {
+      stopRecording();
+      triggerHaptic('success');
+      setShowVoicePreview(true);
+    }
+  };
+  
+  // Handle recording cancel (pointer leaves button)
+  const handleRecordCancel = () => {
+    if (isRecording) {
+      cancelRecording();
+      triggerHaptic('error');
+    }
+  };
 
   // IDLE MODE: Show pencil FAB with gradient
   if (mode === 'idle') {
@@ -468,6 +555,52 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
         </div>
       )}
 
+      {/* Voice Message Preview Banner */}
+      {audioBlob && showVoicePreview && (
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="px-4 pt-3"
+        >
+          <div className="flex items-center justify-between px-3 py-2 bg-purple-50 border border-purple-200 rounded-xl">
+            <div className="flex items-center gap-3">
+              <motion.button 
+                whileTap={{ scale: 0.9 }}
+                onClick={handlePlayPreview}
+                className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center shadow-md"
+              >
+                {isPlayingPreview ? (
+                  <Pause className="h-4 w-4" />
+                ) : (
+                  <Play className="h-4 w-4 ml-0.5" />
+                )}
+              </motion.button>
+              <div>
+                <span className="text-sm font-medium text-purple-700">
+                  Voice Message
+                </span>
+                <span className="text-xs text-purple-500 ml-2">
+                  {formatDuration(duration)}
+                </span>
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                clearRecording();
+                setShowVoicePreview(false);
+                setIsPlayingPreview(false);
+                if (audioPreviewRef.current) {
+                  audioPreviewRef.current.pause();
+                }
+              }}
+              className="p-1 hover:bg-purple-100 rounded-lg"
+            >
+              <X className="h-3.5 w-3.5 text-purple-600" />
+            </button>
+          </div>
+        </motion.div>
+      )}
+
       {/* Selected Tags Display */}
       {selectedTags.length > 0 && (
         <div className="px-4 pt-3 flex flex-wrap gap-2">
@@ -528,8 +661,56 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
         </div>
       )}
 
-      {/* Input Row */}
-      <div className="flex items-end gap-2 p-3">
+      {/* Input Row - with relative positioning for recording overlay */}
+      <div className="relative flex items-end gap-2 p-3">
+        {/* Recording Overlay */}
+        <AnimatePresence>
+          {isRecording && (
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-red-500/10 backdrop-blur-sm flex items-center justify-between px-4 z-10 rounded-xl mx-2"
+            >
+              {/* Recording indicator */}
+              <div className="flex items-center gap-3">
+                <motion.div 
+                  animate={{ scale: [1, 1.3, 1] }}
+                  transition={{ repeat: Infinity, duration: 1 }}
+                  className="w-3 h-3 rounded-full bg-red-500"
+                />
+                <span className="text-red-600 font-semibold text-lg">
+                  {formatDuration(duration)}
+                </span>
+              </div>
+              
+              {/* Volume waveform bars */}
+              <div className="flex gap-0.5 h-8 items-center">
+                {[...Array(12)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="w-1 bg-red-400 rounded-full"
+                    animate={{ 
+                      height: `${Math.max(4, Math.min(32, (volume * (Math.random() * 0.5 + 0.5)) * 32))}px`
+                    }}
+                    transition={{ duration: 0.1 }}
+                  />
+                ))}
+              </div>
+              
+              {/* Slide to cancel hint */}
+              <motion.div 
+                animate={{ x: [-5, 5, -5] }}
+                transition={{ repeat: Infinity, duration: 1.5 }}
+                className="flex items-center gap-1 text-gray-500 text-sm"
+              >
+                <ChevronLeft className="h-4 w-4" />
+                <span>Slide to cancel</span>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* $ Button */}
         <motion.button
           whileTap={{ scale: 0.95 }}
@@ -636,14 +817,14 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           />
         </div>
 
-        {/* Send Button - Base Pay style when USDC attached, regular send otherwise */}
+        {/* Send/Mic Button - Telegram style */}
         {attachUsdc && amount > 0 ? (
+          // Pay button when USDC attached
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={handleSend}
             disabled={!canSend || isSending}
             className={cn(
-              // Base-style button: rounded rectangle
               "flex-shrink-0 h-10 px-4 rounded-xl font-semibold text-sm",
               "inline-flex items-center justify-center gap-2",
               "transition-all duration-200",
@@ -661,7 +842,25 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
               </>
             )}
           </motion.button>
+        ) : showMicButton ? (
+          // Mic button when field is empty (Telegram-style hold to record)
+          <motion.button
+            onPointerDown={handleRecordStart}
+            onPointerUp={handleRecordStop}
+            onPointerLeave={handleRecordCancel}
+            onPointerCancel={handleRecordCancel}
+            whileTap={{ scale: 1.1 }}
+            className={cn(
+              "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all touch-none select-none",
+              isRecording
+                ? "bg-red-500 text-white animate-pulse scale-110 shadow-lg shadow-red-500/30"
+                : "bg-gray-100 hover:bg-gray-200 text-gray-600"
+            )}
+          >
+            <Mic className="h-5 w-5" />
+          </motion.button>
         ) : (
+          // Regular send button
           <motion.button
             whileTap={{ scale: 0.95 }}
             onClick={handleSend}
