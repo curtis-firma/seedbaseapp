@@ -3,29 +3,26 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { AnimatePresence } from "framer-motion";
+import { useEffect, Suspense, lazy } from "react";
 import { UserProvider } from "@/contexts/UserContext";
 import { seedDemoDataIfEmpty } from "@/lib/supabase/seedDemoData";
 import { AppLayout } from "@/components/layout/AppLayout";
-import { AppSplashScreen } from "@/components/shared/AppSplashScreen";
+import { SeedbaseLoader } from "@/components/shared/SeedbaseLoader";
 
-// Pages
-import HomePage from "./pages/HomePage";
-import SeedbasePage from "./pages/SeedbasePage";
-import WalletPage from "./pages/WalletPage";
-import TransactionHistoryPage from "./pages/TransactionHistoryPage";
-import OneAccordPage from "./pages/OneAccordPage";
-import VaultPage from "./pages/VaultPage";
-import SeededPage from "./pages/SeededPage";
-import LauncherPage from "./pages/LauncherPage";
-import SettingsPage from "./pages/SettingsPage";
-import GovernancePage from "./pages/GovernancePage";
-import ProfilePage from "./pages/ProfilePage";
-import NotFound from "./pages/NotFound";
-
-// Landing Page (outside AppLayout)
-import ScrollingLandingPage from "./components/sections/ScrollingLandingPage";
+// Lazy load all pages for code splitting
+const ScrollingLandingPage = lazy(() => import("./components/sections/ScrollingLandingPage"));
+const HomePage = lazy(() => import("./pages/HomePage"));
+const SeedbasePage = lazy(() => import("./pages/SeedbasePage"));
+const WalletPage = lazy(() => import("./pages/WalletPage"));
+const TransactionHistoryPage = lazy(() => import("./pages/TransactionHistoryPage"));
+const OneAccordPage = lazy(() => import("./pages/OneAccordPage"));
+const VaultPage = lazy(() => import("./pages/VaultPage"));
+const SeededPage = lazy(() => import("./pages/SeededPage"));
+const LauncherPage = lazy(() => import("./pages/LauncherPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const GovernancePage = lazy(() => import("./pages/GovernancePage"));
+const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
 
@@ -50,6 +47,13 @@ function ScrollToTop() {
   return null;
 }
 
+// Loading fallback component
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <SeedbaseLoader message="Loading..." />
+  </div>
+);
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <UserProvider>
@@ -58,26 +62,28 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <Routes>
-            {/* Landing Page - NO AppLayout */}
-            <Route path="/" element={<ScrollingLandingPage />} />
-            
-            {/* Demo App - WITH AppLayout */}
-            <Route path="/app" element={<AppLayout><HomePage /></AppLayout>} />
-            <Route path="/app/seedbase" element={<AppLayout><SeedbasePage /></AppLayout>} />
-            <Route path="/app/wallet" element={<AppLayout><WalletPage /></AppLayout>} />
-            <Route path="/app/wallet/history" element={<AppLayout><TransactionHistoryPage /></AppLayout>} />
-            <Route path="/app/oneaccord" element={<AppLayout><OneAccordPage /></AppLayout>} />
-            <Route path="/app/vault" element={<AppLayout><VaultPage /></AppLayout>} />
-            <Route path="/app/seeded" element={<AppLayout><SeededPage /></AppLayout>} />
-            <Route path="/app/launcher" element={<AppLayout><LauncherPage /></AppLayout>} />
-            <Route path="/app/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
-            <Route path="/app/governance" element={<AppLayout><GovernancePage /></AppLayout>} />
-            <Route path="/app/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
-            
-            {/* 404 */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <Suspense fallback={<PageLoader />}>
+            <Routes>
+              {/* Landing Page - NO AppLayout */}
+              <Route path="/" element={<ScrollingLandingPage />} />
+              
+              {/* Demo App - WITH AppLayout */}
+              <Route path="/app" element={<AppLayout><HomePage /></AppLayout>} />
+              <Route path="/app/seedbase" element={<AppLayout><SeedbasePage /></AppLayout>} />
+              <Route path="/app/wallet" element={<AppLayout><WalletPage /></AppLayout>} />
+              <Route path="/app/wallet/history" element={<AppLayout><TransactionHistoryPage /></AppLayout>} />
+              <Route path="/app/oneaccord" element={<AppLayout><OneAccordPage /></AppLayout>} />
+              <Route path="/app/vault" element={<AppLayout><VaultPage /></AppLayout>} />
+              <Route path="/app/seeded" element={<AppLayout><SeededPage /></AppLayout>} />
+              <Route path="/app/launcher" element={<AppLayout><LauncherPage /></AppLayout>} />
+              <Route path="/app/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
+              <Route path="/app/governance" element={<AppLayout><GovernancePage /></AppLayout>} />
+              <Route path="/app/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
+              
+              {/* 404 */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </Suspense>
         </BrowserRouter>
       </TooltipProvider>
     </UserProvider>

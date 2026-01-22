@@ -1,5 +1,4 @@
 import { useState, useRef, useEffect } from 'react';
-import missionVideo from '@/assets/mission-video.mp4';
 
 type MissionVideoStateProps = { 
   active?: boolean;
@@ -8,12 +7,24 @@ type MissionVideoStateProps = {
 
 const MissionVideoState = ({ active = true, onEnded }: MissionVideoStateProps) => {
   const [videoError, setVideoError] = useState(false);
+  const [videoSrc, setVideoSrc] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   const fallbackImage = "https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=1200&q=80";
 
+  // Lazy load video source only when active
+  useEffect(() => {
+    if (active && !videoSrc) {
+      import('@/assets/mission-video.mp4').then((module) => {
+        setVideoSrc(module.default);
+      });
+    }
+  }, [active, videoSrc]);
+
   // Play/pause based on active state (prevents hidden videos from consuming resources)
   useEffect(() => {
+    if (!videoSrc) return;
+    
     const timer = setTimeout(() => {
       const el = videoRef.current;
       if (!el) return;
@@ -28,7 +39,7 @@ const MissionVideoState = ({ active = true, onEnded }: MissionVideoStateProps) =
     }, 100);
 
     return () => clearTimeout(timer);
-  }, [active]);
+  }, [active, videoSrc]);
 
   const handleEnded = () => {
     onEnded?.();
@@ -36,18 +47,20 @@ const MissionVideoState = ({ active = true, onEnded }: MissionVideoStateProps) =
 
   return (
     <div className="relative w-full h-full overflow-hidden flex items-center justify-center bg-black">
-      {!videoError ? (
+      {!videoError && videoSrc ? (
         <video
           ref={videoRef}
           className="w-full h-full object-cover"
           muted
           playsInline
-          preload="auto"
+          preload="metadata"
           onError={() => setVideoError(true)}
           onEnded={handleEnded}
         >
-          <source src={missionVideo} type="video/mp4" />
+          <source src={videoSrc} type="video/mp4" />
         </video>
+      ) : !videoSrc && active ? (
+        <div className="w-8 h-8 border-2 border-white/30 border-t-white rounded-full animate-spin" />
       ) : (
         <img
           src={fallbackImage}
