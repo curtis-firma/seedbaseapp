@@ -486,15 +486,27 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
   const isKeyboardOpen = keyboardHeight > 0;
   const showCollapsedUI = isFocused || message.length > 0;
 
+  // Calculate dynamic bottom for chat container
+  const chatBottomOffset = isKeyboardOpen 
+    ? `${keyboardHeight + 90}px`  // Above keyboard + compose bar
+    : '140px';                     // Above compose bar + bottom nav
+
   return (
     <>
+      {/* Full-screen backdrop to hide page and bottom nav */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        className="fixed inset-0 z-40 bg-black"
+      />
+
       {/* Persistent Recipient Header - Telegram Style */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-white/10 md:left-[260px]"
+        className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-white/10 md:left-[260px] pt-12"
       >
-        <div className="flex items-center justify-between px-4 py-3 safe-top">
+        <div className="flex items-center justify-between px-4 py-3">
           <button
             onClick={handleCancel}
             className="flex items-center gap-2 text-white"
@@ -530,7 +542,10 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
       </motion.div>
 
       {/* Chat History Bubbles */}
-      <div className="fixed top-16 left-0 right-0 bottom-36 z-30 bg-black md:left-[260px] overflow-hidden">
+      <div 
+        className="fixed top-28 left-0 right-0 z-50 bg-black md:left-[260px] overflow-hidden"
+        style={{ bottom: chatBottomOffset }}
+      >
         <ChatBubbles
           ref={chatBubblesRef}
           currentUserId={currentUserId}
@@ -578,7 +593,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
 
       {/* Compose Bar Container */}
       <div 
-        className="fixed left-0 right-0 z-40 px-3 pb-3 md:left-[260px]"
+        className="fixed left-0 right-0 z-50 px-3 pb-3 md:left-[260px]"
         style={{ 
           bottom: isKeyboardOpen ? `${keyboardHeight + 12}px` : '64px'
         }}
