@@ -6,6 +6,7 @@ import {
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { SwipeableTabContent } from '@/components/shared/SwipeableTabContent';
 import { KeyGatedCard } from '@/components/shared/KeyGatedCard';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { TransparencyDashboard } from '@/components/seedbase/TransparencyDashboard';
 import { SeedbaseCommandBar } from '@/components/seedbase/SeedbaseCommandBar';
 import { SeedbaseStatusPanel, type StatusData } from '@/components/seedbase/SeedbaseStatusPanel';
@@ -48,7 +49,13 @@ export default function SeedbasePage() {
   const tabs = roleTabs[viewRole];
   const [activeTab, setActiveTab] = useState(0);
   const [activeModal, setActiveModal] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   
+  // Simulate initial load
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 400);
+    return () => clearTimeout(timer);
+  }, []);
   // Activity stream state with persistence
   const [activity, setActivity] = useState<ActivityItem[]>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
@@ -196,9 +203,19 @@ export default function SeedbasePage() {
           onTabChange={setActiveTab}
         >
           <div className="space-y-4">
-            {viewRole === 'activator' && <ActivatorContent tab={activeTab} />}
-            {viewRole === 'trustee' && <TrusteeContent tab={activeTab} />}
-            {viewRole === 'envoy' && <EnvoyContent tab={activeTab} />}
+            {isLoading ? (
+              <>
+                <SkeletonCard />
+                <SkeletonCard />
+                <SkeletonCard />
+              </>
+            ) : (
+              <>
+                {viewRole === 'activator' && <ActivatorContent tab={activeTab} />}
+                {viewRole === 'trustee' && <TrusteeContent tab={activeTab} />}
+                {viewRole === 'envoy' && <EnvoyContent tab={activeTab} />}
+              </>
+            )}
           </div>
         </SwipeableTabContent>
       </div>

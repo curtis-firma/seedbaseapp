@@ -287,11 +287,24 @@
             font-weight: 600;
             transition: transform 0.2s, box-shadow 0.2s;
             display: inline-block;
+            cursor: pointer;
+            border: none;
+            font-size: 1em;
         }
 
         .cta-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .cta-button.secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+        }
+
+        .cta-button.secondary:hover {
+            background: rgba(255,255,255,0.3);
         }
 
         .tag {
@@ -303,6 +316,30 @@
             font-size: 0.85em;
             font-weight: 600;
             margin-left: 10px;
+        }
+
+        /* Fixed Back to App Button */
+        .back-to-app {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: white;
+            color: #0000FF;
+            padding: 10px 20px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .back-to-app:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.2);
         }
 
         @media (max-width: 768px) {
@@ -329,6 +366,13 @@
 
             .cta-buttons {
                 flex-direction: column;
+            }
+
+            .back-to-app {
+                top: 10px;
+                left: 10px;
+                padding: 8px 16px;
+                font-size: 0.9em;
             }
         }
 
@@ -397,6 +441,11 @@
     </style>
 </head>
 <body>
+    <!-- Fixed Back to App Button -->
+    <a href="/app" class="back-to-app">
+        ← Back to App
+    </a>
+
     <div class="container">
         <div class="header">
             <div class="logo">
@@ -1235,14 +1284,21 @@
             <h2>Plant something that lasts. Give together. Grow impact.</h2>
             <p style="font-size: 1.2em; opacity: 0.9; margin-top: 10px;">Ready to join the network?</p>
             <div class="cta-buttons">
-                <a href="#" class="cta-button">🌱 Become an Activator</a>
-                <a href="#" class="cta-button">🤝 Apply as Trustee</a>
-                <a href="#" class="cta-button">🌍 Connect as Envoy</a>
+                <button class="cta-button" onclick="goToApp('activator')">🌱 Become an Activator</button>
+                <button class="cta-button" onclick="goToApp('trustee')">🤝 Apply as Trustee</button>
+                <button class="cta-button" onclick="goToApp('envoy')">🌍 Connect as Envoy</button>
+            </div>
+            <div class="cta-buttons" style="margin-top: 20px;">
+                <button class="cta-button secondary" onclick="window.location.href='/app'">← Back to App</button>
             </div>
         </div>
     </div>
 
     <script>
+        function goToApp(role) {
+            // Navigate to app with role preference
+            window.location.href = '/app?role=' + role;
+        }
         function toggleAccordion(header) {
             const accordion = header.parentElement;
             const wasActive = accordion.classList.contains('active');
