@@ -16,6 +16,7 @@ import { TutorialOverlay, useShouldShowTutorial } from '@/components/shared/Tuto
 import { ViewingAsBadge } from '@/components/shared/ViewRoleBadge';
 import { Logo } from '@/components/shared/Logo';
 import { useUser } from '@/contexts/UserContext';
+import { useScrollToTop } from '@/hooks/useScrollToTop';
 import { cn } from '@/lib/utils';
 
 const TUTORIAL_FIRST_LOGIN_KEY = 'seedbase-first-login-tutorial-pending';
@@ -36,6 +37,9 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
   const { isAuthenticated, demoMode } = useUser();
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Scroll to top on route change
+  useScrollToTop();
 
   // Show auth on first visit if not authenticated, or if demo mode triggered
   useEffect(() => {

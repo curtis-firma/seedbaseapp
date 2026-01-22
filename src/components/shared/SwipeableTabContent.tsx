@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { useHaptic } from '@/hooks/useHaptic';
+import { cn } from '@/lib/utils';
 
 interface SwipeableTabContentProps {
   activeTab: number;
@@ -71,8 +72,32 @@ export function SwipeableTabContent({
     }),
   };
 
+  // Calculate edge indicators based on position
+  const showLeftIndicator = activeTab > 0;
+  const showRightIndicator = activeTab < tabCount - 1;
+
   return (
-    <div ref={containerRef} className="overflow-hidden touch-pan-y">
+    <div ref={containerRef} className="overflow-hidden touch-pan-y relative">
+      {/* Left edge indicator - shows more tabs to the left */}
+      <div
+        className={cn(
+          "absolute left-0 top-0 bottom-0 w-6 z-10 pointer-events-none",
+          "bg-gradient-to-r from-background/80 to-transparent",
+          "transition-opacity duration-200",
+          showLeftIndicator && isDragging ? "opacity-100" : "opacity-0"
+        )}
+      />
+      
+      {/* Right edge indicator - shows more tabs to the right */}
+      <div
+        className={cn(
+          "absolute right-0 top-0 bottom-0 w-6 z-10 pointer-events-none",
+          "bg-gradient-to-l from-background/80 to-transparent",
+          "transition-opacity duration-200",
+          showRightIndicator && isDragging ? "opacity-100" : "opacity-0"
+        )}
+      />
+
       <motion.div
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
