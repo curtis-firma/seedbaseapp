@@ -213,9 +213,21 @@ export function GifStickerPicker({ isOpen, onClose, onSelect }: GifStickerPicker
           animate={{ y: 0 }}
           exit={{ y: '100%' }}
           transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          drag="y"
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={{ top: 0, bottom: 0.5 }}
+          onDragEnd={(_, info) => {
+            if (info.offset.y > 100 || info.velocity.y > 500) {
+              onClose();
+            }
+          }}
           onClick={(e) => e.stopPropagation()}
           className="absolute bottom-0 left-0 right-0 bg-[#1e1e1e] rounded-t-3xl max-h-[75vh] flex flex-col"
         >
+          {/* Drag Handle */}
+          <div className="flex justify-center pt-3 pb-1">
+            <div className="w-10 h-1 bg-white/20 rounded-full" />
+          </div>
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
             <div className="flex gap-2">

@@ -378,9 +378,21 @@ export function QuickActionButton() {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 100, scale: 0.95 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.5 }}
+              onDragEnd={(_, info) => {
+                if (info.offset.y > 100 || info.velocity.y > 500) {
+                  handleClose();
+                }
+              }}
               className="fixed bottom-0 left-0 right-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-md z-50"
             >
               <div className="bg-card rounded-t-3xl md:rounded-3xl border border-border/50 overflow-hidden shadow-elevated max-h-[85vh] overflow-y-auto">
+                {/* Drag Handle - mobile only */}
+                <div className="flex justify-center pt-3 pb-1 md:hidden">
+                  <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+                </div>
                 {/* Header */}
                 <div className="flex items-center justify-between p-4 border-b border-border/50">
                   <div>
