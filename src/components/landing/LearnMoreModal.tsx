@@ -161,7 +161,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto p-5 sm:p-6 rounded-2xl border-0 bg-white shadow-2xl">
+      <DialogContent className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto p-5 sm:p-6 rounded-2xl border-0 bg-white shadow-2xl z-50">
         <motion.div
           variants={containerVariants}
           initial="hidden"
