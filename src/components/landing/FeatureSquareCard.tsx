@@ -34,10 +34,10 @@ const FeatureSquareCard = ({
         transition={{ duration: 0.5, ease: "easeOut" }}
         className={cn(
           // RESPONSIVE SIZE:
-          // Mobile: max-width 280px, responsive with aspect-square
+          // Mobile: Full width with aspect-square to match parent container (rectangle above)
           // Tablet/Desktop: Fixed 420x420px (matches HeroVisualCanvas lg height)
-          "w-full max-w-[280px] aspect-square",
-          "md:max-w-none md:w-[420px] md:h-[420px] md:aspect-auto",
+          "w-full aspect-square",
+          "md:w-[420px] md:h-[420px] md:aspect-auto",
           "flex-shrink-0",
           // Outer styling
           "rounded-3xl md:rounded-[32px]",
