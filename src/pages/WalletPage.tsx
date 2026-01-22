@@ -10,6 +10,7 @@ import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { SwipeableTabContent } from '@/components/shared/SwipeableTabContent';
+import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { trusteeWallets } from '@/data/mockData';
 import { AddFundsModal } from '@/components/wallet/AddFundsModal';
 import { WithdrawModal } from '@/components/wallet/WithdrawModal';
@@ -31,6 +32,7 @@ export default function WalletPage() {
   const [walletId, setWalletId] = useState<string | null>(null);
   const [pendingTransfers, setPendingTransfers] = useState<DemoTransfer[]>([]);
   const [recentTransfers, setRecentTransfers] = useState<DemoTransfer[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   
   const isTrustee = activeRole === 'trustee' && isKeyActive('BaseKey');
   const tabs = isTrustee ? ['Personal', 'Missions', 'Provision'] : ['Wallet', 'Keys'];
@@ -68,7 +70,10 @@ export default function WalletPage() {
 
   const loadWalletData = async () => {
     const userId = getCurrentUserId();
-    if (!userId) return;
+    if (!userId) {
+      setIsLoading(false);
+      return;
+    }
     
     try {
       const [wallet, pending, recent] = await Promise.all([
@@ -85,6 +90,8 @@ export default function WalletPage() {
       setRecentTransfers(recent);
     } catch (err) {
       console.error('Error loading wallet data:', err);
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -203,36 +210,46 @@ export default function WalletPage() {
           tabCount={tabs.length}
           onTabChange={setActiveTab}
         >
-          {isTrustee ? (
-            <>
-              {activeTab === 0 && (
-                <PersonalWalletView 
-                  balance={walletBalance} 
-                  walletId={walletId}
-                  pendingTransfers={pendingTransfers} 
-                  recentTransfers={recentTransfers}
-                  onRefresh={loadWalletData} 
-                  onAddFundsSuccess={handleAddFundsSuccess}
-                  onWithdrawSuccess={handleWithdrawSuccess}
-                />
-              )}
-              {activeTab === 1 && <MissionsWalletView />}
-              {activeTab === 2 && <ProvisionPoolView />}
-            </>
+          {isLoading ? (
+            <div className="space-y-4">
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
+            </div>
           ) : (
             <>
-              {activeTab === 0 && (
-                <PersonalWalletView 
-                  balance={walletBalance} 
-                  walletId={walletId}
-                  pendingTransfers={pendingTransfers}
-                  recentTransfers={recentTransfers} 
-                  onRefresh={loadWalletData}
-                  onAddFundsSuccess={handleAddFundsSuccess}
-                  onWithdrawSuccess={handleWithdrawSuccess}
-                />
+              {isTrustee ? (
+                <>
+                  {activeTab === 0 && (
+                    <PersonalWalletView 
+                      balance={walletBalance} 
+                      walletId={walletId}
+                      pendingTransfers={pendingTransfers} 
+                      recentTransfers={recentTransfers}
+                      onRefresh={loadWalletData} 
+                      onAddFundsSuccess={handleAddFundsSuccess}
+                      onWithdrawSuccess={handleWithdrawSuccess}
+                    />
+                  )}
+                  {activeTab === 1 && <MissionsWalletView />}
+                  {activeTab === 2 && <ProvisionPoolView />}
+                </>
+              ) : (
+                <>
+                  {activeTab === 0 && (
+                    <PersonalWalletView 
+                      balance={walletBalance} 
+                      walletId={walletId}
+                      pendingTransfers={pendingTransfers}
+                      recentTransfers={recentTransfers} 
+                      onRefresh={loadWalletData}
+                      onAddFundsSuccess={handleAddFundsSuccess}
+                      onWithdrawSuccess={handleWithdrawSuccess}
+                    />
+                  )}
+                  {activeTab === 1 && <KeysView user={user} />}
+                </>
               )}
-              {activeTab === 1 && <KeysView user={user} />}
             </>
           )}
         </SwipeableTabContent>
