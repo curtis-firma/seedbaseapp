@@ -4,6 +4,7 @@ import {
   TrendingUp, Target, FileText, Upload, CheckCircle2
 } from 'lucide-react';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
+import { SwipeableTabContent } from '@/components/shared/SwipeableTabContent';
 import { KeyGatedCard } from '@/components/shared/KeyGatedCard';
 import { TransparencyDashboard } from '@/components/seedbase/TransparencyDashboard';
 import { SeedbaseCommandBar } from '@/components/seedbase/SeedbaseCommandBar';
@@ -189,19 +190,17 @@ export default function SeedbasePage() {
 
       {/* Content */}
       <div className="px-4 py-4">
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={`${viewRole}-${activeTab}`}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            className="space-y-4"
-          >
+        <SwipeableTabContent
+          activeTab={activeTab}
+          tabCount={tabs.length}
+          onTabChange={setActiveTab}
+        >
+          <div className="space-y-4">
             {viewRole === 'activator' && <ActivatorContent tab={activeTab} />}
             {viewRole === 'trustee' && <TrusteeContent tab={activeTab} />}
             {viewRole === 'envoy' && <EnvoyContent tab={activeTab} />}
-          </motion.div>
-        </AnimatePresence>
+          </div>
+        </SwipeableTabContent>
       </div>
 
       {/* Activity Stream */}
