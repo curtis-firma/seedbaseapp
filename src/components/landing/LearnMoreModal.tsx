@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion, Variants, AnimatePresence } from "framer-motion";
+import { motion, Variants, AnimatePresence, PanInfo } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ExternalLink, ChevronDown, Loader2, Rocket, Check, X } from "lucide-react";
@@ -159,15 +159,33 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
     }),
   };
 
+  const handleDragEnd = (_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+    if (info.offset.y > 120 || info.velocity.y > 500) {
+      onOpenChange(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[600px] w-[calc(100%-2rem)] max-h-[85vh] overflow-y-auto p-5 sm:p-6 rounded-2xl border-0 bg-white shadow-2xl">
+      <DialogContent className="fixed inset-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-[600px] w-full sm:w-[calc(100%-2rem)] h-full sm:h-auto sm:max-h-[85vh] overflow-hidden p-0 rounded-none sm:rounded-2xl border-0 bg-white shadow-2xl">
         <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="space-y-4"
+          drag="y"
+          dragConstraints={{ top: 0, bottom: 0 }}
+          dragElastic={{ top: 0, bottom: 0.3 }}
+          onDragEnd={handleDragEnd}
+          className="h-full sm:h-auto overflow-y-auto p-5 sm:p-6"
         >
+          {/* Drag Handle */}
+          <div className="flex justify-center -mt-2 mb-3 sm:hidden">
+            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+          </div>
+          
+          <motion.div
+            variants={containerVariants}
+            initial="hidden"
+            animate="visible"
+            className="space-y-4"
+          >
           {/* Hero Headline */}
           <motion.h2 
             variants={itemVariants}
@@ -381,6 +399,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
               <ExternalLink className="w-4 h-4" />
             </Button>
           </motion.div>
+        </motion.div>
         </motion.div>
       </DialogContent>
     </Dialog>
