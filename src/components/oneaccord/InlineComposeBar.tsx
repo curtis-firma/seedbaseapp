@@ -474,6 +474,47 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
 
   return (
     <>
+      {/* Persistent Recipient Header - Telegram Style */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-white/10 md:left-[260px]"
+      >
+        <div className="flex items-center justify-between px-4 py-3 safe-top">
+          <button
+            onClick={handleCancel}
+            className="flex items-center gap-2 text-white"
+          >
+            <ChevronLeft className="h-5 w-5" />
+            <span className="text-blue-400">Back</span>
+          </button>
+          
+          {/* Recipient info - centered */}
+          <div className="flex flex-col items-center">
+            <div className="flex items-center gap-2">
+              {selectedUser?.avatar_url ? (
+                <img 
+                  src={selectedUser.avatar_url}
+                  className="w-8 h-8 rounded-full object-cover"
+                  alt=""
+                />
+              ) : (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                  {selectedUser?.display_name?.[0]?.toUpperCase() || selectedUser?.username?.[0]?.toUpperCase()}
+                </div>
+              )}
+              <span className="font-semibold text-white">
+                {selectedUser?.display_name || selectedUser?.username}
+              </span>
+            </div>
+            <span className="text-xs text-gray-400">@{selectedUser?.username}</span>
+          </div>
+          
+          {/* Placeholder for symmetry */}
+          <div className="w-16" />
+        </div>
+      </motion.div>
+
       {/* Tag Suggestions Dropdown */}
       <AnimatePresence>
         {showTagSuggestions && filteredTags.length > 0 && (
@@ -743,26 +784,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
               )}
             </AnimatePresence>
 
-            {/* Recipient chip (inline when not typing) */}
-            <AnimatePresence>
-              {selectedUser && !showCollapsedUI && (
-                <motion.span
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  className="flex items-center gap-1.5 px-2 py-1 bg-blue-500/20 border border-blue-400/30 rounded-full text-xs text-blue-300 whitespace-nowrap flex-shrink-0"
-                >
-                  @{selectedUser.username}
-                  <X 
-                    className="h-3 w-3 cursor-pointer hover:text-blue-200" 
-                    onClick={() => {
-                      setSelectedUser(null);
-                      setMode('user-select');
-                    }} 
-                  />
-                </motion.span>
-              )}
-            </AnimatePresence>
+            {/* Recipient chip removed - now in header */}
 
             {/* Message input - STRETCHES when focused */}
             <div className="flex-1 relative min-w-0">
@@ -796,7 +818,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
                 }}
                 placeholder="Message..."
                 rows={1}
-                className="w-full bg-transparent text-white placeholder:text-gray-500 resize-none outline-none text-sm py-2 min-h-[24px] max-h-[100px]"
+                className="w-full bg-transparent text-white placeholder:text-gray-500 resize-none outline-none text-base py-2 min-h-[24px] max-h-[100px]"
                 style={{ height: 'auto' }}
                 onInput={(e) => {
                   const target = e.target as HTMLTextAreaElement;
@@ -806,25 +828,19 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
               />
             </div>
 
-            {/* Money button - HIDE when typing (unless attached) */}
-            <AnimatePresence>
-              {(!showCollapsedUI || attachUsdc) && (
-                <motion.button
-                  initial={{ width: 0, opacity: 0 }}
-                  animate={{ width: 44, opacity: 1 }}
-                  exit={{ width: 0, opacity: 0 }}
-                  onClick={() => setAttachUsdc(!attachUsdc)}
-                  className={cn(
-                    "w-11 h-11 rounded-full flex items-center justify-center transition-all flex-shrink-0",
-                    attachUsdc 
-                      ? "bg-green-500 text-white shadow-lg shadow-green-500/30" 
-                      : "bg-green-500/20 hover:bg-green-500/30 text-green-400"
-                  )}
-                >
-                  <DollarSign className="h-5 w-5" />
-                </motion.button>
+            {/* Money button - ALWAYS visible */}
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => setAttachUsdc(!attachUsdc)}
+              className={cn(
+                "w-11 h-11 rounded-full flex items-center justify-center transition-all flex-shrink-0",
+                attachUsdc 
+                  ? "bg-green-500 text-white shadow-lg shadow-green-500/30" 
+                  : "bg-green-500/20 hover:bg-green-500/30 text-green-400"
               )}
-            </AnimatePresence>
+            >
+              <DollarSign className="h-5 w-5" />
+            </motion.button>
 
             {/* Send/Mic button - ALWAYS visible */}
             {showMicButton ? (
@@ -866,24 +882,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           </div>
         </div>
 
-        {/* Back button to change recipient */}
-        <AnimatePresence>
-          {selectedUser && (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: 10 }}
-              className="mt-2 flex items-center justify-center"
-            >
-              <button
-                onClick={() => setMode('user-select')}
-                className="text-xs text-gray-400 hover:text-gray-300 transition-colors"
-              >
-                To: @{selectedUser.username} • Tap to change
-              </button>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Recipient info now in header - removed redundant button */}
       </div>
 
       {/* Emoji Picker Modal */}
