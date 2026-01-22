@@ -177,9 +177,11 @@ const ScrollingLandingPage = () => {
           </div>
         </header>
 
-        {/* Mobile Scroll Narrative - replaces carousel */}
         <div className="md:hidden px-4 sm:px-6">
-          <MobileScrollNarrative onEnterApp={() => setShowLoginModal(true)} />
+          <MobileScrollNarrative 
+            onEnterApp={() => setShowLoginModal(true)} 
+            onLearnMore={() => setShowLearnMore(true)}
+          />
         </div>
 
         {/* Login Modal */}
