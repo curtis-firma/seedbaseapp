@@ -292,12 +292,7 @@ export default function HomePage() {
       {/* Header */}
       <header className="sticky top-0 z-20 glass-strong border-b border-border/50">
         <div className="px-4 py-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <span className={`px-3 py-1.5 rounded-full text-sm font-semibold border ${roleConfig[viewRole].bg} ${roleConfig[viewRole].text} ${roleConfig[viewRole].border}`}>
-                {roleConfig[viewRole].label}
-              </span>
-            </div>
+          <div className="flex items-center justify-end mb-4">
             <div className="flex items-center gap-1">
               <motion.button
                 whileTap={{ scale: 0.95 }}

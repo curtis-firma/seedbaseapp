@@ -1,36 +1,64 @@
 import { motion } from 'framer-motion';
 import { Menu } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
+import { cn } from '@/lib/utils';
+
+// Role config for pill styling
+const roleConfig = {
+  activator: { label: 'Activator', bg: 'bg-seed/20', text: 'text-seed', border: 'border-seed/40' },
+  trustee: { label: 'Trustee', bg: 'bg-purple-500/20', text: 'text-purple-500', border: 'border-purple-500/40' },
+  envoy: { label: 'Envoy', bg: 'bg-orange-500/20', text: 'text-orange-500', border: 'border-orange-500/40' },
+};
 
 interface ProfileMenuTriggerProps {
   onOpen: () => void;
 }
 
 export function ProfileMenuTrigger({ onOpen }: ProfileMenuTriggerProps) {
-  const { user, avatarUrl, username } = useUser();
+  const { user, avatarUrl, username, viewRole } = useUser();
   
   // Use avatarUrl from context (synced with localStorage), fallback to user.avatar or DiceBear
   const displayAvatar = avatarUrl || user.avatar || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username || 'default'}`;
+  const config = roleConfig[viewRole] || roleConfig.activator;
 
   return (
     <motion.button
-      whileTap={{ scale: 0.95 }}
+      whileTap={{ scale: 0.97 }}
       onClick={onOpen}
       data-tutorial="profile-menu"
-      className="relative flex items-center"
+      className={cn(
+        "relative flex items-center gap-2 pl-1 pr-3 py-1 rounded-full border transition-all",
+        config.bg,
+        config.border,
+        "hover:shadow-md active:scale-[0.98]"
+      )}
     >
-      {/* Combined Avatar with Hamburger Badge - Single Button */}
+      {/* Avatar with glow ring */}
       <div className="relative">
+        <div className={cn(
+          "absolute inset-0 rounded-full blur-sm opacity-50",
+          config.bg
+        )} />
         <img
           src={displayAvatar}
           alt={user.name}
-          className="w-10 h-10 rounded-full bg-muted object-cover border-2 border-primary/30 hover:border-primary/50 transition-colors"
+          className={cn(
+            "relative w-8 h-8 rounded-full bg-muted object-cover border-2",
+            config.border
+          )}
         />
-        {/* Hamburger menu badge overlay */}
-        <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 bg-primary rounded-full flex items-center justify-center shadow-sm border-2 border-background">
-          <Menu className="h-2.5 w-2.5 text-primary-foreground" />
-        </div>
       </div>
+      
+      {/* Role label */}
+      <span className={cn(
+        "text-sm font-semibold",
+        config.text
+      )}>
+        {config.label}
+      </span>
+      
+      {/* Hamburger icon */}
+      <Menu className={cn("h-4 w-4", config.text)} />
     </motion.button>
   );
 }

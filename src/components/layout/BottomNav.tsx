@@ -1,5 +1,5 @@
-import { motion, AnimatePresence } from 'framer-motion';
-import { Home, Layers, User, MessageCircle } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { Home, Layers, User } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { useHaptic } from '@/hooks/useHaptic';
@@ -9,12 +9,6 @@ const navItems = [
   { icon: Layers, label: 'Seedbase', path: '/app/seedbase' },
   { icon: User, label: 'User', path: '/app/wallet' },
 ];
-
-const navTransition = {
-  type: 'spring' as const,
-  stiffness: 400,
-  damping: 30,
-};
 
 export function BottomNav() {
   const location = useLocation();
@@ -26,75 +20,80 @@ export function BottomNav() {
     navigate(path);
   };
 
+  // Get active index for indicator positioning
+  const activeIndex = navItems.findIndex(item => 
+    location.pathname === item.path || 
+    (item.path !== '/' && location.pathname.startsWith(item.path))
+  );
+
   return (
     <motion.nav
       initial={{ y: 100 }}
       animate={{ y: 0 }}
-      transition={navTransition}
+      transition={{ type: 'spring', stiffness: 400, damping: 30 }}
       className="fixed bottom-0 left-0 right-0 z-40 md:hidden"
     >
       <div className="bg-card/95 backdrop-blur-xl border-t border-border/50 px-4 pb-safe-bottom">
-        <div className="flex items-center justify-around py-2">
-          {navItems.map((item) => {
-            const isActive = location.pathname === item.path || 
-              (item.path !== '/' && location.pathname.startsWith(item.path));
+        <div className="relative flex items-center justify-around py-2">
+          {/* Sliding indicator background - smooth modern pill */}
+          <motion.div
+            className="absolute top-1/2 -translate-y-1/2 h-12 bg-primary/10 rounded-2xl"
+            initial={false}
+            animate={{
+              x: `calc(${activeIndex * 100}% + ${activeIndex * 8}px)`,
+              width: '80px',
+            }}
+            style={{
+              left: `calc(${(100/3) * 0.5}% - 40px)`,
+            }}
+            transition={{ type: 'spring', stiffness: 500, damping: 35 }}
+          />
+          
+          {navItems.map((item, index) => {
+            const isActive = activeIndex === index;
             const Icon = item.icon;
-            const isFeatured = 'featured' in item && item.featured;
 
             return (
               <motion.button
                 key={item.path}
                 data-tutorial={`nav-${item.label.toLowerCase()}`}
                 onClick={() => handleNavClick(item.path)}
-                className={cn(
-                  "relative flex flex-col items-center gap-1 px-5 py-2",
-                  isFeatured && !isActive && "bg-gradient-to-r from-[#0000ff]/10 to-purple-500/10 rounded-xl mx-1"
-                )}
+                className="relative z-10 flex flex-col items-center gap-1 px-5 py-2"
                 whileTap={{ scale: 0.92 }}
-                whileHover={{ scale: 1.05 }}
-                transition={navTransition}
               >
                 <motion.div
                   animate={{ 
-                    scale: isActive ? 1.1 : 1,
+                    scale: isActive ? 1.15 : 1,
                     y: isActive ? -2 : 0,
                   }}
-                  transition={navTransition}
-                  className={cn(
-                    isFeatured && !isActive && "relative"
-                  )}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
                 >
                   <Icon
                     className={cn(
-                      "h-6 w-6 transition-colors duration-200",
-                      isActive ? "text-primary" : isFeatured ? "text-[#0000ff]" : "text-muted-foreground"
+                      "h-6 w-6 transition-colors duration-150",
+                      isActive ? "text-primary" : "text-muted-foreground"
                     )}
                   />
                 </motion.div>
-                <motion.span
-                  animate={{ 
-                    opacity: isActive ? 1 : 0.7,
-                    fontWeight: isActive ? 600 : 500,
-                  }}
+                <span
                   className={cn(
-                    "text-xs transition-colors duration-200",
-                    isActive ? "text-primary" : "text-muted-foreground"
+                    "text-xs transition-all duration-150",
+                    isActive ? "text-primary font-semibold" : "text-muted-foreground font-medium"
                   )}
                 >
                   {item.label}
-                </motion.span>
-                <AnimatePresence>
-                  {isActive && (
-                    <motion.div
-                      layoutId="bottomNavIndicator"
-                      initial={{ scale: 0, opacity: 0 }}
-                      animate={{ scale: 1, opacity: 1 }}
-                      exit={{ scale: 0, opacity: 0 }}
-                      className="absolute -bottom-0.5 left-1/2 -translate-x-1/2 w-1.5 h-1.5 rounded-full bg-primary shadow-glow"
-                      transition={navTransition}
-                    />
-                  )}
-                </AnimatePresence>
+                </span>
+                
+                {/* Active dot indicator */}
+                <motion.div
+                  initial={false}
+                  animate={{ 
+                    scale: isActive ? 1 : 0,
+                    opacity: isActive ? 1 : 0,
+                  }}
+                  transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                  className="absolute -bottom-0.5 w-1.5 h-1.5 rounded-full bg-primary"
+                />
               </motion.button>
             );
           })}
