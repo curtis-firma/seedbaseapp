@@ -418,12 +418,10 @@ export function QuickActionButton() {
                         exit={{ opacity: 0 }}
                         className="space-y-3"
                       >
-                        {actions.map((action, i) => (
+                        {actions.map((action) => (
                           <motion.button
                             key={action.id}
-                            initial={{ opacity: 0, x: -20 }}
-                            animate={{ opacity: 1, x: 0 }}
-                            transition={{ delay: i * 0.05 }}
+                            initial={false}
                             onClick={() => handleActionClick(action.id)}
                             className="w-full flex items-center gap-4 p-4 rounded-2xl border border-border/50 hover:border-primary/30 transition-all text-left"
                             whileTap={{ scale: 0.98 }}

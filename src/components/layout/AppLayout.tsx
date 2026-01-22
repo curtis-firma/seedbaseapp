@@ -136,33 +136,34 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
       
       {/* Mobile Header with Profile Menu Trigger */}
       <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border/50">
-        <div className="px-4 py-3 flex items-center justify-between relative">
-          <div className="z-10">
-            <ProfileMenuTrigger onOpen={() => setIsDrawerOpen(true)} />
-          </div>
-          <div className="absolute left-1/2 -translate-x-1/2">
+        <div className="px-4 py-3 flex items-center justify-between">
+          {/* Left: Profile pill */}
+          <ProfileMenuTrigger onOpen={() => setIsDrawerOpen(true)} />
+          
+          {/* Right: Logo + Message icon */}
+          <div className="flex items-center gap-3">
             <Logo variant="wordmark" size="sm" />
-          </div>
-          <motion.button
-            onClick={() => navigate('/app/oneaccord')}
-            className={cn(
-              "relative p-2 rounded-xl transition-colors",
-              location.pathname === '/app/oneaccord' 
-                ? "bg-primary/10" 
-                : "bg-gradient-to-r from-[#0000ff]/10 to-purple-500/10"
-            )}
-            whileTap={{ scale: 0.95 }}
-          >
-            <MessageCircle 
+            <motion.button
+              onClick={() => navigate('/app/oneaccord')}
               className={cn(
-                "h-5 w-5",
-                location.pathname === '/app/oneaccord' ? "text-primary" : "text-[#0000ff]"
-              )} 
-            />
-            {location.pathname !== '/app/oneaccord' && (
-              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#0000ff] rounded-full" />
-            )}
-          </motion.button>
+                "relative p-2 rounded-xl transition-colors",
+                location.pathname === '/app/oneaccord' 
+                  ? "bg-primary/10" 
+                  : "bg-gradient-to-r from-[#0000ff]/10 to-purple-500/10"
+              )}
+              whileTap={{ scale: 0.95 }}
+            >
+              <MessageCircle 
+                className={cn(
+                  "h-5 w-5",
+                  location.pathname === '/app/oneaccord' ? "text-primary" : "text-[#0000ff]"
+                )} 
+              />
+              {location.pathname !== '/app/oneaccord' && (
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#0000ff] rounded-full" />
+              )}
+            </motion.button>
+          </div>
         </div>
       </div>
       
