@@ -1,12 +1,13 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { Search, HelpCircle, MessageCircle, RefreshCw } from 'lucide-react';
+import { Search, HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
 import { FeedRenderer } from '@/components/seedfeed/FeedRenderer';
 import { SkeletonCard } from '@/components/shared/SkeletonCard';
 import { QuickVoteCard } from '@/components/feed/QuickVoteCard';
 import { GlobalSearchModal } from '@/components/shared/GlobalSearchModal';
+import { PullToRefresh } from '@/components/shared/PullToRefresh';
 import { getPosts, type DemoPost } from '@/lib/supabase/postsApi';
 import { mockFeedItems, forYouItems } from '@/data/mockData';
 import { getUserFeedItems, type SeedbaseFeedItem } from '@/lib/seedbaseFeedIntegration';
@@ -76,7 +77,6 @@ export default function HomePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isTabSwitching, setIsTabSwitching] = useState(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
-  const [isRefreshing, setIsRefreshing] = useState(false);
   const [posts, setPosts] = useState<FeedItem[]>([]);
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
@@ -232,56 +232,10 @@ export default function HomePage() {
     window.dispatchEvent(new CustomEvent('show-walkthrough'));
   };
 
-  const [pullDistance, setPullDistance] = useState(0);
-  const [isPulling, setIsPulling] = useState(false);
-  const pullThreshold = 80;
-
-  const handleRefresh = async () => {
-    haptic.medium();
-    setIsRefreshing(true);
+  const handleRefresh = useCallback(async () => {
     await loadPosts(true);
-    setIsRefreshing(false);
-    haptic.success();
     toast.success('Feed refreshed!');
-  };
-
-  // Pull-to-refresh touch handlers
-  const handleTouchStart = useCallback((e: React.TouchEvent) => {
-    if (window.scrollY === 0) {
-      setIsPulling(true);
-    }
   }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent) => {
-    if (!isPulling || window.scrollY > 0) return;
-    
-    const touch = e.touches[0];
-    const startY = (e.target as HTMLElement).dataset.startY;
-    if (!startY) {
-      (e.target as HTMLElement).dataset.startY = String(touch.clientY);
-      return;
-    }
-    
-    const deltaY = touch.clientY - Number(startY);
-    if (deltaY > 0) {
-      setPullDistance(Math.min(deltaY * 0.5, 120));
-      if (deltaY > pullThreshold && !isRefreshing) {
-        haptic.light();
-      }
-    }
-  }, [isPulling, isRefreshing, haptic]);
-
-  const handleTouchEnd = useCallback(() => {
-    if (pullDistance > pullThreshold && !isRefreshing) {
-      handleRefresh();
-    }
-    setPullDistance(0);
-    setIsPulling(false);
-    // Clear startY
-    document.querySelectorAll('[data-start-y]').forEach(el => {
-      delete (el as HTMLElement).dataset.startY;
-    });
-  }, [pullDistance, isRefreshing]);
 
   const handleButtonTap = () => {
     haptic.light();
@@ -324,30 +278,7 @@ export default function HomePage() {
       </header>
 
       {/* Feed Content with Pull-to-Refresh */}
-      <div
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-      >
-        {/* Pull-to-refresh indicator */}
-        <motion.div
-          animate={{ 
-            height: pullDistance,
-            opacity: pullDistance > 20 ? 1 : 0 
-          }}
-          className="flex items-center justify-center overflow-hidden"
-        >
-          <motion.div
-            animate={{ 
-              rotate: pullDistance > pullThreshold ? 180 : (pullDistance / pullThreshold) * 180,
-              scale: pullDistance > pullThreshold ? 1.2 : 1
-            }}
-            className={`p-2 rounded-full ${pullDistance > pullThreshold ? 'bg-primary/20' : 'bg-muted'}`}
-          >
-            <RefreshCw className={`h-5 w-5 ${pullDistance > pullThreshold ? 'text-primary' : 'text-muted-foreground'}`} />
-          </motion.div>
-        </motion.div>
-
+      <PullToRefresh onRefresh={handleRefresh}>
         <motion.div
           drag="x"
           dragConstraints={{ left: 0, right: 0 }}
@@ -425,28 +356,7 @@ export default function HomePage() {
           </motion.div>
         </AnimatePresence>
         </motion.div>
-      </div>
-
-      {/* Pull to Refresh Indicator */}
-      <AnimatePresence>
-        {isRefreshing && (
-          <motion.div
-            initial={{ opacity: 0, y: -50 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -50 }}
-            className="fixed top-20 left-1/2 -translate-x-1/2 z-50"
-          >
-            <div className="flex items-center gap-2 px-4 py-2 bg-card rounded-full shadow-elevated border border-border/50">
-              <motion.div
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
-                className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full"
-              />
-              <span className="text-sm font-medium">Refreshing...</span>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      </PullToRefresh>
 
       {/* Global Search Modal */}
       <GlobalSearchModal
