@@ -43,7 +43,7 @@ export function AppSplashScreen({ onComplete }: AppSplashScreenProps) {
         }}
         className="mb-8"
       >
-        <Logo variant="full" size="xl" />
+        <Logo variant="full" size="xl" forceDark />
       </motion.div>
 
       {/* Tagline */}

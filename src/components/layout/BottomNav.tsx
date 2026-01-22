@@ -65,12 +65,19 @@ export function BottomNav() {
                 className="relative z-10 flex flex-col items-center gap-1 px-5 py-2"
                 whileTap={{ scale: 0.92 }}
               >
-                <Icon
-                  className={cn(
-                    "h-6 w-6 transition-colors duration-150",
-                    isActive ? "text-primary" : "text-muted-foreground"
-                  )}
-                />
+                <motion.div
+                  whileTap={{ 
+                    scale: [1, 0.85, 1.1, 1],
+                    transition: { duration: 0.3, times: [0, 0.2, 0.5, 1] }
+                  }}
+                >
+                  <Icon
+                    className={cn(
+                      "h-6 w-6 transition-colors duration-150",
+                      isActive ? "text-primary" : "text-muted-foreground"
+                    )}
+                  />
+                </motion.div>
                 <span
                   className={cn(
                     "text-xs transition-all duration-150",
