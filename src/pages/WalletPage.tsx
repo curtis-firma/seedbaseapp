@@ -9,6 +9,7 @@ import {
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
 import { SwipeTabs } from '@/components/shared/SwipeTabs';
+import { SwipeableTabContent } from '@/components/shared/SwipeableTabContent';
 import { trusteeWallets } from '@/data/mockData';
 import { AddFundsModal } from '@/components/wallet/AddFundsModal';
 import { WithdrawModal } from '@/components/wallet/WithdrawModal';
@@ -197,12 +198,15 @@ export default function WalletPage() {
       </header>
 
       <div className="px-4 py-4">
-        <AnimatePresence mode="wait">
+        <SwipeableTabContent
+          activeTab={activeTab}
+          tabCount={tabs.length}
+          onTabChange={setActiveTab}
+        >
           {isTrustee ? (
             <>
               {activeTab === 0 && (
                 <PersonalWalletView 
-                  key="personal" 
                   balance={walletBalance} 
                   walletId={walletId}
                   pendingTransfers={pendingTransfers} 
@@ -212,14 +216,13 @@ export default function WalletPage() {
                   onWithdrawSuccess={handleWithdrawSuccess}
                 />
               )}
-              {activeTab === 1 && <MissionsWalletView key="missions" />}
-              {activeTab === 2 && <ProvisionPoolView key="provision" />}
+              {activeTab === 1 && <MissionsWalletView />}
+              {activeTab === 2 && <ProvisionPoolView />}
             </>
           ) : (
             <>
               {activeTab === 0 && (
                 <PersonalWalletView 
-                  key="personal" 
                   balance={walletBalance} 
                   walletId={walletId}
                   pendingTransfers={pendingTransfers}
@@ -229,10 +232,10 @@ export default function WalletPage() {
                   onWithdrawSuccess={handleWithdrawSuccess}
                 />
               )}
-              {activeTab === 1 && <KeysView key="keys" user={user} />}
+              {activeTab === 1 && <KeysView user={user} />}
             </>
           )}
-        </AnimatePresence>
+        </SwipeableTabContent>
       </div>
     </div>
   );

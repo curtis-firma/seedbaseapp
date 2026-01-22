@@ -20,11 +20,16 @@ export function BottomNav() {
     navigate(path);
   };
 
-  // Get active index for indicator positioning
-  const activeIndex = navItems.findIndex(item => 
-    location.pathname === item.path || 
-    (item.path !== '/' && location.pathname.startsWith(item.path))
-  );
+  // Get active index for indicator positioning - bulletproof path matching
+  const getActiveIndex = (): number => {
+    const path = location.pathname;
+    if (path === '/app' || path === '/app/') return 0;
+    if (path.startsWith('/app/seedbase')) return 1;
+    if (path.startsWith('/app/wallet') || path.startsWith('/app/profile') || path.startsWith('/app/settings')) return 2;
+    return 0;
+  };
+  
+  const activeIndex = getActiveIndex();
 
   return (
     <motion.nav
