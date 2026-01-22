@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { DollarSign, Send, Plus, Minus, X, Search, Edit, MessageCircle, Smile, Hash, ImageIcon, Mic, Play, Pause, ChevronLeft } from 'lucide-react';
+import { DollarSign, Send, Plus, Minus, X, Search, Edit, MessageCircle, Smile, Hash, ImageIcon, Mic, Play, Pause, ChevronLeft, Users } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { cn } from '@/lib/utils';
 import { getAllCompletedUsers, searchUsers, getWalletByUserId, type DemoUser } from '@/lib/supabase/demoApi';
@@ -8,7 +8,6 @@ import { createTransfer } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { GifStickerPicker } from './GifStickerPicker';
 
 interface InlineComposeBarProps {
@@ -32,13 +31,15 @@ const formatDuration = (seconds: number): string => {
   return `${mins}:${secs.toString().padStart(2, '0')}`;
 };
 
+// Slide to cancel threshold
+const CANCEL_THRESHOLD = -100;
+
 export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
   const [mode, setMode] = useState<'idle' | 'user-select' | 'compose'>('idle');
   
   const [message, setMessage] = useState('');
   const [attachUsdc, setAttachUsdc] = useState(false);
   const [amount, setAmount] = useState(25);
-  const [showAmountPicker, setShowAmountPicker] = useState(false);
   const [selectedUser, setSelectedUser] = useState<DemoUser | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [availableUsers, setAvailableUsers] = useState<DemoUser[]>([]);
@@ -53,6 +54,11 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
   const [attachedMedia, setAttachedMedia] = useState<{ url: string; type: 'gif' | 'sticker' } | null>(null);
   const [showVoicePreview, setShowVoicePreview] = useState(false);
   const [isPlayingPreview, setIsPlayingPreview] = useState(false);
+  const [showExtras, setShowExtras] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [dragStartX, setDragStartX] = useState<number | null>(null);
+  const [dragOffset, setDragOffset] = useState(0);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
@@ -69,6 +75,24 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     cancelRecording,
     clearRecording
   } = useVoiceRecorder();
+
+  // Keyboard awareness - detect iOS keyboard
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.visualViewport) {
+        const diff = window.innerHeight - window.visualViewport.height;
+        setKeyboardHeight(diff > 100 ? diff : 0);
+      }
+    };
+    
+    window.visualViewport?.addEventListener('resize', handleResize);
+    window.visualViewport?.addEventListener('scroll', handleResize);
+    
+    return () => {
+      window.visualViewport?.removeEventListener('resize', handleResize);
+      window.visualViewport?.removeEventListener('scroll', handleResize);
+    };
+  }, []);
 
   useEffect(() => {
     loadUsers();
@@ -162,9 +186,10 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     setSearchQuery('');
     setMessage('');
     setAttachUsdc(false);
-    setShowAmountPicker(false);
     setSelectedTags([]);
     setAttachedMedia(null);
+    setShowExtras(false);
+    setIsFocused(false);
     // Clear voice recording
     clearRecording();
     setShowVoicePreview(false);
@@ -196,6 +221,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
       setMessage(prev => prev + emojiData.emoji);
     }
     setShowEmojiPicker(false);
+    setShowExtras(false);
     triggerHaptic('light');
   };
 
@@ -293,11 +319,28 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     triggerHaptic('light');
   };
   
-  // Handle recording start (pointer down)
+  // Handle recording start (pointer down) with slide tracking
   const handleRecordStart = async (e: React.PointerEvent) => {
     e.preventDefault();
+    setDragStartX(e.clientX);
+    setDragOffset(0);
     triggerHaptic('medium');
     await startRecording();
+  };
+  
+  // Handle pointer move for slide-to-cancel
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (isRecording && dragStartX !== null) {
+      const offset = e.clientX - dragStartX;
+      setDragOffset(offset);
+      
+      if (offset < CANCEL_THRESHOLD) {
+        cancelRecording();
+        setDragStartX(null);
+        setDragOffset(0);
+        triggerHaptic('error');
+      }
+    }
   };
   
   // Handle recording stop (pointer up)
@@ -307,17 +350,21 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
       triggerHaptic('success');
       setShowVoicePreview(true);
     }
+    setDragStartX(null);
+    setDragOffset(0);
   };
   
-  // Handle recording cancel (pointer leaves button)
+  // Handle recording cancel (pointer leaves)
   const handleRecordCancel = () => {
     if (isRecording) {
       cancelRecording();
       triggerHaptic('error');
     }
+    setDragStartX(null);
+    setDragOffset(0);
   };
 
-  // IDLE MODE: Show pencil FAB with gradient
+  // IDLE MODE: Show pencil FAB with gradient (like X/Twitter)
   if (mode === 'idle') {
     return (
       <motion.button
@@ -329,130 +376,132 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           setMode('user-select');
           triggerHaptic('light');
         }}
-        className="fixed bottom-20 right-4 md:right-8 z-40 w-14 h-14 rounded-full bg-gradient-to-br from-[#0000ff] to-purple-600 text-white shadow-lg hover:shadow-xl flex items-center justify-center transition-all"
+        className="fixed bottom-20 right-4 md:right-8 z-40 w-14 h-14 rounded-full bg-blue-500 text-white shadow-lg hover:shadow-xl flex items-center justify-center transition-all"
       >
         <Edit className="h-6 w-6" />
       </motion.button>
     );
   }
 
-  // USER-SELECT MODE: Light mode user search
+  // USER-SELECT MODE: Dark X/Twitter style full-screen
   if (mode === 'user-select') {
     return (
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: 20 }}
-        className="fixed inset-0 z-40 bg-gray-50 flex flex-col"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        className="fixed inset-0 z-40 bg-black flex flex-col"
         style={{ top: 0 }}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-4 border-b border-gray-200 bg-white">
+        <div className="flex items-center justify-between px-4 py-4 border-b border-white/10">
           <button
             onClick={handleCancel}
-            className="p-2 -ml-2 hover:bg-gray-100 rounded-lg transition-colors text-gray-900"
+            className="text-white font-medium hover:opacity-80 transition-opacity"
           >
-            <X className="h-5 w-5" />
+            Cancel
           </button>
-          <h1 className="font-semibold text-lg text-gray-900">New Message</h1>
-          <div className="w-9" />
+          <h1 className="font-bold text-lg text-white">New message</h1>
+          <div className="w-14" />
         </div>
 
-        {/* Message Type Tabs */}
-        <div className="flex gap-2 px-4 py-3 bg-white">
-          <button className="flex-1 py-2.5 rounded-full bg-gradient-to-r from-[#0000ff] to-purple-600 text-white font-medium text-sm flex items-center justify-center gap-2">
-            <MessageCircle className="h-4 w-4" />
-            Direct Message
-          </button>
-          <button className="flex-1 py-2.5 rounded-full bg-gray-100 text-gray-400 font-medium text-sm" disabled>
-            Group Chat
-          </button>
-        </div>
-
-        {/* Search Input */}
-        <div className="px-4 py-3 bg-white border-b border-gray-100">
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+        {/* To: field */}
+        <div className="px-4 py-3 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <span className="text-gray-500">To:</span>
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search for users..."
+              placeholder=""
               autoFocus
-              className="w-full pl-12 pr-4 py-3 bg-gray-100 border-2 border-transparent focus:border-[#0000ff] rounded-xl text-base outline-none transition-colors text-gray-900 placeholder:text-gray-500"
+              className="flex-1 bg-transparent text-white outline-none text-base"
             />
           </div>
         </div>
 
-        {/* User List */}
-        <div className="flex-1 overflow-y-auto px-4 pb-20 bg-gray-50">
-          <p className="text-xs font-semibold text-gray-500 mb-3 mt-4 tracking-wide">RECENT</p>
-          <div className="space-y-1">
-            {filteredUsers.slice(0, 10).map((user) => (
-              <motion.button
-                key={user.id}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => handleSelectUser(user)}
-                className="w-full flex items-center gap-3 p-3 rounded-xl bg-white hover:bg-gray-50 transition-colors border border-gray-100"
-              >
-                {user.avatar_url ? (
-                  <img 
-                    src={user.avatar_url} 
-                    alt={user.display_name || user.username}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                ) : (
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-[#0000ff] to-purple-600 flex items-center justify-center">
-                    <span className="text-lg font-semibold text-white">
-                      {user.display_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase()}
-                    </span>
-                  </div>
-                )}
-                <div className="text-left">
-                  <p className="font-semibold text-gray-900">{user.display_name || user.username}</p>
-                  <p className="text-sm text-gray-500">@{user.username}</p>
-                </div>
-              </motion.button>
-            ))}
-            
-            {filteredUsers.length === 0 && (
-              <div className="text-center py-12 text-gray-500">
-                <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                <p>No users found</p>
-              </div>
-            )}
+        {/* Create group option (disabled/demo) */}
+        <button className="flex items-center gap-3 px-4 py-4 border-b border-white/10 opacity-50 cursor-not-allowed">
+          <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
+            <Users className="h-5 w-5 text-blue-400" />
           </div>
+          <span className="text-blue-400 font-medium">Create a group</span>
+        </button>
+
+        {/* User List */}
+        <div className="flex-1 overflow-y-auto">
+          {filteredUsers.slice(0, 20).map((user) => (
+            <motion.button
+              key={user.id}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => handleSelectUser(user)}
+              className="w-full flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
+            >
+              {user.avatar_url ? (
+                <img 
+                  src={user.avatar_url} 
+                  alt={user.display_name || user.username}
+                  className="w-12 h-12 rounded-full object-cover"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                  <span className="text-lg font-semibold text-white">
+                    {user.display_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase()}
+                  </span>
+                </div>
+              )}
+              <div className="text-left">
+                <p className="font-semibold text-white">{user.display_name || user.username}</p>
+                <p className="text-sm text-gray-500">@{user.username}</p>
+              </div>
+            </motion.button>
+          ))}
+          
+          {filteredUsers.length === 0 && (
+            <div className="text-center py-12 text-gray-500">
+              <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <p>No users found</p>
+            </div>
+          )}
         </div>
       </motion.div>
     );
   }
 
-  // COMPOSE MODE: Light mode message input
+  // COMPOSE MODE: Telegram/Instagram dark pill container with two-state UI
+  const isKeyboardOpen = keyboardHeight > 0;
+  const showCollapsedUI = isFocused || message.length > 0;
+
   return (
-    <div className="fixed bottom-16 left-0 right-0 md:left-[260px] z-40 bg-white border-t border-gray-200 shadow-lg">
+    <>
+      {/* Tag Suggestions Dropdown */}
       <AnimatePresence>
-        {/* Tag Suggestions Dropdown */}
         {showTagSuggestions && filteredTags.length > 0 && (
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 10 }}
-            className="absolute bottom-full left-0 right-0 bg-white border-t border-gray-200 p-2 shadow-lg"
+            className="fixed left-3 right-3 z-50 bg-[#1e1e1e] rounded-2xl p-3 shadow-xl border border-white/10"
+            style={{ 
+              bottom: isKeyboardOpen 
+                ? `${keyboardHeight + 80}px` 
+                : '144px' 
+            }}
           >
-            <p className="text-xs font-medium text-gray-500 px-2 mb-2">Tag a Seedbase Channel</p>
+            <p className="text-xs font-medium text-gray-400 px-2 mb-2">Tag a Seedbase Channel</p>
             <div className="space-y-1">
               {filteredTags.map((tag) => (
                 <motion.button
                   key={tag.tag}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleTagSelect(tag.tag)}
-                  className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="w-full flex items-center gap-3 p-2 rounded-lg hover:bg-white/10 transition-colors"
                 >
                   <span className={cn("w-8 h-8 rounded-lg flex items-center justify-center text-white", tag.color)}>
                     {tag.emoji}
                   </span>
                   <div className="text-left">
-                    <p className="font-medium text-gray-900 text-sm">{tag.label}</p>
+                    <p className="font-medium text-white text-sm">{tag.label}</p>
                     <p className="text-xs text-gray-500">{tag.tag}</p>
                   </div>
                 </motion.button>
@@ -460,426 +509,413 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
             </div>
           </motion.div>
         )}
-
-        {/* Amount Picker Dropdown */}
-        {showAmountPicker && (
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: 10 }}
-            className="absolute bottom-full left-0 right-0 bg-white border-t border-gray-200 p-4 shadow-lg"
-          >
-            <div className="flex items-center justify-between mb-3">
-              <span className="text-sm font-medium text-gray-900">Send USDC</span>
-              <button
-                onClick={() => {
-                  setShowAmountPicker(false);
-                  setAttachUsdc(false);
-                }}
-                className="p-1.5 hover:bg-gray-100 rounded-lg text-gray-600"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-            
-            {/* Amount Controls */}
-            <div className="flex items-center justify-center gap-6 mb-4">
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => handleAmountChange(-5)}
-                className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 text-gray-700"
-              >
-                <Minus className="h-4 w-4" />
-              </motion.button>
-              
-              <div className="text-center">
-                <p className="text-3xl font-bold text-gray-900">${amount}</p>
-                <p className="text-xs text-gray-500">USDC</p>
-              </div>
-              
-              <motion.button
-                whileTap={{ scale: 0.9 }}
-                onClick={() => handleAmountChange(5)}
-                className="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center hover:bg-gray-200 text-gray-700"
-              >
-                <Plus className="h-4 w-4" />
-              </motion.button>
-            </div>
-
-            {/* Preset Pills */}
-            <div className="flex gap-2 justify-center">
-              {PRESET_AMOUNTS.map((preset) => (
-                <motion.button
-                  key={preset}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => handlePresetClick(preset)}
-                  className={cn(
-                    "px-4 py-2 rounded-full text-sm font-medium transition-all",
-                    amount === preset
-                      ? "bg-gradient-to-r from-[#0000ff] to-purple-600 text-white"
-                      : "bg-gray-100 hover:bg-gray-200 text-gray-700"
-                  )}
-                >
-                  ${preset}
-                </motion.button>
-              ))}
-            </div>
-
-            <p className="text-xs text-gray-500 text-center mt-3">
-              Available: ${currentBalance.toFixed(2)}
-            </p>
-          </motion.div>
-        )}
       </AnimatePresence>
 
-      {/* Amount Preview Banner */}
-      {attachUsdc && amount > 0 && !showAmountPicker && (
-        <div className="px-4 pt-3">
-          <div className="flex items-center justify-between px-3 py-2 bg-green-50 border border-green-200 rounded-xl">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-4 w-4 text-green-600" />
-              <span className="text-sm text-green-700 font-medium">
-                Sending ${amount} USDC
-              </span>
-            </div>
-            <button
-              onClick={() => {
-                setAttachUsdc(false);
-                setShowAmountPicker(false);
-              }}
-              className="p-1 hover:bg-green-100 rounded-lg"
+      {/* Compose Bar Container */}
+      <div 
+        className="fixed left-0 right-0 z-40 px-3 pb-3 md:left-[260px]"
+        style={{ 
+          bottom: isKeyboardOpen ? `${keyboardHeight + 12}px` : '64px'
+        }}
+      >
+        {/* Dark pill container */}
+        <div className="bg-[#2b2b2b] rounded-[28px] shadow-2xl border border-white/5 overflow-hidden">
+          
+          {/* Voice Preview Banner (inside pill) */}
+          {audioBlob && showVoicePreview && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: 'auto', opacity: 1 }}
+              className="border-b border-white/10"
             >
-              <X className="h-3.5 w-3.5 text-green-600" />
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Voice Message Preview Banner */}
-      {audioBlob && showVoicePreview && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="px-4 pt-3"
-        >
-          <div className="flex items-center justify-between px-3 py-2 bg-purple-50 border border-purple-200 rounded-xl">
-            <div className="flex items-center gap-3">
-              <motion.button 
-                whileTap={{ scale: 0.9 }}
-                onClick={handlePlayPreview}
-                className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center shadow-md"
-              >
-                {isPlayingPreview ? (
-                  <Pause className="h-4 w-4" />
-                ) : (
-                  <Play className="h-4 w-4 ml-0.5" />
-                )}
-              </motion.button>
-              <div>
-                <span className="text-sm font-medium text-purple-700">
-                  Voice Message
-                </span>
-                <span className="text-xs text-purple-500 ml-2">
-                  {formatDuration(duration)}
-                </span>
-              </div>
-            </div>
-            <button
-              onClick={() => {
-                clearRecording();
-                setShowVoicePreview(false);
-                setIsPlayingPreview(false);
-                if (audioPreviewRef.current) {
-                  audioPreviewRef.current.pause();
-                }
-              }}
-              className="p-1 hover:bg-purple-100 rounded-lg"
-            >
-              <X className="h-3.5 w-3.5 text-purple-600" />
-            </button>
-          </div>
-        </motion.div>
-      )}
-
-      {/* Selected Tags Display */}
-      {selectedTags.length > 0 && (
-        <div className="px-4 pt-3 flex flex-wrap gap-2">
-          {selectedTags.map((tag) => {
-            const tagInfo = SEEDBASE_TAGS.find(t => t.tag === tag);
-            return (
-              <span
-                key={tag}
-                className={cn(
-                  "inline-flex items-center gap-1 px-2 py-1 rounded-full text-xs font-medium text-white",
-                  tagInfo?.color || "bg-gray-500"
-                )}
-              >
-                {tagInfo?.emoji} {tagInfo?.label}
+              <div className="flex items-center justify-between px-4 py-3">
+                <div className="flex items-center gap-3">
+                  <motion.button 
+                    whileTap={{ scale: 0.9 }}
+                    onClick={handlePlayPreview}
+                    className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center shadow-md"
+                  >
+                    {isPlayingPreview ? (
+                      <Pause className="h-4 w-4" />
+                    ) : (
+                      <Play className="h-4 w-4 ml-0.5" />
+                    )}
+                  </motion.button>
+                  <div>
+                    <span className="text-sm font-medium text-white">
+                      Voice Message
+                    </span>
+                    <span className="text-xs text-gray-400 ml-2">
+                      {formatDuration(duration)}
+                    </span>
+                  </div>
+                </div>
                 <button
-                  onClick={() => setSelectedTags(prev => prev.filter(t => t !== tag))}
-                  className="ml-1 hover:bg-white/20 rounded-full p-0.5"
+                  onClick={() => {
+                    clearRecording();
+                    setShowVoicePreview(false);
+                    setIsPlayingPreview(false);
+                    if (audioPreviewRef.current) {
+                      audioPreviewRef.current.pause();
+                    }
+                  }}
+                  className="p-1.5 hover:bg-white/10 rounded-lg"
                 >
-                  <X className="h-3 w-3" />
+                  <X className="h-4 w-4 text-gray-400" />
                 </button>
-              </span>
-            );
-          })}
-        </div>
-      )}
+              </div>
+            </motion.div>
+          )}
 
-      {/* Selected User Chip */}
-      {selectedUser && (
-        <div className="px-4 pt-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-gray-600">To:</span>
-            <div className="flex items-center gap-1.5 px-2 py-1 bg-[#0000ff]/10 border border-[#0000ff]/30 rounded-full">
-              {selectedUser.avatar_url ? (
-                <img 
-                  src={selectedUser.avatar_url} 
-                  alt=""
-                  className="w-5 h-5 rounded-full object-cover"
-                />
-              ) : (
-                <div className="w-5 h-5 rounded-full bg-gradient-to-br from-[#0000ff] to-purple-600 flex items-center justify-center">
-                  <span className="text-[10px] font-medium text-white">
-                    {selectedUser.username?.[0]?.toUpperCase()}
+          {/* USDC Amount Row (inline when attached) */}
+          <AnimatePresence>
+            {attachUsdc && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="border-b border-white/10 overflow-hidden"
+              >
+                <div className="flex items-center justify-between px-4 py-3">
+                  <div className="flex items-center gap-3">
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleAmountChange(-5)}
+                      className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
+                    >
+                      <Minus className="h-4 w-4" />
+                    </motion.button>
+                    <span className="text-xl font-bold text-green-400 min-w-[60px] text-center">${amount}</span>
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => handleAmountChange(5)}
+                      className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
+                    >
+                      <Plus className="h-4 w-4" />
+                    </motion.button>
+                  </div>
+                  <div className="flex gap-2">
+                    {PRESET_AMOUNTS.map(preset => (
+                      <motion.button
+                        key={preset}
+                        whileTap={{ scale: 0.95 }}
+                        onClick={() => handlePresetClick(preset)}
+                        className={cn(
+                          "px-3 py-1 rounded-full text-sm font-medium transition-colors",
+                          amount === preset 
+                            ? "bg-green-500 text-white" 
+                            : "bg-white/10 text-gray-300 hover:bg-white/20"
+                        )}
+                      >
+                        ${preset}
+                      </motion.button>
+                    ))}
+                  </div>
+                  <button
+                    onClick={() => setAttachUsdc(false)}
+                    className="p-1.5 hover:bg-white/10 rounded-lg ml-2"
+                  >
+                    <X className="h-4 w-4 text-gray-400" />
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Extras Menu (Plus button expansion) */}
+          <AnimatePresence>
+            {showExtras && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: 'auto', opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="border-b border-white/10 overflow-hidden"
+              >
+                <div className="flex gap-4 px-4 py-3 overflow-x-auto">
+                  <button 
+                    onClick={() => {
+                      setShowEmojiPicker(true);
+                      setShowExtras(false);
+                    }} 
+                    className="flex flex-col items-center gap-1"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
+                      <Smile className="h-6 w-6 text-yellow-400" />
+                    </div>
+                    <span className="text-[10px] text-gray-400">Emoji</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setShowGifPicker(true);
+                      setShowExtras(false);
+                    }} 
+                    className="flex flex-col items-center gap-1"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
+                      <ImageIcon className="h-6 w-6 text-purple-400" />
+                    </div>
+                    <span className="text-[10px] text-gray-400">Stickers</span>
+                  </button>
+                  <button 
+                    onClick={() => {
+                      setMessage(prev => prev + '@');
+                      textareaRef.current?.focus();
+                      setShowExtras(false);
+                    }} 
+                    className="flex flex-col items-center gap-1"
+                  >
+                    <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
+                      <Hash className="h-6 w-6 text-blue-400" />
+                    </div>
+                    <span className="text-[10px] text-gray-400">Tags</span>
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Recording Overlay */}
+          <AnimatePresence>
+            {isRecording && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onPointerMove={handlePointerMove}
+                className="absolute inset-0 bg-[#2b2b2b] flex items-center justify-between px-4 z-10 rounded-[28px]"
+              >
+                {/* Recording indicator */}
+                <div className="flex items-center gap-3">
+                  <motion.div 
+                    animate={{ scale: [1, 1.3, 1] }}
+                    transition={{ repeat: Infinity, duration: 1 }}
+                    className="w-3 h-3 rounded-full bg-red-500"
+                  />
+                  <span className="text-red-400 font-semibold text-lg">
+                    {formatDuration(duration)}
                   </span>
                 </div>
+                
+                {/* Volume waveform bars */}
+                <div className="flex gap-0.5 h-8 items-center">
+                  {[...Array(12)].map((_, i) => (
+                    <motion.div
+                      key={i}
+                      className="w-1 bg-red-400 rounded-full"
+                      animate={{ 
+                        height: `${Math.max(4, Math.min(32, (volume * (Math.random() * 0.5 + 0.5)) * 32))}px`
+                      }}
+                      transition={{ duration: 0.1 }}
+                    />
+                  ))}
+                </div>
+                
+                {/* Slide to cancel hint with drag feedback */}
+                <motion.div 
+                  animate={{ x: [-5, 5, -5] }}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  className="flex items-center gap-1 text-gray-400 text-sm"
+                  style={{ 
+                    opacity: Math.max(0.3, 1 + dragOffset / 150)
+                  }}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  <span>Slide to cancel</span>
+                </motion.div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Main Input Row */}
+          <div className="flex items-center gap-2 px-3 py-2 relative">
+            {/* Plus button - HIDE when focused/typing */}
+            <AnimatePresence>
+              {!showCollapsedUI && (
+                <motion.button
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: 40, opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  onClick={() => setShowExtras(!showExtras)}
+                  className="w-10 h-10 rounded-full bg-white/10 hover:bg-white/15 flex items-center justify-center text-gray-300 flex-shrink-0"
+                >
+                  <Plus className="h-5 w-5" />
+                </motion.button>
               )}
-              <span className="text-sm font-medium text-[#0000ff]">{selectedUser.username}</span>
-              <button
-                onClick={() => {
-                  setSelectedUser(null);
-                  setMode('user-select');
+            </AnimatePresence>
+
+            {/* Recipient chip (inline when not typing) */}
+            <AnimatePresence>
+              {selectedUser && !showCollapsedUI && (
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.8 }}
+                  className="flex items-center gap-1.5 px-2 py-1 bg-blue-500/20 border border-blue-400/30 rounded-full text-xs text-blue-300 whitespace-nowrap flex-shrink-0"
+                >
+                  @{selectedUser.username}
+                  <X 
+                    className="h-3 w-3 cursor-pointer hover:text-blue-200" 
+                    onClick={() => {
+                      setSelectedUser(null);
+                      setMode('user-select');
+                    }} 
+                  />
+                </motion.span>
+              )}
+            </AnimatePresence>
+
+            {/* Message input - STRETCHES when focused */}
+            <div className="flex-1 relative min-w-0">
+              {/* Attached GIF Preview */}
+              {attachedMedia?.type === 'gif' && (
+                <div className="mb-2 relative inline-block">
+                  <img 
+                    src={attachedMedia.url} 
+                    alt="Attached GIF" 
+                    className="h-16 rounded-lg object-cover"
+                  />
+                  <button
+                    onClick={() => setAttachedMedia(null)}
+                    className="absolute -top-2 -right-2 w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              )}
+              <textarea
+                ref={textareaRef}
+                value={message}
+                onChange={(e) => setMessage(e.target.value)}
+                onFocus={() => {
+                  setIsFocused(true);
+                  setShowExtras(false);
                 }}
-                className="ml-1 p-0.5 hover:bg-[#0000ff]/10 rounded-full text-[#0000ff]"
-              >
-                <X className="h-3 w-3" />
-              </button>
+                onBlur={() => {
+                  // Delay to allow button clicks
+                  setTimeout(() => setIsFocused(false), 100);
+                }}
+                placeholder="Message..."
+                rows={1}
+                className="w-full bg-transparent text-white placeholder:text-gray-500 resize-none outline-none text-sm py-2 min-h-[24px] max-h-[100px]"
+                style={{ height: 'auto' }}
+                onInput={(e) => {
+                  const target = e.target as HTMLTextAreaElement;
+                  target.style.height = 'auto';
+                  target.style.height = Math.min(target.scrollHeight, 100) + 'px';
+                }}
+              />
             </div>
+
+            {/* Money button - HIDE when typing (unless attached) */}
+            <AnimatePresence>
+              {(!showCollapsedUI || attachUsdc) && (
+                <motion.button
+                  initial={{ width: 0, opacity: 0 }}
+                  animate={{ width: 44, opacity: 1 }}
+                  exit={{ width: 0, opacity: 0 }}
+                  onClick={() => setAttachUsdc(!attachUsdc)}
+                  className={cn(
+                    "w-11 h-11 rounded-full flex items-center justify-center transition-all flex-shrink-0",
+                    attachUsdc 
+                      ? "bg-green-500 text-white shadow-lg shadow-green-500/30" 
+                      : "bg-green-500/20 hover:bg-green-500/30 text-green-400"
+                  )}
+                >
+                  <DollarSign className="h-5 w-5" />
+                </motion.button>
+              )}
+            </AnimatePresence>
+
+            {/* Send/Mic button - ALWAYS visible */}
+            {showMicButton ? (
+              <motion.button
+                onPointerDown={handleRecordStart}
+                onPointerUp={handleRecordStop}
+                onPointerLeave={handleRecordCancel}
+                onPointerCancel={handleRecordCancel}
+                onPointerMove={handlePointerMove}
+                whileTap={{ scale: 1.1 }}
+                className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center transition-all touch-none select-none flex-shrink-0",
+                  isRecording
+                    ? "bg-red-500 text-white animate-pulse scale-110 shadow-lg shadow-red-500/30"
+                    : "bg-white/10 text-gray-300 hover:bg-white/20"
+                )}
+              >
+                <Mic className="h-5 w-5" />
+              </motion.button>
+            ) : (
+              <motion.button
+                whileTap={{ scale: 0.95 }}
+                onClick={handleSend}
+                disabled={!canSend || isSending}
+                className={cn(
+                  "w-10 h-10 rounded-full flex items-center justify-center transition-all flex-shrink-0",
+                  canSend && !isSending
+                    ? "bg-blue-500 text-white"
+                    : "bg-white/10 text-gray-500"
+                )}
+              >
+                {isSending ? (
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                ) : (
+                  <Send className="h-5 w-5" />
+                )}
+              </motion.button>
+            )}
           </div>
         </div>
-      )}
 
-      {/* Input Row - with relative positioning for recording overlay */}
-      <div className="relative flex items-end gap-2 p-3">
-        {/* Recording Overlay */}
+        {/* Back button to change recipient */}
         <AnimatePresence>
-          {isRecording && (
+          {selectedUser && (
             <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="absolute inset-0 bg-red-500/10 backdrop-blur-sm flex items-center justify-between px-4 z-10 rounded-xl mx-2"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: 10 }}
+              className="mt-2 flex items-center justify-center"
             >
-              {/* Recording indicator */}
-              <div className="flex items-center gap-3">
-                <motion.div 
-                  animate={{ scale: [1, 1.3, 1] }}
-                  transition={{ repeat: Infinity, duration: 1 }}
-                  className="w-3 h-3 rounded-full bg-red-500"
-                />
-                <span className="text-red-600 font-semibold text-lg">
-                  {formatDuration(duration)}
-                </span>
-              </div>
-              
-              {/* Volume waveform bars */}
-              <div className="flex gap-0.5 h-8 items-center">
-                {[...Array(12)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="w-1 bg-red-400 rounded-full"
-                    animate={{ 
-                      height: `${Math.max(4, Math.min(32, (volume * (Math.random() * 0.5 + 0.5)) * 32))}px`
-                    }}
-                    transition={{ duration: 0.1 }}
-                  />
-                ))}
-              </div>
-              
-              {/* Slide to cancel hint */}
-              <motion.div 
-                animate={{ x: [-5, 5, -5] }}
-                transition={{ repeat: Infinity, duration: 1.5 }}
-                className="flex items-center gap-1 text-gray-500 text-sm"
+              <button
+                onClick={() => setMode('user-select')}
+                className="text-xs text-gray-400 hover:text-gray-300 transition-colors"
               >
-                <ChevronLeft className="h-4 w-4" />
-                <span>Slide to cancel</span>
-              </motion.div>
+                To: @{selectedUser.username} • Tap to change
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* $ Button */}
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            if (!attachUsdc) {
-              setAttachUsdc(true);
-              setShowAmountPicker(true);
-            } else {
-              setShowAmountPicker(!showAmountPicker);
-            }
-          }}
-          className={cn(
-            "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all",
-            attachUsdc
-              ? "bg-green-500 text-white"
-              : "bg-gray-100 hover:bg-gray-200 text-gray-600"
-          )}
-        >
-          <DollarSign className="h-5 w-5" />
-        </motion.button>
-
-        {/* Emoji Button */}
-        <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
-          <PopoverTrigger asChild>
-            <motion.button
-              whileTap={{ scale: 0.95 }}
-              className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-all"
-            >
-              <Smile className="h-5 w-5" />
-            </motion.button>
-          </PopoverTrigger>
-          <PopoverContent 
-            className="w-auto p-0 border-0 shadow-xl" 
-            side="top" 
-            align="start"
-            sideOffset={8}
-          >
-            <EmojiPicker
-              onEmojiClick={handleEmojiClick}
-              theme={Theme.LIGHT}
-              width={320}
-              height={400}
-              searchPlaceholder="Search emoji..."
-              previewConfig={{ showPreview: false }}
-            />
-          </PopoverContent>
-        </Popover>
-
-        {/* Tag Button */}
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={() => {
-            setMessage(prev => prev + '@');
-            textareaRef.current?.focus();
-          }}
-          className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-all"
-        >
-          <Hash className="h-5 w-5" />
-        </motion.button>
-
-        {/* GIF/Sticker Button */}
-        <motion.button
-          whileTap={{ scale: 0.95 }}
-          onClick={() => setShowGifPicker(true)}
-          className="flex-shrink-0 w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 transition-all"
-        >
-          <ImageIcon className="h-5 w-5" />
-        </motion.button>
-        
-        {/* Message Input */}
-        <div className="flex-1 relative">
-          {/* Attached GIF Preview */}
-          {attachedMedia?.type === 'gif' && (
-            <div className="mb-2 relative inline-block">
-              <img 
-                src={attachedMedia.url} 
-                alt="Attached GIF" 
-                className="h-16 rounded-lg object-cover"
-              />
-              <button
-                onClick={() => setAttachedMedia(null)}
-                className="absolute -top-2 -right-2 w-5 h-5 bg-gray-800 text-white rounded-full flex items-center justify-center"
-              >
-                <X className="h-3 w-3" />
-              </button>
-            </div>
-          )}
-          <textarea
-            ref={textareaRef}
-            value={message}
-            onChange={(e) => setMessage(e.target.value)}
-            placeholder="Write your message... 💬"
-            rows={1}
-            className="w-full bg-gray-100 border-2 border-transparent focus:border-[#0000ff] rounded-2xl py-3 px-4 text-base outline-none transition-all resize-none min-h-[48px] max-h-24 text-gray-900 placeholder:text-gray-400"
-            style={{ height: 'auto' }}
-            onInput={(e) => {
-              const target = e.target as HTMLTextAreaElement;
-              target.style.height = 'auto';
-              target.style.height = Math.min(target.scrollHeight, 96) + 'px';
-            }}
-            onFocus={() => {
-              setShowAmountPicker(false);
-            }}
-          />
-        </div>
-
-        {/* Send/Mic Button - Telegram style */}
-        {attachUsdc && amount > 0 ? (
-          // Pay button when USDC attached
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleSend}
-            disabled={!canSend || isSending}
-            className={cn(
-              "flex-shrink-0 h-10 px-4 rounded-xl font-semibold text-sm",
-              "inline-flex items-center justify-center gap-2",
-              "transition-all duration-200",
-              canSend && !isSending
-                ? "bg-foreground text-background"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            )}
-          >
-            {isSending ? (
-              <div className="w-4 h-4 border-2 border-background border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <>
-                <span className="w-4 h-4 rounded-sm flex-shrink-0 bg-[#0000ff]" />
-                <span>Pay</span>
-              </>
-            )}
-          </motion.button>
-        ) : showMicButton ? (
-          // Mic button when field is empty (Telegram-style hold to record)
-          <motion.button
-            onPointerDown={handleRecordStart}
-            onPointerUp={handleRecordStop}
-            onPointerLeave={handleRecordCancel}
-            onPointerCancel={handleRecordCancel}
-            whileTap={{ scale: 1.1 }}
-            className={cn(
-              "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all touch-none select-none",
-              isRecording
-                ? "bg-red-500 text-white animate-pulse scale-110 shadow-lg shadow-red-500/30"
-                : "bg-gray-100 hover:bg-gray-200 text-gray-600"
-            )}
-          >
-            <Mic className="h-5 w-5" />
-          </motion.button>
-        ) : (
-          // Regular send button
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleSend}
-            disabled={!canSend || isSending}
-            className={cn(
-              "flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center transition-all",
-              canSend && !isSending
-                ? "bg-gradient-to-r from-[#0000ff] to-purple-600 text-white shadow-lg hover:shadow-xl"
-                : "bg-gray-200 text-gray-400 cursor-not-allowed"
-            )}
-          >
-            {isSending ? (
-              <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-            ) : (
-              <Send className="h-5 w-5" />
-            )}
-          </motion.button>
-        )}
       </div>
+
+      {/* Emoji Picker Modal */}
+      <AnimatePresence>
+        {showEmojiPicker && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
+            onClick={() => setShowEmojiPicker(false)}
+          >
+            <motion.div
+              initial={{ y: '100%' }}
+              animate={{ y: 0 }}
+              exit={{ y: '100%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              onClick={(e) => e.stopPropagation()}
+              className="absolute bottom-0 left-0 right-0"
+            >
+              <EmojiPicker
+                onEmojiClick={handleEmojiClick}
+                theme={Theme.DARK}
+                width="100%"
+                height={400}
+                searchPlaceholder="Search emoji..."
+                previewConfig={{ showPreview: false }}
+              />
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* GIF/Sticker Picker */}
       <GifStickerPicker
@@ -887,6 +923,6 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
         onClose={() => setShowGifPicker(false)}
         onSelect={handleMediaSelect}
       />
-    </div>
+    </>
   );
 }

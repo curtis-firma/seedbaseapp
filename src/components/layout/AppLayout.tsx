@@ -41,16 +41,12 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
   // Scroll to top on route change
   useScrollToTop();
 
-  // Show auth on first visit if not authenticated, or if demo mode triggered
+  // Redirect to landing page if not authenticated (remove floating auth popup)
   useEffect(() => {
-    if (!isAuthenticated) {
-      setShowAuth(true);
+    if (!isAuthenticated && !demoMode) {
+      navigate('/');
     }
-    if (demoMode && !isAuthenticated) {
-      setForceDemo(true);
-      setShowAuth(true);
-    }
-  }, [isAuthenticated, demoMode]);
+  }, [isAuthenticated, demoMode, navigate]);
 
   // Listen for walkthrough trigger from other components (e.g., HomePage HelpCircle)
   useEffect(() => {

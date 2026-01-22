@@ -50,32 +50,6 @@ function ScrollToTop() {
   return null;
 }
 
-// Initial splash screen on first app visit
-function InitialSplash() {
-  const [showSplash, setShowSplash] = useState(() => {
-    // Only show splash on initial app routes, not landing page
-    const isAppRoute = window.location.pathname.startsWith('/app');
-    const hasSeenSplash = sessionStorage.getItem('seedbase-splash-shown');
-    return isAppRoute && !hasSeenSplash;
-  });
-
-  useEffect(() => {
-    if (showSplash) {
-      const timer = setTimeout(() => {
-        setShowSplash(false);
-        sessionStorage.setItem('seedbase-splash-shown', 'true');
-      }, 2000);
-      return () => clearTimeout(timer);
-    }
-  }, [showSplash]);
-
-  return (
-    <AnimatePresence>
-      {showSplash && <AppSplashScreen />}
-    </AnimatePresence>
-  );
-}
-
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <UserProvider>
@@ -84,7 +58,6 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <ScrollToTop />
-          <InitialSplash />
           <Routes>
             {/* Landing Page - NO AppLayout */}
             <Route path="/" element={<ScrollingLandingPage />} />
