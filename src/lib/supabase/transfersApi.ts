@@ -308,6 +308,44 @@ export async function recordWithdrawal(
   return castToDemoTransfer(data);
 }
 
+// Get conversation history between two users (all transfers between them)
+export async function getConversationHistory(
+  userId1: string,
+  userId2: string,
+  limit = 50
+): Promise<DemoTransfer[]> {
+  const { data, error } = await supabase
+    .from('demo_transfers')
+    .select('*')
+    .or(
+      `and(from_user_id.eq.${userId1},to_user_id.eq.${userId2}),and(from_user_id.eq.${userId2},to_user_id.eq.${userId1})`
+    )
+    .order('created_at', { ascending: true })
+    .limit(limit);
+
+  if (error) {
+    console.error('Error getting conversation history:', error);
+    return [];
+  }
+
+  // Fetch user info for each transfer
+  const transfers = await Promise.all(
+    (data || []).map(async (transfer) => {
+      const [fromUser, toUser] = await Promise.all([
+        transfer.from_user_id ? getUserById(transfer.from_user_id) : null,
+        transfer.to_user_id ? getUserById(transfer.to_user_id) : null,
+      ]);
+      return {
+        ...castToDemoTransfer(transfer),
+        from_user: fromUser || undefined,
+        to_user: toUser || undefined,
+      };
+    })
+  );
+
+  return transfers;
+}
+
 // Create a payment request (does NOT deduct from sender - just records pending request)
 export async function createPaymentRequest(
   fromUserId: string,  // Person being requested (will pay)

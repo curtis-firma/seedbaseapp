@@ -5,6 +5,7 @@ import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { cn } from '@/lib/utils';
 import { getAllCompletedUsers, searchUsers, getWalletByUserId, type DemoUser } from '@/lib/supabase/demoApi';
 import { createTransfer } from '@/lib/supabase/transfersApi';
+import { ChatBubbles } from './ChatBubbles';
 import { toast } from 'sonner';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
@@ -514,6 +515,15 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
           <div className="w-16" />
         </div>
       </motion.div>
+
+      {/* Chat History Bubbles */}
+      <div className="fixed top-16 left-0 right-0 bottom-36 z-30 bg-black md:left-[260px] overflow-hidden">
+        <ChatBubbles
+          currentUserId={currentUserId}
+          selectedUser={selectedUser}
+          className="h-full"
+        />
+      </div>
 
       {/* Tag Suggestions Dropdown */}
       <AnimatePresence>
