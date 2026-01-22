@@ -5,7 +5,7 @@ import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { cn } from '@/lib/utils';
 import { getAllCompletedUsers, searchUsers, getWalletByUserId, type DemoUser } from '@/lib/supabase/demoApi';
 import { createTransfer } from '@/lib/supabase/transfersApi';
-import { ChatBubbles } from './ChatBubbles';
+import { ChatBubbles, type ChatBubblesRef } from './ChatBubbles';
 import { toast } from 'sonner';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
@@ -63,6 +63,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
+  const chatBubblesRef = useRef<ChatBubblesRef>(null);
 
   // Voice recorder hook
   const {
@@ -284,7 +285,19 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
       
       toast.success(successMessage);
       
-      handleCancel();
+      // Refresh chat bubbles immediately
+      chatBubblesRef.current?.refresh();
+      
+      // Reset form but stay in compose mode with same user
+      setMessage('');
+      setAttachUsdc(false);
+      setSelectedTags([]);
+      setAttachedMedia(null);
+      setShowExtras(false);
+      clearRecording();
+      setShowVoicePreview(false);
+      setIsPlayingPreview(false);
+      
       onSuccess?.();
     } catch (error) {
       console.error('Error sending:', error);
@@ -519,6 +532,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
       {/* Chat History Bubbles */}
       <div className="fixed top-16 left-0 right-0 bottom-36 z-30 bg-black md:left-[260px] overflow-hidden">
         <ChatBubbles
+          ref={chatBubblesRef}
           currentUserId={currentUserId}
           selectedUser={selectedUser}
           className="h-full"
