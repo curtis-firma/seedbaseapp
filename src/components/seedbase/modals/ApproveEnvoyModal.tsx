@@ -81,7 +81,6 @@ export function ApproveEnvoyModal({ open, onClose, onSuccess }: ApproveEnvoyModa
 
   return (
     <>
-      <Confetti isActive={showConfetti} />
       <Dialog open={open} onOpenChange={onClose}>
         <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
@@ -155,6 +154,7 @@ export function ApproveEnvoyModal({ open, onClose, onSuccess }: ApproveEnvoyModa
           </div>
         </DialogContent>
       </Dialog>
+      {showConfetti && <Confetti isActive={showConfetti} />}
     </>
   );
 }
