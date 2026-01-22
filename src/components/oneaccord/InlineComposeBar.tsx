@@ -595,7 +595,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
       <div 
         className="fixed left-0 right-0 z-50 px-3 pb-3 md:left-[260px]"
         style={{ 
-          bottom: isKeyboardOpen ? `${keyboardHeight + 12}px` : '64px'
+          bottom: isKeyboardOpen ? `${keyboardHeight + 12}px` : '12px'
         }}
       >
         {/* Dark pill container */}
@@ -656,32 +656,35 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
                 exit={{ height: 0, opacity: 0 }}
                 className="border-b border-white/10 overflow-hidden"
               >
-                <div className="flex items-center justify-between px-4 py-3">
-                  <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2 px-3 py-3 overflow-x-auto">
+                  {/* Amount controls */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
                     <motion.button
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleAmountChange(-5)}
-                      className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
+                      className="w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
                     >
-                      <Minus className="h-4 w-4" />
+                      <Minus className="h-3.5 w-3.5" />
                     </motion.button>
-                    <span className="text-xl font-bold text-green-400 min-w-[60px] text-center">${amount}</span>
+                    <span className="text-lg font-bold text-green-400 min-w-[50px] text-center">${amount}</span>
                     <motion.button
                       whileTap={{ scale: 0.9 }}
                       onClick={() => handleAmountChange(5)}
-                      className="w-8 h-8 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
+                      className="w-7 h-7 rounded-full bg-white/10 text-white flex items-center justify-center hover:bg-white/20"
                     >
-                      <Plus className="h-4 w-4" />
+                      <Plus className="h-3.5 w-3.5" />
                     </motion.button>
                   </div>
-                  <div className="flex gap-2">
+                  
+                  {/* Preset amounts */}
+                  <div className="flex gap-1.5 flex-shrink-0">
                     {PRESET_AMOUNTS.map(preset => (
                       <motion.button
                         key={preset}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => handlePresetClick(preset)}
                         className={cn(
-                          "px-3 py-1 rounded-full text-sm font-medium transition-colors",
+                          "px-2.5 py-1 rounded-full text-xs font-medium transition-colors",
                           amount === preset 
                             ? "bg-green-500 text-white" 
                             : "bg-white/10 text-gray-300 hover:bg-white/20"
@@ -691,9 +694,11 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
                       </motion.button>
                     ))}
                   </div>
+                  
+                  {/* Close button */}
                   <button
                     onClick={() => setAttachUsdc(false)}
-                    className="p-1.5 hover:bg-white/10 rounded-lg ml-2"
+                    className="p-1 hover:bg-white/10 rounded-lg flex-shrink-0 ml-auto"
                   >
                     <X className="h-4 w-4 text-gray-400" />
                   </button>
@@ -717,24 +722,24 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
                       setShowEmojiPicker(true);
                       setShowExtras(false);
                     }} 
-                    className="flex flex-col items-center gap-1"
+                    className="flex flex-col items-center gap-1.5"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-yellow-500/20 flex items-center justify-center">
-                      <Smile className="h-6 w-6 text-yellow-400" />
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center shadow-lg shadow-yellow-500/30">
+                      <span className="text-2xl">😊</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">Emoji</span>
+                    <span className="text-[10px] text-gray-400 font-medium">Emoji</span>
                   </button>
                   <button 
                     onClick={() => {
                       setShowGifPicker(true);
                       setShowExtras(false);
                     }} 
-                    className="flex flex-col items-center gap-1"
+                    className="flex flex-col items-center gap-1.5"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-purple-500/20 flex items-center justify-center">
-                      <ImageIcon className="h-6 w-6 text-purple-400" />
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-purple-500/30">
+                      <span className="text-white font-bold text-sm">GIF</span>
                     </div>
-                    <span className="text-[10px] text-gray-400">Stickers</span>
+                    <span className="text-[10px] text-gray-400 font-medium">GIFs</span>
                   </button>
                   <button 
                     onClick={() => {
@@ -742,12 +747,12 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
                       textareaRef.current?.focus();
                       setShowExtras(false);
                     }} 
-                    className="flex flex-col items-center gap-1"
+                    className="flex flex-col items-center gap-1.5"
                   >
-                    <div className="w-12 h-12 rounded-xl bg-blue-500/20 flex items-center justify-center">
-                      <Hash className="h-6 w-6 text-blue-400" />
+                    <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500 to-cyan-400 flex items-center justify-center shadow-lg shadow-blue-500/30">
+                      <Hash className="h-6 w-6 text-white" />
                     </div>
-                    <span className="text-[10px] text-gray-400">Tags</span>
+                    <span className="text-[10px] text-gray-400 font-medium">Tags</span>
                   </button>
                 </div>
               </motion.div>

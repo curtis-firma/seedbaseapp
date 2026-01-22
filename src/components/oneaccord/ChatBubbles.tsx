@@ -153,13 +153,21 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
                     className={cn(
-                      "flex",
+                      "flex gap-2",
                       isOutgoing ? "justify-end" : "justify-start"
                     )}
                   >
+                    {/* Avatar for incoming messages */}
+                    {!isOutgoing && (
+                      <img 
+                        src={selectedUser?.avatar_url || '/placeholder.svg'} 
+                        alt=""
+                        className="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-auto"
+                      />
+                    )}
                     <div
                       className={cn(
-                        "max-w-[80%] rounded-2xl px-4 py-2.5 shadow-sm",
+                        "max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm",
                         isOutgoing
                           ? "bg-blue-600 text-white rounded-br-md"
                           : "bg-white/10 text-white rounded-bl-md"
