@@ -141,9 +141,21 @@ export function AmplifyModal({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                onClose();
+              }
+            }}
             onClick={(e) => e.stopPropagation()}
             className="w-full sm:max-w-md bg-card rounded-t-3xl sm:rounded-2xl overflow-hidden max-h-[90vh] flex flex-col"
           >
+            {/* Drag Handle */}
+            <div className="flex justify-center pt-3 pb-1 sm:hidden">
+              <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+            </div>
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
@@ -270,9 +282,21 @@ export function AmplifyModal({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 100 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+            drag="y"
+            dragConstraints={{ top: 0, bottom: 0 }}
+            dragElastic={{ top: 0, bottom: 0.5 }}
+            onDragEnd={(_, info) => {
+              if (info.offset.y > 100 || info.velocity.y > 500) {
+                setShowSendOutModal(false);
+              }
+            }}
             onClick={(e) => e.stopPropagation()}
             className="w-full sm:max-w-md bg-card rounded-t-3xl sm:rounded-2xl overflow-hidden"
           >
+            {/* Drag Handle */}
+            <div className="flex justify-center pt-3 pb-1 sm:hidden">
+              <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+            </div>
             {/* Platform Header */}
             <div className={`p-6 text-center ${
               selectedPlatform === 'x' ? 'bg-black' : 'bg-[#0052FF]'
