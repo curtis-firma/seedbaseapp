@@ -9,16 +9,30 @@ import { useRealtimeConversation } from '@/hooks/useRealtimeConversation';
 
 interface ChatBubblesProps {
   currentUserId: string | null;
+  currentUserAvatar?: string | null;
   selectedUser: DemoUser | null;
   className?: string;
 }
+
+// Helper to extract GIF URL from message
+const extractGif = (purpose: string | null): string | null => {
+  if (!purpose) return null;
+  const match = purpose.match(/\[GIF\](https?:\/\/[^\s]+)/);
+  return match ? match[1] : null;
+};
+
+// Helper to get message text without GIF URL
+const getMessageText = (purpose: string | null): string | null => {
+  if (!purpose) return null;
+  return purpose.replace(/\[GIF\]https?:\/\/[^\s]+\s?/, '').trim() || null;
+};
 
 export interface ChatBubblesRef {
   refresh: () => void;
 }
 
 export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
-  ({ currentUserId, selectedUser, className }, ref) => {
+  ({ currentUserId, currentUserAvatar, selectedUser, className }, ref) => {
     const [messages, setMessages] = useState<DemoTransfer[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const scrollRef = useRef<HTMLDivElement>(null);
@@ -159,11 +173,21 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                   >
                     {/* Avatar for incoming messages */}
                     {!isOutgoing && (
-                      <img 
-                        src={selectedUser?.avatar_url || '/placeholder.svg'} 
-                        alt=""
-                        className="w-8 h-8 rounded-full object-cover flex-shrink-0 mt-auto"
-                      />
+                      <div className="w-8 h-8 rounded-full flex-shrink-0 mt-auto overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
+                        {selectedUser?.avatar_url ? (
+                          <img 
+                            src={selectedUser.avatar_url} 
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-sm font-semibold text-white">
+                              {selectedUser?.display_name?.[0]?.toUpperCase() || selectedUser?.username?.[0]?.toUpperCase() || '?'}
+                            </span>
+                          </div>
+                        )}
+                      </div>
                     )}
                     <div
                       className={cn(
@@ -198,15 +222,34 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                         </div>
                       )}
 
-                      {/* Message text */}
-                      {msg.purpose && (
-                        <p className={cn(
-                          "text-sm leading-relaxed",
-                          isOutgoing ? "text-white" : "text-gray-100"
-                        )}>
-                          {msg.purpose}
-                        </p>
-                      )}
+                      {/* GIF display */}
+                      {(() => {
+                        const gifUrl = extractGif(msg.purpose);
+                        const textContent = getMessageText(msg.purpose);
+                        
+                        return (
+                          <>
+                            {gifUrl && (
+                              <img 
+                                src={gifUrl} 
+                                alt="GIF"
+                                className="rounded-lg max-w-full mb-2"
+                                loading="lazy"
+                              />
+                            )}
+                            
+                            {/* Message text (without GIF URL) */}
+                            {textContent && (
+                              <p className={cn(
+                                "text-sm leading-relaxed",
+                                isOutgoing ? "text-white" : "text-gray-100"
+                              )}>
+                                {textContent}
+                              </p>
+                            )}
+                          </>
+                        );
+                      })()}
 
                       {/* Timestamp and status */}
                       <div className={cn(
@@ -219,6 +262,23 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                         {isOutgoing && getStatusIcon(msg.status)}
                       </div>
                     </div>
+                    
+                    {/* Avatar for outgoing messages */}
+                    {isOutgoing && (
+                      <div className="w-8 h-8 rounded-full flex-shrink-0 mt-auto overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
+                        {currentUserAvatar ? (
+                          <img 
+                            src={currentUserAvatar} 
+                            alt=""
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="text-sm font-semibold text-white">You</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                   </motion.div>
                 </div>
               );

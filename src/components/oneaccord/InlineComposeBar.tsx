@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { DollarSign, Send, Plus, Minus, X, Search, Edit, MessageCircle, Smile, Hash, ImageIcon, Mic, Play, Pause, ChevronLeft, Users } from 'lucide-react';
 import EmojiPicker, { Theme } from 'emoji-picker-react';
 import { cn } from '@/lib/utils';
@@ -10,6 +10,7 @@ import { toast } from 'sonner';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { useVoiceRecorder } from '@/hooks/useVoiceRecorder';
 import { GifStickerPicker } from './GifStickerPicker';
+import { useUser } from '@/contexts/UserContext';
 
 interface InlineComposeBarProps {
   onSuccess?: () => void;
@@ -36,6 +37,7 @@ const formatDuration = (seconds: number): string => {
 const CANCEL_THRESHOLD = -100;
 
 export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
+  const { avatarUrl: currentUserAvatar } = useUser();
   const [mode, setMode] = useState<'idle' | 'user-select' | 'compose'>('idle');
   
   const [message, setMessage] = useState('');
@@ -246,9 +248,11 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     
     // Allow voice message as valid content
     const hasVoiceMessage = audioBlob !== null;
+    // Check for attached media (GIF) as valid content
+    const hasAttachedMedia = attachedMedia !== null;
     
-    if (!message.trim() && !attachUsdc && !hasVoiceMessage) {
-      toast.error('Please enter a message, record audio, or attach USDC');
+    if (!message.trim() && !attachUsdc && !hasVoiceMessage && !hasAttachedMedia) {
+      toast.error('Please enter a message, record audio, attach media, or attach USDC');
       return;
     }
 
@@ -261,12 +265,21 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     triggerHaptic('medium');
 
     try {
-      // Build message content including voice message indicator
-      const messageContent = hasVoiceMessage 
-        ? `🎤 Voice message (${formatDuration(duration)})${message.trim() ? ` - ${message.trim()}` : ''}`
-        : message.trim() || 'Direct transfer';
+      // Build message content including voice message indicator and GIF
+      let messageContent = '';
+      
+      if (hasVoiceMessage) {
+        messageContent = `🎤 Voice message (${formatDuration(duration)})${message.trim() ? ` - ${message.trim()}` : ''}`;
+      } else if (hasAttachedMedia) {
+        // Include GIF URL in message with [GIF] prefix
+        messageContent = attachedMedia.type === 'gif' 
+          ? `[GIF]${attachedMedia.url}${message.trim() ? ` ${message.trim()}` : ''}`
+          : message.trim() || 'Direct transfer';
+      } else {
+        messageContent = message.trim() || 'Direct transfer';
+      }
 
-      if ((attachUsdc && amount > 0 && currentUserId) || hasVoiceMessage || message.trim()) {
+      if ((attachUsdc && amount > 0 && currentUserId) || hasVoiceMessage || message.trim() || hasAttachedMedia) {
         await createTransfer(
           currentUserId!,
           selectedUser.id,
@@ -307,7 +320,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
     }
   };
 
-  const canSend = selectedUser && (message.trim() || (attachUsdc && amount > 0) || audioBlob);
+  const canSend = selectedUser && (message.trim() || (attachUsdc && amount > 0) || audioBlob || attachedMedia);
   
   // Show mic button when no content and no USDC and no media
   const showMicButton = !message.trim() && !attachUsdc && !attachedMedia && !audioBlob;
@@ -549,6 +562,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
         <ChatBubbles
           ref={chatBubblesRef}
           currentUserId={currentUserId}
+          currentUserAvatar={currentUserAvatar}
           selectedUser={selectedUser}
           className="h-full"
         />
@@ -929,7 +943,7 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
         {/* Recipient info now in header - removed redundant button */}
       </div>
 
-      {/* Emoji Picker Modal */}
+      {/* Emoji Picker Modal with Swipe-to-Dismiss */}
       <AnimatePresence>
         {showEmojiPicker && (
           <motion.div
@@ -944,14 +958,26 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
               animate={{ y: 0 }}
               exit={{ y: '100%' }}
               transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.5 }}
+              onDragEnd={(_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
+                if (info.offset.y > 100 || info.velocity.y > 500) {
+                  setShowEmojiPicker(false);
+                }
+              }}
               onClick={(e) => e.stopPropagation()}
-              className="absolute bottom-0 left-0 right-0"
+              className="absolute bottom-0 left-0 right-0 bg-[#1e1e1e] rounded-t-3xl overflow-hidden"
             >
+              {/* Drag Handle */}
+              <div className="flex justify-center pt-3 pb-1">
+                <div className="w-10 h-1 bg-white/20 rounded-full" />
+              </div>
               <EmojiPicker
                 onEmojiClick={handleEmojiClick}
                 theme={Theme.DARK}
                 width="100%"
-                height={400}
+                height={380}
                 searchPlaceholder="Search emoji..."
                 previewConfig={{ showPreview: false }}
               />
