@@ -391,113 +391,113 @@ export default function OneAccordPage() {
                           )}
                         >
                           <div className="flex items-start gap-3">
-                          {message.avatar.startsWith('http') ? (
-                            <img 
-                              src={message.avatar}
-                              alt={message.from}
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
-                            <img 
-                              src={seedbasePfp}
-                              alt="Seedbase"
-                              className="w-10 h-10 rounded-full object-cover"
-                            />
-                          ) : (
-                            <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.gradient)}>
-                              {message.avatar.length <= 2 ? (
-                                <span className="text-lg">{message.avatar}</span>
-                              ) : (
-                                <IconComponent className="h-5 w-5 text-white" />
-                              )}
-                            </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-1">
-                              <p className="font-medium truncate text-gray-900">{message.from}</p>
-                              {wasAccepted && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
-                                  Accepted ✓
-                                </span>
-                              )}
-                              {!wasAccepted && message.status === 'accepted' && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
-                                  Accepted ✓
-                                </span>
-                              )}
-                              {message.status === 'review' && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 font-medium">
-                                  In Review
-                                </span>
-                              )}
-                              {isPendingWithAccept && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
-                                  Pending
-                                </span>
-                              )}
-                            </div>
-                            <p className="font-medium text-sm text-gray-900">{message.title}</p>
-                            <p className="text-sm text-gray-600 line-clamp-2">{message.body}</p>
-                            
-                            {/* Reactions & Reply */}
-                            <div className="flex items-center gap-4 mt-2">
-                              <MessageReactions messageId={`all-${message.id}`} />
-                              <MessageThread
-                                messageId={`all-${message.id}`}
-                                originalMessage={{
-                                  from: message.from,
-                                  avatar: message.avatar,
-                                  body: message.body,
-                                  timestamp: message.timestamp,
-                                }}
+                            {message.avatar.startsWith('http') ? (
+                              <img 
+                                src={message.avatar}
+                                alt={message.from}
+                                className="w-10 h-10 rounded-full object-cover"
                               />
-                            </div>
-                            
-                            <p className="text-xs text-gray-400 mt-2">
-                              {formatDistanceToNow(message.timestamp, { addSuffix: true })}
-                            </p>
-                            
-                            {/* Accept/Decline buttons for pending items */}
-                            {isPendingWithAccept && (
-                              <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                                <motion.button
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
-                                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
-                                >
-                                  <Check className="h-4 w-4" />
-                                  Accept
-                                </motion.button>
-                                <motion.button
-                                  whileTap={{ scale: 0.98 }}
-                                  className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                                >
-                                  <X className="h-4 w-4 text-gray-500" />
-                                </motion.button>
+                            ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
+                              <img 
+                                src={seedbasePfp}
+                                alt="Seedbase"
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.gradient)}>
+                                {message.avatar.length <= 2 ? (
+                                  <span className="text-lg">{message.avatar}</span>
+                                ) : (
+                                  <IconComponent className="h-5 w-5 text-white" />
+                                )}
                               </div>
                             )}
-                            
-                            {isAmplifiable && !isPendingWithAccept && (
-                              <div className="mt-3 pt-3 border-t border-gray-100">
-                                <AmplifyButton
-                                  variant="inline"
-                                  content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
-                                  impactSummary={message.title}
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-center gap-2 mb-1">
+                                <p className="font-medium truncate text-gray-900">{message.from}</p>
+                                {wasAccepted && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
+                                    Accepted ✓
+                                  </span>
+                                )}
+                                {!wasAccepted && message.status === 'accepted' && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
+                                    Accepted ✓
+                                  </span>
+                                )}
+                                {message.status === 'review' && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 font-medium">
+                                    In Review
+                                  </span>
+                                )}
+                                {isPendingWithAccept && (
+                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
+                                    Pending
+                                  </span>
+                                )}
+                              </div>
+                              <p className="font-medium text-sm text-gray-900">{message.title}</p>
+                              <p className="text-sm text-gray-600 line-clamp-2">{message.body}</p>
+                              
+                              {/* Reactions & Reply */}
+                              <div className="flex items-center gap-4 mt-2">
+                                <MessageReactions messageId={`all-${message.id}`} />
+                                <MessageThread
+                                  messageId={`all-${message.id}`}
+                                  originalMessage={{
+                                    from: message.from,
+                                    avatar: message.avatar,
+                                    body: message.body,
+                                    timestamp: message.timestamp,
+                                  }}
                                 />
                               </div>
+                              
+                              <p className="text-xs text-gray-400 mt-2">
+                                {formatDistanceToNow(message.timestamp, { addSuffix: true })}
+                              </p>
+                              
+                              {/* Accept/Decline buttons for pending items */}
+                              {isPendingWithAccept && (
+                                <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                                  <motion.button
+                                    whileTap={{ scale: 0.98 }}
+                                    onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
+                                    className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
+                                  >
+                                    <Check className="h-4 w-4" />
+                                    Accept
+                                  </motion.button>
+                                  <motion.button
+                                    whileTap={{ scale: 0.98 }}
+                                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                  >
+                                    <X className="h-4 w-4 text-gray-500" />
+                                  </motion.button>
+                                </div>
+                              )}
+                              
+                              {isAmplifiable && !isPendingWithAccept && (
+                                <div className="mt-3 pt-3 border-t border-gray-100">
+                                  <AmplifyButton
+                                    variant="inline"
+                                    content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
+                                    impactSummary={message.title}
+                                  />
+                                </div>
+                              )}
+                            </div>
+                            {message.amount && (
+                              <p className={cn(
+                                "font-semibold text-lg",
+                                wasAccepted || message.status === 'accepted' ? "text-green-600" : 
+                                isPendingWithAccept ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" : 
+                                "text-gray-900"
+                              )}>
+                                ${message.amount.toLocaleString()}
+                              </p>
                             )}
                           </div>
-                          {message.amount && (
-                            <p className={cn(
-                              "font-semibold text-lg",
-                              wasAccepted || message.status === 'accepted' ? "text-green-600" : 
-                              isPendingWithAccept ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" : 
-                              "text-gray-900"
-                            )}>
-                              ${message.amount.toLocaleString()}
-                            </p>
-                          )}
-                        </div>
                         </motion.div>
                       </SwipeableMessageCard>
                     );
