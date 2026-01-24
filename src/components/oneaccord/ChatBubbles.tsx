@@ -1,15 +1,24 @@
 import { useEffect, useState, useRef, forwardRef, useImperativeHandle, useCallback } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
-import { Check, CheckCheck, DollarSign, Clock, X, Eye } from 'lucide-react';
+import { Check, CheckCheck, DollarSign, Clock, X, Eye, SmilePlus } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { getConversationHistory, acceptTransfer, declineTransfer, type DemoTransfer } from '@/lib/supabase/transfersApi';
+import { 
+  getReactionsForTransfers, 
+  toggleReaction, 
+  groupReactions, 
+  REACTION_EMOJIS,
+  type DemoReaction,
+  type ReactionGroup 
+} from '@/lib/supabase/reactionsApi';
 import { type DemoUser } from '@/lib/supabase/demoApi';
 import { useRealtimeConversation } from '@/hooks/useRealtimeConversation';
 import { useTypingIndicator, getConversationId } from '@/hooks/useTypingIndicator';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { toast } from 'sonner';
 import { Confetti } from '@/components/shared/Confetti';
+import { supabase } from '@/integrations/supabase/client';
 
 const SWIPE_THRESHOLD = 100; // pixels to trigger accept
 
@@ -48,6 +57,11 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
     const [swipingId, setSwipingId] = useState<string | null>(null);
     const [swipeProgress, setSwipeProgress] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
+    
+    // Reactions state
+    const [reactions, setReactions] = useState<Map<string, DemoReaction[]>>(new Map());
+    const [showReactionPicker, setShowReactionPicker] = useState<string | null>(null);
+    const lastTapRef = useRef<{ id: string; time: number } | null>(null);
 
     // Typing indicator
     const conversationId = getConversationId(currentUserId, selectedUser?.id || null);
@@ -64,6 +78,13 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
       }
     }, [onTypingChange, onKeystroke, stopTyping]);
 
+    // Load reactions for all messages
+    const loadReactions = useCallback(async (messageIds: string[]) => {
+      if (messageIds.length === 0) return;
+      const reactionsMap = await getReactionsForTransfers(messageIds);
+      setReactions(reactionsMap);
+    }, []);
+
     const loadConversation = useCallback(async () => {
       if (!currentUserId || !selectedUser?.id) return;
       
@@ -71,12 +92,39 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
       try {
         const history = await getConversationHistory(currentUserId, selectedUser.id);
         setMessages(history);
+        // Load reactions after messages
+        await loadReactions(history.map(m => m.id));
       } catch (error) {
         console.error('Error loading conversation:', error);
       } finally {
         setIsLoading(false);
       }
-    }, [currentUserId, selectedUser?.id]);
+    }, [currentUserId, selectedUser?.id, loadReactions]);
+
+    // Subscribe to reaction changes in realtime
+    useEffect(() => {
+      if (messages.length === 0) return;
+
+      const channel = supabase
+        .channel('reactions-updates')
+        .on(
+          'postgres_changes',
+          {
+            event: '*',
+            schema: 'public',
+            table: 'demo_reactions',
+          },
+          () => {
+            // Reload reactions when any change occurs
+            loadReactions(messages.map(m => m.id));
+          }
+        )
+        .subscribe();
+
+      return () => {
+        channel.unsubscribe();
+      };
+    }, [messages, loadReactions]);
 
     // Expose refresh method to parent
     useImperativeHandle(ref, () => ({
@@ -209,6 +257,36 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
       }
     };
 
+    // Handle double-tap to show reaction picker
+    const handleMessageTap = (msgId: string) => {
+      const now = Date.now();
+      if (lastTapRef.current?.id === msgId && now - lastTapRef.current.time < 300) {
+        // Double tap detected
+        triggerHaptic('light');
+        setShowReactionPicker(msgId);
+        lastTapRef.current = null;
+      } else {
+        lastTapRef.current = { id: msgId, time: now };
+      }
+    };
+
+    // Handle adding/removing a reaction
+    const handleReaction = async (msgId: string, emoji: string) => {
+      if (!currentUserId) return;
+      
+      triggerHaptic('light');
+      setShowReactionPicker(null);
+      
+      await toggleReaction(msgId, currentUserId, emoji);
+      // Reactions will update via realtime subscription
+    };
+
+    // Get grouped reactions for a message
+    const getMessageReactions = (msgId: string): ReactionGroup[] => {
+      const msgReactions = reactions.get(msgId) || [];
+      return groupReactions(msgReactions, currentUserId);
+    };
+
     if (!currentUserId || !selectedUser) {
       return null;
     }
@@ -283,8 +361,9 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                     dragElastic={{ left: 0, right: 0.5 }}
                     onDrag={(_, info) => isIncoming && isPending && handleDrag(msg.id, info)}
                     onDragEnd={(_, info) => isIncoming && isPending && handleDragEnd(msg, info)}
+                    onClick={() => handleMessageTap(msg.id)}
                     className={cn(
-                      "flex gap-2 relative",
+                      "flex gap-2 relative group",
                       isOutgoing ? "justify-end" : "justify-start"
                     )}
                     style={{
@@ -428,6 +507,85 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                         </div>
                       )}
                     </div>
+
+                    {/* Reactions display */}
+                    {(() => {
+                      const msgReactions = getMessageReactions(msg.id);
+                      if (msgReactions.length === 0) return null;
+                      
+                      return (
+                        <motion.div 
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className={cn(
+                            "flex flex-wrap gap-1 mt-1",
+                            isOutgoing ? "justify-end" : "justify-start"
+                          )}
+                        >
+                          {msgReactions.map(group => (
+                            <motion.button
+                              key={group.emoji}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleReaction(msg.id, group.emoji)}
+                              className={cn(
+                                "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs transition-colors",
+                                group.hasReacted
+                                  ? "bg-blue-500/30 border border-blue-400/50"
+                                  : "bg-white/10 hover:bg-white/20 border border-white/10"
+                              )}
+                            >
+                              <span>{group.emoji}</span>
+                              <span className="text-white/80">{group.count}</span>
+                            </motion.button>
+                          ))}
+                        </motion.div>
+                      );
+                    })()}
+
+                    {/* Reaction picker */}
+                    <AnimatePresence>
+                      {showReactionPicker === msg.id && (
+                        <motion.div
+                          initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                          className={cn(
+                            "absolute z-20 flex gap-1 bg-[#2b2b2b] rounded-full px-2 py-1.5 shadow-xl border border-white/10",
+                            isOutgoing ? "right-10 -top-8" : "left-10 -top-8"
+                          )}
+                        >
+                          {REACTION_EMOJIS.map(emoji => (
+                            <motion.button
+                              key={emoji}
+                              whileHover={{ scale: 1.2 }}
+                              whileTap={{ scale: 0.9 }}
+                              onClick={() => handleReaction(msg.id, emoji)}
+                              className="text-xl hover:bg-white/10 rounded-full p-1 transition-colors"
+                            >
+                              {emoji}
+                            </motion.button>
+                          ))}
+                          <button
+                            onClick={() => setShowReactionPicker(null)}
+                            className="text-gray-400 hover:text-white ml-1 p-1"
+                          >
+                            <X className="h-3.5 w-3.5" />
+                          </button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                    
+                    {/* Add reaction button (visible on hover/long-press) */}
+                    <motion.button
+                      whileTap={{ scale: 0.9 }}
+                      onClick={() => setShowReactionPicker(showReactionPicker === msg.id ? null : msg.id)}
+                      className={cn(
+                        "absolute -bottom-1 opacity-0 group-hover:opacity-100 transition-opacity p-1 bg-[#2b2b2b] rounded-full border border-white/10 shadow-lg",
+                        isOutgoing ? "right-10" : "left-10"
+                      )}
+                    >
+                      <SmilePlus className="h-3.5 w-3.5 text-gray-400" />
+                    </motion.button>
                     
                     {/* Avatar for outgoing messages */}
                     {isOutgoing && (

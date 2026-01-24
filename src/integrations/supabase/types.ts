@@ -333,6 +333,52 @@ export type Database = {
           },
         ]
       }
+      demo_reactions: {
+        Row: {
+          created_at: string | null
+          emoji: string
+          id: string
+          transfer_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          emoji: string
+          id?: string
+          transfer_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          emoji?: string
+          id?: string
+          transfer_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_reactions_transfer_id_fkey"
+            columns: ["transfer_id"]
+            isOneToOne: false
+            referencedRelation: "demo_transfers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demo_reactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "demo_reactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "demo_users_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_transfers: {
         Row: {
           amount: number
