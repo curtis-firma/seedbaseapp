@@ -575,14 +575,21 @@ export default function OneAccordPage() {
                             }
                           }}
                           className={cn(
-                            "w-full rounded-xl border p-4 flex items-center gap-3 text-left transition-colors",
+                            "w-full rounded-xl border p-4 flex items-center gap-3 text-left transition-colors relative",
                             convo.isDemo 
                               ? "bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-blue-100 hover:from-blue-50 hover:to-purple-50 pr-12"
-                              : convo.hasPendingTransfer 
-                                ? "bg-white border-blue-200 ring-1 ring-blue-100 hover:bg-blue-50" 
-                                : "bg-white border-gray-200 hover:bg-gray-50"
+                              : convo.unreadCount > 0
+                                ? "bg-blue-50/60 border-blue-200 hover:bg-blue-50"
+                                : convo.hasPendingTransfer 
+                                  ? "bg-white border-blue-200 ring-1 ring-blue-100 hover:bg-blue-50" 
+                                  : "bg-white border-gray-200 hover:bg-gray-50"
                           )}
                         >
+                          {/* Unread dot indicator */}
+                          {convo.unreadCount > 0 && !convo.isDemo && (
+                            <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500" />
+                          )}
+                          
                           {/* Avatar */}
                           {convo.isDemo && convo.demoMessage ? (
                             convo.demoMessage.avatar.startsWith('http') ? (
@@ -614,8 +621,10 @@ export default function OneAccordPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-0.5">
                               <p className={cn(
-                                "font-semibold truncate",
-                                convo.unreadCount > 0 ? "text-gray-900" : "text-gray-700"
+                                "truncate",
+                                convo.unreadCount > 0 && !convo.isDemo 
+                                  ? "font-bold text-gray-900" 
+                                  : "font-semibold text-gray-700"
                               )}>
                                 {convo.isDemo ? convo.partnerName : `@${convo.partnerName}`}
                               </p>
@@ -633,7 +642,9 @@ export default function OneAccordPage() {
                             </div>
                             <p className={cn(
                               "text-sm truncate",
-                              convo.unreadCount > 0 ? "text-gray-700 font-medium" : "text-gray-500"
+                              convo.unreadCount > 0 && !convo.isDemo 
+                                ? "font-semibold text-gray-800" 
+                                : "text-gray-500"
                             )}>
                               {convo.lastMessage}
                             </p>

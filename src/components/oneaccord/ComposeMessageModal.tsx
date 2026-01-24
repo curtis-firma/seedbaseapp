@@ -238,9 +238,12 @@ export function ComposeMessageModal({ isOpen, onClose, onSuccess }: ComposeMessa
                   </button>
                   <button
                     disabled
-                    className="flex-1 py-2.5 px-4 rounded-full text-sm font-medium bg-muted/50 text-muted-foreground/50 cursor-not-allowed"
+                    className="flex-1 py-2.5 px-4 rounded-full text-sm font-medium bg-muted/50 text-muted-foreground/50 cursor-not-allowed relative"
                   >
                     Group Chat
+                    <span className="absolute -top-1 -right-1 px-1.5 py-0.5 bg-gray-200 text-gray-500 text-[9px] font-semibold rounded-full">
+                      Soon
+                    </span>
                   </button>
                 </div>
 

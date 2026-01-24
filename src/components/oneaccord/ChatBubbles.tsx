@@ -423,7 +423,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                     )}
                     <div
                       className={cn(
-                        "max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm",
+                        "relative max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm",
                         isOutgoing
                           ? "bg-blue-600 text-white rounded-br-md"
                           : "bg-white/10 text-white rounded-bl-md"
@@ -529,70 +529,82 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                       )}
                     </div>
 
-                    {/* Reactions display */}
+                    {/* Compact circular reactions at bubble corner */}
                     {(() => {
                       const msgReactions = getMessageReactions(msg.id);
                       if (msgReactions.length === 0) return null;
+                      
+                      const totalCount = msgReactions.reduce((sum, g) => sum + g.count, 0);
                       
                       return (
                         <motion.div 
                           initial={{ opacity: 0, scale: 0.8 }}
                           animate={{ opacity: 1, scale: 1 }}
                           className={cn(
-                            "flex flex-wrap gap-1 mt-1",
-                            isOutgoing ? "justify-end" : "justify-start"
+                            "absolute -bottom-2 flex items-center -space-x-1",
+                            isOutgoing ? "-left-2" : "-right-2"
                           )}
                         >
-                          {msgReactions.map(group => (
+                          {msgReactions.slice(0, 3).map((group, idx) => (
                             <motion.button
                               key={group.emoji}
-                              whileTap={{ scale: 0.9 }}
+                              whileTap={{ scale: 0.85 }}
                               onClick={() => handleReaction(msg.id, group.emoji)}
+                              style={{ zIndex: 10 - idx }}
                               className={cn(
-                                "flex items-center gap-1 px-2 py-0.5 rounded-full text-xs transition-colors",
+                                "w-6 h-6 rounded-full flex items-center justify-center text-sm shadow-md border-2 border-[#2b2b2b] transition-all",
                                 group.hasReacted
-                                  ? "bg-blue-500/30 border border-blue-400/50"
-                                  : "bg-white/10 hover:bg-white/20 border border-white/10"
+                                  ? "bg-blue-500/40 ring-1 ring-blue-400"
+                                  : "bg-[#3a3a3a] hover:bg-[#4a4a4a]"
                               )}
                             >
-                              <span>{group.emoji}</span>
-                              <span className="text-white/80">{group.count}</span>
+                              {group.emoji}
                             </motion.button>
                           ))}
+                          {totalCount > 1 && (
+                            <span className="ml-1.5 text-[10px] text-gray-400 font-medium pl-1">
+                              {totalCount}
+                            </span>
+                          )}
                         </motion.div>
                       );
                     })()}
 
-                    {/* Reaction picker */}
+                    {/* Reaction picker - positioned above bubble with backdrop blur */}
                     <AnimatePresence>
                       {showReactionPicker === msg.id && (
-                        <motion.div
-                          initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                          animate={{ opacity: 1, scale: 1, y: 0 }}
-                          exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                          className={cn(
-                            "absolute z-20 flex gap-1 bg-[#2b2b2b] rounded-full px-2 py-1.5 shadow-xl border border-white/10",
-                            isOutgoing ? "right-10 -top-8" : "left-10 -top-8"
-                          )}
-                        >
-                          {REACTION_EMOJIS.map(emoji => (
-                            <motion.button
-                              key={emoji}
-                              whileHover={{ scale: 1.2 }}
-                              whileTap={{ scale: 0.9 }}
-                              onClick={() => handleReaction(msg.id, emoji)}
-                              className="text-xl hover:bg-white/10 rounded-full p-1 transition-colors"
-                            >
-                              {emoji}
-                            </motion.button>
-                          ))}
-                          <button
+                        <>
+                          {/* Backdrop to close picker */}
+                          <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
                             onClick={() => setShowReactionPicker(null)}
-                            className="text-gray-400 hover:text-white ml-1 p-1"
+                            className="fixed inset-0 z-20"
+                          />
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                            transition={{ type: 'spring', damping: 25, stiffness: 400 }}
+                            className={cn(
+                              "absolute z-30 flex gap-1.5 bg-[#2b2b2b]/95 backdrop-blur-lg rounded-2xl px-3 py-2 shadow-2xl border border-white/10",
+                              isOutgoing ? "right-0 -top-14" : "left-0 -top-14"
+                            )}
                           >
-                            <X className="h-3.5 w-3.5" />
-                          </button>
-                        </motion.div>
+                            {REACTION_EMOJIS.map(emoji => (
+                              <motion.button
+                                key={emoji}
+                                whileHover={{ scale: 1.3 }}
+                                whileTap={{ scale: 0.85 }}
+                                onClick={() => handleReaction(msg.id, emoji)}
+                                className="text-xl hover:bg-white/10 rounded-full p-1.5 transition-colors"
+                              >
+                                {emoji}
+                              </motion.button>
+                            ))}
+                          </motion.div>
+                        </>
                       )}
                     </AnimatePresence>
                     
