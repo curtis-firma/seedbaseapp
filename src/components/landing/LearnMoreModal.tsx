@@ -167,13 +167,13 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="fixed inset-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-[600px] w-full sm:w-[calc(100%-2rem)] h-full sm:h-auto sm:max-h-[85vh] overflow-hidden p-0 rounded-none sm:rounded-2xl border-0 bg-white shadow-2xl">
+      <DialogContent className="fixed inset-0 sm:inset-auto sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-[600px] w-full sm:w-[calc(100%-2rem)] h-full sm:h-auto sm:max-h-[85vh] overflow-hidden p-0 rounded-none sm:rounded-2xl border-0 bg-background shadow-2xl">
         <motion.div
           drag="y"
           dragConstraints={{ top: 0, bottom: 0 }}
           dragElastic={{ top: 0, bottom: 0.3 }}
           onDragEnd={handleDragEnd}
-          className="h-full sm:h-auto overflow-y-auto p-5 sm:p-6"
+          className="h-full sm:h-auto overflow-y-auto overflow-x-hidden p-5 sm:p-6 w-full"
         >
           {/* Drag Handle */}
           <div className="flex justify-center -mt-2 mb-3 sm:hidden">
@@ -184,7 +184,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="space-y-4"
+            className="space-y-4 w-full"
           >
           {/* Hero Headline */}
           <motion.h2 
