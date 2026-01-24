@@ -61,7 +61,11 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
     // Reactions state
     const [reactions, setReactions] = useState<Map<string, DemoReaction[]>>(new Map());
     const [showReactionPicker, setShowReactionPicker] = useState<string | null>(null);
-    const lastTapRef = useRef<{ id: string; time: number } | null>(null);
+    
+    // Long-press gesture state
+    const longPressTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const longPressActiveRef = useRef<string | null>(null);
+    const LONG_PRESS_DURATION = 500; // ms
 
     // Typing indicator
     const conversationId = getConversationId(currentUserId, selectedUser?.id || null);
@@ -257,17 +261,32 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
       }
     };
 
-    // Handle double-tap to show reaction picker
-    const handleMessageTap = (msgId: string) => {
-      const now = Date.now();
-      if (lastTapRef.current?.id === msgId && now - lastTapRef.current.time < 300) {
-        // Double tap detected
-        triggerHaptic('light');
-        setShowReactionPicker(msgId);
-        lastTapRef.current = null;
-      } else {
-        lastTapRef.current = { id: msgId, time: now };
+    // Handle long-press to show reaction picker (mobile-friendly)
+    const handleTouchStart = (msgId: string) => {
+      longPressActiveRef.current = msgId;
+      longPressTimerRef.current = setTimeout(() => {
+        if (longPressActiveRef.current === msgId) {
+          triggerHaptic('medium');
+          setShowReactionPicker(msgId);
+        }
+      }, LONG_PRESS_DURATION);
+    };
+
+    const handleTouchEnd = () => {
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
       }
+      longPressActiveRef.current = null;
+    };
+
+    const handleTouchMove = () => {
+      // Cancel long-press if user moves finger
+      if (longPressTimerRef.current) {
+        clearTimeout(longPressTimerRef.current);
+        longPressTimerRef.current = null;
+      }
+      longPressActiveRef.current = null;
     };
 
     // Handle adding/removing a reaction
@@ -361,7 +380,9 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                     dragElastic={{ left: 0, right: 0.5 }}
                     onDrag={(_, info) => isIncoming && isPending && handleDrag(msg.id, info)}
                     onDragEnd={(_, info) => isIncoming && isPending && handleDragEnd(msg, info)}
-                    onClick={() => handleMessageTap(msg.id)}
+                    onTouchStart={() => handleTouchStart(msg.id)}
+                    onTouchEnd={handleTouchEnd}
+                    onTouchMove={handleTouchMove}
                     className={cn(
                       "flex gap-2 relative group",
                       isOutgoing ? "justify-end" : "justify-start"
