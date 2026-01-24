@@ -390,7 +390,7 @@ export default function OneAccordPage() {
                             !message.isRead ? "border-blue-200" : "border-gray-200"
                           )}
                         >
-                        <div className="flex items-start gap-3">
+                          <div className="flex items-start gap-3">
                           {message.avatar.startsWith('http') ? (
                             <img 
                               src={message.avatar}
