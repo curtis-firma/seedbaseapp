@@ -255,7 +255,8 @@ export default function OneAccordPage() {
             key="list"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            exit={{ opacity: 0, x: -20 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className="flex flex-col min-h-screen"
           >
             {/* Sticky Header */}

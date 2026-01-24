@@ -514,17 +514,21 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
 
   return (
     <>
-      {/* Full-screen backdrop to hide page and bottom nav */}
+      {/* Full-screen backdrop with smooth fade from light to dark */}
       <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        className="fixed inset-0 z-40 bg-black"
+        initial={{ opacity: 0, backgroundColor: 'rgba(255,255,255,1)' }}
+        animate={{ opacity: 1, backgroundColor: 'rgba(0,0,0,1)' }}
+        exit={{ opacity: 0, backgroundColor: 'rgba(255,255,255,1)' }}
+        transition={{ duration: 0.35, ease: [0.4, 0, 0.2, 1] }}
+        className="fixed inset-0 z-40"
       />
 
       {/* Persistent Recipient Header - Telegram Style */}
       <motion.div
-        initial={{ opacity: 0, y: -20 }}
+        initial={{ opacity: 0, y: -30 }}
         animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -30 }}
+        transition={{ duration: 0.3, delay: 0.1, ease: [0.4, 0, 0.2, 1] }}
         className="fixed top-0 left-0 right-0 z-50 bg-black border-b border-white/10 md:left-[260px] pt-12"
       >
         <div className="flex items-center justify-between px-4 py-3">

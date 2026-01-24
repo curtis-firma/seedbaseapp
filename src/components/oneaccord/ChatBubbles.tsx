@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, forwardRef, useImperativeHandle, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CheckCheck, DollarSign, Clock, X } from 'lucide-react';
+import { motion, AnimatePresence, PanInfo } from 'framer-motion';
+import { Check, CheckCheck, DollarSign, Clock, X, Eye } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
 import { getConversationHistory, acceptTransfer, declineTransfer, type DemoTransfer } from '@/lib/supabase/transfersApi';
@@ -9,6 +9,8 @@ import { useRealtimeConversation } from '@/hooks/useRealtimeConversation';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { toast } from 'sonner';
 import { Confetti } from '@/components/shared/Confetti';
+
+const SWIPE_THRESHOLD = 100; // pixels to trigger accept
 
 interface ChatBubblesProps {
   currentUserId: string | null;
@@ -40,6 +42,8 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
     const [isLoading, setIsLoading] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
     const [acceptingId, setAcceptingId] = useState<string | null>(null);
+    const [swipingId, setSwipingId] = useState<string | null>(null);
+    const [swipeProgress, setSwipeProgress] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const loadConversation = useCallback(async () => {
@@ -94,17 +98,50 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
       }, []),
     });
 
-    const getStatusIcon = (status: string) => {
+    const getStatusIcon = (status: string, isOutgoing: boolean) => {
       switch (status) {
         case 'accepted':
-          return <CheckCheck className="h-3 w-3 text-green-400" />;
+          // For outgoing accepted = "Seen/Received"
+          return isOutgoing ? (
+            <span className="flex items-center gap-1 text-[10px] text-green-400">
+              <Eye className="h-3 w-3" />
+              Seen
+            </span>
+          ) : (
+            <CheckCheck className="h-3 w-3 text-green-400" />
+          );
         case 'declined':
           return <span className="text-xs text-red-400">Declined</span>;
         case 'pending':
-          return <Clock className="h-3 w-3 text-yellow-400" />;
+          return isOutgoing ? (
+            <span className="flex items-center gap-1 text-[10px] text-yellow-400">
+              <Clock className="h-3 w-3" />
+              Pending
+            </span>
+          ) : (
+            <Clock className="h-3 w-3 text-yellow-400" />
+          );
         default:
           return <Check className="h-3 w-3 text-gray-400" />;
       }
+    };
+
+    // Handle swipe gesture on pending transfers
+    const handleDrag = (msgId: string, info: PanInfo) => {
+      if (info.offset.x > 0) {
+        setSwipingId(msgId);
+        setSwipeProgress(Math.min(info.offset.x / SWIPE_THRESHOLD, 1));
+      }
+    };
+
+    const handleDragEnd = async (msg: DemoTransfer, info: PanInfo) => {
+      if (info.offset.x >= SWIPE_THRESHOLD) {
+        // Trigger accept
+        triggerHaptic('success');
+        await handleAccept(msg);
+      }
+      setSwipingId(null);
+      setSwipeProgress(0);
     };
 
     const handleAccept = async (transfer: DemoTransfer) => {
@@ -201,8 +238,6 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
               const showDate = index === 0 || 
                 new Date(msg.created_at).toDateString() !== 
                 new Date(messages[index - 1].created_at).toDateString();
-                new Date(msg.created_at).toDateString() !== 
-                new Date(messages[index - 1].created_at).toDateString();
 
               return (
                 <div key={msg.id}>
@@ -219,16 +254,37 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                     </div>
                   )}
 
+                  {/* Swipe-to-accept wrapper for pending incoming transfers */}
                   <motion.div
                     initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
                     exit={{ opacity: 0, scale: 0.95 }}
                     transition={{ duration: 0.2 }}
+                    drag={isIncoming && isPending && msg.amount > 0 ? "x" : false}
+                    dragConstraints={{ left: 0, right: 0 }}
+                    dragElastic={{ left: 0, right: 0.5 }}
+                    onDrag={(_, info) => isIncoming && isPending && handleDrag(msg.id, info)}
+                    onDragEnd={(_, info) => isIncoming && isPending && handleDragEnd(msg, info)}
                     className={cn(
-                      "flex gap-2",
+                      "flex gap-2 relative",
                       isOutgoing ? "justify-end" : "justify-start"
                     )}
+                    style={{
+                      touchAction: isIncoming && isPending ? 'pan-y' : 'auto',
+                    }}
                   >
+                    {/* Swipe indicator background */}
+                    {isIncoming && isPending && msg.amount > 0 && swipingId === msg.id && (
+                      <motion.div 
+                        className="absolute left-0 top-0 bottom-0 flex items-center justify-center rounded-2xl bg-gradient-to-r from-green-500 to-emerald-500"
+                        style={{ 
+                          width: `${swipeProgress * 80}px`,
+                          opacity: swipeProgress,
+                        }}
+                      >
+                        <Check className="h-5 w-5 text-white" />
+                      </motion.div>
+                    )}
                     {/* Avatar for incoming messages */}
                     {!isOutgoing && (
                       <div className="w-8 h-8 rounded-full flex-shrink-0 mt-auto overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
@@ -317,7 +373,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                         <span className="text-[10px] opacity-50">
                           {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
                         </span>
-                        {isOutgoing && getStatusIcon(msg.status)}
+                        {isOutgoing && getStatusIcon(msg.status, isOutgoing)}
                       </div>
 
                       {/* Accept/Decline buttons for pending incoming transfers */}
