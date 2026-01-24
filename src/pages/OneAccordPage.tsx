@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Send, Check, X, DollarSign, RefreshCw, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -9,11 +9,12 @@ import {
   acceptTransfer, 
   declineTransfer,
   getTransfersForUser,
+  createTransfer,
   type DemoTransfer 
 } from '@/lib/supabase/transfersApi';
+import { getWalletByUserId } from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
 import { SendModal } from '@/components/wallet/SendModal';
-import { ComposeMessageModal } from '@/components/oneaccord/ComposeMessageModal';
 import { InlineComposeBar } from '@/components/oneaccord/InlineComposeBar';
 import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 import { Confetti } from '@/components/shared/Confetti';
@@ -41,7 +42,6 @@ export default function OneAccordPage() {
   const [recentTransfers, setRecentTransfers] = useState<DemoTransfer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [showSendModal, setShowSendModal] = useState(false);
-  const [showComposeModal, setShowComposeModal] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [acceptedTransferId, setAcceptedTransferId] = useState<string | null>(null);
   const [showAmplifyPrompt, setShowAmplifyPrompt] = useState(false);
@@ -241,6 +241,7 @@ export default function OneAccordPage() {
             onAccept={handleAccept}
             onDecline={handleDecline}
             acceptedTransferId={acceptedTransferId}
+            onMessageSent={loadTransfers}
           />
         ) : (
           <motion.div
@@ -476,15 +477,6 @@ export default function OneAccordPage() {
 
       <InlineComposeBar onSuccess={loadTransfers} />
 
-      <ComposeMessageModal
-        isOpen={showComposeModal}
-        onClose={() => setShowComposeModal(false)}
-        onSuccess={() => {
-          loadTransfers();
-          setShowComposeModal(false);
-        }}
-      />
-      
       <AmplifyPromptModal
         isOpen={showAmplifyPrompt}
         onClose={() => setShowAmplifyPrompt(false)}
@@ -503,6 +495,7 @@ function ConversationThreadView({
   onAccept,
   onDecline,
   acceptedTransferId,
+  onMessageSent,
 }: {
   conversation: ConversationPreview;
   currentUserId: string | null;
@@ -510,13 +503,63 @@ function ConversationThreadView({
   onAccept: (transfer: DemoTransfer, e?: React.MouseEvent) => void;
   onDecline: (transfer: DemoTransfer, e?: React.MouseEvent) => void;
   acceptedTransferId: string | null;
+  onMessageSent: () => void;
 }) {
+  const [messageText, setMessageText] = useState('');
+  const [amount, setAmount] = useState(0);
+  const [isSending, setIsSending] = useState(false);
+  const [balance, setBalance] = useState(0);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+
   // Sort transfers chronologically (oldest first for chat-like view)
   const sortedTransfers = useMemo(() => {
     return [...conversation.transfers].sort(
       (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
     );
   }, [conversation.transfers]);
+
+  // Load user balance
+  useEffect(() => {
+    const loadBalance = async () => {
+      if (!currentUserId) return;
+      const wallet = await getWalletByUserId(currentUserId);
+      if (wallet) setBalance(wallet.balance);
+    };
+    loadBalance();
+  }, [currentUserId]);
+
+  // Scroll to bottom on load
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [sortedTransfers]);
+
+  const handleSend = async () => {
+    if (!currentUserId || !conversation.partnerId) return;
+    if (!messageText.trim() && amount === 0) {
+      toast.error('Enter a message or amount');
+      return;
+    }
+    if (amount > balance) {
+      toast.error('Insufficient balance');
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const transferAmount = amount > 0 ? amount : 0.01; // Minimum amount for message-only
+      await createTransfer(currentUserId, conversation.partnerId, transferAmount, messageText.trim() || undefined);
+      triggerHaptic('success');
+      toast.success('Message sent!');
+      setMessageText('');
+      setAmount(0);
+      onMessageSent();
+    } catch (err) {
+      console.error('Failed to send:', err);
+      toast.error('Failed to send message');
+    } finally {
+      setIsSending(false);
+    }
+  };
 
   return (
     <motion.div
@@ -674,6 +717,85 @@ function ConversationThreadView({
             </div>
           );
         })}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Reply Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 pb-8 safe-area-bottom z-40">
+        <div className="flex items-center gap-3">
+          {/* Amount toggle */}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setAmount(prev => prev === 0 ? 5 : 0)}
+            className={cn(
+              "flex items-center gap-1 px-3 py-2 rounded-xl font-medium transition-colors",
+              amount > 0
+                ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+            )}
+          >
+            <DollarSign className="h-4 w-4" />
+            {amount > 0 ? amount : ''}
+          </motion.button>
+          
+          {/* Amount presets when active */}
+          {amount > 0 && (
+            <div className="flex gap-1">
+              {[5, 10, 25].map((preset) => (
+                <motion.button
+                  key={preset}
+                  whileTap={{ scale: 0.95 }}
+                  onClick={() => setAmount(preset)}
+                  className={cn(
+                    "px-2 py-1 rounded-lg text-xs font-medium",
+                    amount === preset
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-gray-100 text-gray-600"
+                  )}
+                >
+                  ${preset}
+                </motion.button>
+              ))}
+            </div>
+          )}
+
+          {/* Message input */}
+          <input
+            type="text"
+            value={messageText}
+            onChange={(e) => setMessageText(e.target.value)}
+            placeholder="Message..."
+            className="flex-1 px-4 py-2 bg-gray-100 rounded-xl text-base outline-none focus:ring-2 focus:ring-blue-500/20"
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+          />
+
+          {/* Send button */}
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSend}
+            disabled={isSending || (!messageText.trim() && amount === 0)}
+            className={cn(
+              "p-3 rounded-xl transition-colors",
+              messageText.trim() || amount > 0
+                ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+                : "bg-gray-100 text-gray-400"
+            )}
+          >
+            <Send className="h-5 w-5" />
+          </motion.button>
+        </div>
+        
+        {/* Balance indicator */}
+        {amount > 0 && (
+          <p className="text-xs text-gray-500 mt-2 text-center">
+            Balance: ${balance.toFixed(2)} USDC
+          </p>
+        )}
       </div>
     </motion.div>
   );
