@@ -4,6 +4,7 @@ import { ArrowLeft, Send, Check, X, DollarSign, RefreshCw, ChevronRight } from '
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { type DemoUser } from '@/lib/supabase/demoApi';
 import { 
   getPendingTransfers, 
   acceptTransfer, 
@@ -12,7 +13,6 @@ import {
   createTransfer,
   type DemoTransfer 
 } from '@/lib/supabase/transfersApi';
-import { getWalletByUserId } from '@/lib/supabase/demoApi';
 import { toast } from 'sonner';
 import { SendModal } from '@/components/wallet/SendModal';
 import { InlineComposeBar } from '@/components/oneaccord/InlineComposeBar';
@@ -233,15 +233,22 @@ export default function OneAccordPage() {
             }}
           />
         ) : selectedConversation ? (
-          <ConversationThreadView
+          // Use the same InlineComposeBar with preselected user
+          <InlineComposeBar
             key="thread"
-            conversation={selectedConversation}
-            currentUserId={currentUserId}
+            preselectedUser={{
+              id: selectedConversation.partnerId,
+              username: selectedConversation.partnerName,
+              display_name: selectedConversation.partnerName,
+              avatar_url: selectedConversation.partnerAvatar,
+              phone: '',
+              created_at: null,
+              active_role: null,
+              last_login_at: null,
+              onboarding_complete: true
+            } as DemoUser}
             onBack={() => setSelectedConversation(null)}
-            onAccept={handleAccept}
-            onDecline={handleDecline}
-            acceptedTransferId={acceptedTransferId}
-            onMessageSent={loadTransfers}
+            onSuccess={loadTransfers}
           />
         ) : (
           <motion.div
@@ -484,320 +491,6 @@ export default function OneAccordPage() {
         content={amplifyContent}
       />
     </div>
-  );
-}
-
-// Conversation Thread View - shows all messages between you and one person
-function ConversationThreadView({
-  conversation,
-  currentUserId,
-  onBack,
-  onAccept,
-  onDecline,
-  acceptedTransferId,
-  onMessageSent,
-}: {
-  conversation: ConversationPreview;
-  currentUserId: string | null;
-  onBack: () => void;
-  onAccept: (transfer: DemoTransfer, e?: React.MouseEvent) => void;
-  onDecline: (transfer: DemoTransfer, e?: React.MouseEvent) => void;
-  acceptedTransferId: string | null;
-  onMessageSent: () => void;
-}) {
-  const [messageText, setMessageText] = useState('');
-  const [amount, setAmount] = useState(0);
-  const [isSending, setIsSending] = useState(false);
-  const [balance, setBalance] = useState(0);
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  // Sort transfers chronologically (oldest first for chat-like view)
-  const sortedTransfers = useMemo(() => {
-    return [...conversation.transfers].sort(
-      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
-    );
-  }, [conversation.transfers]);
-
-  // Load user balance
-  useEffect(() => {
-    const loadBalance = async () => {
-      if (!currentUserId) return;
-      const wallet = await getWalletByUserId(currentUserId);
-      if (wallet) setBalance(wallet.balance);
-    };
-    loadBalance();
-  }, [currentUserId]);
-
-  // Scroll to bottom on load
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [sortedTransfers]);
-
-  const handleSend = async () => {
-    if (!currentUserId || !conversation.partnerId) return;
-    if (!messageText.trim() && amount === 0) {
-      toast.error('Enter a message or amount');
-      return;
-    }
-    if (amount > balance) {
-      toast.error('Insufficient balance');
-      return;
-    }
-
-    setIsSending(true);
-    try {
-      const transferAmount = amount > 0 ? amount : 0.01; // Minimum amount for message-only
-      await createTransfer(currentUserId, conversation.partnerId, transferAmount, messageText.trim() || undefined);
-      triggerHaptic('success');
-      toast.success('Message sent!');
-      setMessageText('');
-      setAmount(0);
-      onMessageSent();
-    } catch (err) {
-      console.error('Failed to send:', err);
-      toast.error('Failed to send message');
-    } finally {
-      setIsSending(false);
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: 20 }}
-      className="flex flex-col min-h-screen bg-gray-50"
-    >
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-        <div className="px-4 py-4 flex items-center gap-4">
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={onBack}
-            className="p-2 -ml-2 hover:bg-gray-100 rounded-xl"
-          >
-            <ArrowLeft className="h-5 w-5 text-gray-700" />
-          </motion.button>
-          {conversation.partnerAvatar ? (
-            <img 
-              src={conversation.partnerAvatar}
-              alt={conversation.partnerName}
-              className="w-10 h-10 rounded-full object-cover"
-            />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-              <span className="text-white font-semibold">
-                {conversation.partnerName.charAt(0).toUpperCase()}
-              </span>
-            </div>
-          )}
-          <div>
-            <h1 className="font-semibold text-gray-900">@{conversation.partnerName}</h1>
-            <p className="text-xs text-gray-500">{conversation.transfers.length} messages</p>
-          </div>
-        </div>
-      </header>
-
-      {/* Message Thread */}
-      <div className="flex-1 overflow-y-auto px-4 py-4 pb-48 space-y-4">
-        {sortedTransfers.map((transfer) => {
-          const isIncoming = transfer.to_user_id === currentUserId;
-          const isPending = transfer.status === 'pending';
-          const isAccepted = transfer.status === 'accepted';
-          
-          // Extract GIF and message
-          const gifMatch = transfer.purpose?.match(/\[GIF\](https?:\/\/[^\s]+)/);
-          const gifUrl = gifMatch ? gifMatch[1] : null;
-          const messageText = transfer.purpose?.replace(/\[GIF\]https?:\/\/[^\s]+/g, '').trim();
-          
-          return (
-            <div
-              key={transfer.id}
-              className={cn(
-                "flex",
-                isIncoming ? "justify-start" : "justify-end"
-              )}
-            >
-              <div className={cn(
-                "max-w-[85%] rounded-2xl p-4",
-                isIncoming 
-                  ? "bg-white border border-gray-200" 
-                  : "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-              )}>
-                {/* Amount badge */}
-                <div className={cn(
-                  "inline-flex items-center gap-1 px-2 py-1 rounded-lg text-sm font-semibold mb-2",
-                  isIncoming
-                    ? "bg-blue-50 text-blue-700"
-                    : "bg-white/20 text-white"
-                )}>
-                  <DollarSign className="h-3.5 w-3.5" />
-                  {transfer.amount.toFixed(2)} USDC
-                </div>
-                
-                {/* Message text */}
-                {messageText && (
-                  <p className={cn(
-                    "text-sm",
-                    isIncoming ? "text-gray-700" : "text-white/90"
-                  )}>
-                    {messageText}
-                  </p>
-                )}
-                
-                {/* GIF */}
-                {gifUrl && (
-                  <div className="mt-2 rounded-lg overflow-hidden">
-                    <img src={gifUrl} alt="GIF" className="max-w-full h-auto" />
-                  </div>
-                )}
-                
-                {/* Status & time */}
-                <div className={cn(
-                  "flex items-center gap-2 mt-2 text-xs",
-                  isIncoming ? "text-gray-400" : "text-white/60"
-                )}>
-                  <span>{formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}</span>
-                  {isAccepted && (
-                    <span className="flex items-center gap-1">
-                      <Check className="h-3 w-3" />
-                      {isIncoming ? 'Received' : 'Sent'}
-                    </span>
-                  )}
-                  {transfer.status === 'declined' && (
-                    <span className="text-red-400">Declined</span>
-                  )}
-                </div>
-                
-                {/* Accept/Decline buttons for pending incoming */}
-                {isPending && isIncoming && (
-                  <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                    {acceptedTransferId === transfer.id ? (
-                      <motion.div
-                        initial={{ scale: 0.95 }}
-                        animate={{ scale: [1, 1.05, 1] }}
-                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white font-medium"
-                      >
-                        <Check className="h-5 w-5" />
-                        Accepted! ✨
-                      </motion.div>
-                    ) : (
-                      <>
-                        <motion.button
-                          whileTap={{ scale: 0.98 }}
-                          onClick={(e) => onAccept(transfer, e)}
-                          className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
-                        >
-                          <Check className="h-4 w-4" />
-                          Accept
-                        </motion.button>
-                        <motion.button
-                          whileTap={{ scale: 0.98 }}
-                          onClick={(e) => onDecline(transfer, e)}
-                          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                        >
-                          <X className="h-4 w-4 text-gray-500" />
-                        </motion.button>
-                      </>
-                    )}
-                  </div>
-                )}
-                
-                {/* Amplify button for accepted */}
-                {isAccepted && (
-                  <div className="mt-3 pt-3 border-t border-gray-100">
-                    <AmplifyButton
-                      variant="inline"
-                      content={`${isIncoming ? 'Received' : 'Sent'} $${transfer.amount.toFixed(2)} USDC ${isIncoming ? 'from' : 'to'} @${conversation.partnerName}! 🙏\n\nTransparency in action through @Seedbase.`}
-                      impactSummary={`${isIncoming ? 'Received' : 'Sent'} $${transfer.amount.toFixed(2)} USDC`}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          );
-        })}
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Reply Bar */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-4 pb-8 safe-area-bottom z-40">
-        <div className="flex items-center gap-3">
-          {/* Amount toggle */}
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setAmount(prev => prev === 0 ? 5 : 0)}
-            className={cn(
-              "flex items-center gap-1 px-3 py-2 rounded-xl font-medium transition-colors",
-              amount > 0
-                ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-                : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            )}
-          >
-            <DollarSign className="h-4 w-4" />
-            {amount > 0 ? amount : ''}
-          </motion.button>
-          
-          {/* Amount presets when active */}
-          {amount > 0 && (
-            <div className="flex gap-1">
-              {[5, 10, 25].map((preset) => (
-                <motion.button
-                  key={preset}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={() => setAmount(preset)}
-                  className={cn(
-                    "px-2 py-1 rounded-lg text-xs font-medium",
-                    amount === preset
-                      ? "bg-blue-100 text-blue-700"
-                      : "bg-gray-100 text-gray-600"
-                  )}
-                >
-                  ${preset}
-                </motion.button>
-              ))}
-            </div>
-          )}
-
-          {/* Message input */}
-          <input
-            type="text"
-            value={messageText}
-            onChange={(e) => setMessageText(e.target.value)}
-            placeholder="Message..."
-            className="flex-1 px-4 py-2 bg-gray-100 rounded-xl text-base outline-none focus:ring-2 focus:ring-blue-500/20"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-          />
-
-          {/* Send button */}
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={handleSend}
-            disabled={isSending || (!messageText.trim() && amount === 0)}
-            className={cn(
-              "p-3 rounded-xl transition-colors",
-              messageText.trim() || amount > 0
-                ? "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
-                : "bg-gray-100 text-gray-400"
-            )}
-          >
-            <Send className="h-5 w-5" />
-          </motion.button>
-        </div>
-        
-        {/* Balance indicator */}
-        {amount > 0 && (
-          <p className="text-xs text-gray-500 mt-2 text-center">
-            Balance: ${balance.toFixed(2)} USDC
-          </p>
-        )}
-      </div>
-    </motion.div>
   );
 }
 
