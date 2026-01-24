@@ -67,6 +67,16 @@ export default function OneAccordPage() {
   const [amplifyContent, setAmplifyContent] = useState('');
   const [amplifySummary, setAmplifySummary] = useState('');
   
+  // Track dismissed demo messages (persisted to localStorage)
+  const [dismissedDemoIds, setDismissedDemoIds] = useState<Set<string>>(() => {
+    try {
+      const stored = localStorage.getItem('oneaccord-dismissed-demos');
+      return stored ? new Set(JSON.parse(stored)) : new Set();
+    } catch {
+      return new Set();
+    }
+  });
+  
   // Track which conversation is open
   const [selectedConversation, setSelectedConversation] = useState<ConversationPreview | null>(null);
   // Track which transfer detail is open
@@ -134,10 +144,32 @@ export default function OneAccordPage() {
     })) as DemoMessage[];
   }, []);
 
-  // Demo pending messages (narrative content with accept buttons)
+  // Demo pending messages (narrative content with accept buttons) - excluding dismissed
   const demoPending = useMemo(() => {
-    return demoMessages.filter(m => m.hasAcceptButton && m.status === 'pending');
-  }, [demoMessages]);
+    return demoMessages.filter(m => 
+      m.hasAcceptButton && 
+      m.status === 'pending' && 
+      !dismissedDemoIds.has(m.id)
+    );
+  }, [demoMessages, dismissedDemoIds]);
+
+  // Dismiss a demo message
+  const dismissDemoMessage = (id: string) => {
+    const newDismissed = new Set(dismissedDemoIds);
+    newDismissed.add(id);
+    setDismissedDemoIds(newDismissed);
+    localStorage.setItem('oneaccord-dismissed-demos', JSON.stringify([...newDismissed]));
+    triggerHaptic('light');
+    toast.success('Demo message dismissed');
+  };
+
+  // Restore all demo messages
+  const restoreDemoMessages = () => {
+    setDismissedDemoIds(new Set());
+    localStorage.removeItem('oneaccord-dismissed-demos');
+    triggerHaptic('light');
+    toast.success('Demo messages restored');
+  };
 
   // Group transfers by conversation partner (inbox style)
   const conversations = useMemo(() => {
@@ -199,8 +231,12 @@ export default function OneAccordPage() {
     });
 
     // Add demo narrative threads (not pending ones - those go in Pending section)
+    // Exclude dismissed demo messages
     demoMessages
-      .filter(msg => !msg.hasAcceptButton || msg.status !== 'pending')
+      .filter(msg => 
+        (!msg.hasAcceptButton || msg.status !== 'pending') && 
+        !dismissedDemoIds.has(msg.id)
+      )
       .forEach(msg => {
         const demoId = `demo-${msg.id}`;
         if (!conversationMap.has(demoId)) {
@@ -224,7 +260,7 @@ export default function OneAccordPage() {
     // Sort by most recent
     return Array.from(conversationMap.values())
       .sort((a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime());
-  }, [recentTransfers, currentUserId, demoMessages]);
+  }, [recentTransfers, currentUserId, demoMessages, dismissedDemoIds]);
 
   const handleAccept = async (transfer: DemoTransfer, e?: React.MouseEvent) => {
     // Prevent event bubbling to parent elements
@@ -454,10 +490,20 @@ export default function OneAccordPage() {
                           key={msg.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, x: -100 }}
                           transition={{ delay: (pendingTransfers.length + i) * 0.05 }}
-                          className="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 rounded-2xl border border-blue-200/50 p-4 shadow-sm"
+                          className="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 rounded-2xl border border-blue-200/50 p-4 shadow-sm relative"
                         >
-                          <div className="flex items-center gap-3 mb-3">
+                          {/* Dismiss button */}
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={() => dismissDemoMessage(msg.id)}
+                            className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white shadow-sm transition-colors"
+                          >
+                            <X className="h-3.5 w-3.5 text-gray-400" />
+                          </motion.button>
+
+                          <div className="flex items-center gap-3 mb-3 pr-8">
                             {msg.avatar.startsWith('http') ? (
                               <img 
                                 src={msg.avatar}
@@ -512,98 +558,130 @@ export default function OneAccordPage() {
                     </div>
                   ) : (
                     conversations.map((convo, i) => (
-                      <motion.button
+                      <motion.div
                         key={convo.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, x: -100 }}
                         transition={{ delay: i * 0.03 }}
-                        onClick={() => {
-                          if (!convo.isDemo) {
-                            setSelectedConversation(convo);
-                          } else {
-                            // Demo messages just show a toast for now
-                            toast.info('This is demo content showing how messages appear');
-                          }
-                        }}
-                        className={cn(
-                          "w-full rounded-xl border p-4 flex items-center gap-3 text-left transition-colors",
-                          convo.isDemo 
-                            ? "bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-blue-100 hover:from-blue-50 hover:to-purple-50"
-                            : convo.hasPendingTransfer 
-                              ? "bg-white border-blue-200 ring-1 ring-blue-100 hover:bg-blue-50" 
-                              : "bg-white border-gray-200 hover:bg-gray-50"
-                        )}
+                        className="relative"
                       >
-                        {/* Avatar */}
-                        {convo.isDemo && convo.demoMessage ? (
-                          convo.demoMessage.avatar.startsWith('http') ? (
+                        <motion.button
+                          onClick={() => {
+                            if (!convo.isDemo) {
+                              setSelectedConversation(convo);
+                            } else {
+                              toast.info('This is demo content showing how messages appear');
+                            }
+                          }}
+                          className={cn(
+                            "w-full rounded-xl border p-4 flex items-center gap-3 text-left transition-colors",
+                            convo.isDemo 
+                              ? "bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-blue-100 hover:from-blue-50 hover:to-purple-50 pr-12"
+                              : convo.hasPendingTransfer 
+                                ? "bg-white border-blue-200 ring-1 ring-blue-100 hover:bg-blue-50" 
+                                : "bg-white border-gray-200 hover:bg-gray-50"
+                          )}
+                        >
+                          {/* Avatar */}
+                          {convo.isDemo && convo.demoMessage ? (
+                            convo.demoMessage.avatar.startsWith('http') ? (
+                              <img 
+                                src={convo.demoMessage.avatar}
+                                alt={convo.partnerName}
+                                className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                              />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-2xl">
+                                {convo.demoMessage.avatar}
+                              </div>
+                            )
+                          ) : convo.partnerAvatar ? (
                             <img 
-                              src={convo.demoMessage.avatar}
+                              src={convo.partnerAvatar}
                               alt={convo.partnerName}
                               className="w-12 h-12 rounded-full object-cover flex-shrink-0"
                             />
                           ) : (
-                            <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-2xl">
-                              {convo.demoMessage.avatar}
+                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                              <span className="text-white font-semibold text-lg">
+                                {convo.partnerName.charAt(0).toUpperCase()}
+                              </span>
                             </div>
-                          )
-                        ) : convo.partnerAvatar ? (
-                          <img 
-                            src={convo.partnerAvatar}
-                            alt={convo.partnerName}
-                            className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                          />
-                        ) : (
-                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                            <span className="text-white font-semibold text-lg">
-                              {convo.partnerName.charAt(0).toUpperCase()}
-                            </span>
-                          </div>
-                        )}
-                        
-                        {/* Content */}
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-0.5">
-                            <p className={cn(
-                              "font-semibold truncate",
-                              convo.unreadCount > 0 ? "text-gray-900" : "text-gray-700"
-                            )}>
-                              {convo.isDemo ? convo.partnerName : `@${convo.partnerName}`}
-                            </p>
-                            {convo.isDemo && (
-                              <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium flex items-center gap-0.5 flex-shrink-0">
-                                <Sparkles className="h-2.5 w-2.5" />
-                                Demo
-                              </span>
-                            )}
-                            {convo.hasPendingTransfer && !convo.isDemo && (
-                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium flex-shrink-0">
-                                Pending
-                              </span>
-                            )}
-                          </div>
-                          <p className={cn(
-                            "text-sm truncate",
-                            convo.unreadCount > 0 ? "text-gray-700 font-medium" : "text-gray-500"
-                          )}>
-                            {convo.lastMessage}
-                          </p>
-                          <p className="text-xs text-gray-400 mt-0.5">
-                            {formatDistanceToNow(convo.lastMessageTime, { addSuffix: true })}
-                          </p>
-                        </div>
-                        
-                        {/* Right side: unread count or chevron */}
-                        <div className="flex items-center gap-2 flex-shrink-0">
-                          {convo.unreadCount > 0 && !convo.isDemo && (
-                            <span className="min-w-[20px] h-5 px-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium flex items-center justify-center">
-                              {convo.unreadCount}
-                            </span>
                           )}
-                          <ChevronRight className="h-5 w-5 text-gray-300" />
-                        </div>
-                      </motion.button>
+                          
+                          {/* Content */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-2 mb-0.5">
+                              <p className={cn(
+                                "font-semibold truncate",
+                                convo.unreadCount > 0 ? "text-gray-900" : "text-gray-700"
+                              )}>
+                                {convo.isDemo ? convo.partnerName : `@${convo.partnerName}`}
+                              </p>
+                              {convo.isDemo && (
+                                <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium flex items-center gap-0.5 flex-shrink-0">
+                                  <Sparkles className="h-2.5 w-2.5" />
+                                  Demo
+                                </span>
+                              )}
+                              {convo.hasPendingTransfer && !convo.isDemo && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium flex-shrink-0">
+                                  Pending
+                                </span>
+                              )}
+                            </div>
+                            <p className={cn(
+                              "text-sm truncate",
+                              convo.unreadCount > 0 ? "text-gray-700 font-medium" : "text-gray-500"
+                            )}>
+                              {convo.lastMessage}
+                            </p>
+                            <p className="text-xs text-gray-400 mt-0.5">
+                              {formatDistanceToNow(convo.lastMessageTime, { addSuffix: true })}
+                            </p>
+                          </div>
+                          
+                          {/* Right side: unread count or chevron */}
+                          <div className="flex items-center gap-2 flex-shrink-0">
+                            {convo.unreadCount > 0 && !convo.isDemo && (
+                              <span className="min-w-[20px] h-5 px-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium flex items-center justify-center">
+                                {convo.unreadCount}
+                              </span>
+                            )}
+                            {!convo.isDemo && (
+                              <ChevronRight className="h-5 w-5 text-gray-300" />
+                            )}
+                          </div>
+                        </motion.button>
+
+                        {/* Dismiss button for demo items */}
+                        {convo.isDemo && convo.demoMessage && (
+                          <motion.button
+                            whileTap={{ scale: 0.9 }}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              dismissDemoMessage(convo.demoMessage!.id);
+                            }}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-white shadow-sm transition-colors z-10"
+                          >
+                            <X className="h-3.5 w-3.5 text-gray-400" />
+                          </motion.button>
+                        )}
+                      </motion.div>
                     ))
+                  )}
+
+                  {/* Restore demo messages option */}
+                  {dismissedDemoIds.size > 0 && (
+                    <motion.button
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      onClick={restoreDemoMessages}
+                      className="w-full py-3 text-center text-sm text-blue-600 hover:text-blue-700 font-medium"
+                    >
+                      Restore {dismissedDemoIds.size} hidden demo message{dismissedDemoIds.size > 1 ? 's' : ''}
+                    </motion.button>
                   )}
                 </div>
               </div>
