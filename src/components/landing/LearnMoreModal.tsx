@@ -171,7 +171,11 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         hideCloseButton
-        className="fixed inset-0 left-0 top-0 translate-x-0 translate-y-0 max-w-none w-full h-full overflow-hidden p-0 rounded-none border-0 bg-background shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-[600px] sm:w-[calc(100%-2rem)] sm:h-auto sm:max-h-[85vh] sm:rounded-2xl"
+        className={`fixed inset-0 left-0 top-0 translate-x-0 translate-y-0 max-w-none w-full h-full overflow-hidden p-0 rounded-none border-0 bg-background shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:w-[calc(100%-2rem)] sm:rounded-2xl ${
+          showLightPaper 
+            ? 'sm:max-w-[900px] sm:h-[85vh] sm:max-h-[85vh]' 
+            : 'sm:max-w-[600px] sm:h-auto sm:max-h-[85vh]'
+        }`}
         style={{
           paddingTop: 'env(safe-area-inset-top)',
           paddingBottom: 'env(safe-area-inset-bottom)',
