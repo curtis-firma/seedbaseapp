@@ -1,11 +1,14 @@
 import { useEffect, useState, useRef, forwardRef, useImperativeHandle, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CheckCheck, DollarSign, Clock } from 'lucide-react';
+import { Check, CheckCheck, DollarSign, Clock, X } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
-import { getConversationHistory, type DemoTransfer } from '@/lib/supabase/transfersApi';
+import { getConversationHistory, acceptTransfer, declineTransfer, type DemoTransfer } from '@/lib/supabase/transfersApi';
 import { type DemoUser } from '@/lib/supabase/demoApi';
 import { useRealtimeConversation } from '@/hooks/useRealtimeConversation';
+import { triggerHaptic } from '@/hooks/useHaptic';
+import { toast } from 'sonner';
+import { Confetti } from '@/components/shared/Confetti';
 
 interface ChatBubblesProps {
   currentUserId: string | null;
@@ -35,6 +38,8 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
   ({ currentUserId, currentUserAvatar, selectedUser, className }, ref) => {
     const [messages, setMessages] = useState<DemoTransfer[]>([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [showConfetti, setShowConfetti] = useState(false);
+    const [acceptingId, setAcceptingId] = useState<string | null>(null);
     const scrollRef = useRef<HTMLDivElement>(null);
 
     const loadConversation = useCallback(async () => {
@@ -102,18 +107,67 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
       }
     };
 
+    const handleAccept = async (transfer: DemoTransfer) => {
+      setAcceptingId(transfer.id);
+      try {
+        const updated = await acceptTransfer(transfer.id);
+        if (updated) {
+          setShowConfetti(true);
+          triggerHaptic('success');
+          toast.success(`Accepted $${transfer.amount} from @${selectedUser?.username || 'user'}`);
+          
+          // Update local state
+          setMessages(prev => 
+            prev.map(msg => msg.id === transfer.id ? { ...msg, status: 'accepted' as const } : msg)
+          );
+          
+          setTimeout(() => {
+            setShowConfetti(false);
+            setAcceptingId(null);
+          }, 1500);
+        } else {
+          toast.error('Failed to accept transfer');
+          setAcceptingId(null);
+        }
+      } catch (err) {
+        console.error('Accept error:', err);
+        toast.error('Failed to accept transfer');
+        setAcceptingId(null);
+      }
+    };
+
+    const handleDecline = async (transfer: DemoTransfer) => {
+      try {
+        const updated = await declineTransfer(transfer.id);
+        if (updated) {
+          triggerHaptic('light');
+          toast.success('Transfer declined');
+          setMessages(prev => 
+            prev.map(msg => msg.id === transfer.id ? { ...msg, status: 'declined' as const } : msg)
+          );
+        } else {
+          toast.error('Failed to decline transfer');
+        }
+      } catch (err) {
+        console.error('Decline error:', err);
+        toast.error('Failed to decline transfer');
+      }
+    };
+
     if (!currentUserId || !selectedUser) {
       return null;
     }
 
     return (
-      <div 
-        ref={scrollRef}
-        className={cn(
-          "flex-1 overflow-y-auto px-4 py-4 space-y-3",
-          className
-        )}
-      >
+      <>
+        <Confetti isActive={showConfetti} />
+        <div 
+          ref={scrollRef}
+          className={cn(
+            "flex-1 overflow-y-auto px-4 py-4 space-y-3",
+            className
+          )}
+        >
         {isLoading ? (
           <div className="flex items-center justify-center py-8">
             <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" />
@@ -142,7 +196,11 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
           <AnimatePresence initial={false}>
             {messages.map((msg, index) => {
               const isOutgoing = msg.from_user_id === currentUserId;
+              const isIncoming = !isOutgoing;
+              const isPending = msg.status === 'pending';
               const showDate = index === 0 || 
+                new Date(msg.created_at).toDateString() !== 
+                new Date(messages[index - 1].created_at).toDateString();
                 new Date(msg.created_at).toDateString() !== 
                 new Date(messages[index - 1].created_at).toDateString();
 
@@ -261,6 +319,40 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                         </span>
                         {isOutgoing && getStatusIcon(msg.status)}
                       </div>
+
+                      {/* Accept/Decline buttons for pending incoming transfers */}
+                      {isIncoming && isPending && msg.amount > 0 && (
+                        <div className="flex gap-2 mt-3 pt-3 border-t border-white/10">
+                          {acceptingId === msg.id ? (
+                            <motion.div
+                              initial={{ scale: 0.95 }}
+                              animate={{ scale: [1, 1.05, 1] }}
+                              className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl text-white font-medium text-sm"
+                            >
+                              <Check className="h-4 w-4" />
+                              Accepted! ✨
+                            </motion.div>
+                          ) : (
+                            <>
+                              <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleAccept(msg)}
+                                className="flex-1 flex items-center justify-center gap-1.5 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 hover:opacity-90 rounded-xl text-white font-medium text-sm shadow-lg"
+                              >
+                                <Check className="h-4 w-4" />
+                                Accept
+                              </motion.button>
+                              <motion.button
+                                whileTap={{ scale: 0.95 }}
+                                onClick={() => handleDecline(msg)}
+                                className="px-4 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl transition-colors"
+                              >
+                                <X className="h-4 w-4 text-gray-400" />
+                              </motion.button>
+                            </>
+                          )}
+                        </div>
+                      )}
                     </div>
                     
                     {/* Avatar for outgoing messages */}
@@ -285,7 +377,8 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
             })}
           </AnimatePresence>
         )}
-      </div>
+        </div>
+      </>
     );
   }
 );
