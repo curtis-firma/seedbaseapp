@@ -364,144 +364,329 @@ export default function OneAccordPage() {
                   </div>
                 </div>
 
-                {/* All Messages - shows everything */}
+                {/* All Messages - combines demo and real transfers */}
                 <h2 className="font-semibold mb-3 text-gray-900">All Messages</h2>
                 <div className="space-y-2">
-                  {oneAccordMessages.map((message, i) => {
-                    const config = messageTypeConfig[message.type] || messageTypeConfig.system;
-                    const IconComponent = config.icon;
-                    const isAmplifiable = ['distribution', 'harvest'].includes(message.type) || message.status === 'accepted' || acceptedDemoIds.has(message.id);
-                    const isPendingWithAccept = message.hasAcceptButton && message.status === 'pending' && !acceptedDemoIds.has(message.id);
-                    const wasAccepted = acceptedDemoIds.has(message.id);
+                  {/* Combine and sort demo messages with real transfers */}
+                  {(() => {
+                    type RealTransferItem = {
+                      id: string;
+                      isRealTransfer: true;
+                      transfer: DemoTransfer;
+                      timestamp: Date;
+                    };
                     
-                    return (
-                      <SwipeableMessageCard
-                        key={message.id}
-                        isPending={isPendingWithAccept}
-                        onAccept={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
-                      >
-                        <motion.div
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.03 }}
-                          className={cn(
-                            "bg-white rounded-xl border p-4",
-                            isPendingWithAccept ? "border-blue-200 ring-1 ring-blue-100" :
-                            !message.isRead ? "border-blue-200" : "border-gray-200"
-                          )}
-                        >
-                          <div className="flex items-start gap-3">
-                            {message.avatar.startsWith('http') ? (
-                              <img 
-                                src={message.avatar}
-                                alt={message.from}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
-                              <img 
-                                src={seedbasePfp}
-                                alt="Seedbase"
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.gradient)}>
-                                {message.avatar.length <= 2 ? (
-                                  <span className="text-lg">{message.avatar}</span>
-                                ) : (
-                                  <IconComponent className="h-5 w-5 text-white" />
-                                )}
-                              </div>
-                            )}
-                            <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 mb-1">
-                                <p className="font-medium truncate text-gray-900">{message.from}</p>
-                                {wasAccepted && (
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
-                                    Accepted ✓
-                                  </span>
-                                )}
-                                {!wasAccepted && message.status === 'accepted' && (
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
-                                    Accepted ✓
-                                  </span>
-                                )}
-                                {message.status === 'review' && (
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 font-medium">
-                                    In Review
-                                  </span>
-                                )}
-                                {isPendingWithAccept && (
-                                  <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
-                                    Pending
-                                  </span>
-                                )}
-                              </div>
-                              <p className="font-medium text-sm text-gray-900">{message.title}</p>
-                              <p className="text-sm text-gray-600 line-clamp-2">{message.body}</p>
-                              
-                              {/* Reactions & Reply */}
-                              <div className="flex items-center gap-4 mt-2">
-                                <MessageReactions messageId={`all-${message.id}`} />
-                                <MessageThread
-                                  messageId={`all-${message.id}`}
-                                  originalMessage={{
-                                    from: message.from,
-                                    avatar: message.avatar,
-                                    body: message.body,
-                                    timestamp: message.timestamp,
-                                  }}
-                                />
-                              </div>
-                              
-                              <p className="text-xs text-gray-400 mt-2">
-                                {formatDistanceToNow(message.timestamp, { addSuffix: true })}
-                              </p>
-                              
-                              {/* Accept/Decline buttons for pending items */}
-                              {isPendingWithAccept && (
-                                <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                                  <motion.button
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
-                                    className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
-                                  >
-                                    <Check className="h-4 w-4" />
-                                    Accept
-                                  </motion.button>
-                                  <motion.button
-                                    whileTap={{ scale: 0.98 }}
-                                    className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                                  >
-                                    <X className="h-4 w-4 text-gray-500" />
-                                  </motion.button>
-                                </div>
-                              )}
-                              
-                              {isAmplifiable && !isPendingWithAccept && (
-                                <div className="mt-3 pt-3 border-t border-gray-100">
-                                  <AmplifyButton
-                                    variant="inline"
-                                    content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
-                                    impactSummary={message.title}
-                                  />
-                                </div>
-                              )}
-                            </div>
-                            {message.amount && (
-                              <p className={cn(
-                                "font-semibold text-lg",
-                                wasAccepted || message.status === 'accepted' ? "text-green-600" : 
-                                isPendingWithAccept ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" : 
-                                "text-gray-900"
-                              )}>
-                                ${message.amount.toLocaleString()}
-                              </p>
-                            )}
-                          </div>
-                        </motion.div>
-                      </SwipeableMessageCard>
+                    type DemoMessageItem = {
+                      id: string;
+                      isRealTransfer: false;
+                      message: typeof oneAccordMessages[number];
+                      timestamp: Date;
+                    };
+                    
+                    type FeedItem = RealTransferItem | DemoMessageItem;
+                    
+                    // Convert real transfers to unified format
+                    const realTransferItems: RealTransferItem[] = recentTransfers.map(transfer => ({
+                      id: transfer.id,
+                      isRealTransfer: true as const,
+                      transfer,
+                      timestamp: new Date(transfer.created_at),
+                    }));
+                    
+                    // Convert demo messages to unified format
+                    const demoItems: DemoMessageItem[] = oneAccordMessages.map(message => ({
+                      id: message.id,
+                      isRealTransfer: false as const,
+                      message,
+                      timestamp: message.timestamp,
+                    }));
+                    
+                    // Combine and sort by timestamp (newest first)
+                    const allItems: FeedItem[] = [...realTransferItems, ...demoItems].sort(
+                      (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
                     );
-                  })}
+                    
+                    return allItems.map((item, i) => {
+                      // Render real transfer
+                      if (item.isRealTransfer) {
+                        const transfer = item.transfer;
+                        const isIncoming = transfer.to_user_id === currentUserId;
+                        const isPending = transfer.status === 'pending';
+                        const isAccepted = transfer.status === 'accepted';
+                        
+                        // Extract GIF from purpose
+                        const gifMatch = transfer.purpose?.match(/\[GIF\](https?:\/\/[^\s]+)/);
+                        const gifUrl = gifMatch ? gifMatch[1] : null;
+                        const messageText = transfer.purpose?.replace(/\[GIF\]https?:\/\/[^\s]+/g, '').trim();
+                        
+                        return (
+                          <SwipeableMessageCard
+                            key={transfer.id}
+                            isPending={isPending && isIncoming}
+                            onAccept={() => handleAccept(transfer)}
+                          >
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.02 }}
+                              className={cn(
+                                "bg-white rounded-xl border p-4",
+                                isPending && isIncoming ? "border-blue-200 ring-1 ring-blue-100" :
+                                isAccepted ? "border-green-200" : "border-gray-200"
+                              )}
+                            >
+                              <div className="flex items-start gap-3">
+                                {(isIncoming ? transfer.from_user?.avatar_url : transfer.to_user?.avatar_url) ? (
+                                  <img 
+                                    src={isIncoming ? transfer.from_user?.avatar_url! : transfer.to_user?.avatar_url!}
+                                    alt={isIncoming ? transfer.from_user?.display_name || transfer.from_user?.username : transfer.to_user?.display_name || transfer.to_user?.username}
+                                    className="w-10 h-10 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                    <DollarSign className="h-5 w-5 text-white" />
+                                  </div>
+                                )}
+                                
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <p className="font-medium truncate text-gray-900">
+                                      {isIncoming 
+                                        ? `@${transfer.from_user?.username || 'unknown'}` 
+                                        : `To @${transfer.to_user?.username || 'unknown'}`}
+                                    </p>
+                                    {isPending && isIncoming && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
+                                        Pending
+                                      </span>
+                                    )}
+                                    {isAccepted && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
+                                        {isIncoming ? 'Received ✓' : 'Sent ✓'}
+                                      </span>
+                                    )}
+                                    {transfer.status === 'declined' && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-medium">
+                                        Declined
+                                      </span>
+                                    )}
+                                  </div>
+                                  
+                                  <p className="font-medium text-sm text-gray-900">
+                                    {isIncoming ? 'Sent you' : 'You sent'} ${transfer.amount.toFixed(2)} USDC
+                                  </p>
+                                  
+                                  {messageText && (
+                                    <p className="text-sm text-gray-600 mt-1">"{messageText}"</p>
+                                  )}
+                                  
+                                  {gifUrl && (
+                                    <div className="mt-2 rounded-lg overflow-hidden max-w-[200px]">
+                                      <img src={gifUrl} alt="GIF" className="w-full h-auto" />
+                                    </div>
+                                  )}
+                                  
+                                  <p className="text-xs text-gray-400 mt-2">
+                                    {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
+                                  </p>
+                                  
+                                  {isPending && isIncoming && (
+                                    <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                                      {acceptedTransferId === transfer.id ? (
+                                        <motion.div
+                                          initial={{ scale: 0.95 }}
+                                          animate={{ scale: [1, 1.05, 1] }}
+                                          className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white font-medium"
+                                        >
+                                          <Check className="h-5 w-5" />
+                                          Accepted! ✨
+                                        </motion.div>
+                                      ) : (
+                                        <>
+                                          <motion.button
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => handleAccept(transfer)}
+                                            className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
+                                          >
+                                            <Check className="h-4 w-4" />
+                                            Accept
+                                          </motion.button>
+                                          <motion.button
+                                            whileTap={{ scale: 0.98 }}
+                                            onClick={() => handleDecline(transfer)}
+                                            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                          >
+                                            <X className="h-4 w-4 text-gray-500" />
+                                          </motion.button>
+                                        </>
+                                      )}
+                                    </div>
+                                  )}
+                                  
+                                  {isAccepted && (
+                                    <div className="mt-3 pt-3 border-t border-gray-100">
+                                      <AmplifyButton
+                                        variant="inline"
+                                        content={`${isIncoming ? 'Received' : 'Sent'} $${transfer.amount.toFixed(2)} USDC ${isIncoming ? 'from' : 'to'} @${isIncoming ? transfer.from_user?.username : transfer.to_user?.username}! 🙏\n\nTransparency in action through @Seedbase.`}
+                                        impactSummary={`${isIncoming ? 'Received' : 'Sent'} $${transfer.amount.toFixed(2)} USDC`}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                                
+                                <p className={cn(
+                                  "font-semibold text-lg flex-shrink-0",
+                                  isAccepted ? "text-green-600" : 
+                                  isPending && isIncoming ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" : 
+                                  "text-gray-900"
+                                )}>
+                                  {isIncoming ? '+' : '-'}${transfer.amount.toFixed(2)}
+                                </p>
+                              </div>
+                            </motion.div>
+                          </SwipeableMessageCard>
+                        );
+                      }
+                      
+                      // Render demo message
+                      if (item.isRealTransfer === false) {
+                        const message = (item as DemoMessageItem).message;
+                        const config = messageTypeConfig[message.type] || messageTypeConfig.system;
+                        const IconComponent = config.icon;
+                        const isAmplifiable = ['distribution', 'harvest'].includes(message.type) || message.status === 'accepted' || acceptedDemoIds.has(message.id);
+                        const isPendingWithAccept = message.hasAcceptButton && message.status === 'pending' && !acceptedDemoIds.has(message.id);
+                        const wasAccepted = acceptedDemoIds.has(message.id);
+                        
+                        return (
+                          <SwipeableMessageCard
+                            key={message.id}
+                            isPending={isPendingWithAccept}
+                            onAccept={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
+                          >
+                            <motion.div
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ delay: i * 0.02 }}
+                              className={cn(
+                                "bg-white rounded-xl border p-4",
+                                isPendingWithAccept ? "border-blue-200 ring-1 ring-blue-100" :
+                                !message.isRead ? "border-blue-200" : "border-gray-200"
+                              )}
+                            >
+                              <div className="flex items-start gap-3">
+                                {message.avatar.startsWith('http') ? (
+                                  <img 
+                                    src={message.avatar}
+                                    alt={message.from}
+                                    className="w-10 h-10 rounded-full object-cover"
+                                  />
+                                ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
+                                  <img 
+                                    src={seedbasePfp}
+                                    alt="Seedbase"
+                                    className="w-10 h-10 rounded-full object-cover"
+                                  />
+                                ) : (
+                                  <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.gradient)}>
+                                    {message.avatar.length <= 2 ? (
+                                      <span className="text-lg">{message.avatar}</span>
+                                    ) : (
+                                      <IconComponent className="h-5 w-5 text-white" />
+                                    )}
+                                  </div>
+                                )}
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <p className="font-medium truncate text-gray-900">{message.from}</p>
+                                    {wasAccepted && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
+                                        Accepted ✓
+                                      </span>
+                                    )}
+                                    {!wasAccepted && message.status === 'accepted' && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
+                                        Accepted ✓
+                                      </span>
+                                    )}
+                                    {message.status === 'review' && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 font-medium">
+                                        In Review
+                                      </span>
+                                    )}
+                                    {isPendingWithAccept && (
+                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
+                                        Pending
+                                      </span>
+                                    )}
+                                  </div>
+                                  <p className="font-medium text-sm text-gray-900">{message.title}</p>
+                                  <p className="text-sm text-gray-600 line-clamp-2">{message.body}</p>
+                                  
+                                  <div className="flex items-center gap-4 mt-2">
+                                    <MessageReactions messageId={`all-${message.id}`} />
+                                    <MessageThread
+                                      messageId={`all-${message.id}`}
+                                      originalMessage={{
+                                        from: message.from,
+                                        avatar: message.avatar,
+                                        body: message.body,
+                                        timestamp: message.timestamp,
+                                      }}
+                                    />
+                                  </div>
+                                  
+                                  <p className="text-xs text-gray-400 mt-2">
+                                    {formatDistanceToNow(message.timestamp, { addSuffix: true })}
+                                  </p>
+                                  
+                                  {isPendingWithAccept && (
+                                    <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                                      <motion.button
+                                        whileTap={{ scale: 0.98 }}
+                                        onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
+                                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
+                                      >
+                                        <Check className="h-4 w-4" />
+                                        Accept
+                                      </motion.button>
+                                      <motion.button
+                                        whileTap={{ scale: 0.98 }}
+                                        className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                      >
+                                        <X className="h-4 w-4 text-gray-500" />
+                                      </motion.button>
+                                    </div>
+                                  )}
+                                  
+                                  {isAmplifiable && !isPendingWithAccept && (
+                                    <div className="mt-3 pt-3 border-t border-gray-100">
+                                      <AmplifyButton
+                                        variant="inline"
+                                        content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
+                                        impactSummary={message.title}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+                                {message.amount && (
+                                  <p className={cn(
+                                    "font-semibold text-lg flex-shrink-0",
+                                    wasAccepted || message.status === 'accepted' ? "text-green-600" : 
+                                    isPendingWithAccept ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" : 
+                                    "text-gray-900"
+                                  )}>
+                                    ${message.amount.toLocaleString()}
+                                  </p>
+                                )}
+                              </div>
+                            </motion.div>
+                          </SwipeableMessageCard>
+                        );
+                      }
+                      
+                      return null;
+                    });
+                  })()}
                 </div>
 
                 {/* Real Transfers Section */}
