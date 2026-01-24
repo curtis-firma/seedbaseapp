@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { SendModal } from '@/components/wallet/SendModal';
 import { ComposeMessageModal } from '@/components/oneaccord/ComposeMessageModal';
 import { InlineComposeBar } from '@/components/oneaccord/InlineComposeBar';
+import { SwipeableMessageCard } from '@/components/oneaccord/SwipeableMessageCard';
 import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 import { oneAccordMessages } from '@/data/mockData';
 import { Confetti } from '@/components/shared/Confetti';
@@ -374,17 +375,21 @@ export default function OneAccordPage() {
                     const wasAccepted = acceptedDemoIds.has(message.id);
                     
                     return (
-                      <motion.div
+                      <SwipeableMessageCard
                         key={message.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        transition={{ delay: i * 0.03 }}
-                        className={cn(
-                          "bg-white rounded-xl border p-4",
-                          isPendingWithAccept ? "border-blue-200 ring-1 ring-blue-100" :
-                          !message.isRead ? "border-blue-200" : "border-gray-200"
-                        )}
+                        isPending={isPendingWithAccept}
+                        onAccept={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
                       >
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: i * 0.03 }}
+                          className={cn(
+                            "bg-white rounded-xl border p-4",
+                            isPendingWithAccept ? "border-blue-200 ring-1 ring-blue-100" :
+                            !message.isRead ? "border-blue-200" : "border-gray-200"
+                          )}
+                        >
                         <div className="flex items-start gap-3">
                           {message.avatar.startsWith('http') ? (
                             <img 
@@ -493,7 +498,8 @@ export default function OneAccordPage() {
                             </p>
                           )}
                         </div>
-                      </motion.div>
+                        </motion.div>
+                      </SwipeableMessageCard>
                     );
                   })}
                 </div>
