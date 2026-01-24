@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Send, Check, X, DollarSign, Inbox, RefreshCw, Vote, FileText, Bell, Sprout, Megaphone } from 'lucide-react';
+import { ArrowLeft, Send, Check, X, DollarSign, RefreshCw, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -15,32 +15,30 @@ import { toast } from 'sonner';
 import { SendModal } from '@/components/wallet/SendModal';
 import { ComposeMessageModal } from '@/components/oneaccord/ComposeMessageModal';
 import { InlineComposeBar } from '@/components/oneaccord/InlineComposeBar';
-import { SwipeableMessageCard } from '@/components/oneaccord/SwipeableMessageCard';
 import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
-import { oneAccordMessages } from '@/data/mockData';
 import { Confetti } from '@/components/shared/Confetti';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { AmplifyPromptModal } from '@/components/social/AmplifyPromptModal';
 import { AmplifyButton } from '@/components/social/AmplifyButton';
-import { MessageReactions } from '@/components/oneaccord/MessageReactions';
-import { MessageThread } from '@/components/oneaccord/MessageThread';
-import seedbasePfp from '@/assets/seedbase-pfp.png';
 
-// Message type icons and styles - Fun colorful design
-const messageTypeConfig: Record<string, { icon: typeof DollarSign; gradient: string; bgColor: string }> = {
-  distribution: { icon: DollarSign, gradient: 'bg-gradient-to-br from-blue-500 to-purple-600', bgColor: 'bg-blue-100' },
-  transfer: { icon: Send, gradient: 'bg-gradient-to-br from-blue-500 to-purple-600', bgColor: 'bg-blue-100' },
-  harvest: { icon: FileText, gradient: 'bg-gradient-to-br from-orange-500 to-red-500', bgColor: 'bg-orange-100' },
-  governance: { icon: Vote, gradient: 'bg-gradient-to-br from-purple-500 to-pink-500', bgColor: 'bg-purple-100' },
-  milestone: { icon: Sprout, gradient: 'bg-gradient-to-br from-green-500 to-teal-500', bgColor: 'bg-green-100' },
-  system: { icon: Bell, gradient: 'bg-gradient-to-br from-gray-500 to-gray-600', bgColor: 'bg-gray-100' },
-  update: { icon: FileText, gradient: 'bg-gradient-to-br from-orange-500 to-red-500', bgColor: 'bg-orange-100' },
-};
+// Conversation preview for inbox-style grouping
+interface ConversationPreview {
+  id: string;
+  partnerId: string;
+  partnerName: string;
+  partnerAvatar: string | null;
+  lastMessage: string;
+  lastMessageTime: Date;
+  lastAmount: number;
+  unreadCount: number;
+  hasPendingTransfer: boolean;
+  pendingAmount?: number;
+  transfers: DemoTransfer[];
+}
 
 export default function OneAccordPage() {
   const [pendingTransfers, setPendingTransfers] = useState<DemoTransfer[]>([]);
   const [recentTransfers, setRecentTransfers] = useState<DemoTransfer[]>([]);
-  const [selectedTransfer, setSelectedTransfer] = useState<DemoTransfer | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [showSendModal, setShowSendModal] = useState(false);
   const [showComposeModal, setShowComposeModal] = useState(false);
@@ -49,10 +47,12 @@ export default function OneAccordPage() {
   const [showAmplifyPrompt, setShowAmplifyPrompt] = useState(false);
   const [amplifyContent, setAmplifyContent] = useState('');
   const [amplifySummary, setAmplifySummary] = useState('');
-  const [acceptedDemoIds, setAcceptedDemoIds] = useState<Set<string>>(() => {
-    const saved = localStorage.getItem('seedbase-accepted-demo-ids');
-    return saved ? new Set(JSON.parse(saved)) : new Set();
-  });
+  
+  // Track which conversation is open
+  const [selectedConversation, setSelectedConversation] = useState<ConversationPreview | null>(null);
+  // Track which transfer detail is open
+  const [selectedTransfer, setSelectedTransfer] = useState<DemoTransfer | null>(null);
+  
   const navigate = useNavigate();
 
   const getCurrentUserId = (): string | null => {
@@ -66,6 +66,8 @@ export default function OneAccordPage() {
     return null;
   };
 
+  const currentUserId = getCurrentUserId();
+
   const loadTransfers = async () => {
     const userId = getCurrentUserId();
     if (!userId) {
@@ -77,7 +79,7 @@ export default function OneAccordPage() {
     try {
       const [pending, recent] = await Promise.all([
         getPendingTransfers(userId),
-        getTransfersForUser(userId, 20)
+        getTransfersForUser(userId, 50)
       ]);
       setPendingTransfers(pending);
       setRecentTransfers(recent);
@@ -105,7 +107,74 @@ export default function OneAccordPage() {
     },
   });
 
-  const handleAccept = async (transfer: DemoTransfer) => {
+  // Group transfers by conversation partner (inbox style)
+  const conversations = useMemo(() => {
+    if (!currentUserId) return [];
+    
+    const conversationMap = new Map<string, ConversationPreview>();
+    
+    recentTransfers.forEach(transfer => {
+      const isIncoming = transfer.to_user_id === currentUserId;
+      const partnerId = isIncoming ? transfer.from_user_id : transfer.to_user_id;
+      
+      if (!partnerId) return;
+      
+      const existingConvo = conversationMap.get(partnerId);
+      const transferTime = new Date(transfer.created_at);
+      
+      // Build message preview
+      const gifMatch = transfer.purpose?.match(/\[GIF\](https?:\/\/[^\s]+)/);
+      const messageText = transfer.purpose?.replace(/\[GIF\]https?:\/\/[^\s]+/g, '').trim();
+      const preview = gifMatch ? '📷 GIF' : messageText || `$${transfer.amount.toFixed(2)} USDC`;
+      
+      // Check if pending incoming transfer
+      const isPendingIncoming = transfer.status === 'pending' && isIncoming;
+      
+      if (!existingConvo) {
+        const partner = isIncoming ? transfer.from_user : transfer.to_user;
+        conversationMap.set(partnerId, {
+          id: partnerId,
+          partnerId,
+          partnerName: partner?.display_name || partner?.username || 'Unknown',
+          partnerAvatar: partner?.avatar_url || null,
+          lastMessage: preview,
+          lastMessageTime: transferTime,
+          lastAmount: transfer.amount,
+          unreadCount: isPendingIncoming ? 1 : 0,
+          hasPendingTransfer: isPendingIncoming,
+          pendingAmount: isPendingIncoming ? transfer.amount : undefined,
+          transfers: [transfer],
+        });
+      } else {
+        // Update existing conversation
+        existingConvo.transfers.push(transfer);
+        
+        // Update if this is newer
+        if (transferTime > existingConvo.lastMessageTime) {
+          existingConvo.lastMessage = preview;
+          existingConvo.lastMessageTime = transferTime;
+          existingConvo.lastAmount = transfer.amount;
+        }
+        
+        // Track pending status
+        if (isPendingIncoming) {
+          existingConvo.unreadCount++;
+          existingConvo.hasPendingTransfer = true;
+          existingConvo.pendingAmount = (existingConvo.pendingAmount || 0) + transfer.amount;
+        }
+      }
+    });
+    
+    // Sort by most recent
+    return Array.from(conversationMap.values())
+      .sort((a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime());
+  }, [recentTransfers, currentUserId]);
+
+  const handleAccept = async (transfer: DemoTransfer, e?: React.MouseEvent) => {
+    // Prevent event bubbling to parent elements
+    e?.stopPropagation();
+    e?.preventDefault();
+    
     const updated = await acceptTransfer(transfer.id);
     if (updated) {
       setAcceptedTransferId(transfer.id);
@@ -128,7 +197,10 @@ export default function OneAccordPage() {
     }
   };
 
-  const handleDecline = async (transfer: DemoTransfer) => {
+  const handleDecline = async (transfer: DemoTransfer, e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    e?.preventDefault();
+    
     const updated = await declineTransfer(transfer.id);
     if (updated) {
       triggerHaptic('light');
@@ -139,31 +211,7 @@ export default function OneAccordPage() {
     }
   };
 
-  const handleDemoAccept = (messageId: string, message?: { from: string; amount?: number; title?: string }) => {
-    const newAcceptedIds = new Set(acceptedDemoIds);
-    newAcceptedIds.add(messageId);
-    setAcceptedDemoIds(newAcceptedIds);
-    localStorage.setItem('seedbase-accepted-demo-ids', JSON.stringify([...newAcceptedIds]));
-    
-    setShowConfetti(true);
-    triggerHaptic('success');
-    toast.success('Transfer accepted! Funds added to your wallet.');
-    
-    setTimeout(() => {
-      setShowConfetti(false);
-      
-      if (message) {
-        const amount = message.amount || 0;
-        setAmplifyContent(`${message.title || `Received $${amount} USDC`} from ${message.from}! 🙏\n\nTransparency and trust in action through @Seedbase.`);
-        setAmplifySummary(`${message.title || `You accepted $${amount} USDC`} from ${message.from}`);
-        setShowAmplifyPrompt(true);
-      }
-    }, 2000);
-  };
-
-  const currentUserId = getCurrentUserId();
-
-  // Light mode design - clean and fun like Telegram
+  // Main view with inbox-style list
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Confetti isActive={showConfetti} />
@@ -175,14 +223,24 @@ export default function OneAccordPage() {
             transfer={selectedTransfer}
             currentUserId={currentUserId}
             onBack={() => setSelectedTransfer(null)}
-            onAccept={() => {
-              handleAccept(selectedTransfer);
+            onAccept={(e) => {
+              handleAccept(selectedTransfer, e);
               setSelectedTransfer(null);
             }}
-            onDecline={() => {
-              handleDecline(selectedTransfer);
+            onDecline={(e) => {
+              handleDecline(selectedTransfer, e);
               setSelectedTransfer(null);
             }}
+          />
+        ) : selectedConversation ? (
+          <ConversationThreadView
+            key="thread"
+            conversation={selectedConversation}
+            currentUserId={currentUserId}
+            onBack={() => setSelectedConversation(null)}
+            onAccept={handleAccept}
+            onDecline={handleDecline}
+            acceptedTransferId={acceptedTransferId}
           />
         ) : (
           <motion.div
@@ -225,7 +283,7 @@ export default function OneAccordPage() {
               </div>
             </div>
 
-            {/* Scrollable Messages */}
+            {/* Scrollable Content */}
             {isLoading ? (
               <div className="px-4 py-12 text-center">
                 <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
@@ -233,599 +291,177 @@ export default function OneAccordPage() {
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto px-4 py-2 pb-48">
-                {/* Pending Section - items requiring acceptance */}
-                <div className="mb-6">
-                  <div className="flex items-center gap-2 mb-3">
-                    <h2 className="font-semibold text-gray-900">Pending</h2>
-                    <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium">
-                      {oneAccordMessages.filter(m => m.hasAcceptButton && m.status === 'pending' && !acceptedDemoIds.has(m.id)).length + pendingTransfers.length}
-                    </span>
-                  </div>
-                  <div className="space-y-3">
-                    {oneAccordMessages.filter(m => m.hasAcceptButton && m.status === 'pending').map((message, i) => {
-                      const config = messageTypeConfig[message.type] || messageTypeConfig.system;
-                      const IconComponent = config.icon;
-                      
-                      return (
+                {/* Pending Section - Individual items requiring action */}
+                {pendingTransfers.length > 0 && (
+                  <div className="mb-6">
+                    <div className="flex items-center gap-2 mb-3">
+                      <h2 className="font-semibold text-gray-900">Pending</h2>
+                      <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium">
+                        {pendingTransfers.length}
+                      </span>
+                    </div>
+                    <div className="space-y-3">
+                      {pendingTransfers.map((transfer, i) => (
                         <motion.div
-                          key={message.id}
+                          key={transfer.id}
                           initial={{ opacity: 0, y: 10 }}
                           animate={{ opacity: 1, y: 0 }}
                           transition={{ delay: i * 0.05 }}
-                          className={cn(
-                            "bg-white rounded-2xl border shadow-sm p-4",
-                            !message.isRead ? "border-blue-200 ring-1 ring-blue-100" : "border-gray-200"
-                          )}
+                          className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-4 shadow-sm"
                         >
-                          <div className="flex items-start gap-3 mb-3">
-                            {message.avatar.startsWith('http') ? (
+                          <div className="flex items-center gap-3 mb-3">
+                            {transfer.from_user?.avatar_url ? (
                               <img 
-                                src={message.avatar}
-                                alt={message.from}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
-                              <img 
-                                src={seedbasePfp}
-                                alt="Seedbase"
+                                src={transfer.from_user.avatar_url}
+                                alt={transfer.from_user.display_name || transfer.from_user.username}
                                 className="w-10 h-10 rounded-full object-cover"
                               />
                             ) : (
-                              <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.gradient)}>
-                                {message.avatar.length <= 2 ? (
-                                  <span className="text-lg">{message.avatar}</span>
-                                ) : (
-                                  <IconComponent className="h-5 w-5 text-white" />
-                                )}
+                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                                <DollarSign className="h-5 w-5 text-white" />
                               </div>
                             )}
                             <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <p className="font-semibold text-gray-900">{message.from}</p>
-                                <span className={cn(
-                                  "text-[10px] px-1.5 py-0.5 rounded font-medium uppercase",
-                                  config.bgColor,
-                                  "text-gray-700"
-                                )}>
-                                  {message.fromRole}
-                                </span>
-                              </div>
+                              <p className="font-semibold text-gray-900">@{transfer.from_user?.username || 'unknown'}</p>
                               <p className="text-xs text-gray-500">
-                                {formatDistanceToNow(message.timestamp, { addSuffix: true })}
+                                {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
                               </p>
                             </div>
-                            {message.amount && (
-                              <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                ${message.amount.toLocaleString()}
-                              </p>
+                            <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                              ${transfer.amount.toFixed(2)}
+                            </p>
+                          </div>
+                          
+                          {transfer.purpose && !transfer.purpose.startsWith('[GIF]') && (
+                            <p className="text-sm text-gray-600 mb-3">"{transfer.purpose}"</p>
+                          )}
+                          
+                          {/* GIF display */}
+                          {(() => {
+                            const gifMatch = transfer.purpose?.match(/\[GIF\](https?:\/\/[^\s]+)/);
+                            if (gifMatch) {
+                              return (
+                                <div className="mb-3 rounded-lg overflow-hidden max-w-[200px]">
+                                  <img src={gifMatch[1]} alt="GIF" className="w-full h-auto" />
+                                </div>
+                              );
+                            }
+                            return null;
+                          })()}
+                          
+                          <div className="flex gap-2">
+                            {acceptedTransferId === transfer.id ? (
+                              <motion.div
+                                initial={{ scale: 0.95 }}
+                                animate={{ scale: [1, 1.05, 1] }}
+                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium"
+                              >
+                                <Check className="h-5 w-5" />
+                                Accepted! ✨
+                              </motion.div>
+                            ) : (
+                              <>
+                                <motion.button
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={(e) => handleAccept(transfer, e)}
+                                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 rounded-xl text-white font-medium shadow-lg"
+                                >
+                                  <Check className="h-4 w-4" />
+                                  Accept
+                                </motion.button>
+                                <motion.button
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={(e) => handleDecline(transfer, e)}
+                                  className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                                >
+                                  <X className="h-4 w-4 text-gray-500" />
+                                </motion.button>
+                              </>
                             )}
                           </div>
-                          
-                          <div className="mb-3">
-                            <p className="font-medium text-gray-900">{message.title}</p>
-                            <p className="text-sm text-gray-600 whitespace-pre-line">{message.body}</p>
-                          </div>
-                          
-                          {/* Reactions & Reply */}
-                          <div className="flex items-center gap-4 mb-3">
-                            <MessageReactions messageId={message.id} />
-                            <MessageThread
-                              messageId={message.id}
-                              originalMessage={{
-                                from: message.from,
-                                avatar: message.avatar,
-                                body: message.body,
-                                timestamp: message.timestamp,
-                              }}
-                            />
-                          </div>
-                          
-                          {message.hasAcceptButton && (
-                            <div className="flex gap-2">
-                              {acceptedDemoIds.has(message.id) ? (
-                                <div className="flex gap-2 w-full">
-                                  <motion.div
-                                    initial={{ scale: 0.95 }}
-                                    animate={{ scale: [1, 1.05, 1] }}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium cursor-not-allowed"
-                                  >
-                                    <Check className="h-5 w-5" />
-                                    Accepted ✨
-                                  </motion.div>
-                                  <AmplifyButton
-                                    variant="small"
-                                    content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
-                                    impactSummary={message.title}
-                                  />
-                                </div>
-                              ) : (
-                                <>
-                                  <motion.button
-                                    whileTap={{ scale: 0.98 }}
-                                    onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium shadow-lg hover:shadow-xl transition-shadow"
-                                  >
-                                    <Check className="h-4 w-4" />
-                                    Accept
-                                  </motion.button>
-                                  <motion.button
-                                    whileTap={{ scale: 0.98 }}
-                                    className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
-                                  >
-                                    <X className="h-4 w-4 text-gray-500" />
-                                  </motion.button>
-                                </>
-                              )}
-                            </div>
-                          )}
                         </motion.div>
-                      );
-                    })}
+                      ))}
+                    </div>
                   </div>
-                </div>
+                )}
 
-                {/* All Messages - combines demo and real transfers */}
+                {/* All Messages - Inbox Style (grouped by conversation partner) */}
                 <h2 className="font-semibold mb-3 text-gray-900">All Messages</h2>
                 <div className="space-y-2">
-                  {/* Combine and sort demo messages with real transfers */}
-                  {(() => {
-                    type RealTransferItem = {
-                      id: string;
-                      isRealTransfer: true;
-                      transfer: DemoTransfer;
-                      timestamp: Date;
-                    };
-                    
-                    type DemoMessageItem = {
-                      id: string;
-                      isRealTransfer: false;
-                      message: typeof oneAccordMessages[number];
-                      timestamp: Date;
-                    };
-                    
-                    type FeedItem = RealTransferItem | DemoMessageItem;
-                    
-                    // Convert real transfers to unified format
-                    const realTransferItems: RealTransferItem[] = recentTransfers.map(transfer => ({
-                      id: transfer.id,
-                      isRealTransfer: true as const,
-                      transfer,
-                      timestamp: new Date(transfer.created_at),
-                    }));
-                    
-                    // Convert demo messages to unified format
-                    const demoItems: DemoMessageItem[] = oneAccordMessages.map(message => ({
-                      id: message.id,
-                      isRealTransfer: false as const,
-                      message,
-                      timestamp: message.timestamp,
-                    }));
-                    
-                    // Combine and sort by timestamp (newest first)
-                    const allItems: FeedItem[] = [...realTransferItems, ...demoItems].sort(
-                      (a, b) => b.timestamp.getTime() - a.timestamp.getTime()
-                    );
-                    
-                    return allItems.map((item, i) => {
-                      // Render real transfer
-                      if (item.isRealTransfer) {
-                        const transfer = item.transfer;
-                        const isIncoming = transfer.to_user_id === currentUserId;
-                        const isPending = transfer.status === 'pending';
-                        const isAccepted = transfer.status === 'accepted';
-                        
-                        // Extract GIF from purpose
-                        const gifMatch = transfer.purpose?.match(/\[GIF\](https?:\/\/[^\s]+)/);
-                        const gifUrl = gifMatch ? gifMatch[1] : null;
-                        const messageText = transfer.purpose?.replace(/\[GIF\]https?:\/\/[^\s]+/g, '').trim();
-                        
-                        return (
-                          <SwipeableMessageCard
-                            key={transfer.id}
-                            isPending={isPending && isIncoming}
-                            onAccept={() => handleAccept(transfer)}
-                          >
-                            <motion.div
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: i * 0.02 }}
-                              className={cn(
-                                "bg-white rounded-xl border p-4",
-                                isPending && isIncoming ? "border-blue-200 ring-1 ring-blue-100" :
-                                isAccepted ? "border-green-200" : "border-gray-200"
-                              )}
-                            >
-                              <div className="flex items-start gap-3">
-                                {(isIncoming ? transfer.from_user?.avatar_url : transfer.to_user?.avatar_url) ? (
-                                  <img 
-                                    src={isIncoming ? transfer.from_user?.avatar_url! : transfer.to_user?.avatar_url!}
-                                    alt={isIncoming ? transfer.from_user?.display_name || transfer.from_user?.username : transfer.to_user?.display_name || transfer.to_user?.username}
-                                    className="w-10 h-10 rounded-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                    <DollarSign className="h-5 w-5 text-white" />
-                                  </div>
-                                )}
-                                
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <p className="font-medium truncate text-gray-900">
-                                      {isIncoming 
-                                        ? `@${transfer.from_user?.username || 'unknown'}` 
-                                        : `To @${transfer.to_user?.username || 'unknown'}`}
-                                    </p>
-                                    {isPending && isIncoming && (
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
-                                        Pending
-                                      </span>
-                                    )}
-                                    {isAccepted && (
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
-                                        {isIncoming ? 'Received ✓' : 'Sent ✓'}
-                                      </span>
-                                    )}
-                                    {transfer.status === 'declined' && (
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-100 text-red-700 font-medium">
-                                        Declined
-                                      </span>
-                                    )}
-                                  </div>
-                                  
-                                  <p className="font-medium text-sm text-gray-900">
-                                    {isIncoming ? 'Sent you' : 'You sent'} ${transfer.amount.toFixed(2)} USDC
-                                  </p>
-                                  
-                                  {messageText && (
-                                    <p className="text-sm text-gray-600 mt-1">"{messageText}"</p>
-                                  )}
-                                  
-                                  {gifUrl && (
-                                    <div className="mt-2 rounded-lg overflow-hidden max-w-[200px]">
-                                      <img src={gifUrl} alt="GIF" className="w-full h-auto" />
-                                    </div>
-                                  )}
-                                  
-                                  <p className="text-xs text-gray-400 mt-2">
-                                    {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
-                                  </p>
-                                  
-                                  {isPending && isIncoming && (
-                                    <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                                      {acceptedTransferId === transfer.id ? (
-                                        <motion.div
-                                          initial={{ scale: 0.95 }}
-                                          animate={{ scale: [1, 1.05, 1] }}
-                                          className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white font-medium"
-                                        >
-                                          <Check className="h-5 w-5" />
-                                          Accepted! ✨
-                                        </motion.div>
-                                      ) : (
-                                        <>
-                                          <motion.button
-                                            whileTap={{ scale: 0.98 }}
-                                            onClick={() => handleAccept(transfer)}
-                                            className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
-                                          >
-                                            <Check className="h-4 w-4" />
-                                            Accept
-                                          </motion.button>
-                                          <motion.button
-                                            whileTap={{ scale: 0.98 }}
-                                            onClick={() => handleDecline(transfer)}
-                                            className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                                          >
-                                            <X className="h-4 w-4 text-gray-500" />
-                                          </motion.button>
-                                        </>
-                                      )}
-                                    </div>
-                                  )}
-                                  
-                                  {isAccepted && (
-                                    <div className="mt-3 pt-3 border-t border-gray-100">
-                                      <AmplifyButton
-                                        variant="inline"
-                                        content={`${isIncoming ? 'Received' : 'Sent'} $${transfer.amount.toFixed(2)} USDC ${isIncoming ? 'from' : 'to'} @${isIncoming ? transfer.from_user?.username : transfer.to_user?.username}! 🙏\n\nTransparency in action through @Seedbase.`}
-                                        impactSummary={`${isIncoming ? 'Received' : 'Sent'} $${transfer.amount.toFixed(2)} USDC`}
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                                
-                                <p className={cn(
-                                  "font-semibold text-lg flex-shrink-0",
-                                  isAccepted ? "text-green-600" : 
-                                  isPending && isIncoming ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" : 
-                                  "text-gray-900"
-                                )}>
-                                  {isIncoming ? '+' : '-'}${transfer.amount.toFixed(2)}
-                                </p>
-                              </div>
-                            </motion.div>
-                          </SwipeableMessageCard>
-                        );
-                      }
-                      
-                      // Render demo message
-                      if (item.isRealTransfer === false) {
-                        const message = (item as DemoMessageItem).message;
-                        const config = messageTypeConfig[message.type] || messageTypeConfig.system;
-                        const IconComponent = config.icon;
-                        const isAmplifiable = ['distribution', 'harvest'].includes(message.type) || message.status === 'accepted' || acceptedDemoIds.has(message.id);
-                        const isPendingWithAccept = message.hasAcceptButton && message.status === 'pending' && !acceptedDemoIds.has(message.id);
-                        const wasAccepted = acceptedDemoIds.has(message.id);
-                        
-                        return (
-                          <SwipeableMessageCard
-                            key={message.id}
-                            isPending={isPendingWithAccept}
-                            onAccept={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
-                          >
-                            <motion.div
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: i * 0.02 }}
-                              className={cn(
-                                "bg-white rounded-xl border p-4",
-                                isPendingWithAccept ? "border-blue-200 ring-1 ring-blue-100" :
-                                !message.isRead ? "border-blue-200" : "border-gray-200"
-                              )}
-                            >
-                              <div className="flex items-start gap-3">
-                                {message.avatar.startsWith('http') ? (
-                                  <img 
-                                    src={message.avatar}
-                                    alt={message.from}
-                                    className="w-10 h-10 rounded-full object-cover"
-                                  />
-                                ) : ['system', 'trustee', 'envoy'].includes(message.fromRole?.toLowerCase() || '') ? (
-                                  <img 
-                                    src={seedbasePfp}
-                                    alt="Seedbase"
-                                    className="w-10 h-10 rounded-full object-cover"
-                                  />
-                                ) : (
-                                  <div className={cn("w-10 h-10 rounded-full flex items-center justify-center", config.gradient)}>
-                                    {message.avatar.length <= 2 ? (
-                                      <span className="text-lg">{message.avatar}</span>
-                                    ) : (
-                                      <IconComponent className="h-5 w-5 text-white" />
-                                    )}
-                                  </div>
-                                )}
-                                <div className="flex-1 min-w-0">
-                                  <div className="flex items-center gap-2 mb-1">
-                                    <p className="font-medium truncate text-gray-900">{message.from}</p>
-                                    {wasAccepted && (
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
-                                        Accepted ✓
-                                      </span>
-                                    )}
-                                    {!wasAccepted && message.status === 'accepted' && (
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
-                                        Accepted ✓
-                                      </span>
-                                    )}
-                                    {message.status === 'review' && (
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 font-medium">
-                                        In Review
-                                      </span>
-                                    )}
-                                    {isPendingWithAccept && (
-                                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
-                                        Pending
-                                      </span>
-                                    )}
-                                  </div>
-                                  <p className="font-medium text-sm text-gray-900">{message.title}</p>
-                                  <p className="text-sm text-gray-600 line-clamp-2">{message.body}</p>
-                                  
-                                  <div className="flex items-center gap-4 mt-2">
-                                    <MessageReactions messageId={`all-${message.id}`} />
-                                    <MessageThread
-                                      messageId={`all-${message.id}`}
-                                      originalMessage={{
-                                        from: message.from,
-                                        avatar: message.avatar,
-                                        body: message.body,
-                                        timestamp: message.timestamp,
-                                      }}
-                                    />
-                                  </div>
-                                  
-                                  <p className="text-xs text-gray-400 mt-2">
-                                    {formatDistanceToNow(message.timestamp, { addSuffix: true })}
-                                  </p>
-                                  
-                                  {isPendingWithAccept && (
-                                    <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
-                                      <motion.button
-                                        whileTap={{ scale: 0.98 }}
-                                        onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
-                                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
-                                      >
-                                        <Check className="h-4 w-4" />
-                                        Accept
-                                      </motion.button>
-                                      <motion.button
-                                        whileTap={{ scale: 0.98 }}
-                                        className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                                      >
-                                        <X className="h-4 w-4 text-gray-500" />
-                                      </motion.button>
-                                    </div>
-                                  )}
-                                  
-                                  {isAmplifiable && !isPendingWithAccept && (
-                                    <div className="mt-3 pt-3 border-t border-gray-100">
-                                      <AmplifyButton
-                                        variant="inline"
-                                        content={`${message.title} from ${message.from}! 🙏\n\nTransparency in action through @Seedbase.`}
-                                        impactSummary={message.title}
-                                      />
-                                    </div>
-                                  )}
-                                </div>
-                                {message.amount && (
-                                  <p className={cn(
-                                    "font-semibold text-lg flex-shrink-0",
-                                    wasAccepted || message.status === 'accepted' ? "text-green-600" : 
-                                    isPendingWithAccept ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" : 
-                                    "text-gray-900"
-                                  )}>
-                                    ${message.amount.toLocaleString()}
-                                  </p>
-                                )}
-                              </div>
-                            </motion.div>
-                          </SwipeableMessageCard>
-                        );
-                      }
-                      
-                      return null;
-                    });
-                  })()}
-                </div>
-
-                {/* Real Transfers Section */}
-                {(pendingTransfers.length > 0 || recentTransfers.length > 0) && (
-                  <>
-                    <div className="my-6 flex items-center gap-3">
-                      <div className="h-px flex-1 bg-gray-200" />
-                      <span className="text-xs font-medium text-gray-500">YOUR TRANSFERS</span>
-                      <div className="h-px flex-1 bg-gray-200" />
+                  {conversations.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No messages yet</p>
+                      <p className="text-sm mt-1">Send USDC to start a conversation</p>
                     </div>
-
-                    {pendingTransfers.length > 0 && (
-                      <div className="mb-4">
-                        <div className="flex items-center gap-2 mb-3">
-                          <h2 className="font-semibold text-gray-900">Pending Transfers</h2>
-                          <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium">
-                            {pendingTransfers.length}
-                          </span>
+                  ) : (
+                    conversations.map((convo, i) => (
+                      <motion.button
+                        key={convo.id}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: i * 0.03 }}
+                        onClick={() => setSelectedConversation(convo)}
+                        className={cn(
+                          "w-full bg-white rounded-xl border p-4 flex items-center gap-3 text-left transition-colors",
+                          convo.hasPendingTransfer 
+                            ? "border-blue-200 ring-1 ring-blue-100 hover:bg-blue-50" 
+                            : "border-gray-200 hover:bg-gray-50"
+                        )}
+                      >
+                        {/* Avatar */}
+                        {convo.partnerAvatar ? (
+                          <img 
+                            src={convo.partnerAvatar}
+                            alt={convo.partnerName}
+                            className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                            <span className="text-white font-semibold text-lg">
+                              {convo.partnerName.charAt(0).toUpperCase()}
+                            </span>
+                          </div>
+                        )}
+                        
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-0.5">
+                            <p className={cn(
+                              "font-semibold truncate",
+                              convo.unreadCount > 0 ? "text-gray-900" : "text-gray-700"
+                            )}>
+                              @{convo.partnerName}
+                            </p>
+                            {convo.hasPendingTransfer && (
+                              <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium flex-shrink-0">
+                                Pending
+                              </span>
+                            )}
+                          </div>
+                          <p className={cn(
+                            "text-sm truncate",
+                            convo.unreadCount > 0 ? "text-gray-700 font-medium" : "text-gray-500"
+                          )}>
+                            {convo.lastMessage}
+                          </p>
+                          <p className="text-xs text-gray-400 mt-0.5">
+                            {formatDistanceToNow(convo.lastMessageTime, { addSuffix: true })}
+                          </p>
                         </div>
-                        <div className="space-y-2">
-                          {pendingTransfers.map((transfer, i) => (
-                            <motion.div
-                              key={transfer.id}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ delay: i * 0.05 }}
-                              className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-4 shadow-sm"
-                            >
-                              <div className="flex items-center gap-3 mb-3">
-                                {transfer.from_user?.avatar_url ? (
-                                  <img 
-                                    src={transfer.from_user.avatar_url}
-                                    alt={transfer.from_user.display_name || transfer.from_user.username}
-                                    className="w-10 h-10 rounded-full object-cover"
-                                  />
-                                ) : (
-                                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                    <DollarSign className="h-5 w-5 text-white" />
-                                  </div>
-                                )}
-                                <div className="flex-1">
-                                  <p className="font-semibold text-gray-900">@{transfer.from_user?.username || 'unknown'}</p>
-                                  <p className="text-xs text-gray-500">
-                                    {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
-                                  </p>
-                                </div>
-                                <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                  ${transfer.amount.toFixed(2)}
-                                </p>
-                              </div>
-                              
-                              {transfer.purpose && (
-                                <p className="text-sm text-gray-600 mb-3">"{transfer.purpose}"</p>
-                              )}
-                              
-                              <div className="flex gap-2">
-                                {acceptedTransferId === transfer.id ? (
-                                  <motion.div
-                                    initial={{ scale: 0.95 }}
-                                    animate={{ scale: [1, 1.05, 1] }}
-                                    className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium"
-                                  >
-                                    <Check className="h-5 w-5" />
-                                    Accepted! ✨
-                                  </motion.div>
-                                ) : (
-                                  <>
-                                    <motion.button
-                                      whileTap={{ scale: 0.98 }}
-                                      onClick={() => handleAccept(transfer)}
-                                      className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 rounded-xl text-white font-medium shadow-lg"
-                                    >
-                                      <Check className="h-4 w-4" />
-                                      Accept
-                                    </motion.button>
-                                    <motion.button
-                                      whileTap={{ scale: 0.98 }}
-                                      onClick={() => handleDecline(transfer)}
-                                      className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
-                                    >
-                                      <X className="h-4 w-4 text-gray-500" />
-                                    </motion.button>
-                                  </>
-                                )}
-                              </div>
-                            </motion.div>
-                          ))}
+                        
+                        {/* Right side: unread count or chevron */}
+                        <div className="flex items-center gap-2 flex-shrink-0">
+                          {convo.unreadCount > 0 && (
+                            <span className="min-w-[20px] h-5 px-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium flex items-center justify-center">
+                              {convo.unreadCount}
+                            </span>
+                          )}
+                          <ChevronRight className="h-5 w-5 text-gray-300" />
                         </div>
-                      </div>
-                    )}
-
-                    {recentTransfers.filter(t => t.status !== 'pending').length > 0 && (
-                      <div>
-                        <h2 className="font-semibold mb-3 text-gray-900">Recent Activity</h2>
-                        <div className="space-y-2">
-                          {recentTransfers.filter(t => t.status !== 'pending').map((transfer, i) => {
-                            const isIncoming = transfer.to_user_id === currentUserId;
-                            const isAccepted = transfer.status === 'accepted';
-                            
-                            return (
-                              <motion.button
-                                key={transfer.id}
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: i * 0.03 }}
-                                onClick={() => setSelectedTransfer(transfer)}
-                                className="w-full bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4 text-left hover:bg-gray-50 transition-colors"
-                              >
-                                <div className={cn(
-                                  "w-10 h-10 rounded-full flex items-center justify-center",
-                                  isAccepted ? "bg-green-100" : "bg-gray-100"
-                                )}>
-                                  <DollarSign className={cn(
-                                    "h-5 w-5",
-                                    isAccepted ? "text-green-600" : "text-gray-400"
-                                  )} />
-                                </div>
-                                <div className="flex-1 min-w-0">
-                                  <p className="font-medium truncate text-gray-900">
-                                    {isIncoming ? `From @${transfer.from_user?.username || 'user'}` : `To @${transfer.to_user?.username || 'user'}`}
-                                  </p>
-                                  <p className="text-sm text-gray-500">
-                                    {transfer.status === 'accepted' ? 'Accepted ✓' : 'Declined'} • {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
-                                  </p>
-                                </div>
-                                <p className={cn(
-                                  "font-semibold",
-                                  isIncoming && isAccepted ? "text-green-600" : "text-gray-900"
-                                )}>
-                                  {isIncoming ? '+' : '-'}${transfer.amount.toFixed(2)}
-                                </p>
-                              </motion.button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    )}
-                  </>
-                )}
+                      </motion.button>
+                    ))
+                  )}
+                </div>
               </div>
             )}
           </motion.div>
@@ -859,6 +495,191 @@ export default function OneAccordPage() {
   );
 }
 
+// Conversation Thread View - shows all messages between you and one person
+function ConversationThreadView({
+  conversation,
+  currentUserId,
+  onBack,
+  onAccept,
+  onDecline,
+  acceptedTransferId,
+}: {
+  conversation: ConversationPreview;
+  currentUserId: string | null;
+  onBack: () => void;
+  onAccept: (transfer: DemoTransfer, e?: React.MouseEvent) => void;
+  onDecline: (transfer: DemoTransfer, e?: React.MouseEvent) => void;
+  acceptedTransferId: string | null;
+}) {
+  // Sort transfers chronologically (oldest first for chat-like view)
+  const sortedTransfers = useMemo(() => {
+    return [...conversation.transfers].sort(
+      (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
+    );
+  }, [conversation.transfers]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 20 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: 20 }}
+      className="flex flex-col min-h-screen bg-gray-50"
+    >
+      {/* Header */}
+      <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
+        <div className="px-4 py-4 flex items-center gap-4">
+          <motion.button
+            whileTap={{ scale: 0.95 }}
+            onClick={onBack}
+            className="p-2 -ml-2 hover:bg-gray-100 rounded-xl"
+          >
+            <ArrowLeft className="h-5 w-5 text-gray-700" />
+          </motion.button>
+          {conversation.partnerAvatar ? (
+            <img 
+              src={conversation.partnerAvatar}
+              alt={conversation.partnerName}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+              <span className="text-white font-semibold">
+                {conversation.partnerName.charAt(0).toUpperCase()}
+              </span>
+            </div>
+          )}
+          <div>
+            <h1 className="font-semibold text-gray-900">@{conversation.partnerName}</h1>
+            <p className="text-xs text-gray-500">{conversation.transfers.length} messages</p>
+          </div>
+        </div>
+      </header>
+
+      {/* Message Thread */}
+      <div className="flex-1 overflow-y-auto px-4 py-4 pb-48 space-y-4">
+        {sortedTransfers.map((transfer) => {
+          const isIncoming = transfer.to_user_id === currentUserId;
+          const isPending = transfer.status === 'pending';
+          const isAccepted = transfer.status === 'accepted';
+          
+          // Extract GIF and message
+          const gifMatch = transfer.purpose?.match(/\[GIF\](https?:\/\/[^\s]+)/);
+          const gifUrl = gifMatch ? gifMatch[1] : null;
+          const messageText = transfer.purpose?.replace(/\[GIF\]https?:\/\/[^\s]+/g, '').trim();
+          
+          return (
+            <div
+              key={transfer.id}
+              className={cn(
+                "flex",
+                isIncoming ? "justify-start" : "justify-end"
+              )}
+            >
+              <div className={cn(
+                "max-w-[85%] rounded-2xl p-4",
+                isIncoming 
+                  ? "bg-white border border-gray-200" 
+                  : "bg-gradient-to-r from-blue-500 to-purple-600 text-white"
+              )}>
+                {/* Amount badge */}
+                <div className={cn(
+                  "inline-flex items-center gap-1 px-2 py-1 rounded-lg text-sm font-semibold mb-2",
+                  isIncoming
+                    ? "bg-blue-50 text-blue-700"
+                    : "bg-white/20 text-white"
+                )}>
+                  <DollarSign className="h-3.5 w-3.5" />
+                  {transfer.amount.toFixed(2)} USDC
+                </div>
+                
+                {/* Message text */}
+                {messageText && (
+                  <p className={cn(
+                    "text-sm",
+                    isIncoming ? "text-gray-700" : "text-white/90"
+                  )}>
+                    {messageText}
+                  </p>
+                )}
+                
+                {/* GIF */}
+                {gifUrl && (
+                  <div className="mt-2 rounded-lg overflow-hidden">
+                    <img src={gifUrl} alt="GIF" className="max-w-full h-auto" />
+                  </div>
+                )}
+                
+                {/* Status & time */}
+                <div className={cn(
+                  "flex items-center gap-2 mt-2 text-xs",
+                  isIncoming ? "text-gray-400" : "text-white/60"
+                )}>
+                  <span>{formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}</span>
+                  {isAccepted && (
+                    <span className="flex items-center gap-1">
+                      <Check className="h-3 w-3" />
+                      {isIncoming ? 'Received' : 'Sent'}
+                    </span>
+                  )}
+                  {transfer.status === 'declined' && (
+                    <span className="text-red-400">Declined</span>
+                  )}
+                </div>
+                
+                {/* Accept/Decline buttons for pending incoming */}
+                {isPending && isIncoming && (
+                  <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                    {acceptedTransferId === transfer.id ? (
+                      <motion.div
+                        initial={{ scale: 0.95 }}
+                        animate={{ scale: [1, 1.05, 1] }}
+                        className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white font-medium"
+                      >
+                        <Check className="h-5 w-5" />
+                        Accepted! ✨
+                      </motion.div>
+                    ) : (
+                      <>
+                        <motion.button
+                          whileTap={{ scale: 0.98 }}
+                          onClick={(e) => onAccept(transfer, e)}
+                          className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
+                        >
+                          <Check className="h-4 w-4" />
+                          Accept
+                        </motion.button>
+                        <motion.button
+                          whileTap={{ scale: 0.98 }}
+                          onClick={(e) => onDecline(transfer, e)}
+                          className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                        >
+                          <X className="h-4 w-4 text-gray-500" />
+                        </motion.button>
+                      </>
+                    )}
+                  </div>
+                )}
+                
+                {/* Amplify button for accepted */}
+                {isAccepted && (
+                  <div className="mt-3 pt-3 border-t border-gray-100">
+                    <AmplifyButton
+                      variant="inline"
+                      content={`${isIncoming ? 'Received' : 'Sent'} $${transfer.amount.toFixed(2)} USDC ${isIncoming ? 'from' : 'to'} @${conversation.partnerName}! 🙏\n\nTransparency in action through @Seedbase.`}
+                      impactSummary={`${isIncoming ? 'Received' : 'Sent'} $${transfer.amount.toFixed(2)} USDC`}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </motion.div>
+  );
+}
+
+// Transfer Detail View
 function TransferDetailView({ 
   transfer, 
   currentUserId,
@@ -869,8 +690,8 @@ function TransferDetailView({
   transfer: DemoTransfer; 
   currentUserId: string | null;
   onBack: () => void;
-  onAccept: () => void;
-  onDecline: () => void;
+  onAccept: (e?: React.MouseEvent) => void;
+  onDecline: (e?: React.MouseEvent) => void;
 }) {
   const isIncoming = transfer.to_user_id === currentUserId;
   const isPending = transfer.status === 'pending';
@@ -955,7 +776,7 @@ function TransferDetailView({
           <div className="mt-6 space-y-3">
             <motion.button
               whileTap={{ scale: 0.98 }}
-              onClick={onAccept}
+              onClick={(e) => onAccept(e)}
               className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 rounded-2xl text-white font-semibold flex items-center justify-center gap-2 shadow-lg"
             >
               <Check className="h-5 w-5" />
@@ -963,7 +784,7 @@ function TransferDetailView({
             </motion.button>
             <motion.button
               whileTap={{ scale: 0.98 }}
-              onClick={onDecline}
+              onClick={(e) => onDecline(e)}
               className="w-full py-4 bg-gray-100 hover:bg-gray-200 rounded-2xl font-semibold flex items-center justify-center gap-2 text-gray-700"
             >
               <X className="h-5 w-5" />
