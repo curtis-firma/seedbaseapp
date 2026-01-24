@@ -232,12 +232,12 @@ export default function OneAccordPage() {
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto px-4 py-2 pb-48">
-                {/* Pending Section */}
+                {/* Pending Section - items requiring acceptance */}
                 <div className="mb-6">
                   <div className="flex items-center gap-2 mb-3">
                     <h2 className="font-semibold text-gray-900">Pending</h2>
                     <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium">
-                      {oneAccordMessages.filter(m => !m.isRead && m.hasAcceptButton).length}
+                      {oneAccordMessages.filter(m => m.hasAcceptButton && m.status === 'pending' && !acceptedDemoIds.has(m.id)).length + pendingTransfers.length}
                     </span>
                   </div>
                   <div className="space-y-3">
@@ -363,13 +363,15 @@ export default function OneAccordPage() {
                   </div>
                 </div>
 
-                {/* All Messages */}
+                {/* All Messages - shows everything */}
                 <h2 className="font-semibold mb-3 text-gray-900">All Messages</h2>
                 <div className="space-y-2">
-                  {oneAccordMessages.filter(m => m.status !== 'pending' || !m.hasAcceptButton).map((message, i) => {
+                  {oneAccordMessages.map((message, i) => {
                     const config = messageTypeConfig[message.type] || messageTypeConfig.system;
                     const IconComponent = config.icon;
-                    const isAmplifiable = ['distribution', 'harvest'].includes(message.type) || message.status === 'accepted';
+                    const isAmplifiable = ['distribution', 'harvest'].includes(message.type) || message.status === 'accepted' || acceptedDemoIds.has(message.id);
+                    const isPendingWithAccept = message.hasAcceptButton && message.status === 'pending' && !acceptedDemoIds.has(message.id);
+                    const wasAccepted = acceptedDemoIds.has(message.id);
                     
                     return (
                       <motion.div
@@ -379,6 +381,7 @@ export default function OneAccordPage() {
                         transition={{ delay: i * 0.03 }}
                         className={cn(
                           "bg-white rounded-xl border p-4",
+                          isPendingWithAccept ? "border-blue-200 ring-1 ring-blue-100" :
                           !message.isRead ? "border-blue-200" : "border-gray-200"
                         )}
                       >
@@ -407,7 +410,12 @@ export default function OneAccordPage() {
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center gap-2 mb-1">
                               <p className="font-medium truncate text-gray-900">{message.from}</p>
-                              {message.status === 'accepted' && (
+                              {wasAccepted && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
+                                  Accepted ✓
+                                </span>
+                              )}
+                              {!wasAccepted && message.status === 'accepted' && (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-green-100 text-green-700 font-medium">
                                   Accepted ✓
                                 </span>
@@ -415,6 +423,11 @@ export default function OneAccordPage() {
                               {message.status === 'review' && (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-700 font-medium">
                                   In Review
+                                </span>
+                              )}
+                              {isPendingWithAccept && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium">
+                                  Pending
                                 </span>
                               )}
                             </div>
@@ -439,7 +452,27 @@ export default function OneAccordPage() {
                               {formatDistanceToNow(message.timestamp, { addSuffix: true })}
                             </p>
                             
-                            {isAmplifiable && (
+                            {/* Accept/Decline buttons for pending items */}
+                            {isPendingWithAccept && (
+                              <div className="flex gap-2 mt-3 pt-3 border-t border-gray-100">
+                                <motion.button
+                                  whileTap={{ scale: 0.98 }}
+                                  onClick={() => handleDemoAccept(message.id, { from: message.from, amount: message.amount, title: message.title })}
+                                  className="flex-1 flex items-center justify-center gap-2 py-2 bg-gradient-to-r from-blue-500 to-purple-600 rounded-lg text-white text-sm font-medium shadow-sm hover:shadow-md transition-shadow"
+                                >
+                                  <Check className="h-4 w-4" />
+                                  Accept
+                                </motion.button>
+                                <motion.button
+                                  whileTap={{ scale: 0.98 }}
+                                  className="px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                                >
+                                  <X className="h-4 w-4 text-gray-500" />
+                                </motion.button>
+                              </div>
+                            )}
+                            
+                            {isAmplifiable && !isPendingWithAccept && (
                               <div className="mt-3 pt-3 border-t border-gray-100">
                                 <AmplifyButton
                                   variant="inline"
@@ -452,7 +485,9 @@ export default function OneAccordPage() {
                           {message.amount && (
                             <p className={cn(
                               "font-semibold text-lg",
-                              message.status === 'accepted' ? "text-green-600" : "text-gray-900"
+                              wasAccepted || message.status === 'accepted' ? "text-green-600" : 
+                              isPendingWithAccept ? "bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent" : 
+                              "text-gray-900"
                             )}>
                               ${message.amount.toLocaleString()}
                             </p>
