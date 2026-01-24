@@ -453,72 +453,121 @@ const RoleCard = ({ role, data, isOpen, onToggle, glowVariants }: RoleCardProps)
           >
             <div className="px-4 pb-4 space-y-3 text-sm">
               {/* Who */}
-              <div>
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.25, delay: 0.1 }}
+              >
                 <span className="font-medium text-foreground">Who: </span>
                 <span className="text-muted-foreground">{data.who}</span>
-              </div>
+              </motion.div>
 
               {/* What you do */}
-              <div>
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.25, delay: 0.15 }}
+              >
                 <span className="font-medium text-foreground block mb-1">What you do:</span>
                 <ul className="space-y-1">
                   {data.whatYouDo.map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <motion.li 
+                      key={i} 
+                      className="flex items-start gap-2 text-muted-foreground"
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: 0.2 + i * 0.04 }}
+                    >
                       <Check className="w-3.5 h-3.5 text-seed flex-shrink-0 mt-0.5" />
                       <span>{item}</span>
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
-              </div>
+              </motion.div>
 
               {/* What you DON'T do (Trustees only) */}
               {'whatYouDont' in data && data.whatYouDont && (
-                <div>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.25, delay: 0.35 }}
+                >
                   <span className="font-medium text-foreground block mb-1">What you DON'T do:</span>
                   <ul className="space-y-1">
                     {data.whatYouDont.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                      <motion.li 
+                        key={i} 
+                        className="flex items-start gap-2 text-muted-foreground"
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.2, delay: 0.4 + i * 0.04 }}
+                      >
                         <X className="w-3.5 h-3.5 text-destructive flex-shrink-0 mt-0.5" />
                         <span>{item}</span>
-                      </li>
+                      </motion.li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
               )}
 
               {/* What you get */}
-              <div>
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.25, delay: 0.45 }}
+              >
                 <span className="font-medium text-foreground block mb-1">What you get:</span>
                 <ul className="space-y-1">
                   {data.whatYouGet.map((item, i) => (
-                    <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                    <motion.li 
+                      key={i} 
+                      className="flex items-start gap-2 text-muted-foreground"
+                      initial={{ opacity: 0, x: -8 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2, delay: 0.5 + i * 0.04 }}
+                    >
                       <Check className="w-3.5 h-3.5 text-primary flex-shrink-0 mt-0.5" />
                       <span>{item}</span>
-                    </li>
+                    </motion.li>
                   ))}
                 </ul>
-              </div>
+              </motion.div>
 
               {/* Requirements (Envoys only) */}
               {'requirements' in data && data.requirements && (
-                <div>
+                <motion.div
+                  initial={{ opacity: 0, x: -10 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ duration: 0.25, delay: 0.6 }}
+                >
                   <span className="font-medium text-foreground block mb-1">Requirements:</span>
                   <ul className="space-y-1">
                     {data.requirements.map((item, i) => (
-                      <li key={i} className="flex items-start gap-2 text-muted-foreground">
+                      <motion.li 
+                        key={i} 
+                        className="flex items-start gap-2 text-muted-foreground"
+                        initial={{ opacity: 0, x: -8 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.2, delay: 0.65 + i * 0.04 }}
+                      >
                         <span className="w-3.5 h-3.5 flex-shrink-0 mt-0.5 text-center text-xs">•</span>
                         <span>{item}</span>
-                      </li>
+                      </motion.li>
                     ))}
                   </ul>
-                </div>
+                </motion.div>
               )}
 
               {/* Perfect for */}
-              <div className="pt-1 border-t border-border/50">
+              <motion.div 
+                className="pt-1 border-t border-border/50"
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: 0.7 }}
+              >
                 <span className="font-medium text-foreground">Perfect for: </span>
                 <span className="text-muted-foreground">{data.perfectFor}</span>
-              </div>
+              </motion.div>
             </div>
           </motion.div>
         )}
