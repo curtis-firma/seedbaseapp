@@ -39,7 +39,7 @@ const formatDuration = (seconds: number): string => {
 const CANCEL_THRESHOLD = -100;
 
 export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineComposeBarProps) {
-  const { avatarUrl: currentUserAvatar } = useUser();
+  const { avatarUrl: currentUserAvatar, username: currentUsername } = useUser();
   // If a preselected user is provided, jump straight to compose mode
   const [mode, setMode] = useState<'idle' | 'user-select' | 'compose'>(preselectedUser ? 'compose' : 'idle');
   
@@ -65,6 +65,9 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
   const [keyboardHeight, setKeyboardHeight] = useState(0);
   const [dragStartX, setDragStartX] = useState<number | null>(null);
   const [dragOffset, setDragOffset] = useState(0);
+  
+  // Typing indicator handlers from ChatBubbles
+  const typingHandlersRef = useRef<{ onKeystroke: () => void; stopTyping: () => void } | null>(null);
   
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const audioPreviewRef = useRef<HTMLAudioElement | null>(null);
@@ -308,6 +311,9 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
       
       // Refresh chat bubbles immediately
       chatBubblesRef.current?.refresh();
+      
+      // Stop typing indicator
+      typingHandlersRef.current?.stopTyping();
       
       // Reset form but stay in compose mode with same user
       setMessage('');
@@ -575,8 +581,12 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
           ref={chatBubblesRef}
           currentUserId={currentUserId}
           currentUserAvatar={currentUserAvatar}
+          currentUsername={currentUsername}
           selectedUser={selectedUser}
           className="h-full"
+          onTypingChange={(onKeystroke, stopTyping) => {
+            typingHandlersRef.current = { onKeystroke, stopTyping };
+          }}
         />
       </div>
 
@@ -877,7 +887,11 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
               <textarea
                 ref={textareaRef}
                 value={message}
-                onChange={(e) => setMessage(e.target.value)}
+                onChange={(e) => {
+                  setMessage(e.target.value);
+                  // Trigger typing indicator on keystroke
+                  typingHandlersRef.current?.onKeystroke();
+                }}
                 onFocus={() => {
                   setIsFocused(true);
                   setShowExtras(false);
@@ -885,6 +899,8 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
                 onBlur={() => {
                   // Delay to allow button clicks
                   setTimeout(() => setIsFocused(false), 100);
+                  // Stop typing indicator when unfocused
+                  typingHandlersRef.current?.stopTyping();
                 }}
                 placeholder="Message..."
                 rows={1}
