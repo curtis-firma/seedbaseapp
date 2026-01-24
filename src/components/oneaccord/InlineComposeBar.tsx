@@ -14,6 +14,8 @@ import { useUser } from '@/contexts/UserContext';
 
 interface InlineComposeBarProps {
   onSuccess?: () => void;
+  preselectedUser?: DemoUser | null;
+  onBack?: () => void;
 }
 
 const PRESET_AMOUNTS = [10, 25, 50, 100];
@@ -36,14 +38,15 @@ const formatDuration = (seconds: number): string => {
 // Slide to cancel threshold
 const CANCEL_THRESHOLD = -100;
 
-export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
+export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineComposeBarProps) {
   const { avatarUrl: currentUserAvatar } = useUser();
-  const [mode, setMode] = useState<'idle' | 'user-select' | 'compose'>('idle');
+  // If a preselected user is provided, jump straight to compose mode
+  const [mode, setMode] = useState<'idle' | 'user-select' | 'compose'>(preselectedUser ? 'compose' : 'idle');
   
   const [message, setMessage] = useState('');
   const [attachUsdc, setAttachUsdc] = useState(false);
   const [amount, setAmount] = useState(25);
-  const [selectedUser, setSelectedUser] = useState<DemoUser | null>(null);
+  const [selectedUser, setSelectedUser] = useState<DemoUser | null>(preselectedUser || null);
   const [searchQuery, setSearchQuery] = useState('');
   const [availableUsers, setAvailableUsers] = useState<DemoUser[]>([]);
   const [currentBalance, setCurrentBalance] = useState(0);
@@ -185,6 +188,11 @@ export function InlineComposeBar({ onSuccess }: InlineComposeBarProps) {
   };
 
   const handleCancel = () => {
+    // If we have an onBack callback (thread mode), use it instead of resetting to idle
+    if (onBack) {
+      onBack();
+      return;
+    }
     setMode('idle');
     setSelectedUser(null);
     setSearchQuery('');
