@@ -6,6 +6,7 @@ import { cn } from '@/lib/utils';
 import { getConversationHistory, acceptTransfer, declineTransfer, type DemoTransfer } from '@/lib/supabase/transfersApi';
 import { type DemoUser } from '@/lib/supabase/demoApi';
 import { useRealtimeConversation } from '@/hooks/useRealtimeConversation';
+import { useTypingIndicator, getConversationId } from '@/hooks/useTypingIndicator';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { toast } from 'sonner';
 import { Confetti } from '@/components/shared/Confetti';
@@ -15,8 +16,10 @@ const SWIPE_THRESHOLD = 100; // pixels to trigger accept
 interface ChatBubblesProps {
   currentUserId: string | null;
   currentUserAvatar?: string | null;
+  currentUsername?: string | null;
   selectedUser: DemoUser | null;
   className?: string;
+  onTypingChange?: (onKeystroke: () => void, stopTyping: () => void) => void;
 }
 
 // Helper to extract GIF URL from message
@@ -37,7 +40,7 @@ export interface ChatBubblesRef {
 }
 
 export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
-  ({ currentUserId, currentUserAvatar, selectedUser, className }, ref) => {
+  ({ currentUserId, currentUserAvatar, currentUsername, selectedUser, className, onTypingChange }, ref) => {
     const [messages, setMessages] = useState<DemoTransfer[]>([]);
     const [isLoading, setIsLoading] = useState(false);
     const [showConfetti, setShowConfetti] = useState(false);
@@ -45,6 +48,21 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
     const [swipingId, setSwipingId] = useState<string | null>(null);
     const [swipeProgress, setSwipeProgress] = useState(0);
     const scrollRef = useRef<HTMLDivElement>(null);
+
+    // Typing indicator
+    const conversationId = getConversationId(currentUserId, selectedUser?.id || null);
+    const { typingUsers, onKeystroke, stopTyping } = useTypingIndicator({
+      conversationId,
+      currentUserId,
+      currentUsername: currentUsername || null,
+    });
+
+    // Pass typing handlers to parent
+    useEffect(() => {
+      if (onTypingChange) {
+        onTypingChange(onKeystroke, stopTyping);
+      }
+    }, [onTypingChange, onKeystroke, stopTyping]);
 
     const loadConversation = useCallback(async () => {
       if (!currentUserId || !selectedUser?.id) return;
@@ -73,12 +91,12 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
       }
     }, [currentUserId, selectedUser?.id, loadConversation]);
 
-    // Auto-scroll to bottom when messages change
+    // Auto-scroll to bottom when messages or typing users change
     useEffect(() => {
       if (scrollRef.current) {
         scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
       }
-    }, [messages]);
+    }, [messages, typingUsers]);
 
     // Real-time conversation updates
     useRealtimeConversation({
@@ -431,6 +449,52 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                 </div>
               );
             })}
+
+            {/* Typing Indicator */}
+            {typingUsers.length > 0 && (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 10 }}
+                className="flex items-start gap-2 justify-start"
+              >
+                {/* Partner avatar */}
+                {selectedUser?.avatar_url ? (
+                  <img 
+                    src={selectedUser.avatar_url}
+                    alt={selectedUser.display_name || selectedUser.username}
+                    className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full flex-shrink-0 bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                    <span className="text-xs font-semibold text-white">
+                      {selectedUser?.username?.[0]?.toUpperCase() || '?'}
+                    </span>
+                  </div>
+                )}
+                
+                {/* Typing bubble */}
+                <div className="bg-white/10 rounded-2xl rounded-bl-md px-4 py-3">
+                  <div className="flex items-center gap-1.5">
+                    <motion.div
+                      className="w-2 h-2 bg-gray-400 rounded-full"
+                      animate={{ opacity: [0.4, 1, 0.4] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: 0 }}
+                    />
+                    <motion.div
+                      className="w-2 h-2 bg-gray-400 rounded-full"
+                      animate={{ opacity: [0.4, 1, 0.4] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: 0.2 }}
+                    />
+                    <motion.div
+                      className="w-2 h-2 bg-gray-400 rounded-full"
+                      animate={{ opacity: [0.4, 1, 0.4] }}
+                      transition={{ duration: 1, repeat: Infinity, delay: 0.4 }}
+                    />
+                  </div>
+                </div>
+              </motion.div>
+            )}
           </AnimatePresence>
         )}
         </div>
