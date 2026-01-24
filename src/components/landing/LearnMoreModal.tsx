@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, Variants, AnimatePresence, PanInfo } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ExternalLink, ChevronDown, Loader2, Rocket, Check, X } from "lucide-react";
+import { ChevronDown, Loader2, Rocket, Check, X, ArrowLeft } from "lucide-react";
 
 interface LearnMoreModalProps {
   open: boolean;
@@ -102,6 +102,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
   const [showAffiliate, setShowAffiliate] = useState(false);
   const [openRole, setOpenRole] = useState<RoleType>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [showLightPaper, setShowLightPaper] = useState(false);
 
   const handleGetStarted = () => {
     setIsLoading(true);
@@ -114,7 +115,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
   };
 
   const handleReadLightPaper = () => {
-    window.open("/SB_LightPaper.html", "_blank");
+    setShowLightPaper(true);
   };
 
   const toggleRole = (role: RoleType) => {
@@ -174,25 +175,67 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
           paddingBottom: 'env(safe-area-inset-bottom)',
         }}
       >
-        <motion.div
-          drag="y"
-          dragConstraints={{ top: 0, bottom: 0 }}
-          dragElastic={{ top: 0, bottom: 0.3 }}
-          onDragEnd={handleDragEnd}
-          className="h-full sm:h-auto overflow-y-auto overflow-x-hidden p-5 sm:p-6 w-full"
-        >
-          {/* Mobile Header with Close Button */}
-          <div className="flex items-center justify-between -mt-2 mb-3 sm:hidden">
-            <div className="w-8" /> {/* Spacer for centering */}
-            <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
-            <button
-              onClick={() => onOpenChange(false)}
-              className="w-8 h-8 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted transition-colors"
-              aria-label="Close modal"
+        <AnimatePresence mode="wait">
+          {showLightPaper ? (
+            <motion.div
+              key="lightpaper"
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="h-full flex flex-col"
             >
-              <X className="w-4 h-4 text-muted-foreground" />
-            </button>
-          </div>
+              {/* Light Paper Header */}
+              <div className="flex items-center gap-3 p-4 border-b border-border flex-shrink-0">
+                <button
+                  onClick={() => setShowLightPaper(false)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted transition-colors"
+                  aria-label="Back to overview"
+                >
+                  <ArrowLeft className="w-4 h-4 text-muted-foreground" />
+                </button>
+                <span className="text-sm font-medium text-foreground">Light Paper</span>
+                <div className="flex-1" />
+                <button
+                  onClick={() => onOpenChange(false)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted transition-colors"
+                  aria-label="Close modal"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
+              {/* Light Paper Content */}
+              <iframe
+                src="/SB_LightPaper.html"
+                className="flex-1 w-full border-0"
+                title="Seedbase Light Paper"
+              />
+            </motion.div>
+          ) : (
+            <motion.div
+              key="overview"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.2 }}
+              drag="y"
+              dragConstraints={{ top: 0, bottom: 0 }}
+              dragElastic={{ top: 0, bottom: 0.3 }}
+              onDragEnd={handleDragEnd}
+              className="h-full sm:h-auto overflow-y-auto overflow-x-hidden p-5 sm:p-6 w-full"
+            >
+              {/* Mobile Header with Close Button */}
+              <div className="flex items-center justify-between -mt-2 mb-3 sm:hidden">
+                <div className="w-8" /> {/* Spacer for centering */}
+                <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+                <button
+                  onClick={() => onOpenChange(false)}
+                  className="w-8 h-8 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted transition-colors"
+                  aria-label="Close modal"
+                >
+                  <X className="w-4 h-4 text-muted-foreground" />
+                </button>
+              </div>
           
           <motion.div
             variants={containerVariants}
@@ -410,11 +453,12 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
             >
               <span className="hidden sm:inline">Read Light Paper</span>
               <span className="sm:hidden">Light Paper</span>
-              <ExternalLink className="w-4 h-4" />
             </Button>
           </motion.div>
         </motion.div>
-        </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </DialogContent>
     </Dialog>
   );
