@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowLeft, Send, Check, X, DollarSign, RefreshCw, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Send, Check, X, DollarSign, RefreshCw, ChevronRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { formatDistanceToNow } from 'date-fns';
 import { cn } from '@/lib/utils';
@@ -21,6 +21,23 @@ import { Confetti } from '@/components/shared/Confetti';
 import { triggerHaptic } from '@/hooks/useHaptic';
 import { AmplifyPromptModal } from '@/components/social/AmplifyPromptModal';
 import { AmplifyButton } from '@/components/social/AmplifyButton';
+import { oneAccordMessages } from '@/data/mockData';
+
+// Type for demo narrative messages from mock data
+interface DemoMessage {
+  id: string;
+  type: string;
+  from: string;
+  fromRole: string;
+  avatar: string;
+  title: string;
+  body: string;
+  amount?: number;
+  status: string;
+  hasAcceptButton: boolean;
+  timestamp: Date;
+  isRead: boolean;
+}
 
 // Conversation preview for inbox-style grouping
 interface ConversationPreview {
@@ -35,6 +52,8 @@ interface ConversationPreview {
   hasPendingTransfer: boolean;
   pendingAmount?: number;
   transfers: DemoTransfer[];
+  isDemo?: boolean;
+  demoMessage?: DemoMessage;
 }
 
 export default function OneAccordPage() {
@@ -107,12 +126,26 @@ export default function OneAccordPage() {
     },
   });
 
+  // Get demo messages as typed array
+  const demoMessages = useMemo<DemoMessage[]>(() => {
+    return oneAccordMessages.map(msg => ({
+      ...msg,
+      timestamp: msg.timestamp instanceof Date ? msg.timestamp : new Date(msg.timestamp),
+    })) as DemoMessage[];
+  }, []);
+
+  // Demo pending messages (narrative content with accept buttons)
+  const demoPending = useMemo(() => {
+    return demoMessages.filter(m => m.hasAcceptButton && m.status === 'pending');
+  }, [demoMessages]);
+
   // Group transfers by conversation partner (inbox style)
   const conversations = useMemo(() => {
     if (!currentUserId) return [];
     
     const conversationMap = new Map<string, ConversationPreview>();
     
+    // Add real transfers first
     recentTransfers.forEach(transfer => {
       const isIncoming = transfer.to_user_id === currentUserId;
       const partnerId = isIncoming ? transfer.from_user_id : transfer.to_user_id;
@@ -164,11 +197,34 @@ export default function OneAccordPage() {
         }
       }
     });
+
+    // Add demo narrative threads (not pending ones - those go in Pending section)
+    demoMessages
+      .filter(msg => !msg.hasAcceptButton || msg.status !== 'pending')
+      .forEach(msg => {
+        const demoId = `demo-${msg.id}`;
+        if (!conversationMap.has(demoId)) {
+          conversationMap.set(demoId, {
+            id: demoId,
+            partnerId: demoId,
+            partnerName: msg.from,
+            partnerAvatar: msg.avatar.startsWith('http') ? msg.avatar : null,
+            lastMessage: msg.title,
+            lastMessageTime: msg.timestamp,
+            lastAmount: msg.amount || 0,
+            unreadCount: msg.isRead ? 0 : 1,
+            hasPendingTransfer: false,
+            transfers: [],
+            isDemo: true,
+            demoMessage: msg,
+          });
+        }
+      });
     
     // Sort by most recent
     return Array.from(conversationMap.values())
       .sort((a, b) => b.lastMessageTime.getTime() - a.lastMessageTime.getTime());
-  }, [recentTransfers, currentUserId]);
+  }, [recentTransfers, currentUserId, demoMessages]);
 
   const handleAccept = async (transfer: DemoTransfer, e?: React.MouseEvent) => {
     // Prevent event bubbling to parent elements
@@ -300,16 +356,17 @@ export default function OneAccordPage() {
               </div>
             ) : (
               <div className="flex-1 overflow-y-auto px-4 py-2 pb-48">
-                {/* Pending Section - Individual items requiring action */}
-                {pendingTransfers.length > 0 && (
+                {/* Pending Section - Real + Demo items requiring action */}
+                {(pendingTransfers.length > 0 || demoPending.length > 0) && (
                   <div className="mb-6">
                     <div className="flex items-center gap-2 mb-3">
                       <h2 className="font-semibold text-gray-900">Pending</h2>
                       <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium">
-                        {pendingTransfers.length}
+                        {pendingTransfers.length + demoPending.length}
                       </span>
                     </div>
                     <div className="space-y-3">
+                      {/* Real pending transfers */}
                       {pendingTransfers.map((transfer, i) => (
                         <motion.div
                           key={transfer.id}
@@ -390,6 +447,57 @@ export default function OneAccordPage() {
                           </div>
                         </motion.div>
                       ))}
+
+                      {/* Demo pending messages with distinct styling */}
+                      {demoPending.map((msg, i) => (
+                        <motion.div
+                          key={msg.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ delay: (pendingTransfers.length + i) * 0.05 }}
+                          className="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 rounded-2xl border border-blue-200/50 p-4 shadow-sm"
+                        >
+                          <div className="flex items-center gap-3 mb-3">
+                            {msg.avatar.startsWith('http') ? (
+                              <img 
+                                src={msg.avatar}
+                                alt={msg.from}
+                                className="w-10 h-10 rounded-full object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 rounded-full bg-white/80 shadow-sm flex items-center justify-center text-xl">
+                                {msg.avatar}
+                              </div>
+                            )}
+                            <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <p className="font-semibold text-gray-900">{msg.from}</p>
+                                <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium flex items-center gap-0.5">
+                                  <Sparkles className="h-2.5 w-2.5" />
+                                  Demo
+                                </span>
+                              </div>
+                              <p className="text-xs text-gray-500">
+                                {formatDistanceToNow(msg.timestamp, { addSuffix: true })}
+                              </p>
+                            </div>
+                            {msg.amount && (
+                              <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                ${msg.amount.toLocaleString()}
+                              </p>
+                            )}
+                          </div>
+                          
+                          <p className="font-medium text-gray-800 mb-1">{msg.title}</p>
+                          <p className="text-sm text-gray-600 whitespace-pre-line">{msg.body}</p>
+                          
+                          <div className="mt-3 pt-3 border-t border-blue-200/30">
+                            <p className="text-xs text-gray-500 text-center">
+                              This is example content to show how distributions appear
+                            </p>
+                          </div>
+                        </motion.div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -409,16 +517,37 @@ export default function OneAccordPage() {
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: i * 0.03 }}
-                        onClick={() => setSelectedConversation(convo)}
+                        onClick={() => {
+                          if (!convo.isDemo) {
+                            setSelectedConversation(convo);
+                          } else {
+                            // Demo messages just show a toast for now
+                            toast.info('This is demo content showing how messages appear');
+                          }
+                        }}
                         className={cn(
-                          "w-full bg-white rounded-xl border p-4 flex items-center gap-3 text-left transition-colors",
-                          convo.hasPendingTransfer 
-                            ? "border-blue-200 ring-1 ring-blue-100 hover:bg-blue-50" 
-                            : "border-gray-200 hover:bg-gray-50"
+                          "w-full rounded-xl border p-4 flex items-center gap-3 text-left transition-colors",
+                          convo.isDemo 
+                            ? "bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-blue-100 hover:from-blue-50 hover:to-purple-50"
+                            : convo.hasPendingTransfer 
+                              ? "bg-white border-blue-200 ring-1 ring-blue-100 hover:bg-blue-50" 
+                              : "bg-white border-gray-200 hover:bg-gray-50"
                         )}
                       >
                         {/* Avatar */}
-                        {convo.partnerAvatar ? (
+                        {convo.isDemo && convo.demoMessage ? (
+                          convo.demoMessage.avatar.startsWith('http') ? (
+                            <img 
+                              src={convo.demoMessage.avatar}
+                              alt={convo.partnerName}
+                              className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-2xl">
+                              {convo.demoMessage.avatar}
+                            </div>
+                          )
+                        ) : convo.partnerAvatar ? (
                           <img 
                             src={convo.partnerAvatar}
                             alt={convo.partnerName}
@@ -439,9 +568,15 @@ export default function OneAccordPage() {
                               "font-semibold truncate",
                               convo.unreadCount > 0 ? "text-gray-900" : "text-gray-700"
                             )}>
-                              @{convo.partnerName}
+                              {convo.isDemo ? convo.partnerName : `@${convo.partnerName}`}
                             </p>
-                            {convo.hasPendingTransfer && (
+                            {convo.isDemo && (
+                              <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium flex items-center gap-0.5 flex-shrink-0">
+                                <Sparkles className="h-2.5 w-2.5" />
+                                Demo
+                              </span>
+                            )}
+                            {convo.hasPendingTransfer && !convo.isDemo && (
                               <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium flex-shrink-0">
                                 Pending
                               </span>
@@ -460,7 +595,7 @@ export default function OneAccordPage() {
                         
                         {/* Right side: unread count or chevron */}
                         <div className="flex items-center gap-2 flex-shrink-0">
-                          {convo.unreadCount > 0 && (
+                          {convo.unreadCount > 0 && !convo.isDemo && (
                             <span className="min-w-[20px] h-5 px-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium flex items-center justify-center">
                               {convo.unreadCount}
                             </span>
