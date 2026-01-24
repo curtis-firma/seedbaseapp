@@ -169,6 +169,10 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         className="fixed inset-0 left-0 top-0 translate-x-0 translate-y-0 max-w-none w-full h-full overflow-hidden p-0 rounded-none border-0 bg-background shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-[600px] sm:w-[calc(100%-2rem)] sm:h-auto sm:max-h-[85vh] sm:rounded-2xl"
+        style={{
+          paddingTop: 'env(safe-area-inset-top)',
+          paddingBottom: 'env(safe-area-inset-bottom)',
+        }}
       >
         <motion.div
           drag="y"
@@ -177,9 +181,17 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
           onDragEnd={handleDragEnd}
           className="h-full sm:h-auto overflow-y-auto overflow-x-hidden p-5 sm:p-6 w-full"
         >
-          {/* Drag Handle */}
-          <div className="flex justify-center -mt-2 mb-3 sm:hidden">
+          {/* Mobile Header with Close Button */}
+          <div className="flex items-center justify-between -mt-2 mb-3 sm:hidden">
+            <div className="w-8" /> {/* Spacer for centering */}
             <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
+            <button
+              onClick={() => onOpenChange(false)}
+              className="w-8 h-8 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted transition-colors"
+              aria-label="Close modal"
+            >
+              <X className="w-4 h-4 text-muted-foreground" />
+            </button>
           </div>
           
           <motion.div
