@@ -103,6 +103,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
   const [openRole, setOpenRole] = useState<RoleType>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showLightPaper, setShowLightPaper] = useState(false);
+  const [iframeLoading, setIframeLoading] = useState(true);
 
   const handleGetStarted = () => {
     setIsLoading(true);
@@ -169,6 +170,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
+        hideCloseButton
         className="fixed inset-0 left-0 top-0 translate-x-0 translate-y-0 max-w-none w-full h-full overflow-hidden p-0 rounded-none border-0 bg-background shadow-2xl sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 sm:max-w-[600px] sm:w-[calc(100%-2rem)] sm:h-auto sm:max-h-[85vh] sm:rounded-2xl"
         style={{
           paddingTop: 'env(safe-area-inset-top)',
@@ -188,7 +190,10 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
               {/* Light Paper Header */}
               <div className="flex items-center gap-3 p-4 border-b border-border flex-shrink-0">
                 <button
-                  onClick={() => setShowLightPaper(false)}
+                  onClick={() => {
+                    setShowLightPaper(false);
+                    setIframeLoading(true);
+                  }}
                   className="w-8 h-8 flex items-center justify-center rounded-full bg-muted/50 hover:bg-muted transition-colors"
                   aria-label="Back to overview"
                 >
@@ -205,11 +210,26 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
                 </button>
               </div>
               {/* Light Paper Content */}
-              <iframe
-                src="/SB_LightPaper.html"
-                className="flex-1 w-full border-0"
-                title="Seedbase Light Paper"
-              />
+              <div className="relative flex-1">
+                {iframeLoading && (
+                  <div className="absolute inset-0 p-6 space-y-4 bg-background">
+                    <div className="h-16 bg-muted rounded-xl shimmer" />
+                    <div className="h-4 bg-muted rounded w-3/4 shimmer" />
+                    <div className="h-4 bg-muted rounded w-full shimmer" />
+                    <div className="h-4 bg-muted rounded w-5/6 shimmer" />
+                    <div className="h-32 bg-muted rounded-xl shimmer" />
+                    <div className="h-4 bg-muted rounded w-2/3 shimmer" />
+                    <div className="h-4 bg-muted rounded w-full shimmer" />
+                    <div className="h-24 bg-muted rounded-xl shimmer" />
+                  </div>
+                )}
+                <iframe
+                  src="/SB_LightPaper.html"
+                  className={`w-full h-full border-0 transition-opacity duration-300 ${iframeLoading ? 'opacity-0' : 'opacity-100'}`}
+                  title="Seedbase Light Paper"
+                  onLoad={() => setIframeLoading(false)}
+                />
+              </div>
             </motion.div>
           ) : (
             <motion.div
