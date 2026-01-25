@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import seedSquareNode from '@/assets/seed-square-node.png';
 
@@ -40,9 +41,9 @@ const BARS = [
  * Animated bar chart made of blue square seed icons stacking up.
  * Used in BrandMomentState (growth visual).
  */
-const GrowingSquares = () => {
+const GrowingSquares = forwardRef<HTMLDivElement>(function GrowingSquares(_props, ref) {
   return (
-    <div className="flex items-end justify-center gap-[0.5%] w-full px-[2%] pb-0">
+    <div ref={ref} className="flex items-end justify-center gap-[0.5%] w-full px-[2%] pb-0">
       {BARS.map((bar, index) => {
         const animationDuration = bar.delay * 0.4 + bar.height * 0.08;
 
@@ -88,6 +89,6 @@ const GrowingSquares = () => {
       })}
     </div>
   );
-};
+});
 
 export default GrowingSquares;

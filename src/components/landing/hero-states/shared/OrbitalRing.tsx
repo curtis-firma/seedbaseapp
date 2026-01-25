@@ -1,3 +1,4 @@
+import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 import seedBlue from '@/assets/seed-icon-blue.png';
 
@@ -14,17 +15,21 @@ export type OrbitalRingProps = {
  * Spinning orbital ring with seed icons positioned along the circumference.
  * Used in BrandMomentState (white bg, blue seeds).
  */
-const OrbitalRing = ({
-  radius,
-  duration,
-  reverse = false,
-  seedCount = 4,
-  opacity = 0.15,
-}: OrbitalRingProps) => {
+const OrbitalRing = forwardRef<HTMLDivElement, OrbitalRingProps>(function OrbitalRing(
+  {
+    radius,
+    duration,
+    reverse = false,
+    seedCount = 4,
+    opacity = 0.15,
+  },
+  ref
+) {
   const angles = Array.from({ length: seedCount }, (_, i) => (360 / seedCount) * i);
 
   return (
     <motion.div
+      ref={ref}
       className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2"
       style={{ width: radius, height: radius }}
       animate={{ rotate: reverse ? -360 : 360 }}
@@ -72,6 +77,6 @@ const OrbitalRing = ({
       })}
     </motion.div>
   );
-};
+});
 
 export default OrbitalRing;
