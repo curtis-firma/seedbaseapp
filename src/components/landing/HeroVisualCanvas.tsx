@@ -50,7 +50,6 @@ const VideoLoadingPlaceholder = () => (
 const HeroVisualCanvas = () => {
   const [activeState, setActiveState] = useState(0);
   const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
-  const [loadedStates, setLoadedStates] = useState<Set<number>>(new Set([0])); // Start with first state loaded
   const timeoutRef = useRef<number | null>(null);
 
   // Detect reduced motion preference
@@ -69,12 +68,7 @@ const HeroVisualCanvas = () => {
       window.clearTimeout(timeoutRef.current);
       timeoutRef.current = null;
     }
-    setActiveState((prev) => {
-      const next = (prev + 1) % STATES.length;
-      // Preload next state
-      setLoadedStates(loaded => new Set([...loaded, next, (next + 1) % STATES.length]));
-      return next;
-    });
+    setActiveState((prev) => (prev + 1) % STATES.length);
   }, []);
 
   // Handle video ended - advance immediately
@@ -99,13 +93,14 @@ const HeroVisualCanvas = () => {
     };
   }, [prefersReducedMotion, activeState, advanceState]);
 
-  // Preload next few states after initial render
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoadedStates(new Set([0, 1, 2]));
-    }, 2000);
-    return () => clearTimeout(timer);
-  }, []);
+  // Calculate which states to mount (sliding window: prev, current, next)
+  const getStatesWindow = useCallback(() => {
+    const prev = (activeState - 1 + STATES.length) % STATES.length;
+    const next = (activeState + 1) % STATES.length;
+    return new Set([prev, activeState, next]);
+  }, [activeState]);
+
+  const mountedStates = getStatesWindow();
 
   // Reduced motion fallback
   if (prefersReducedMotion) {
@@ -124,14 +119,14 @@ const HeroVisualCanvas = () => {
 
   return (
     <div className="relative w-full h-[200px] md:h-[340px] lg:h-[420px] rounded-[20px] md:rounded-[32px] lg:rounded-[48px] overflow-hidden bg-white">
-      {/* Keep ALL states mounted - quick opacity toggle for instant switching */}
+      {/* Only mount sliding window of states (prev, active, next) for memory efficiency */}
       {STATES.map((state, index) => {
         const isActive = index === activeState;
         const isVideo = VIDEO_STATE_IDS.has(state.id);
         const StateComponent = state.Component as VideoStateComponent;
-        const shouldRender = loadedStates.has(index) || isActive;
-
-        if (!shouldRender) return null;
+        
+        // Only mount states in the sliding window
+        if (!mountedStates.has(index)) return null;
 
         const content = (
           <StateComponent active={isActive} onEnded={isVideo ? handleVideoEnded : undefined} />

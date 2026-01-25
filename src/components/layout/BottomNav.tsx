@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, memo } from 'react';
 import { motion } from 'framer-motion';
 import { Home, Layers, User, MessageCircle } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -14,14 +14,14 @@ const navItems = [
   { icon: User, label: 'User', path: '/app/wallet' },
 ];
 
-export function BottomNav() {
+export const BottomNav = memo(function BottomNav() {
   const location = useLocation();
   const navigate = useNavigate();
   const haptic = useHaptic();
   const [pendingCount, setPendingCount] = useState(0);
 
-  // Get current user ID
-  const getCurrentUserId = (): string | null => {
+  // Get current user ID - memoized
+  const currentUserId = (() => {
     const sessionData = localStorage.getItem('seedbase-session');
     if (sessionData) {
       try {
@@ -30,40 +30,44 @@ export function BottomNav() {
       } catch {}
     }
     return null;
-  };
-
-  const currentUserId = getCurrentUserId();
+  })();
 
   // Load pending transfers count
   useEffect(() => {
+    if (!currentUserId) return;
+    
+    let isMounted = true;
     const loadPendingCount = async () => {
-      if (!currentUserId) return;
       try {
         const pending = await getPendingTransfers(currentUserId);
-        setPendingCount(pending.length);
+        if (isMounted) setPendingCount(pending.length);
       } catch (err) {
         console.error('Error loading pending count:', err);
       }
     };
     loadPendingCount();
+    
+    return () => { isMounted = false; };
   }, [currentUserId]);
 
-  // Real-time updates for pending transfers
+  // Real-time updates for pending transfers - debounced callback
+  const handleRealtimeChange = useCallback(async () => {
+    if (!currentUserId) return;
+    try {
+      const pending = await getPendingTransfers(currentUserId);
+      setPendingCount(pending.length);
+    } catch {}
+  }, [currentUserId]);
+
   useRealtimeTransfers({
     userId: currentUserId,
-    onAnyChange: async () => {
-      if (!currentUserId) return;
-      try {
-        const pending = await getPendingTransfers(currentUserId);
-        setPendingCount(pending.length);
-      } catch {}
-    },
+    onAnyChange: handleRealtimeChange,
   });
 
-  const handleNavClick = (path: string) => {
+  const handleNavClick = useCallback((path: string) => {
     haptic.selection();
     navigate(path);
-  };
+  }, [haptic, navigate]);
 
   // Get active index for indicator positioning
   const getActiveIndex = (): number => {
@@ -86,17 +90,17 @@ export function BottomNav() {
     >
       <div className="bg-card/95 backdrop-blur-xl border-t border-border/50 px-4 pb-safe-bottom">
         <div className="relative flex items-center justify-around py-2">
-          {/* Sliding indicator with glow */}
+          {/* Sliding indicator - simplified spring */}
           <motion.div
             className="absolute inset-y-1 bg-primary/10 rounded-2xl"
             style={{
               width: `${100 / 4}%`,
-              boxShadow: '0 0 20px hsl(var(--primary) / 0.25)',
+              boxShadow: '0 0 16px hsl(var(--primary) / 0.2)',
             }}
             animate={{
               left: `${activeIndex * (100 / 4)}%`,
             }}
-            transition={{ type: 'spring', stiffness: 400, damping: 40 }}
+            transition={{ type: 'spring', stiffness: 500, damping: 40 }}
           />
           
           {navItems.map((item, index) => {
@@ -111,33 +115,23 @@ export function BottomNav() {
                 className="relative z-10 flex flex-col items-center gap-1 px-4 py-2"
                 whileTap={{ scale: 0.92 }}
               >
-                <motion.div
-                  whileTap={{ 
-                    scale: [1, 0.85, 1.1, 1],
-                    transition: { duration: 0.3, times: [0, 0.2, 0.5, 1] }
-                  }}
-                  className="relative"
-                >
+                <div className="relative">
                   <Icon
                     className={cn(
-                      "h-6 w-6 transition-colors duration-150",
+                      "h-6 w-6 transition-colors duration-100",
                       isActive ? "text-primary" : "text-muted-foreground"
                     )}
                   />
                   {/* Pending transfers badge for Messages */}
                   {item.path === '/app/oneaccord' && pendingCount > 0 && (
-                    <motion.span
-                      initial={{ scale: 0 }}
-                      animate={{ scale: 1 }}
-                      className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-gradient-to-r from-blue-500 to-purple-600 text-white text-[10px] font-bold rounded-full shadow-lg"
-                    >
+                    <span className="absolute -top-1.5 -right-1.5 min-w-[18px] h-[18px] px-1 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full">
                       {pendingCount > 9 ? '9+' : pendingCount}
-                    </motion.span>
+                    </span>
                   )}
-                </motion.div>
+                </div>
                 <span
                   className={cn(
-                    "text-xs transition-all duration-150",
+                    "text-xs transition-colors duration-100",
                     isActive ? "text-primary font-semibold" : "text-muted-foreground font-medium"
                   )}
                 >
@@ -150,4 +144,4 @@ export function BottomNav() {
       </div>
     </motion.nav>
   );
-}
+});

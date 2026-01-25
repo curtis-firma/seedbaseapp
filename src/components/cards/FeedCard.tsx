@@ -1,24 +1,19 @@
 import { Heart, MessageCircle, Share2, Users, Clock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 const FeedCard = () => {
   const [progress, setProgress] = useState(0);
-  const [isShimmering, setIsShimmering] = useState(true);
+  const hasAnimated = useRef(false);
 
-  // Animate progress bar
+  // One-time progress animation on mount
   useEffect(() => {
+    if (hasAnimated.current) return;
+    hasAnimated.current = true;
+    
     const timer = setTimeout(() => {
       setProgress(88);
     }, 500);
     return () => clearTimeout(timer);
-  }, []);
-
-  // Shimmer effect on image
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setIsShimmering(prev => !prev);
-    }, 3000);
-    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -32,24 +27,20 @@ const FeedCard = () => {
           <p className="font-semibold text-gray-900 text-sm">Hope Foundation</p>
           <p className="text-gray-500 text-xs">@hope_intl</p>
         </div>
-        <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-full animate-subtle-pulse">
+        <span className="text-xs font-semibold text-emerald-600 bg-emerald-100 px-2 py-1 rounded-full">
           ACTIVE
         </span>
       </div>
 
-      {/* Image with shimmer */}
+      {/* Image with CSS-only shimmer */}
       <div className="relative rounded-2xl overflow-hidden mb-4 aspect-video bg-gradient-to-br from-cyan-100 to-blue-100">
         <img 
           src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=300&fit=crop"
           alt="Kenya Drought Response"
           className="w-full h-full object-cover"
         />
-        {/* Shimmer overlay */}
-        <div 
-          className={`absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent transition-opacity duration-500 ${
-            isShimmering ? 'opacity-100 animate-shimmer' : 'opacity-0'
-          }`}
-        />
+        {/* CSS shimmer overlay - no JS needed */}
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-shimmer opacity-60 pointer-events-none" />
       </div>
 
       {/* Campaign Title */}
@@ -63,12 +54,9 @@ const FeedCard = () => {
         </div>
         <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
           <div 
-            className="h-full bg-gradient-to-r from-primary to-cyan-500 rounded-full transition-all duration-1000 ease-out relative"
+            className="h-full bg-gradient-to-r from-primary to-cyan-500 rounded-full transition-all duration-1000 ease-out"
             style={{ width: `${progress}%` }}
-          >
-            {/* Animated glow */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-shimmer" />
-          </div>
+          />
         </div>
       </div>
 

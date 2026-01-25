@@ -1,5 +1,5 @@
 import { CheckCircle, Clock } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 
 interface LedgerEntry {
   seedIn: string;
@@ -16,27 +16,18 @@ const ledgerEntries: LedgerEntry[] = [
 
 const LedgerCard = () => {
   const [visibleRows, setVisibleRows] = useState<number[]>([]);
-  const [highlightedRow, setHighlightedRow] = useState<number | null>(null);
+  const hasAnimated = useRef(false);
 
-  // Sequential row animation on mount
+  // One-time sequential row animation on mount
   useEffect(() => {
+    if (hasAnimated.current) return;
+    hasAnimated.current = true;
+    
     ledgerEntries.forEach((_, index) => {
       setTimeout(() => {
         setVisibleRows(prev => [...prev, index]);
       }, index * 400);
     });
-  }, []);
-
-  // Continuous highlight animation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setHighlightedRow(prev => {
-        if (prev === null || prev >= ledgerEntries.length - 1) return 0;
-        return prev + 1;
-      });
-    }, 2500);
-
-    return () => clearInterval(interval);
   }, []);
 
   return (
@@ -59,9 +50,9 @@ const LedgerCard = () => {
             {ledgerEntries.map((entry, index) => (
               <tr 
                 key={index} 
-                className={`border-t border-gray-50 transition-all duration-500 ${
+                className={`border-t border-gray-50 transition-opacity duration-500 ${
                   visibleRows.includes(index) ? 'opacity-100' : 'opacity-0'
-                } ${highlightedRow === index ? 'bg-emerald-50/50' : ''}`}
+                }`}
               >
                 <td className="py-2.5 px-2 sm:px-3 font-medium text-gray-900">{entry.seedIn}</td>
                 <td className="py-2.5 px-2 sm:px-3 text-emerald-600 font-semibold">{entry.surplus}</td>

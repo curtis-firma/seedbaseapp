@@ -244,9 +244,18 @@
   animation: shimmer 1.5s infinite ease-in-out;
 }
 
+/* Glow pulse - CSS only, no JS needed */
 @keyframes glow-pulse {
-  0%, 100% { opacity: 0.5; }
-  50% { opacity: 1; }
+  0%, 100% { 
+    filter: drop-shadow(0 0 10px rgba(16, 185, 129, 0.3));
+  }
+  50% { 
+    filter: drop-shadow(0 0 20px rgba(16, 185, 129, 0.6));
+  }
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 1.5s ease-in-out infinite;
 }
 
 /* Staggered fade-in animations */
