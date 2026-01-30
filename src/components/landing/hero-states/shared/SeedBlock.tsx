@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import seedNodeIcon from '@/assets/seed-block-white-on-blue.png';
+import seedbaseIcon from '@/assets/seedbase-icon-blue.png';
 
 export type SeedBlockProps = {
   index: number;
@@ -34,7 +34,7 @@ const SeedBlock = ({ index, direction, totalBlocks }: SeedBlockProps) => {
         }}
       >
         <motion.img
-          src={seedNodeIcon}
+          src={seedbaseIcon}
           alt=""
           className="w-6 h-6 md:w-7 md:h-7 rounded-md ring-1 ring-primary-foreground/25"
           style={{

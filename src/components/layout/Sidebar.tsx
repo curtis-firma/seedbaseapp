@@ -115,9 +115,9 @@ export function Sidebar() {
                 className={cn(
                   "relative w-full flex items-center gap-3 px-4 py-3 rounded-xl transition-all",
                   isActive 
-                    ? "text-white bg-gradient-to-r from-[#0000ff] to-purple-600" 
+                    ? "text-white bg-gradient-to-r from-primary to-purple-600" 
                     : isFeatured
-                      ? "bg-gradient-to-r from-[#0000ff]/10 to-purple-500/10 text-[#0000ff] border border-[#0000ff]/20 hover:from-[#0000ff]/20 hover:to-purple-500/20"
+                      ? "bg-gradient-to-r from-primary/10 to-purple-500/10 text-primary border border-primary/20 hover:from-primary/20 hover:to-purple-500/20"
                       : "text-muted-foreground hover:text-foreground hover:bg-muted/50"
                 )}
                 whileHover={{ x: 4 }}
@@ -126,7 +126,7 @@ export function Sidebar() {
                 <div className="relative">
                   <Icon className="h-5 w-5 flex-shrink-0" />
                   {item.badge > 0 && (
-                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-[#0000ff] text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                    <span className="absolute -top-1.5 -right-1.5 w-4 h-4 bg-primary text-white text-[10px] font-bold rounded-full flex items-center justify-center">
                       {item.badge}
                     </span>
                   )}
@@ -143,7 +143,7 @@ export function Sidebar() {
                         {item.label}
                       </motion.span>
                       {isFeatured && !isActive && (
-                        <span className="text-[10px] px-1.5 py-0.5 bg-gradient-to-r from-[#0000ff] to-purple-600 text-white rounded-full font-medium">
+                        <span className="text-[10px] px-1.5 py-0.5 bg-gradient-to-r from-primary to-purple-600 text-white rounded-full font-medium">
                           💬
                         </span>
                       )}

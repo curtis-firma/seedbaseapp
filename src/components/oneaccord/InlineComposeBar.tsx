@@ -447,7 +447,7 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
           setMode('user-select');
           triggerHaptic('light');
         }}
-        className="fixed bottom-20 right-4 md:right-8 z-40 w-14 h-14 rounded-full bg-blue-500 text-white shadow-lg hover:shadow-xl flex items-center justify-center transition-all"
+        className="fixed bottom-20 right-4 md:right-8 z-40 w-14 h-14 rounded-full bg-primary text-white shadow-lg hover:shadow-xl flex items-center justify-center transition-all"
       >
         <Edit className="h-6 w-6" />
       </motion.button>
@@ -493,10 +493,10 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
 
         {/* Create group option (disabled/demo) */}
         <button className="flex items-center gap-3 px-4 py-4 border-b border-white/10 opacity-50 cursor-not-allowed">
-          <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center">
-            <Users className="h-5 w-5 text-blue-400" />
+          <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
+            <Users className="h-5 w-5 text-primary" />
           </div>
-          <span className="text-blue-400 font-medium">Create a group</span>
+          <span className="text-primary font-medium">Create a group</span>
         </button>
 
         {/* User List */}
@@ -515,7 +515,7 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
                   className="w-12 h-12 rounded-full object-cover"
                 />
               ) : (
-                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
                   <span className="text-lg font-semibold text-white">
                     {user.display_name?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase()}
                   </span>

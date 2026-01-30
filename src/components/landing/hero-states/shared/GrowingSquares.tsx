@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
-import seedSquareNode from '@/assets/seed-square-node.png';
+import seedbaseIcon from '@/assets/seedbase-icon-blue.png';
 
 const BARS = [
   { height: 2, delay: 0.6 },
@@ -57,7 +57,7 @@ const GrowingSquares = forwardRef<HTMLDivElement>(function GrowingSquares(_props
           >
             {/* Glow effect when complete */}
             <motion.div
-              className="absolute -inset-1 bg-blue-400/20 rounded-full"
+              className="absolute -inset-1 bg-primary/20 rounded-full"
               animate={{
                 opacity: [0, 0, 0.6, 0],
                 scale: [0.8, 1, 1.2, 1],
@@ -81,7 +81,7 @@ const GrowingSquares = forwardRef<HTMLDivElement>(function GrowingSquares(_props
                   ease: 'backOut',
                 }}
               >
-                <img src={seedSquareNode} alt="" className="w-full h-full" />
+                <img src={seedbaseIcon} alt="" className="w-full h-full" />
               </motion.div>
             ))}
           </motion.div>

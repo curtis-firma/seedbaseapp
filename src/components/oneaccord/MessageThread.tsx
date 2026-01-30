@@ -70,7 +70,7 @@ export function MessageThread({ messageId, originalMessage, className }: Message
           triggerHaptic('light');
         }}
         className={cn(
-          "inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-[#0000ff] transition-colors",
+          "inline-flex items-center gap-1.5 text-sm text-gray-500 hover:text-primary transition-colors",
           className
         )}
       >
@@ -128,7 +128,7 @@ export function MessageThread({ messageId, originalMessage, className }: Message
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#0000ff] to-purple-600 flex items-center justify-center">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-purple-600 flex items-center justify-center">
                       <span className="text-white font-semibold">
                         {originalMessage.from[0]?.toUpperCase()}
                       </span>
@@ -195,7 +195,7 @@ export function MessageThread({ messageId, originalMessage, className }: Message
                     }
                   }}
                   placeholder="Reply to this thread..."
-                  className="flex-1 bg-gray-100 rounded-full px-4 py-3 outline-none focus:ring-2 focus:ring-[#0000ff]/30 text-gray-900 placeholder:text-gray-400"
+                  className="flex-1 bg-gray-100 rounded-full px-4 py-3 outline-none focus:ring-2 focus:ring-primary/30 text-gray-900 placeholder:text-gray-400"
                 />
                 <motion.button
                   whileTap={{ scale: 0.95 }}
@@ -204,7 +204,7 @@ export function MessageThread({ messageId, originalMessage, className }: Message
                   className={cn(
                     "w-10 h-10 rounded-full flex items-center justify-center transition-all",
                     replyText.trim()
-                      ? "bg-gradient-to-r from-[#0000ff] to-purple-600 text-white"
+                      ? "bg-gradient-to-r from-primary to-purple-600 text-white"
                       : "bg-gray-200 text-gray-400"
                   )}
                 >

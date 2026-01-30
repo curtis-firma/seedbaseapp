@@ -44,7 +44,7 @@ const BrandMomentState = ({ active = true }: BrandMomentStateProps) => {
       <div className="absolute inset-0 opacity-20 pointer-events-none">
         <svg className="w-full h-full">
           <pattern id="hero-dots-white" x="0" y="0" width="40" height="40" patternUnits="userSpaceOnUse">
-            <circle cx="20" cy="20" r="1" fill="rgba(0, 0, 255, 0.4)" />
+            <circle cx="20" cy="20" r="1" fill="hsl(var(--primary) / 0.4)" />
           </pattern>
           <rect width="100%" height="100%" fill="url(#hero-dots-white)" />
         </svg>
@@ -64,7 +64,7 @@ const BrandMomentState = ({ active = true }: BrandMomentStateProps) => {
         <motion.img
           src={seedbasePfp}
           alt=""
-          className="w-full h-full rounded-full ring-2 ring-[#0000ff]/20"
+          className="w-full h-full rounded-full ring-2 ring-primary/20"
           animate={{ scale: [1, 1.03, 1] }}
           transition={{ duration: 3, repeat: Infinity, ease: 'easeInOut', delay: 1.5 }}
         />
