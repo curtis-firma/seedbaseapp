@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, Check, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import seedSquareNode from '@/assets/seed-square-node.png';
+import seedbaseIconBlue from '@/assets/seedbase-icon-blue.png';
 
 interface SeedMotifButtonProps {
   children: React.ReactNode;
@@ -41,7 +41,7 @@ export function SeedMotifButton({
   );
 
   const variantStyles = {
-    primary: "bg-[#0000ff] text-white hover:bg-[#0000dd]",
+    primary: "bg-primary text-primary-foreground hover:bg-primary/90",
     wallet: "bg-primary text-primary-foreground hover:bg-primary/90",
     action: "bg-card border-2 border-primary text-primary hover:bg-primary/5",
   };
@@ -57,7 +57,7 @@ export function SeedMotifButton({
     >
       {/* Seed motif blocks - positioned at corners */}
       <motion.img
-        src={seedSquareNode}
+        src={seedbaseIconBlue}
         alt=""
         aria-hidden="true"
         className={cn(

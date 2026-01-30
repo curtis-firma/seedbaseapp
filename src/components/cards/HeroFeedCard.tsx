@@ -5,7 +5,7 @@ const HeroFeedCard = () => {
     <div className="w-full h-full bg-white flex flex-col">
       {/* Header */}
       <div className="flex items-center gap-3 p-4 pb-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/70 to-primary flex items-center justify-center text-white font-bold text-sm">
           MT
         </div>
         <div className="flex-1">
@@ -46,7 +46,7 @@ const HeroFeedCard = () => {
           <Heart className="w-4 h-4" />
           <span className="text-xs">128</span>
         </button>
-        <button className="flex items-center gap-1.5 text-gray-500 hover:text-blue-500 transition-colors">
+        <button className="flex items-center gap-1.5 text-gray-500 hover:text-primary transition-colors">
           <MessageCircle className="w-4 h-4" />
           <span className="text-xs">24</span>
         </button>

@@ -83,8 +83,8 @@ export default function GovernancePage() {
       <header className="sticky top-0 z-20 glass-strong border-b border-border/50">
         <div className="px-4 py-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#0000ff]/10 flex items-center justify-center">
-              <Vote className="h-5 w-5 text-[#0000ff]" />
+            <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+              <Vote className="h-5 w-5 text-primary" />
             </div>
             <div>
               <h1 className="text-xl font-bold">Governance</h1>
@@ -121,7 +121,7 @@ export default function GovernancePage() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate('/app/wallet')}
-                className="px-3 py-1.5 rounded-lg bg-[#0000ff] text-white text-sm font-medium"
+                className="px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-sm font-medium"
               >
                 Get Key
               </motion.button>
@@ -158,7 +158,7 @@ export default function GovernancePage() {
                     initial={{ width: 0 }}
                     animate={{ width: `${yesPercent}%` }}
                     transition={{ duration: 0.5 }}
-                    className="bg-[#0000ff]"
+                    className="bg-primary"
                   />
                   <motion.div
                     initial={{ width: 0 }}
@@ -169,15 +169,15 @@ export default function GovernancePage() {
                 </div>
 
                 <div className="flex justify-between text-sm mb-4">
-                  <span className="text-[#0000ff] font-medium">Yes: {vote.yesVotes}</span>
+                  <span className="text-primary font-medium">Yes: {vote.yesVotes}</span>
                   <span className="text-destructive font-medium">No: {vote.noVotes}</span>
                 </div>
 
                 {/* Vote Buttons */}
                 {vote.hasVoted ? (
                   <div className="text-center py-2 text-sm text-muted-foreground flex items-center justify-center gap-2">
-                    <Check className="h-4 w-4 text-[#0000ff]" />
-                    You voted <span className={vote.userVote === 'yes' ? 'text-[#0000ff]' : 'text-destructive'}>
+                    <Check className="h-4 w-4 text-primary" />
+                    You voted <span className={vote.userVote === 'yes' ? 'text-primary' : 'text-destructive'}>
                       {vote.userVote === 'yes' ? 'Yes' : 'No'}
                     </span>
                   </div>
@@ -190,7 +190,7 @@ export default function GovernancePage() {
                       className={cn(
                         "flex-1 py-2.5 rounded-xl font-medium text-sm transition-all",
                         hasBaseKey
-                          ? "bg-[#0000ff] text-white shadow-[0_0_12px_rgba(0,0,255,0.3)] hover:shadow-[0_0_20px_rgba(0,0,255,0.5)]"
+                          ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
                           : "bg-muted text-muted-foreground cursor-not-allowed"
                       )}
                     >
@@ -228,10 +228,10 @@ export default function GovernancePage() {
               <div className="flex items-center gap-3">
                 <div className={cn(
                   "w-8 h-8 rounded-lg flex items-center justify-center",
-                  vote.result === 'passed' ? "bg-[#0000ff]/10" : "bg-destructive/10"
+                  vote.result === 'passed' ? "bg-primary/10" : "bg-destructive/10"
                 )}>
                   {vote.result === 'passed' ? (
-                    <Check className="h-4 w-4 text-[#0000ff]" />
+                    <Check className="h-4 w-4 text-primary" />
                   ) : (
                     <span className="text-destructive text-xs">✗</span>
                   )}
@@ -245,7 +245,7 @@ export default function GovernancePage() {
               </div>
               <span className={cn(
                 "text-xs font-medium px-2 py-0.5 rounded-full",
-                vote.result === 'passed' ? "bg-[#0000ff]/10 text-[#0000ff]" : "bg-destructive/10 text-destructive"
+                vote.result === 'passed' ? "bg-primary/10 text-primary" : "bg-destructive/10 text-destructive"
               )}>
                 {vote.result === 'passed' ? 'Passed' : 'Failed'}
               </span>
@@ -259,10 +259,10 @@ export default function GovernancePage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="p-6 rounded-2xl bg-gradient-to-br from-[#0000ff]/20 to-[#0000ff]/5 border border-[#0000ff]/20 text-center"
+            className="p-6 rounded-2xl bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20 text-center"
           >
-            <div className="w-16 h-16 mx-auto rounded-2xl bg-[#0000ff]/20 flex items-center justify-center mb-4">
-              <Megaphone className="h-8 w-8 text-[#0000ff]" />
+            <div className="w-16 h-16 mx-auto rounded-2xl bg-primary/20 flex items-center justify-center mb-4">
+              <Megaphone className="h-8 w-8 text-primary" />
             </div>
             <h2 className="text-2xl font-bold mb-2">Amplify Impact</h2>
             <p className="text-muted-foreground mb-4">
@@ -283,7 +283,7 @@ export default function GovernancePage() {
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={handleCopyReferralLink}
-                className="px-3 py-2 rounded-lg bg-[#0000ff] text-white"
+                className="px-3 py-2 rounded-lg bg-primary text-primary-foreground"
               >
                 <Copy className="h-4 w-4" />
               </motion.button>
@@ -295,15 +295,15 @@ export default function GovernancePage() {
             <h3 className="font-semibold mb-3">Your Amplification Stats</h3>
             <div className="grid grid-cols-3 gap-3">
               <div className="text-center p-3 rounded-lg bg-muted/30">
-                <p className="text-2xl font-bold text-[#0000ff]">12</p>
+                <p className="text-2xl font-bold text-primary">12</p>
                 <p className="text-xs text-muted-foreground">Posts Shared</p>
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/30">
-                <p className="text-2xl font-bold text-[#0000ff]">89</p>
+                <p className="text-2xl font-bold text-primary">89</p>
                 <p className="text-xs text-muted-foreground">Link Clicks</p>
               </div>
               <div className="text-center p-3 rounded-lg bg-muted/30">
-                <p className="text-2xl font-bold text-[#0000ff]">{activatedUsers.length}</p>
+                <p className="text-2xl font-bold text-primary">{activatedUsers.length}</p>
                 <p className="text-xs text-muted-foreground">Activated</p>
               </div>
             </div>
@@ -322,7 +322,7 @@ export default function GovernancePage() {
                 )}
                 {baseHandle && (
                   <div className="flex items-center gap-3 p-2 rounded-lg bg-muted/30">
-                    <span className="text-[#0000ff] font-bold">◆</span>
+                    <span className="text-primary font-bold">◆</span>
                     <span className="text-sm">@{baseHandle.replace('@', '')}</span>
                   </div>
                 )}
@@ -368,10 +368,10 @@ export default function GovernancePage() {
         {/* Network Tab */}
         <TabsContent value="network" className="px-4 py-4 space-y-4">
           {/* Leaderboard Section */}
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-[#0000ff]/10 to-[#0000ff]/5 border border-[#0000ff]/20">
+          <div className="p-4 rounded-2xl bg-gradient-to-br from-primary/10 to-primary/5 border border-primary/20">
             <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-[#0000ff]/20 flex items-center justify-center">
-                <TrendingUp className="h-5 w-5 text-[#0000ff]" />
+              <div className="w-10 h-10 rounded-xl bg-primary/20 flex items-center justify-center">
+                <TrendingUp className="h-5 w-5 text-primary" />
               </div>
               <div>
                 <h2 className="font-semibold text-lg">Top Activators</h2>
@@ -406,7 +406,7 @@ export default function GovernancePage() {
                     </div>
                     <Avatar className="h-10 w-10">
                       <AvatarImage src={user.avatar} alt={user.name} />
-                      <AvatarFallback className="bg-[#0000ff]/10 text-[#0000ff]">
+                      <AvatarFallback className="bg-primary/10 text-primary">
                         {user.name.charAt(0)}
                       </AvatarFallback>
                     </Avatar>
@@ -415,7 +415,7 @@ export default function GovernancePage() {
                       <p className="text-xs text-muted-foreground">@{user.handle}</p>
                     </div>
                     <div className="text-right">
-                      <p className="font-bold text-[#0000ff]">${user.seedCommitted.toLocaleString()}</p>
+                      <p className="font-bold text-primary">${user.seedCommitted.toLocaleString()}</p>
                       <p className="text-xs text-muted-foreground">seed value</p>
                     </div>
                   </motion.div>
@@ -431,13 +431,13 @@ export default function GovernancePage() {
           {/* Network Stats */}
           <div className="grid grid-cols-2 gap-3">
             <div className="p-4 rounded-xl bg-card border border-border/50 text-center">
-              <p className="text-3xl font-bold text-[#0000ff]">
+              <p className="text-3xl font-bold text-primary">
                 ${activatedUsers.reduce((sum, u) => sum + u.seedCommitted, 0).toLocaleString()}
               </p>
               <p className="text-sm text-muted-foreground">Network Seed Value</p>
             </div>
             <div className="p-4 rounded-xl bg-card border border-border/50 text-center">
-              <p className="text-3xl font-bold text-[#0000ff]">2.3x</p>
+              <p className="text-3xl font-bold text-primary">2.3x</p>
               <p className="text-sm text-muted-foreground">Network Multiplier</p>
             </div>
           </div>
@@ -454,7 +454,7 @@ export default function GovernancePage() {
               >
                 <Avatar className="h-11 w-11">
                   <AvatarImage src={user.avatar} alt={user.name} />
-                  <AvatarFallback className="bg-[#0000ff]/10 text-[#0000ff]">
+                  <AvatarFallback className="bg-primary/10 text-primary">
                     {user.name.charAt(0)}
                   </AvatarFallback>
                 </Avatar>
@@ -463,7 +463,7 @@ export default function GovernancePage() {
                   <p className="text-xs text-muted-foreground">@{user.handle}</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-semibold text-sm text-[#0000ff]">${user.seedCommitted.toLocaleString()}</p>
+                  <p className="font-semibold text-sm text-primary">${user.seedCommitted.toLocaleString()}</p>
                   <p className="text-xs text-muted-foreground flex items-center gap-1">
                     <Calendar className="h-3 w-3" />
                     {new Date(user.joinedDate).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
@@ -498,7 +498,7 @@ export default function GovernancePage() {
                 −
               </motion.button>
               <div className="flex-1 text-center">
-                <span className="text-3xl font-bold text-[#0000ff]">${seedAmount}</span>
+                <span className="text-3xl font-bold text-primary">${seedAmount}</span>
               </div>
               <motion.button
                 whileTap={{ scale: 0.95 }}
@@ -520,7 +520,7 @@ export default function GovernancePage() {
                   className={cn(
                     "px-3 py-1.5 rounded-lg text-sm font-medium transition-colors",
                     seedAmount === amt 
-                      ? "bg-[#0000ff] text-white" 
+                      ? "bg-primary text-primary-foreground" 
                       : "bg-muted text-muted-foreground hover:bg-muted/80"
                   )}
                 >
@@ -532,13 +532,13 @@ export default function GovernancePage() {
 
           {/* Projection Stats */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-4 rounded-xl bg-gradient-to-br from-[#0000ff]/10 to-transparent border border-[#0000ff]/20">
-              <TrendingUp className="h-5 w-5 text-[#0000ff] mb-2" />
+            <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20">
+              <TrendingUp className="h-5 w-5 text-primary mb-2" />
               <p className="text-2xl font-bold">${projectedGrowth.toFixed(0)}</p>
               <p className="text-sm text-muted-foreground">Projected Value (12mo)</p>
             </div>
-            <div className="p-4 rounded-xl bg-gradient-to-br from-[#0000ff]/10 to-transparent border border-[#0000ff]/20">
-              <Users className="h-5 w-5 text-[#0000ff] mb-2" />
+            <div className="p-4 rounded-xl bg-gradient-to-br from-primary/10 to-transparent border border-primary/20">
+              <Users className="h-5 w-5 text-primary mb-2" />
               <p className="text-2xl font-bold">{Math.round(projectedImpact)}</p>
               <p className="text-sm text-muted-foreground">Lives Impacted</p>
             </div>
@@ -552,8 +552,8 @@ export default function GovernancePage() {
                 <AreaChart data={chartData}>
                   <defs>
                     <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#0000ff" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#0000ff" stopOpacity={0}/>
+                      <stop offset="5%" stopColor="hsl(var(--primary))" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="hsl(var(--primary))" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
                   <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
@@ -570,7 +570,7 @@ export default function GovernancePage() {
                   <Area 
                     type="monotone" 
                     dataKey="value" 
-                    stroke="#0000ff" 
+                    stroke="hsl(var(--primary))" 
                     fillOpacity={1} 
                     fill="url(#colorValue)" 
                   />
