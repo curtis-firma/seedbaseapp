@@ -556,7 +556,7 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
       {/* Peek-through background (shows inbox behind during swipe) */}
       {isDragging && (
         <motion.div
-          className="fixed inset-0 z-30 bg-gray-50"
+          className="fixed inset-0 z-30 bg-[#121212]"
           style={{ opacity: peekOpacity }}
         />
       )}
