@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ArrowLeft, Send, Check, X, DollarSign, RefreshCw, ChevronRight, Sparkles } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -11,6 +11,7 @@ import {
   declineTransfer,
   getTransfersForUser,
   createTransfer,
+  getConversationHistory,
   type DemoTransfer 
 } from '@/lib/supabase/transfersApi';
 import { toast } from 'sonner';
@@ -22,6 +23,7 @@ import { triggerHaptic } from '@/hooks/useHaptic';
 import { AmplifyPromptModal } from '@/components/social/AmplifyPromptModal';
 import { AmplifyButton } from '@/components/social/AmplifyButton';
 import { oneAccordMessages } from '@/data/mockData';
+import { useQueryClient } from '@tanstack/react-query';
 
 // Type for demo narrative messages from mock data
 interface DemoMessage {
@@ -56,6 +58,13 @@ interface ConversationPreview {
   demoMessage?: DemoMessage;
 }
 
+// Slide-over spring animation config
+const slideTransition = {
+  type: 'spring' as const,
+  damping: 30,
+  stiffness: 300,
+};
+
 export default function OneAccordPage() {
   const [pendingTransfers, setPendingTransfers] = useState<DemoTransfer[]>([]);
   const [recentTransfers, setRecentTransfers] = useState<DemoTransfer[]>([]);
@@ -83,6 +92,7 @@ export default function OneAccordPage() {
   const [selectedTransfer, setSelectedTransfer] = useState<DemoTransfer | null>(null);
   
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   const getCurrentUserId = (): string | null => {
     const sessionData = localStorage.getItem('seedbase-session');
@@ -96,6 +106,17 @@ export default function OneAccordPage() {
   };
 
   const currentUserId = getCurrentUserId();
+
+  // Prefetch conversation on hover for instant loading
+  const prefetchConversation = useCallback((partnerId: string) => {
+    if (!currentUserId || partnerId.startsWith('demo-')) return;
+    
+    queryClient.prefetchQuery({
+      queryKey: ['conversation', currentUserId, partnerId],
+      queryFn: () => getConversationHistory(currentUserId, partnerId),
+      staleTime: 30000, // 30 seconds
+    });
+  }, [currentUserId, queryClient]);
 
   const loadTransfers = async () => {
     const userId = getCurrentUserId();
@@ -303,536 +324,420 @@ export default function OneAccordPage() {
     }
   };
 
-  // Main view with inbox-style list
+  // Main view with inbox-style list - Unified slide-over navigation
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <Confetti isActive={showConfetti} />
       
-      <AnimatePresence mode="wait">
-        {selectedTransfer ? (
-          <TransferDetailView
-            key="detail"
-            transfer={selectedTransfer}
-            currentUserId={currentUserId}
-            onBack={() => setSelectedTransfer(null)}
-            onAccept={(e) => {
-              handleAccept(selectedTransfer, e);
-              setSelectedTransfer(null);
-            }}
-            onDecline={(e) => {
-              handleDecline(selectedTransfer, e);
-              setSelectedTransfer(null);
-            }}
-          />
-        ) : selectedConversation ? (
-          // Use the same InlineComposeBar with preselected user
-          <InlineComposeBar
-            key="thread"
-            preselectedUser={{
-              id: selectedConversation.partnerId,
-              username: selectedConversation.partnerName,
-              display_name: selectedConversation.partnerName,
-              avatar_url: selectedConversation.partnerAvatar,
-              phone: '',
-              created_at: null,
-              active_role: null,
-              last_login_at: null,
-              onboarding_complete: true
-            } as DemoUser}
-            onBack={() => setSelectedConversation(null)}
-            onSuccess={loadTransfers}
-          />
-        ) : (
-          <motion.div
-            key="list"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="flex flex-col min-h-screen"
-          >
-            {/* Sticky Header */}
-            <div className="sticky top-0 z-30 bg-white shadow-sm">
-              <header className="bg-white border-b border-gray-200">
-                <div className="px-4 py-4 flex items-center justify-between">
-                  <div>
-                    <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
-                      OneAccord
-                      <span className="text-lg">💬</span>
-                    </h1>
-                    <p className="text-sm text-gray-500">Messages & Transfers</p>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <motion.button
-                      whileTap={{ scale: 0.95 }}
-                      onClick={loadTransfers}
-                      className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700"
-                    >
-                      <RefreshCw className="h-5 w-5" />
-                    </motion.button>
-                  </div>
-                </div>
-              </header>
-
-              {/* Info Banner */}
-              <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100">
-                <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-blue-100">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-semibold">✨ All transfers arrive here.</span> Accept USDC transfers to move them to your wallet.
-                  </p>
-                </div>
+      {/* Inbox View - Always rendered, fades when thread open */}
+      <motion.div
+        animate={{ 
+          opacity: selectedConversation || selectedTransfer ? 0.3 : 1,
+          scale: selectedConversation || selectedTransfer ? 0.98 : 1,
+        }}
+        transition={{ duration: 0.2 }}
+        className="flex flex-col min-h-screen"
+        style={{ 
+          pointerEvents: selectedConversation || selectedTransfer ? 'none' : 'auto' 
+        }}
+      >
+        {/* Sticky Header */}
+        <div className="sticky top-0 z-30 bg-white shadow-sm">
+          <header className="bg-white border-b border-gray-200">
+            <div className="px-4 py-4 flex items-center justify-between">
+              <div>
+                <h1 className="text-xl font-bold text-gray-900 flex items-center gap-2">
+                  OneAccord
+                  <span className="text-lg">💬</span>
+                </h1>
+                <p className="text-sm text-gray-500">Messages & Transfers</p>
+              </div>
+              <div className="flex items-center gap-2">
+                <motion.button
+                  whileTap={{ scale: 0.95 }}
+                  onClick={loadTransfers}
+                  className="p-2 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors text-gray-700"
+                >
+                  <RefreshCw className="h-5 w-5" />
+                </motion.button>
               </div>
             </div>
+          </header>
 
-            {/* Scrollable Content */}
-            {isLoading ? (
-              <div className="px-4 py-12 text-center">
-                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-                <p className="text-gray-500">Loading messages...</p>
-              </div>
-            ) : (
-              <div className="flex-1 overflow-y-auto px-4 py-2 pb-48">
-                {/* Pending Section - Real + Demo items requiring action */}
-                {(pendingTransfers.length > 0 || demoPending.length > 0) && (
-                  <div className="mb-6">
-                    <div className="flex items-center gap-2 mb-3">
-                      <h2 className="font-semibold text-gray-900">Pending</h2>
-                      <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium">
-                        {pendingTransfers.length + demoPending.length}
-                      </span>
-                    </div>
-                    <div className="space-y-3">
-                      {/* Real pending transfers */}
-                      {pendingTransfers.map((transfer, i) => (
-                        <motion.div
-                          key={transfer.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: i * 0.05 }}
-                          className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-4 shadow-sm"
-                        >
-                          <div className="flex items-center gap-3 mb-3">
-                            {transfer.from_user?.avatar_url ? (
-                              <img 
-                                src={transfer.from_user.avatar_url}
-                                alt={transfer.from_user.display_name || transfer.from_user.username}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
-                                <DollarSign className="h-5 w-5 text-white" />
-                              </div>
-                            )}
-                            <div className="flex-1">
-                              <p className="font-semibold text-gray-900">@{transfer.from_user?.username || 'unknown'}</p>
-                              <p className="text-xs text-gray-500">
-                                {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
-                              </p>
-                            </div>
-                            <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                              ${transfer.amount.toFixed(2)}
-                            </p>
-                          </div>
-                          
-                          {transfer.purpose && !transfer.purpose.startsWith('[GIF]') && (
-                            <p className="text-sm text-gray-600 mb-3">"{transfer.purpose}"</p>
-                          )}
-                          
-                          {/* GIF display */}
-                          {(() => {
-                            const gifMatch = transfer.purpose?.match(/\[GIF\](https?:\/\/[^\s]+)/);
-                            if (gifMatch) {
-                              return (
-                                <div className="mb-3 rounded-lg overflow-hidden max-w-[200px]">
-                                  <img src={gifMatch[1]} alt="GIF" className="w-full h-auto" />
-                                </div>
-                              );
-                            }
-                            return null;
-                          })()}
-                          
-                          <div className="flex gap-2">
-                            {acceptedTransferId === transfer.id ? (
-                              <motion.div
-                                initial={{ scale: 0.95 }}
-                                animate={{ scale: [1, 1.05, 1] }}
-                                className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium"
-                              >
-                                <Check className="h-5 w-5" />
-                                Accepted! ✨
-                              </motion.div>
-                            ) : (
-                              <>
-                                <motion.button
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={(e) => handleAccept(transfer, e)}
-                                  className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 rounded-xl text-white font-medium shadow-lg"
-                                >
-                                  <Check className="h-4 w-4" />
-                                  Accept
-                                </motion.button>
-                                <motion.button
-                                  whileTap={{ scale: 0.98 }}
-                                  onClick={(e) => handleDecline(transfer, e)}
-                                  className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
-                                >
-                                  <X className="h-4 w-4 text-gray-500" />
-                                </motion.button>
-                              </>
-                            )}
-                          </div>
-                        </motion.div>
-                      ))}
+          {/* Info Banner */}
+          <div className="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100">
+            <div className="bg-white/80 backdrop-blur rounded-xl p-4 border border-blue-100">
+              <p className="text-sm text-gray-700">
+                <span className="font-semibold">✨ All transfers arrive here.</span> Accept USDC transfers to move them to your wallet.
+              </p>
+            </div>
+          </div>
+        </div>
 
-                      {/* Demo pending messages with distinct styling */}
-                      {demoPending.map((msg, i) => (
-                        <motion.div
-                          key={msg.id}
-                          initial={{ opacity: 0, y: 10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          exit={{ opacity: 0, x: -100 }}
-                          transition={{ delay: (pendingTransfers.length + i) * 0.05 }}
-                          className="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 rounded-2xl border border-blue-200/50 p-4 shadow-sm relative"
-                        >
-                          {/* Dismiss button */}
-                          <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            onClick={() => dismissDemoMessage(msg.id)}
-                            className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white shadow-sm transition-colors"
-                          >
-                            <X className="h-3.5 w-3.5 text-gray-400" />
-                          </motion.button>
-
-                          <div className="flex items-center gap-3 mb-3 pr-8">
-                            {msg.avatar.startsWith('http') ? (
-                              <img 
-                                src={msg.avatar}
-                                alt={msg.from}
-                                className="w-10 h-10 rounded-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-10 h-10 rounded-full bg-white/80 shadow-sm flex items-center justify-center text-xl">
-                                {msg.avatar}
-                              </div>
-                            )}
-                            <div className="flex-1">
-                              <div className="flex items-center gap-2">
-                                <p className="font-semibold text-gray-900">{msg.from}</p>
-                                <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium flex items-center gap-0.5">
-                                  <Sparkles className="h-2.5 w-2.5" />
-                                  Demo
-                                </span>
-                              </div>
-                              <p className="text-xs text-gray-500">
-                                {formatDistanceToNow(msg.timestamp, { addSuffix: true })}
-                              </p>
-                            </div>
-                            {msg.amount && (
-                              <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                                ${msg.amount.toLocaleString()}
-                              </p>
-                            )}
-                          </div>
-                          
-                          <p className="font-medium text-gray-800 mb-1">{msg.title}</p>
-                          <p className="text-sm text-gray-600 whitespace-pre-line">{msg.body}</p>
-                          
-                          <div className="mt-3 pt-3 border-t border-blue-200/30">
-                            <p className="text-xs text-gray-500 text-center">
-                              This is example content to show how distributions appear
-                            </p>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* All Messages - Inbox Style (grouped by conversation partner) */}
-                <h2 className="font-semibold mb-3 text-gray-900">All Messages</h2>
-                <div className="space-y-2">
-                  {conversations.length === 0 ? (
-                    <div className="text-center py-8 text-gray-500">
-                      <p>No messages yet</p>
-                      <p className="text-sm mt-1">Send USDC to start a conversation</p>
-                    </div>
-                  ) : (
-                    conversations.map((convo, i) => (
-                      <motion.div
-                        key={convo.id}
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, x: -100 }}
-                        transition={{ delay: i * 0.03 }}
-                        className="relative"
-                      >
-                        <motion.button
-                          onClick={() => {
-                            if (!convo.isDemo) {
-                              setSelectedConversation(convo);
-                            } else {
-                              toast.info('This is demo content showing how messages appear');
-                            }
-                          }}
-                          className={cn(
-                            "w-full rounded-xl border p-4 flex items-center gap-3 text-left transition-colors relative",
-                            convo.isDemo 
-                              ? "bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-blue-100 hover:from-blue-50 hover:to-purple-50 pr-12"
-                              : convo.unreadCount > 0
-                                ? "bg-blue-50/60 border-blue-200 hover:bg-blue-50"
-                                : convo.hasPendingTransfer 
-                                  ? "bg-white border-blue-200 ring-1 ring-blue-100 hover:bg-blue-50" 
-                                  : "bg-white border-gray-200 hover:bg-gray-50"
-                          )}
-                        >
-                          {/* Unread dot indicator */}
-                          {convo.unreadCount > 0 && !convo.isDemo && (
-                            <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500" />
-                          )}
-                          
-                          {/* Avatar */}
-                          {convo.isDemo && convo.demoMessage ? (
-                            convo.demoMessage.avatar.startsWith('http') ? (
-                              <img 
-                                src={convo.demoMessage.avatar}
-                                alt={convo.partnerName}
-                                className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                              />
-                            ) : (
-                              <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-2xl">
-                                {convo.demoMessage.avatar}
-                              </div>
-                            )
-                          ) : convo.partnerAvatar ? (
-                            <img 
-                              src={convo.partnerAvatar}
-                              alt={convo.partnerName}
-                              className="w-12 h-12 rounded-full object-cover flex-shrink-0"
-                            />
-                          ) : (
-                            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
-                              <span className="text-white font-semibold text-lg">
-                                {convo.partnerName.charAt(0).toUpperCase()}
-                              </span>
-                            </div>
-                          )}
-                          
-                          {/* Content */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2 mb-0.5">
-                              <p className={cn(
-                                "truncate",
-                                convo.unreadCount > 0 && !convo.isDemo 
-                                  ? "font-bold text-gray-900" 
-                                  : "font-semibold text-gray-700"
-                              )}>
-                                {convo.isDemo ? convo.partnerName : `@${convo.partnerName}`}
-                              </p>
-                              {convo.isDemo && (
-                                <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium flex items-center gap-0.5 flex-shrink-0">
-                                  <Sparkles className="h-2.5 w-2.5" />
-                                  Demo
-                                </span>
-                              )}
-                              {convo.hasPendingTransfer && !convo.isDemo && (
-                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium flex-shrink-0">
-                                  Pending
-                                </span>
-                              )}
-                            </div>
-                            <p className={cn(
-                              "text-sm truncate",
-                              convo.unreadCount > 0 && !convo.isDemo 
-                                ? "font-semibold text-gray-800" 
-                                : "text-gray-500"
-                            )}>
-                              {convo.lastMessage}
-                            </p>
-                            <p className="text-xs text-gray-400 mt-0.5">
-                              {formatDistanceToNow(convo.lastMessageTime, { addSuffix: true })}
-                            </p>
-                          </div>
-                          
-                          {/* Right side: unread count or chevron */}
-                          <div className="flex items-center gap-2 flex-shrink-0">
-                            {convo.unreadCount > 0 && !convo.isDemo && (
-                              <span className="min-w-[20px] h-5 px-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium flex items-center justify-center">
-                                {convo.unreadCount}
-                              </span>
-                            )}
-                            {!convo.isDemo && (
-                              <ChevronRight className="h-5 w-5 text-gray-300" />
-                            )}
-                          </div>
-                        </motion.button>
-
-                        {/* Dismiss button for demo items */}
-                        {convo.isDemo && convo.demoMessage && (
-                          <motion.button
-                            whileTap={{ scale: 0.9 }}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              dismissDemoMessage(convo.demoMessage!.id);
-                            }}
-                            className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-white shadow-sm transition-colors z-10"
-                          >
-                            <X className="h-3.5 w-3.5 text-gray-400" />
-                          </motion.button>
-                        )}
-                      </motion.div>
-                    ))
-                  )}
-
-                  {/* Restore demo messages option */}
-                  {dismissedDemoIds.size > 0 && (
-                    <motion.button
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      onClick={restoreDemoMessages}
-                      className="w-full py-3 text-center text-sm text-blue-600 hover:text-blue-700 font-medium"
+        {/* Scrollable Content */}
+        {isLoading ? (
+          <div className="px-4 py-12 text-center">
+            <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <p className="text-gray-500">Loading messages...</p>
+          </div>
+        ) : (
+          <div className="flex-1 overflow-y-auto px-4 py-2 pb-48">
+            {/* Pending Section - Real + Demo items requiring action */}
+            {(pendingTransfers.length > 0 || demoPending.length > 0) && (
+              <div className="mb-6">
+                <div className="flex items-center gap-2 mb-3">
+                  <h2 className="font-semibold text-gray-900">Pending</h2>
+                  <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium">
+                    {pendingTransfers.length + demoPending.length}
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {/* Real pending transfers */}
+                  {pendingTransfers.map((transfer, i) => (
+                    <motion.div
+                      key={transfer.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: i * 0.05 }}
+                      className="bg-white rounded-2xl border border-blue-200 ring-1 ring-blue-100 p-4 shadow-sm"
                     >
-                      Restore {dismissedDemoIds.size} hidden demo message{dismissedDemoIds.size > 1 ? 's' : ''}
-                    </motion.button>
-                  )}
+                      <div className="flex items-center gap-3 mb-3">
+                        {transfer.from_user?.avatar_url ? (
+                          <img 
+                            src={transfer.from_user.avatar_url}
+                            alt={transfer.from_user.display_name || transfer.from_user.username}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                            <DollarSign className="h-5 w-5 text-white" />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-900">@{transfer.from_user?.username || 'unknown'}</p>
+                          <p className="text-xs text-gray-500">
+                            {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
+                          </p>
+                        </div>
+                        <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          ${transfer.amount.toFixed(2)}
+                        </p>
+                      </div>
+                      
+                      {transfer.purpose && !transfer.purpose.startsWith('[GIF]') && (
+                        <p className="text-sm text-gray-600 mb-3">"{transfer.purpose}"</p>
+                      )}
+                      
+                      {/* GIF display */}
+                      {(() => {
+                        const gifMatch = transfer.purpose?.match(/\[GIF\](https?:\/\/[^\s]+)/);
+                        if (gifMatch) {
+                          return (
+                            <div className="mb-3 rounded-lg overflow-hidden max-w-[200px]">
+                              <img src={gifMatch[1]} alt="GIF" className="w-full h-auto" />
+                            </div>
+                          );
+                        }
+                        return null;
+                      })()}
+                      
+                      <div className="flex gap-2">
+                        {acceptedTransferId === transfer.id ? (
+                          <motion.div
+                            initial={{ scale: 0.95 }}
+                            animate={{ scale: [1, 1.05, 1] }}
+                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium"
+                          >
+                            <Check className="h-5 w-5" />
+                            Accepted! ✨
+                          </motion.div>
+                        ) : (
+                          <>
+                            <motion.button
+                              whileTap={{ scale: 0.98 }}
+                              onClick={(e) => handleAccept(transfer, e)}
+                              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 rounded-xl text-white font-medium shadow-lg"
+                            >
+                              <Check className="h-4 w-4" />
+                              Accept
+                            </motion.button>
+                            <motion.button
+                              whileTap={{ scale: 0.98 }}
+                              onClick={(e) => handleDecline(transfer, e)}
+                              className="px-4 py-3 bg-gray-100 hover:bg-gray-200 rounded-xl transition-colors"
+                            >
+                              <X className="h-4 w-4 text-gray-500" />
+                            </motion.button>
+                          </>
+                        )}
+                      </div>
+                    </motion.div>
+                  ))}
+
+                  {/* Demo pending messages with distinct styling */}
+                  {demoPending.map((msg, i) => (
+                    <motion.div
+                      key={msg.id}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      exit={{ opacity: 0, x: -100 }}
+                      transition={{ delay: (pendingTransfers.length + i) * 0.05 }}
+                      className="bg-gradient-to-br from-blue-50 via-purple-50 to-indigo-50 rounded-2xl border border-blue-200/50 p-4 shadow-sm relative"
+                    >
+                      {/* Dismiss button */}
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={() => dismissDemoMessage(msg.id)}
+                        className="absolute top-3 right-3 p-1.5 rounded-full bg-white/80 hover:bg-white shadow-sm transition-colors"
+                      >
+                        <X className="h-3.5 w-3.5 text-gray-400" />
+                      </motion.button>
+
+                      <div className="flex items-center gap-3 mb-3 pr-8">
+                        {msg.avatar.startsWith('http') ? (
+                          <img 
+                            src={msg.avatar}
+                            alt={msg.from}
+                            className="w-10 h-10 rounded-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-white/80 shadow-sm flex items-center justify-center text-xl">
+                            {msg.avatar}
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <p className="font-semibold text-gray-900">{msg.from}</p>
+                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium flex items-center gap-0.5">
+                              <Sparkles className="h-2.5 w-2.5" />
+                              Demo
+                            </span>
+                          </div>
+                          <p className="text-xs text-gray-500">
+                            {formatDistanceToNow(msg.timestamp, { addSuffix: true })}
+                          </p>
+                        </div>
+                        {msg.amount && (
+                          <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                            ${msg.amount.toLocaleString()}
+                          </p>
+                        )}
+                      </div>
+                      
+                      <p className="font-medium text-gray-800 mb-1">{msg.title}</p>
+                      <p className="text-sm text-gray-600 whitespace-pre-line">{msg.body}</p>
+                      
+                      <div className="mt-3 pt-3 border-t border-blue-200/30">
+                        <p className="text-xs text-gray-500 text-center">
+                          This is example content to show how distributions appear
+                        </p>
+                      </div>
+                    </motion.div>
+                  ))}
                 </div>
               </div>
             )}
+
+            {/* All Messages - Inbox Style (grouped by conversation partner) */}
+            <h2 className="font-semibold mb-3 text-gray-900">All Messages</h2>
+            <div className="space-y-2">
+              {conversations.length === 0 ? (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No messages yet</p>
+                  <p className="text-sm mt-1">Send USDC to start a conversation</p>
+                </div>
+              ) : (
+                conversations.map((convo, i) => (
+                  <motion.div
+                    key={convo.id}
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, x: -100 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="relative"
+                  >
+                    <motion.button
+                      onMouseEnter={() => prefetchConversation(convo.partnerId)}
+                      onTouchStart={() => prefetchConversation(convo.partnerId)}
+                      onClick={() => {
+                        if (!convo.isDemo) {
+                          setSelectedConversation(convo);
+                        } else {
+                          toast.info('This is demo content showing how messages appear');
+                        }
+                      }}
+                      className={cn(
+                        "w-full rounded-xl border p-4 flex items-center gap-3 text-left transition-colors relative",
+                        convo.isDemo 
+                          ? "bg-gradient-to-r from-blue-50/50 to-purple-50/50 border-blue-100 hover:from-blue-50 hover:to-purple-50 pr-12"
+                          : convo.unreadCount > 0
+                            ? "bg-blue-50/60 border-blue-200 hover:bg-blue-50"
+                            : convo.hasPendingTransfer 
+                              ? "bg-white border-blue-200 ring-1 ring-blue-100 hover:bg-blue-50" 
+                              : "bg-white border-gray-200 hover:bg-gray-50"
+                      )}
+                    >
+                      {/* Unread dot indicator */}
+                      {convo.unreadCount > 0 && !convo.isDemo && (
+                        <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500" />
+                      )}
+                      
+                      {/* Avatar */}
+                      {convo.isDemo && convo.demoMessage ? (
+                        convo.demoMessage.avatar.startsWith('http') ? (
+                          <img 
+                            src={convo.demoMessage.avatar}
+                            alt={convo.partnerName}
+                            className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                          />
+                        ) : (
+                          <div className="w-12 h-12 rounded-full bg-white shadow-sm flex items-center justify-center flex-shrink-0 text-2xl">
+                            {convo.demoMessage.avatar}
+                          </div>
+                        )
+                      ) : convo.partnerAvatar ? (
+                        <img 
+                          src={convo.partnerAvatar}
+                          alt={convo.partnerName}
+                          className="w-12 h-12 rounded-full object-cover flex-shrink-0"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                          <span className="text-white font-semibold text-lg">
+                            {convo.partnerName.charAt(0).toUpperCase()}
+                          </span>
+                        </div>
+                      )}
+                      
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                          <p className={cn(
+                            "truncate",
+                            convo.unreadCount > 0 && !convo.isDemo 
+                              ? "font-bold text-gray-900" 
+                              : "font-semibold text-gray-700"
+                          )}>
+                            {convo.isDemo ? convo.partnerName : `@${convo.partnerName}`}
+                          </p>
+                          {convo.isDemo && (
+                            <span className="px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded text-[10px] font-medium flex items-center gap-0.5 flex-shrink-0">
+                              <Sparkles className="h-2.5 w-2.5" />
+                              Demo
+                            </span>
+                          )}
+                          {convo.hasPendingTransfer && !convo.isDemo && (
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-100 text-blue-700 font-medium flex-shrink-0">
+                              Pending
+                            </span>
+                          )}
+                        </div>
+                        <p className={cn(
+                          "text-sm truncate",
+                          convo.unreadCount > 0 && !convo.isDemo 
+                            ? "font-semibold text-gray-800" 
+                            : "text-gray-500"
+                        )}>
+                          {convo.lastMessage}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          {formatDistanceToNow(convo.lastMessageTime, { addSuffix: true })}
+                        </p>
+                      </div>
+                      
+                      {/* Right side: unread count or chevron */}
+                      <div className="flex items-center gap-2 flex-shrink-0">
+                        {convo.unreadCount > 0 && !convo.isDemo && (
+                          <span className="min-w-[20px] h-5 px-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium flex items-center justify-center">
+                            {convo.unreadCount}
+                          </span>
+                        )}
+                        {!convo.isDemo && (
+                          <ChevronRight className="h-5 w-5 text-gray-300" />
+                        )}
+                      </div>
+                    </motion.button>
+
+                    {/* Dismiss button for demo items */}
+                    {convo.isDemo && convo.demoMessage && (
+                      <motion.button
+                        whileTap={{ scale: 0.9 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          dismissDemoMessage(convo.demoMessage!.id);
+                        }}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 p-1.5 rounded-full bg-white/80 hover:bg-white shadow-sm transition-colors z-10"
+                      >
+                        <X className="h-3.5 w-3.5 text-gray-400" />
+                      </motion.button>
+                    )}
+                  </motion.div>
+                ))
+              )}
+
+              {/* Restore demo messages option */}
+              {dismissedDemoIds.size > 0 && (
+                <motion.button
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  onClick={restoreDemoMessages}
+                  className="w-full py-3 text-center text-sm text-blue-600 hover:text-blue-700 font-medium"
+                >
+                  Restore {dismissedDemoIds.size} hidden demo message{dismissedDemoIds.size > 1 ? 's' : ''}
+                </motion.button>
+              )}
+            </div>
+          </div>
+        )}
+      </motion.div>
+
+      {/* Thread View - Slides in from right as overlay */}
+      <AnimatePresence>
+        {selectedConversation && (
+          <motion.div
+            key="thread-overlay"
+            initial={{ x: '100%' }}
+            animate={{ x: 0 }}
+            exit={{ x: '100%' }}
+            transition={slideTransition}
+            className="fixed inset-0 z-50"
+          >
+            <InlineComposeBar
+              preselectedUser={{
+                id: selectedConversation.partnerId,
+                username: selectedConversation.partnerName,
+                display_name: selectedConversation.partnerName,
+                avatar_url: selectedConversation.partnerAvatar,
+                phone: '',
+                created_at: null,
+                active_role: null,
+                last_login_at: null,
+                onboarding_complete: true
+              } as DemoUser}
+              onBack={() => setSelectedConversation(null)}
+              onSuccess={loadTransfers}
+            />
           </motion.div>
         )}
       </AnimatePresence>
 
+      {/* Send Modal */}
       <SendModal
         isOpen={showSendModal}
         onClose={() => setShowSendModal(false)}
-        onSuccess={loadTransfers}
+        onSuccess={() => {
+          setShowSendModal(false);
+          loadTransfers();
+        }}
       />
 
-      <InlineComposeBar onSuccess={loadTransfers} />
-
+      {/* Amplify Prompt */}
       <AmplifyPromptModal
         isOpen={showAmplifyPrompt}
         onClose={() => setShowAmplifyPrompt(false)}
-        impactSummary={amplifySummary}
         content={amplifyContent}
+        impactSummary={amplifySummary}
       />
     </div>
-  );
-}
-
-// Transfer Detail View
-function TransferDetailView({ 
-  transfer, 
-  currentUserId,
-  onBack,
-  onAccept,
-  onDecline,
-}: { 
-  transfer: DemoTransfer; 
-  currentUserId: string | null;
-  onBack: () => void;
-  onAccept: (e?: React.MouseEvent) => void;
-  onDecline: (e?: React.MouseEvent) => void;
-}) {
-  const isIncoming = transfer.to_user_id === currentUserId;
-  const isPending = transfer.status === 'pending';
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0 }}
-      className="flex flex-col min-h-screen bg-gray-50"
-    >
-      {/* Header */}
-      <header className="sticky top-0 z-30 bg-white border-b border-gray-200 shadow-sm">
-        <div className="px-4 py-4 flex items-center gap-4">
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={onBack}
-            className="p-2 -ml-2 hover:bg-gray-100 rounded-xl"
-          >
-            <ArrowLeft className="h-5 w-5 text-gray-700" />
-          </motion.button>
-          <div>
-            <h1 className="font-semibold text-gray-900">Transfer Details</h1>
-            <p className="text-xs text-gray-500 capitalize">{transfer.status}</p>
-          </div>
-        </div>
-      </header>
-
-      {/* Content */}
-      <div className="flex-1 px-4 py-6">
-        <div className="text-center mb-8">
-          <div className={cn(
-            "w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center",
-            transfer.status === 'accepted' ? "bg-gradient-to-br from-green-400 to-emerald-500" : 
-            transfer.status === 'declined' ? "bg-gray-200" : "bg-gradient-to-br from-blue-500 to-purple-600"
-          )}>
-            <DollarSign className={cn(
-              "h-8 w-8",
-              transfer.status === 'declined' ? "text-gray-400" : "text-white"
-            )} />
-          </div>
-          <p className="text-4xl font-bold text-gray-900 mb-2">
-            {isIncoming ? '+' : '-'}${transfer.amount.toFixed(2)}
-          </p>
-          <p className="text-gray-500">USDC</p>
-        </div>
-
-        <div className="bg-white rounded-2xl border border-gray-200 divide-y divide-gray-100 shadow-sm">
-          <div className="p-4 flex justify-between">
-            <span className="text-gray-500">From</span>
-            <span className="font-medium text-gray-900">@{transfer.from_user?.username || 'unknown'}</span>
-          </div>
-          <div className="p-4 flex justify-between">
-            <span className="text-gray-500">To</span>
-            <span className="font-medium text-gray-900">@{transfer.to_user?.username || 'unknown'}</span>
-          </div>
-          {transfer.purpose && (
-            <div className="p-4 flex justify-between">
-              <span className="text-gray-500">Purpose</span>
-              <span className="font-medium text-gray-900">{transfer.purpose}</span>
-            </div>
-          )}
-          <div className="p-4 flex justify-between">
-            <span className="text-gray-500">Status</span>
-            <span className={cn(
-              "font-medium capitalize",
-              transfer.status === 'accepted' && "text-green-600",
-              transfer.status === 'declined' && "text-red-500"
-            )}>
-              {transfer.status}
-            </span>
-          </div>
-          <div className="p-4 flex justify-between">
-            <span className="text-gray-500">Date</span>
-            <span className="font-medium text-gray-900">
-              {new Date(transfer.created_at).toLocaleDateString()}
-            </span>
-          </div>
-        </div>
-
-        {isPending && isIncoming && (
-          <div className="mt-6 space-y-3">
-            <motion.button
-              whileTap={{ scale: 0.98 }}
-              onClick={(e) => onAccept(e)}
-              className="w-full py-4 bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90 rounded-2xl text-white font-semibold flex items-center justify-center gap-2 shadow-lg"
-            >
-              <Check className="h-5 w-5" />
-              Accept Transfer
-            </motion.button>
-            <motion.button
-              whileTap={{ scale: 0.98 }}
-              onClick={(e) => onDecline(e)}
-              className="w-full py-4 bg-gray-100 hover:bg-gray-200 rounded-2xl font-semibold flex items-center justify-center gap-2 text-gray-700"
-            >
-              <X className="h-5 w-5" />
-              Decline
-            </motion.button>
-          </div>
-        )}
-      </div>
-    </motion.div>
   );
 }
