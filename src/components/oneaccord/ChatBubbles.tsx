@@ -168,7 +168,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
       }, []),
     });
 
-    const getStatusIcon = (status: string, isOutgoing: boolean) => {
+    const getStatusIcon = (status: string, isOutgoing: boolean, recipientUsername?: string) => {
       switch (status) {
         case 'accepted':
           // For outgoing accepted = "Seen/Received"
@@ -186,7 +186,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
           return isOutgoing ? (
             <span className="flex items-center gap-1 text-[10px] text-yellow-400">
               <Clock className="h-3 w-3" />
-              Waiting for @{recipientUsername}
+              Waiting for @{recipientUsername || 'user'}
             </span>
           ) : (
             <Clock className="h-3 w-3 text-yellow-400" />
@@ -491,7 +491,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                         <span className="text-[10px] opacity-50">
                           {formatDistanceToNow(new Date(msg.created_at), { addSuffix: true })}
                         </span>
-                        {isOutgoing && getStatusIcon(msg.status, isOutgoing)}
+                        {isOutgoing && getStatusIcon(msg.status, isOutgoing, selectedUser?.username)}
                       </div>
 
                       {/* Accept/Decline buttons for pending incoming transfers */}
