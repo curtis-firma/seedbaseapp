@@ -49,6 +49,8 @@ export async function createTransfer(
   await updateWalletBalance(senderWallet.id, newBalance);
   
   // Create transfer
+  // Auto-accept text-only messages (no money to transfer)
+  const isTextOnly = amount === 0;
   const { data, error } = await supabase
     .from('demo_transfers')
     .insert({
@@ -56,7 +58,8 @@ export async function createTransfer(
       to_user_id: toUserId,
       amount,
       purpose: purpose || 'USDC Transfer',
-      status: 'pending',
+      status: isTextOnly ? 'accepted' : 'pending',
+      responded_at: isTextOnly ? new Date().toISOString() : null,
     })
     .select()
     .single();
