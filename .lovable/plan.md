@@ -1,86 +1,173 @@
 
-## Fix: Pending Messages and Accept Buttons
 
-### Problem Summary
-Based on the screenshot and database investigation:
+## Unified Dark Theme for OneAccord - Eliminate Light-to-Dark Jank
 
-1. **You are viewing your OWN outgoing messages** - The accept button only appears for the **recipient** of a transfer, not the sender. As the sender (curtis), you correctly see "Pending" status, waiting for the recipient (west0nhill) to accept.
+### Current State Analysis
 
-2. **Text-only messages ($0) shouldn't require acceptance** - Currently, even messages with no USDC attached are created as "pending", which is confusing. A pure text message doesn't need recipient approval.
+The OneAccord page has a **mixed theme architecture** that causes visual jarring:
 
-3. **The current behavior is technically correct but confusing** - When west0nhill opens this conversation, they WILL see the accept/decline buttons for the $25 transfer.
+| Component | Current Theme | Problem |
+|-----------|---------------|---------|
+| `OneAccordPage.tsx` Inbox | `bg-gray-50` (light) | White background |
+| Sticky Header | `bg-white` (light) | White background |
+| Info Banner | `from-blue-50 to-purple-50` (light) | Light gradient |
+| Pending Cards | `bg-white` (light) | White cards |
+| Conversation Items | `bg-white` (light) | White buttons |
+| `InlineComposeBar.tsx` Compose | `bg-black` (dark) | Sudden dark overlay |
+| User Select Mode | `bg-black` (dark) | Dark screen |
+| Chat Bubbles Area | `bg-black` (dark) | Dark chat |
+
+When a user taps a conversation, they go from a bright white inbox to a black compose screen - this is the jarring transition.
+
+### Solution: Consistent Dark Theme Throughout
+
+Transform the entire OneAccord experience to use a unified dark color palette matching the compose/chat views.
 
 ---
 
-### Solution
+### Phase 1: Fix Database Query (Already Done)
 
-#### Part 1: Auto-Accept $0 Messages (Text-Only)
-
-**File: `src/lib/supabase/transfersApi.ts`**
-
-Modify `createTransfer` to automatically set status to "accepted" when amount is 0:
+The `getKeyByUserId` function in `src/lib/supabase/demoApi.ts` already has the fix:
 
 ```typescript
-// Create transfer
-const { data, error } = await supabase
-  .from('demo_transfers')
-  .insert({
-    from_user_id: fromUserId,
-    to_user_id: toUserId,
-    amount,
-    purpose: purpose || 'USDC Transfer',
-    // Auto-accept text-only messages (no money to transfer)
-    status: amount === 0 ? 'accepted' : 'pending',
-    responded_at: amount === 0 ? new Date().toISOString() : null,
-  })
+.order('created_at', { ascending: false })
+.limit(1)
+.maybeSingle();
 ```
 
-#### Part 2: Improve Pending Status UX for Outgoing Messages
+No further action needed.
 
-**File: `src/components/oneaccord/ChatBubbles.tsx`**
+---
 
-Update the status indicator for outgoing pending transfers to be clearer:
+### Phase 2: Dark Theme for OneAccordPage.tsx
 
-```typescript
-case 'pending':
-  return isOutgoing ? (
-    <span className="flex items-center gap-1 text-[10px] text-yellow-400">
-      <Clock className="h-3 w-3" />
-      Waiting for @{recipientUsername}
-    </span>
-  ) : (
-    // Incoming pending - will have accept buttons
-    <Clock className="h-3 w-3 text-yellow-400" />
-  );
+**File: `src/pages/OneAccordPage.tsx`**
+
+Replace light theme classes with dark equivalents:
+
+| Current Class | New Class |
+|--------------|-----------|
+| `bg-gray-50` | `bg-[#121212]` (main background) |
+| `bg-white` | `bg-[#1a1a1a]` (header/cards) |
+| `border-gray-200` | `border-white/10` |
+| `text-gray-900` | `text-white` |
+| `text-gray-500` | `text-gray-400` |
+| `bg-gradient-to-r from-blue-50 to-purple-50` | `bg-[#1e1e1e]` (info banner) |
+| `hover:bg-gray-50` | `hover:bg-white/5` |
+
+Key sections to update:
+1. **Main container**: Line 329 - `bg-gray-50` to `bg-[#121212]`
+2. **Sticky header**: Lines 345-365 - `bg-white` to `bg-[#1a1a1a]`
+3. **Info banner**: Lines 368-374 - Light gradients to dark
+4. **Loading state**: Lines 378-382 - Update spinner colors
+5. **Pending cards**: Lines 402-474 - Light cards to dark cards
+6. **Demo pending cards**: Lines 477-536 - Update gradient to dark
+7. **Conversation items**: Lines 559-577 - Dark button backgrounds
+8. **"Restore demo" button**: Update if visible
+
+---
+
+### Phase 3: Update Swipe Peek-Through Background
+
+**File: `src/components/oneaccord/InlineComposeBar.tsx`**
+
+Currently at line 559, the peek-through shows `bg-gray-50` (light):
+
+```tsx
+// Current:
+<motion.div className="fixed inset-0 z-30 bg-gray-50" />
+
+// Change to:
+<motion.div className="fixed inset-0 z-30 bg-[#121212]" />
 ```
 
-#### Part 3: Update Existing $0 Messages in Database
+This ensures the peeking background during swipe matches the dark inbox.
 
-Run a one-time migration to fix existing text-only messages:
+---
 
-```sql
-UPDATE demo_transfers 
-SET status = 'accepted', 
-    responded_at = created_at
-WHERE amount = 0 
-  AND status = 'pending';
+### Technical Details
+
+#### Color Palette for OneAccord Dark Theme
+
+```text
+Background layers:
+- Main background: #121212 (darkest)
+- Card/elevated: #1a1a1a
+- Input/compose pill: #2b2b2b (already used)
+- Hover states: white/5 or white/10
+
+Text:
+- Primary: white
+- Secondary: gray-400 (#9ca3af)
+- Muted: gray-500 (#6b7280)
+
+Borders:
+- Standard: white/10
+- Accent: blue-500/30 or purple-500/30
+
+Status colors (keep bright for contrast):
+- Pending badge: blue-500 to purple-600 gradient
+- Accept button: blue-500 to purple-600 gradient
+- Decline: gray-700 with gray-400 icon
 ```
+
+#### Special Considerations
+
+1. **Unread indicators**: Keep the blue dot (`bg-blue-500`) for visibility
+2. **Avatar rings**: May need subtle white/10 borders for definition
+3. **Demo badges**: Keep gradient badges for distinction but darken container
+4. **Confetti**: Works on any background (already positioned via fixed)
 
 ---
 
 ### Files to Modify
 
-| File | Changes |
-|------|---------|
-| `src/lib/supabase/transfersApi.ts` | Auto-accept $0 messages on creation |
-| `src/components/oneaccord/ChatBubbles.tsx` | Improve pending status text for outgoing messages |
-| Database migration | Fix existing $0 pending messages |
+| File | Scope of Changes |
+|------|------------------|
+| `src/pages/OneAccordPage.tsx` | ~30 class name changes for dark theme |
+| `src/components/oneaccord/InlineComposeBar.tsx` | 1 line change (peek background) |
 
 ---
 
 ### Expected Result
 
-1. **Text-only messages ($0)** will show as delivered immediately (no pending clock)
-2. **USDC transfers ($1+)** will show "Waiting for @username" on outgoing messages
-3. **Recipients** will still see Accept/Decline buttons for incoming USDC transfers
-4. **Clearer UX** - Senders understand they're waiting for recipient action
+1. **No jarring transition** - Inbox and compose are both dark
+2. **Cohesive feel** - Feels like one unified messaging app
+3. **Modern aesthetic** - Matches iMessage dark mode / X DMs
+4. **Better focus** - Dark theme puts emphasis on content and avatars
+5. **Swipe consistency** - Peek-through during swipe shows matching dark background
+
+---
+
+### Visual Preview (Before vs After)
+
+```text
+BEFORE:
+┌─────────────────────────────┐
+│ ██ WHITE HEADER ██████████ │ <- Light
+│ ░░░░░░░░░░░░░░░░░░░░░░░░░░ │ <- Light gray bg
+│ ┌───────────────────────┐  │
+│ │ WHITE CARD           │  │ <- Light card
+│ └───────────────────────┘  │
+│                             │
+│     * TAP CONVERSATION *    │
+│             ▼               │
+│ ████████████████████████████│ <- SUDDEN BLACK
+│ █ DARK COMPOSE VIEW ████████│
+└─────────────────────────────┘
+
+AFTER:
+┌─────────────────────────────┐
+│ ██ DARK HEADER █████████████│ <- Dark
+│ ████████████████████████████│ <- Dark bg
+│ ┌───────────────────────┐  │
+│ │ DARK CARD             │  │ <- Dark card
+│ └───────────────────────┘  │
+│                             │
+│     * TAP CONVERSATION *    │
+│             ▼               │
+│ ████████████████████████████│ <- SAME DARK
+│ █ DARK COMPOSE VIEW ████████│ <- Seamless!
+└─────────────────────────────┘
+```
+
