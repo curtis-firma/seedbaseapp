@@ -8,7 +8,7 @@ import DashboardCard from "@/components/cards/DashboardCard";
 import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
 import ImpactPreviewCard from "@/components/cards/ImpactPreviewCard";
 import CampaignCard from "@/components/cards/CampaignCard";
-import { seeddropTypeLight } from "@/components/shared/Logo";
+import { seedbaseWordmarkBlack } from "@/components/shared/Logo";
 import baseLogo from "@/assets/base-logo.png";
 import poweredByCik from "@/assets/powered-by-cik-text.png";
 import waterBackground from "@/assets/water-background.png";
@@ -164,7 +164,7 @@ const MobileScrollNarrative = ({ onEnterApp, onLearnMore }: MobileScrollNarrativ
           <img 
             alt="Seedbase" 
             className="w-full max-w-md h-auto transition-opacity duration-300 opacity-100" 
-            src={seeddropTypeLight} 
+            src={seedbaseWordmarkBlack} 
           />
         </button>
       </section>

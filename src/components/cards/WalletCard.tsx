@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion, useSpring, useMotionValue, PanInfo } from "framer-motion";
 import { ChevronRight, ChevronDown, Check, Info, Wallet } from "lucide-react";
-import { seeddropIconLight } from "@/components/shared/Logo";
+import { seedbaseIconBlue } from "@/components/shared/Logo";
 
 const WalletCard = () => {
   const [isSent, setIsSent] = useState(false);
@@ -148,7 +148,7 @@ const WalletCard = () => {
           {isSent ? (
             <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-500" />
           ) : (
-            <img src={seeddropIconLight} alt="" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />
+            <img src={seedbaseIconBlue} alt="" className="w-5 h-5 sm:w-6 sm:h-6 object-contain" />
           )}
         </motion.div>
 

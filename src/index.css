@@ -8,101 +8,118 @@
 
 @layer base {
   :root {
-    --background: 220 20% 97%;
-    --foreground: 222 47% 11%;
+    /* Core palette from new brand system */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 7%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 0 0% 7%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 0 0% 7%;
 
-    --primary: 221 83% 53%;
+    /* Primary: Pure Blue #0000FF */
+    --primary: 240 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 96%;
-    --secondary-foreground: 222 47% 11%;
+    /* Secondary: Off-white #F5F5F7 */
+    --secondary: 240 5% 97%;
+    --secondary-foreground: 0 0% 7%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 240 5% 96%;
+    --muted-foreground: 0 0% 45%;
 
-    --accent: 221 83% 53%;
+    --accent: 240 100% 50%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    /* Destructive: Red #FF3B30 */
+    --destructive: 4 100% 59%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 221 83% 53%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 240 100% 50%;
 
     --radius: 1rem;
 
     /* Seedbase Custom Tokens */
-    --seed-green: 142 76% 36%;
-    --seed-green-glow: 142 76% 46%;
-    --base-blue: 221 83% 53%;
-    --base-blue-glow: 221 83% 63%;
+    /* Activator Green: #34C759 */
+    --seed-green: 142 69% 49%;
+    --seed-green-glow: 142 69% 59%;
+    /* Primary Blue: #0000FF */
+    --base-blue: 240 100% 50%;
+    --base-blue-glow: 240 100% 60%;
+    /* Light Blue: #0A84FF */
+    --base-light-blue: 211 100% 52%;
+    /* Trustee Purple */
     --trust-purple: 262 83% 58%;
+    /* Envoy Orange */
     --envoy-orange: 25 95% 53%;
+    /* Accent colors from palette */
+    --accent-tan: 38 33% 62%;
+    --accent-yellow: 51 100% 52%;
+    --accent-lime: 75 100% 50%;
+    --accent-pink: 351 100% 86%;
     
     --glass: 0 0% 100% / 0.7;
     --glass-border: 0 0% 100% / 0.2;
     
-    --gradient-seed: linear-gradient(135deg, hsl(142 76% 36%), hsl(162 76% 40%));
-    --gradient-base: linear-gradient(135deg, hsl(221 83% 53%), hsl(241 83% 63%));
+    --gradient-seed: linear-gradient(135deg, hsl(142 69% 49%), hsl(162 69% 53%));
+    --gradient-base: linear-gradient(135deg, hsl(240 100% 50%), hsl(260 100% 60%));
     --gradient-trust: linear-gradient(135deg, hsl(262 83% 58%), hsl(282 83% 68%));
     --gradient-envoy: linear-gradient(135deg, hsl(25 95% 53%), hsl(45 95% 53%));
     
-    --shadow-card: 0 4px 24px -4px hsl(221 83% 53% / 0.08);
-    --shadow-elevated: 0 12px 40px -8px hsl(221 83% 53% / 0.15);
-    --shadow-glow: 0 0 40px hsl(221 83% 53% / 0.3);
+    --shadow-card: 0 4px 24px -4px hsl(240 100% 50% / 0.08);
+    --shadow-elevated: 0 12px 40px -8px hsl(240 100% 50% / 0.15);
+    --shadow-glow: 0 0 40px hsl(240 100% 50% / 0.3);
     
     /* Landing Section Colors */
     --landing-wallet: 217 91% 60%;
     --landing-impact: 160 84% 39%;
     --landing-spread: 174 72% 56%;
-    --landing-ledger: 52 98% 50%;
+    /* Yellow: #FFD60A */
+    --landing-ledger: 51 100% 52%;
     --landing-seedbases: 258 90% 66%;
     --landing-tithing: 38 92% 50%;
     --landing-movement: 187 92% 69%;
   }
 
   .dark {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
+    /* Dark mode: #1C1C1E background */
+    --background: 240 6% 11%;
+    --foreground: 0 0% 98%;
 
-    --card: 222 47% 9%;
-    --card-foreground: 210 40% 98%;
+    --card: 240 6% 13%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 9%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 240 6% 13%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 221 83% 53%;
+    --primary: 240 100% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 222 32% 14%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 240 6% 18%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 222 32% 14%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 240 6% 18%;
+    --muted-foreground: 0 0% 65%;
 
-    --accent: 221 83% 53%;
+    --accent: 240 100% 50%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 63% 31%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 4 100% 59%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border: 222 32% 18%;
-    --input: 222 32% 18%;
-    --ring: 221 83% 53%;
+    --border: 240 6% 20%;
+    --input: 240 6% 20%;
+    --ring: 240 100% 50%;
 
-    --glass: 222 47% 11% / 0.8;
+    --glass: 240 6% 13% / 0.8;
     --glass-border: 0 0% 100% / 0.08;
     
     --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
     --shadow-elevated: 0 12px 40px -8px hsl(0 0% 0% / 0.6);
-    --shadow-glow: 0 0 60px hsl(221 83% 53% / 0.2);
+    --shadow-glow: 0 0 60px hsl(240 100% 50% / 0.2);
   }
 }
 

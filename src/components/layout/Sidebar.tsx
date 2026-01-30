@@ -7,7 +7,7 @@ import {
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
-import { Logo, seeddropIconDark } from '@/components/shared/Logo';
+import { Logo } from '@/components/shared/Logo';
 import { ViewRoleBadge } from '@/components/shared/ViewRoleBadge';
 
 const primaryNav = [

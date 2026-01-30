@@ -1,19 +1,22 @@
 import { cn } from '@/lib/utils';
 
-// Seedbase assets for light/dark mode
-import seeddropIconLight from '@/assets/seeddroplogo_lightmode.png';
-import seeddropIconDark from '@/assets/seeddroplogo_darkmode.png';
-import seeddropTypeLight from '@/assets/seeddrop_lightmode.png';
-import seeddropTypeDark from '@/assets/seeddroptype_darkmode.png';
+// New Seedbase brand assets
+import seedbaseIconBlue from '@/assets/seedbase-icon-blue.png';
+import seedbaseWordmarkWhite from '@/assets/seedbase-wordmark-white.png';
+import seedbaseWordmarkBlack from '@/assets/seedbase-wordmark-black.png';
+import seedbaseWordmarkBlue from '@/assets/seedbase-wordmark-blue.png';
+
 type LogoVariant = 'icon' | 'wordmark' | 'full';
 type LogoSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+
 interface LogoProps {
   variant?: LogoVariant;
   size?: LogoSize;
   className?: string;
-  forceDark?: boolean; // Force dark mode assets (for light backgrounds)
-  forceLight?: boolean; // Force light mode assets (for dark backgrounds)
+  forceDark?: boolean; // Force dark mode assets (white wordmark for dark backgrounds)
+  forceLight?: boolean; // Force light mode assets (black wordmark for light backgrounds)
 }
+
 const iconSizes: Record<LogoSize, string> = {
   xs: 'h-6 w-auto',
   sm: 'h-8 w-auto',
@@ -21,6 +24,7 @@ const iconSizes: Record<LogoSize, string> = {
   lg: 'h-12 w-auto',
   xl: 'h-16 w-auto'
 };
+
 const wordmarkSizes: Record<LogoSize, string> = {
   xs: 'h-5 w-auto',
   sm: 'h-7 w-auto',
@@ -30,15 +34,17 @@ const wordmarkSizes: Record<LogoSize, string> = {
 };
 
 /**
- * Canonical Logo component that automatically switches between light/dark mode assets.
+ * Canonical Logo component for Seedbase brand.
+ * 
+ * The icon is always the blue square (works on any background).
  * 
  * Variants:
- * - icon: Just the Seedbase icon/symbol
- * - wordmark: Just the Seedbase text/type
+ * - icon: Just the Seedbase blue square icon
+ * - wordmark: Just the Seedbase text
  * - full: Icon + Wordmark side by side
  * 
- * For light backgrounds (like landing page): use forceDark={true}
- * For dark backgrounds: use forceLight={true}
+ * For dark backgrounds: use forceDark={true} → white wordmark
+ * For light backgrounds: use forceLight={true} → black wordmark
  * For themed pages: leave both false to auto-detect via CSS
  */
 export function Logo({
@@ -48,51 +54,62 @@ export function Logo({
   forceDark = false,
   forceLight = false
 }: LogoProps) {
-  // Asset naming convention:
-  // _lightmode = designed for light backgrounds (use in light mode)
-  // _darkmode = designed for dark backgrounds (use in dark mode)
-  // forceLight = force lightmode assets (for light backgrounds)
-  // forceDark = force darkmode assets (for dark backgrounds)
+  // The blue icon works universally on both light and dark backgrounds
+  const renderIcon = (sizeClass: string) => (
+    <img 
+      src={seedbaseIconBlue} 
+      alt="Seedbase" 
+      className={cn(sizeClass, className)} 
+    />
+  );
 
-  const renderIcon = (sizeClass: string) => {
-    if (forceLight) {
-      return <img src={seeddropIconLight} alt="Seedbase" className={cn(sizeClass, className)} />;
-    }
-    if (forceDark) {
-      return <img src={seeddropIconDark} alt="Seedbase" className={cn(sizeClass, className)} />;
-    }
-    // Auto-detect: lightmode asset in light mode, darkmode asset in dark mode
-    return <div className="flex items-center justify-center">
-        <img alt="Seedbase" className={cn(sizeClass, 'dark:hidden', className)} src="/lovable-uploads/9eee91e8-1943-4558-97c1-aaf910ffc759.png" />
-        <img src={seeddropIconDark} alt="Seedbase" className={cn(sizeClass, 'hidden dark:block', className)} />
-      </div>;
-  };
   const renderWordmark = (sizeClass: string) => {
-    if (forceLight) {
-      return <img src={seeddropTypeLight} alt="Seedbase" className={cn(sizeClass, className)} />;
-    }
     if (forceDark) {
-      return <img src={seeddropTypeDark} alt="Seedbase" className={cn(sizeClass, className)} />;
+      // White wordmark for dark backgrounds
+      return <img src={seedbaseWordmarkWhite} alt="Seedbase" className={cn(sizeClass, className)} />;
     }
-    // Auto-detect: lightmode asset in light mode, darkmode asset in dark mode
-    return <>
-        <img src={seeddropTypeLight} alt="Seedbase" className={cn(sizeClass, 'dark:hidden', className)} />
-        <img src={seeddropTypeDark} alt="Seedbase" className={cn(sizeClass, 'hidden dark:block', className)} />
-      </>;
+    if (forceLight) {
+      // Black wordmark for light backgrounds
+      return <img src={seedbaseWordmarkBlack} alt="Seedbase" className={cn(sizeClass, className)} />;
+    }
+    // Auto-detect: black wordmark in light mode, white wordmark in dark mode
+    return (
+      <div className="flex items-center justify-center">
+        <img 
+          src={seedbaseWordmarkBlack} 
+          alt="Seedbase" 
+          className={cn(sizeClass, 'dark:hidden', className)} 
+        />
+        <img 
+          src={seedbaseWordmarkWhite} 
+          alt="Seedbase" 
+          className={cn(sizeClass, 'hidden dark:block', className)} 
+        />
+      </div>
+    );
   };
+
   if (variant === 'icon') {
     return renderIcon(iconSizes[size]);
   }
+
   if (variant === 'wordmark') {
     return renderWordmark(wordmarkSizes[size]);
   }
 
   // Full: icon + wordmark
-  return <div className={cn('flex items-center gap-2', className)}>
+  return (
+    <div className={cn('flex items-center gap-2', className)}>
       {renderIcon(iconSizes[size])}
       {renderWordmark(wordmarkSizes[size])}
-    </div>;
+    </div>
+  );
 }
 
 // Export individual assets for special cases
-export { seeddropIconLight, seeddropIconDark, seeddropTypeLight, seeddropTypeDark };
+export { 
+  seedbaseIconBlue, 
+  seedbaseWordmarkWhite, 
+  seedbaseWordmarkBlack, 
+  seedbaseWordmarkBlue 
+};
