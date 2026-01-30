@@ -1,173 +1,211 @@
 
 
-## Unified Dark Theme for OneAccord - Eliminate Light-to-Dark Jank
+# Complete Brand System Overhaul
 
-### Current State Analysis
+## Audit Summary
 
-The OneAccord page has a **mixed theme architecture** that causes visual jarring:
-
-| Component | Current Theme | Problem |
-|-----------|---------------|---------|
-| `OneAccordPage.tsx` Inbox | `bg-gray-50` (light) | White background |
-| Sticky Header | `bg-white` (light) | White background |
-| Info Banner | `from-blue-50 to-purple-50` (light) | Light gradient |
-| Pending Cards | `bg-white` (light) | White cards |
-| Conversation Items | `bg-white` (light) | White buttons |
-| `InlineComposeBar.tsx` Compose | `bg-black` (dark) | Sudden dark overlay |
-| User Select Mode | `bg-black` (dark) | Dark screen |
-| Chat Bubbles Area | `bg-black` (dark) | Dark chat |
-
-When a user taps a conversation, they go from a bright white inbox to a black compose screen - this is the jarring transition.
-
-### Solution: Consistent Dark Theme Throughout
-
-Transform the entire OneAccord experience to use a unified dark color palette matching the compose/chat views.
+I've thoroughly explored the codebase and found every location where logos, wordmarks, and colors are defined. Here's my complete findings:
 
 ---
 
-### Phase 1: Fix Database Query (Already Done)
+## Part 1: Logo & Wordmark Inventory
 
-The `getKeyByUserId` function in `src/lib/supabase/demoApi.ts` already has the fix:
+### Central Logo Component
+**File:** `src/components/shared/Logo.tsx`
+- Currently imports 4 "seeddrop" assets that need replacement
+- Used across: Sidebar, MobileDrawer, AppLayout, AppSplashScreen, ScrollingLandingPage, MobileScrollNarrative
 
+### Image Assets in `src/assets/` (38 brand-related files)
+| Asset | Purpose | Action |
+|-------|---------|--------|
+| `seeddroplogo_lightmode.png` | Icon for light backgrounds | Replace |
+| `seeddroplogo_darkmode.png` | Icon for dark backgrounds | Replace |
+| `seeddrop_lightmode.png` | Wordmark for light backgrounds | Replace |
+| `seeddroptype_darkmode.png` | Wordmark for dark backgrounds | Replace |
+| `seedbase-pfp.png` | Circular profile picture | Replace |
+| `seedbase-pfp-new.png` | Newer circular PFP | Replace |
+| `seed-square-node.png` | Blue square icon for hero animations | Replace with Frame_3.png |
+| `seed-icon-blue.png` | Blue icon for orbital rings | Replace |
+| `seed-icon-white.png` | White icon for pull-to-refresh | Replace |
+| `seed-button-white.png` | White icon for Enter App button | Replace |
+| `seedbase-wordmark-white.png` | White wordmark | Replace |
+| `seedbase-circle-logo.png` | Circular logo | Replace |
+| `seedbase-icon.png` | Square icon | Replace |
+| `seedbase-leaf-*.png` | Legacy leaf assets | Remove |
+| `seedbase-seed*.svg` | SVG seed variants | Replace |
+| `seedbase-block.svg` | Block variant | Replace |
+| `seedbase-logo-*.png` | Various logo versions | Replace |
+| `seeded-logo-white.png` | SEEDED sub-brand | Keep (shop brand) |
+
+### Public Folder Assets
+| Asset | Purpose |
+|-------|---------|
+| `favicon.ico` | Legacy favicon (not used) |
+| `seedbase-favicon.png` | Desktop favicon |
+| `seedbase-apple-touch.png` | iOS home screen |
+| `seeddrop-favicon.png` | Alternate favicon |
+| `seeddrop-apple-touch.png` | Alternate iOS icon |
+| `og-image.png` | Social share image |
+
+### index.html References
+- Favicon: External URL (storage.googleapis.com) needs update
+- OG Image: External URL needs update
+
+---
+
+## Part 2: Current Color Palette
+
+### CSS Variables (src/index.css)
+
+**Light Mode:**
+```css
+--primary: 221 83% 53%        /* Current blue - needs change */
+--background: 220 20% 97%     /* Light gray background */
+--foreground: 222 47% 11%     /* Dark text */
+--card: 0 0% 100%             /* White cards */
+--muted: 220 14% 96%          /* Light gray muted */
+--seed-green: 142 76% 36%     /* Activator green */
+--base-blue: 221 83% 53%      /* Base network blue */
+--trust-purple: 262 83% 58%   /* Trustee purple */
+--envoy-orange: 25 95% 53%    /* Envoy orange */
+```
+
+**Dark Mode:**
+```css
+--background: 222 47% 6%      /* Dark background */
+--foreground: 210 40% 98%     /* Light text */
+--card: 222 47% 9%            /* Dark cards */
+```
+
+### Your New Color Palette (from element.png)
+Based on your uploaded palette image:
+
+| Color | Hex | Purpose |
+|-------|-----|---------|
+| Primary Blue | `#0000FF` | Brand primary (pure blue) |
+| Light Blue | `#0A84FF` | Secondary blue accent |
+| Off-White | `#F5F5F7` | Light background |
+| Silver | `#C4C4C4` | Muted elements |
+| Black | `#1C1C1E` | Dark mode background |
+| Tan/Gold | `#B5A486` | Accent 1 |
+| Yellow | `#FFD60A` | Accent 2 (landing-ledger) |
+| Green | `#34C759` | Success/Activator |
+| Lime | `#BFFF00` | Highlight accent |
+| Red | `#FF3B30` | Destructive/Error |
+| Pink | `#FFB6C1` | Soft accent |
+
+---
+
+## Part 3: Hardcoded Colors Found (125+ files)
+
+### Critical Files with `#0000ff` hardcoded:
+1. `src/components/layout/Sidebar.tsx` (lines 118-129)
+2. `src/components/layout/MobileDrawer.tsx` (lines 141-157)
+3. `src/components/layout/AppLayout.tsx` (lines 152-163)
+4. `src/pages/OneAccordPage.tsx` (multiple locations)
+5. `src/components/oneaccord/ChatBubbles.tsx` (multiple locations)
+6. `src/components/oneaccord/InlineComposeBar.tsx` (multiple locations)
+7. `src/components/oneaccord/MessageThread.tsx` (lines 131, 207)
+8. `src/components/feed/QuickVoteCard.tsx` (line 36)
+
+### Gradient patterns needing update:
+- `from-[#0000ff] to-purple-600` (featured buttons, badges)
+- `from-blue-500 to-purple-600` (avatars, fallbacks)
+- `bg-gradient-to-br from-blue-500/20 to-purple-500/20` (backgrounds)
+
+---
+
+## Part 4: Implementation Plan
+
+### Step 1: Upload New Brand Assets
+Copy the uploaded images to appropriate locations:
+- `Frame_3.png` → `src/assets/seedbase-icon.png` (new icon)
+- `seedwhite.png` → `src/assets/seedbase-logo-white.png` (white wordmark)
+- `Frame_22.png` → `src/assets/seedbase-logo-blue.png` (blue wordmark)
+- `blackseedbase.png` → `src/assets/seedbase-logo-black.png` (black version)
+
+### Step 2: Update Logo Component
+Modify `src/components/shared/Logo.tsx` to use new assets:
+- `forceLight` → Blue icon + black wordmark (for light backgrounds)
+- `forceDark` → Blue icon + white wordmark (for dark backgrounds)
+
+### Step 3: Update CSS Color Variables
+Update `src/index.css` with new palette:
+```css
+:root {
+  --primary: 240 100% 50%;           /* #0000FF - Pure Blue */
+  --background: 0 0% 100%;           /* Pure white */
+  --foreground: 0 0% 7%;             /* Near black */
+  --secondary: 0 0% 96%;             /* #F5F5F7 */
+  --muted-foreground: 0 0% 45%;      /* Gray */
+  
+  /* Accent colors from your palette */
+  --accent-tan: 38 33% 62%;          /* Tan/Gold */
+  --accent-yellow: 51 100% 52%;      /* Yellow */
+  --accent-green: 142 69% 49%;       /* Green */
+  --accent-lime: 75 100% 50%;        /* Lime */
+}
+
+.dark {
+  --background: 240 6% 11%;          /* #1C1C1E */
+  --foreground: 0 0% 98%;            /* Near white */
+}
+```
+
+### Step 4: Update Tailwind Config
+Add new color tokens in `tailwind.config.ts`:
 ```typescript
-.order('created_at', { ascending: false })
-.limit(1)
-.maybeSingle();
+colors: {
+  seedbase: {
+    blue: '#0000FF',
+    lightBlue: '#0A84FF',
+  },
+  accent: {
+    tan: '#B5A486',
+    yellow: '#FFD60A',
+    lime: '#BFFF00',
+  }
+}
 ```
 
-No further action needed.
+### Step 5: Find & Replace Hardcoded Colors
+Systematic replacement across 125+ files:
+- `#0000ff` → `hsl(var(--primary))` or `text-primary`
+- `blue-500` → `primary` where brand blue is intended
+- `from-[#0000ff] to-purple-600` → `from-primary to-purple-600`
+
+### Step 6: Update Public Assets
+- Replace `public/seedbase-favicon.png` with new icon
+- Replace `public/seedbase-apple-touch.png` with new icon
+- Update `index.html` favicon URL
+
+### Step 7: Update OG/Social Images
+- Update `index.html` meta tags with new image URLs
 
 ---
 
-### Phase 2: Dark Theme for OneAccordPage.tsx
+## Files to Modify
 
-**File: `src/pages/OneAccordPage.tsx`**
-
-Replace light theme classes with dark equivalents:
-
-| Current Class | New Class |
-|--------------|-----------|
-| `bg-gray-50` | `bg-[#121212]` (main background) |
-| `bg-white` | `bg-[#1a1a1a]` (header/cards) |
-| `border-gray-200` | `border-white/10` |
-| `text-gray-900` | `text-white` |
-| `text-gray-500` | `text-gray-400` |
-| `bg-gradient-to-r from-blue-50 to-purple-50` | `bg-[#1e1e1e]` (info banner) |
-| `hover:bg-gray-50` | `hover:bg-white/5` |
-
-Key sections to update:
-1. **Main container**: Line 329 - `bg-gray-50` to `bg-[#121212]`
-2. **Sticky header**: Lines 345-365 - `bg-white` to `bg-[#1a1a1a]`
-3. **Info banner**: Lines 368-374 - Light gradients to dark
-4. **Loading state**: Lines 378-382 - Update spinner colors
-5. **Pending cards**: Lines 402-474 - Light cards to dark cards
-6. **Demo pending cards**: Lines 477-536 - Update gradient to dark
-7. **Conversation items**: Lines 559-577 - Dark button backgrounds
-8. **"Restore demo" button**: Update if visible
+| Category | Files | Changes |
+|----------|-------|---------|
+| Core Brand | `src/components/shared/Logo.tsx` | New asset imports, simplified logic |
+| CSS System | `src/index.css` | New color palette |
+| Tailwind | `tailwind.config.ts` | New color tokens |
+| Assets | 15+ files in `src/assets/` | Replace with new brand assets |
+| Navigation | `Sidebar.tsx`, `MobileDrawer.tsx`, `AppLayout.tsx`, `BottomNav.tsx` | Color class updates |
+| OneAccord | `ChatBubbles.tsx`, `InlineComposeBar.tsx`, `MessageThread.tsx` | Color class updates |
+| Feed/Cards | `FeedCard.tsx`, `QuickVoteCard.tsx`, multiple card components | Color class updates |
+| Landing | Hero states, `ScrollingLandingPage.tsx` | Asset and color updates |
+| Meta | `index.html` | Favicon and OG image URLs |
+| Public | 4 PNG files | Replace with new brand assets |
 
 ---
 
-### Phase 3: Update Swipe Peek-Through Background
+## Expected Result
 
-**File: `src/components/oneaccord/InlineComposeBar.tsx`**
-
-Currently at line 559, the peek-through shows `bg-gray-50` (light):
-
-```tsx
-// Current:
-<motion.div className="fixed inset-0 z-30 bg-gray-50" />
-
-// Change to:
-<motion.div className="fixed inset-0 z-30 bg-[#121212]" />
-```
-
-This ensures the peeking background during swipe matches the dark inbox.
-
----
-
-### Technical Details
-
-#### Color Palette for OneAccord Dark Theme
-
-```text
-Background layers:
-- Main background: #121212 (darkest)
-- Card/elevated: #1a1a1a
-- Input/compose pill: #2b2b2b (already used)
-- Hover states: white/5 or white/10
-
-Text:
-- Primary: white
-- Secondary: gray-400 (#9ca3af)
-- Muted: gray-500 (#6b7280)
-
-Borders:
-- Standard: white/10
-- Accent: blue-500/30 or purple-500/30
-
-Status colors (keep bright for contrast):
-- Pending badge: blue-500 to purple-600 gradient
-- Accept button: blue-500 to purple-600 gradient
-- Decline: gray-700 with gray-400 icon
-```
-
-#### Special Considerations
-
-1. **Unread indicators**: Keep the blue dot (`bg-blue-500`) for visibility
-2. **Avatar rings**: May need subtle white/10 borders for definition
-3. **Demo badges**: Keep gradient badges for distinction but darken container
-4. **Confetti**: Works on any background (already positioned via fixed)
-
----
-
-### Files to Modify
-
-| File | Scope of Changes |
-|------|------------------|
-| `src/pages/OneAccordPage.tsx` | ~30 class name changes for dark theme |
-| `src/components/oneaccord/InlineComposeBar.tsx` | 1 line change (peek background) |
-
----
-
-### Expected Result
-
-1. **No jarring transition** - Inbox and compose are both dark
-2. **Cohesive feel** - Feels like one unified messaging app
-3. **Modern aesthetic** - Matches iMessage dark mode / X DMs
-4. **Better focus** - Dark theme puts emphasis on content and avatars
-5. **Swipe consistency** - Peek-through during swipe shows matching dark background
-
----
-
-### Visual Preview (Before vs After)
-
-```text
-BEFORE:
-┌─────────────────────────────┐
-│ ██ WHITE HEADER ██████████ │ <- Light
-│ ░░░░░░░░░░░░░░░░░░░░░░░░░░ │ <- Light gray bg
-│ ┌───────────────────────┐  │
-│ │ WHITE CARD           │  │ <- Light card
-│ └───────────────────────┘  │
-│                             │
-│     * TAP CONVERSATION *    │
-│             ▼               │
-│ ████████████████████████████│ <- SUDDEN BLACK
-│ █ DARK COMPOSE VIEW ████████│
-└─────────────────────────────┘
-
-AFTER:
-┌─────────────────────────────┐
-│ ██ DARK HEADER █████████████│ <- Dark
-│ ████████████████████████████│ <- Dark bg
-│ ┌───────────────────────┐  │
-│ │ DARK CARD             │  │ <- Dark card
-│ └───────────────────────┘  │
-│                             │
-│     * TAP CONVERSATION *    │
-│             ▼               │
-│ ████████████████████████████│ <- SAME DARK
-│ █ DARK COMPOSE VIEW ████████│ <- Seamless!
-└─────────────────────────────┘
-```
+1. **Unified visual identity** - All logos use the new blue square + seed icon
+2. **Consistent color system** - Pure blue (#0000FF) as primary throughout
+3. **Clean asset management** - Remove legacy "seeddrop" naming, standardize on "seedbase"
+4. **Proper light/dark support** - Blue icon works on both, wordmark swaps white/black
+5. **No hardcoded colors** - All brand colors via CSS variables
 
