@@ -108,7 +108,7 @@ export function SwipeableMessageCard({
 
             {/* Swipe hint arrow for pending cards */}
             <motion.div
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-blue-400 opacity-50"
+              className="absolute right-2 top-1/2 -translate-y-1/2 text-primary opacity-50"
               style={{ x: arrowX }}
               animate={{ x: [0, 5, 0] }}
               transition={{ repeat: Infinity, duration: 1.5, ease: 'easeInOut' }}

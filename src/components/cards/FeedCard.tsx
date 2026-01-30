@@ -20,7 +20,7 @@ const FeedCard = () => {
     <div className="w-[320px] bg-white rounded-3xl p-5 shadow-lg border border-gray-100">
       {/* Author Header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-blue-500 flex items-center justify-center text-white font-bold text-sm">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyan-400 to-primary flex items-center justify-center text-white font-bold text-sm">
           HF
         </div>
         <div className="flex-1">
@@ -33,7 +33,7 @@ const FeedCard = () => {
       </div>
 
       {/* Image with CSS-only shimmer */}
-      <div className="relative rounded-2xl overflow-hidden mb-4 aspect-video bg-gradient-to-br from-cyan-100 to-blue-100">
+      <div className="relative rounded-2xl overflow-hidden mb-4 aspect-video bg-gradient-to-br from-cyan-100 to-primary/20">
         <img 
           src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=400&h=300&fit=crop"
           alt="Kenya Drought Response"
@@ -84,7 +84,7 @@ const FeedCard = () => {
             <Heart className="w-4 h-4" />
             <span className="text-sm">156</span>
           </button>
-          <button className="flex items-center gap-1.5 text-gray-500 hover:text-blue-500 transition-colors">
+          <button className="flex items-center gap-1.5 text-gray-500 hover:text-primary transition-colors">
             <MessageCircle className="w-4 h-4" />
             <span className="text-sm">24</span>
           </button>

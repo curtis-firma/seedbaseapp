@@ -22,7 +22,7 @@ const PRESET_AMOUNTS = [10, 25, 50, 100];
 
 // Smart tag options for @seedbasexyz/...
 const SEEDBASE_TAGS = [
-  { tag: '@seedbasexyz/transparency', label: 'Transparency', emoji: '📊', color: 'bg-blue-500' },
+  { tag: '@seedbasexyz/transparency', label: 'Transparency', emoji: '📊', color: 'bg-primary' },
   { tag: '@seedbasexyz/mission', label: 'Mission Update', emoji: '🚀', color: 'bg-green-500' },
   { tag: '@seedbasexyz/harvest', label: 'Harvest Report', emoji: '🌾', color: 'bg-orange-500' },
   { tag: '@seedbasexyz/governance', label: 'Governance', emoji: '🗳️', color: 'bg-purple-500' },
@@ -589,7 +589,7 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
               className="flex items-center gap-2 text-white"
             >
               <ChevronLeft className="h-5 w-5" />
-              <span className="text-blue-400">Back</span>
+              <span className="text-primary">Back</span>
             </button>
             
             {/* Recipient info - centered */}
@@ -602,7 +602,7 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
                     alt=""
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-semibold text-sm">
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-trust flex items-center justify-center text-white font-semibold text-sm">
                     {selectedUser?.display_name?.[0]?.toUpperCase() || selectedUser?.username?.[0]?.toUpperCase()}
                   </div>
                 )}
@@ -943,7 +943,7 @@ export function InlineComposeBar({ onSuccess, preselectedUser, onBack }: InlineC
                       className={cn(
                         "w-9 h-9 rounded-full flex items-center justify-center transition-colors",
                         canSend && !isSending
-                          ? "bg-blue-500 text-white"
+                          ? "bg-primary text-white"
                           : "bg-white/10 text-gray-500"
                       )}
                     >

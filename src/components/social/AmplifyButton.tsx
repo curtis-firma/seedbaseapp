@@ -25,9 +25,9 @@ export function AmplifyButton({
   };
   
   const variants = {
-    default: 'flex items-center justify-center gap-2 px-4 py-2.5 bg-[#0000ff] text-white rounded-xl font-medium text-sm hover:bg-[#0000dd] shadow-[0_0_16px_rgba(0,0,255,0.3)] hover:shadow-[0_0_24px_rgba(0,0,255,0.5)] transition-all',
-    small: 'flex items-center gap-1.5 px-3 py-1.5 bg-[#0000ff] text-white rounded-lg text-xs font-medium hover:bg-[#0000dd] shadow-[0_0_12px_rgba(0,0,255,0.25)] hover:shadow-[0_0_20px_rgba(0,0,255,0.4)] transition-all',
-    inline: 'flex items-center gap-1 text-white dark:text-[#0000ff] text-sm font-medium hover:text-white/80 dark:hover:text-[#0000dd] transition-colors',
+    default: 'flex items-center justify-center gap-2 px-4 py-2.5 bg-primary text-white rounded-xl font-medium text-sm hover:bg-primary/90 shadow-[0_0_16px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_24px_hsl(var(--primary)/0.5)] transition-all',
+    small: 'flex items-center gap-1.5 px-3 py-1.5 bg-primary text-white rounded-lg text-xs font-medium hover:bg-primary/90 shadow-[0_0_12px_hsl(var(--primary)/0.25)] hover:shadow-[0_0_20px_hsl(var(--primary)/0.4)] transition-all',
+    inline: 'flex items-center gap-1 text-white dark:text-primary text-sm font-medium hover:text-white/80 dark:hover:text-primary/80 transition-colors',
   };
   
   return (

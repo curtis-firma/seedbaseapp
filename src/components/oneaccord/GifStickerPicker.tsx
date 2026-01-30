@@ -333,7 +333,7 @@ export function GifStickerPicker({ isOpen, onClose, onSelect }: GifStickerPicker
                     <p className="text-sm text-gray-400">Stickers you use will appear here</p>
                     <button
                       onClick={() => setSelectedPack(1)}
-                      className="mt-4 px-4 py-2 bg-blue-500/20 text-blue-400 rounded-full text-sm font-medium hover:bg-blue-500/30 transition-colors"
+                      className="mt-4 px-4 py-2 bg-primary/20 text-primary rounded-full text-sm font-medium hover:bg-primary/30 transition-colors"
                     >
                       Browse Stickers
                     </button>

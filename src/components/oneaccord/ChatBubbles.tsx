@@ -405,7 +405,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                     )}
                     {/* Avatar for incoming messages */}
                     {!isOutgoing && (
-                      <div className="w-8 h-8 rounded-full flex-shrink-0 mt-auto overflow-hidden bg-gradient-to-br from-primary to-purple-600">
+                      <div className="w-8 h-8 rounded-full flex-shrink-0 mt-auto overflow-hidden bg-gradient-to-br from-primary to-trust">
                         {selectedUser?.avatar_url ? (
                           <img 
                             src={selectedUser.avatar_url} 
@@ -554,7 +554,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                               className={cn(
                                 "w-6 h-6 rounded-full flex items-center justify-center text-sm shadow-md border-2 border-[#2b2b2b] transition-all",
                                 group.hasReacted
-                                  ? "bg-blue-500/40 ring-1 ring-blue-400"
+                                  ? "bg-primary/40 ring-1 ring-primary"
                                   : "bg-[#3a3a3a] hover:bg-[#4a4a4a]"
                               )}
                             >
