@@ -55,8 +55,8 @@ Helping shape how generosity flows onchain. Every vote counts. 🌱
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-[#0000ff]/10 flex items-center justify-center">
-                <Check className="h-4 w-4 text-[#0000ff]" />
+              <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                <Check className="h-4 w-4 text-primary" />
               </div>
               Vote Cast!
             </DialogTitle>
@@ -66,7 +66,7 @@ Helping shape how generosity flows onchain. Every vote counts. 🌱
             {/* Vote Summary */}
             <div className="p-4 rounded-xl bg-muted/50 text-center">
               <p className="text-sm text-muted-foreground mb-1">You voted</p>
-              <span className={`text-2xl font-bold ${voteType === 'yes' ? 'text-[#0000ff]' : 'text-destructive'}`}>
+              <span className={`text-2xl font-bold ${voteType === 'yes' ? 'text-primary' : 'text-destructive'}`}>
                 {voteType.toUpperCase()}
               </span>
               <p className="text-sm text-muted-foreground mt-2">on</p>
@@ -91,7 +91,7 @@ Helping shape how generosity flows onchain. Every vote counts. 🌱
                 )}
                 {baseHandle && (
                   <span className="flex items-center gap-1">
-                    <span className="text-[#0000ff] font-bold">◆</span> @{baseHandle.replace('@', '')}
+                    <span className="text-primary font-bold">◆</span> @{baseHandle.replace('@', '')}
                   </span>
                 )}
               </div>
@@ -110,7 +110,7 @@ Helping shape how generosity flows onchain. Every vote counts. 🌱
               <motion.button
                 whileTap={{ scale: 0.98 }}
                 onClick={handleShareToBase}
-                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-[#0000ff] text-white font-medium"
+                className="flex items-center justify-center gap-2 py-3 rounded-xl bg-primary text-primary-foreground font-medium"
               >
                 <span className="font-bold">◆</span>
                 Share to Base

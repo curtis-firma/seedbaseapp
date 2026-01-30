@@ -460,8 +460,8 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
         )}
       >
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-10 h-10 rounded-xl bg-[#0000ff]/10 flex items-center justify-center">
-            <Vote className="h-5 w-5 text-[#0000ff]" />
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            <Vote className="h-5 w-5 text-primary" />
           </div>
           <div>
             <h3 className="font-semibold text-lg">Active Votes</h3>
@@ -499,13 +499,13 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
                     initial={{ width: '50%' }}
                     animate={{ width: `${yesPercentage}%` }}
                     transition={{ duration: 0.5, ease: 'easeOut' }}
-                    className="h-full bg-[#0000ff]"
+                    className="h-full bg-primary"
                   />
                 </div>
                 
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-4 text-sm">
-                    <span className="text-[#0000ff] font-medium">
+                    <span className="text-primary font-medium">
                       Yes: {vote.yesVotes}
                     </span>
                     <span className="text-destructive font-medium">
@@ -515,7 +515,7 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
                   
                   {vote.hasVoted ? (
                     <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                      <Check className="h-4 w-4 text-[#0000ff]" />
+                      <Check className="h-4 w-4 text-primary" />
                       <span>Voted</span>
                     </div>
                   ) : (
@@ -527,7 +527,7 @@ export function TransparencyDashboard({ viewMode, className }: TransparencyDashb
                         className={cn(
                           "px-4 py-2 rounded-xl text-sm font-medium transition-all",
                           hasBaseKey
-                            ? "bg-[#0000ff] text-white shadow-[0_0_12px_rgba(0,0,255,0.3)] hover:shadow-[0_0_20px_rgba(0,0,255,0.5)]"
+                            ? "bg-primary text-primary-foreground shadow-[0_0_12px_hsl(var(--primary)/0.3)] hover:shadow-[0_0_20px_hsl(var(--primary)/0.5)]"
                             : "bg-muted text-muted-foreground cursor-not-allowed"
                         )}
                       >

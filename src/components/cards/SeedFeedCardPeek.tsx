@@ -3,7 +3,7 @@ const SeedFeedCardPeek = () => {
     <div className="w-[320px] bg-white rounded-3xl p-5 shadow-lg border border-gray-100">
       {/* User Header */}
       <div className="flex items-center gap-3 mb-4">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold text-sm">
+        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-trust flex items-center justify-center text-white font-bold text-sm">
           SF
         </div>
         <div className="flex-1">

@@ -159,8 +159,8 @@ export function AmplifyModal({
             {/* Header */}
             <div className="flex items-center justify-between p-4 border-b border-border">
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 rounded-full bg-[#0000ff]/10 flex items-center justify-center">
-                  <Megaphone className="h-5 w-5 text-[#0000ff]" />
+                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Megaphone className="h-5 w-5 text-primary" />
                 </div>
                 <div>
                   <h2 className="font-semibold">Amplify Impact</h2>
@@ -200,8 +200,8 @@ export function AmplifyModal({
             {/* Caption Preview */}
             <div className="flex-1 overflow-y-auto p-4">
               {impactSummary && (
-                <div className="mb-4 p-3 bg-[#0000ff]/5 border border-[#0000ff]/20 rounded-xl">
-                  <p className="text-sm font-medium text-[#0000ff]">{impactSummary}</p>
+                <div className="mb-4 p-3 bg-primary/5 border border-primary/20 rounded-xl">
+                  <p className="text-sm font-medium text-primary">{impactSummary}</p>
                 </div>
               )}
               
@@ -214,7 +214,7 @@ export function AmplifyModal({
               <div className="mt-4 flex items-center justify-between bg-muted/30 rounded-xl p-3">
                 <div>
                   <p className="text-xs text-muted-foreground">Your referral code</p>
-                  <p className="font-mono font-medium text-[#0000ff]">{referralCode}</p>
+                  <p className="font-mono font-medium text-primary">{referralCode}</p>
                 </div>
                 <motion.button
                   whileTap={{ scale: 0.95 }}

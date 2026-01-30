@@ -27,7 +27,7 @@ const tutorialSteps: TutorialStep[] = [
     description: 'See real-time impact from your network. Every seed planted, every harvest reported.',
     icon: Home,
     targetSelector: '[data-tutorial="nav-home"]',
-    gradient: 'from-blue-500 to-blue-600',
+    gradient: 'from-primary to-primary/80',
   },
   {
     id: 'wallet',

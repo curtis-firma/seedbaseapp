@@ -385,12 +385,12 @@ export default function SettingsPage() {
                     <div className={cn(
                       "w-10 h-10 rounded-xl flex items-center justify-center",
                       (item as any).isDemoButton ? "bg-primary/10" : 
-                      (item as any).isSocialHandles ? "bg-[#0000ff]/10" : "bg-muted"
+                      (item as any).isSocialHandles ? "bg-primary/10" : "bg-muted"
                     )}>
                       <item.icon className={cn(
                         "h-5 w-5",
                         (item as any).isDemoButton ? "text-primary" : 
-                        (item as any).isSocialHandles ? "text-[#0000ff]" : "text-foreground"
+                        (item as any).isSocialHandles ? "text-primary" : "text-foreground"
                       )} />
                     </div>
                     <div className="flex-1">

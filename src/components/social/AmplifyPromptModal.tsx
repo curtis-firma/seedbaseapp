@@ -56,9 +56,9 @@ export function AmplifyPromptModal({
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.1, type: 'spring', damping: 15 }}
-                  className="w-16 h-16 rounded-full bg-gradient-to-br from-[#0000ff] to-[#0052FF] flex items-center justify-center mx-auto mb-4 relative"
+                  className="w-16 h-16 rounded-full bg-gradient-to-br from-primary to-primary/80 flex items-center justify-center mx-auto mb-4 relative"
                 >
-                  <Megaphone className="h-8 w-8 text-white" />
+                  <Megaphone className="h-8 w-8 text-primary-foreground" />
                   <motion.div
                     initial={{ scale: 0, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
@@ -78,7 +78,7 @@ export function AmplifyPromptModal({
                 <motion.button
                   whileTap={{ scale: 0.98 }}
                   onClick={handleAmplify}
-                  className="w-full flex items-center justify-center gap-2 py-4 bg-[#0000ff] text-white rounded-xl font-semibold text-lg"
+                  className="w-full flex items-center justify-center gap-2 py-4 bg-primary text-primary-foreground rounded-xl font-semibold text-lg"
                 >
                   <Megaphone className="h-5 w-5" />
                   Amplify
