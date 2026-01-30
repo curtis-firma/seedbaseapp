@@ -42,7 +42,7 @@ const GrowingSquares = () => {
           >
             {/* Glow effect when complete */}
             <motion.div
-              className="absolute -inset-1 bg-blue-400/20 rounded-full"
+              className="absolute -inset-1 bg-primary/20 rounded-full"
               animate={{ 
                 opacity: [0, 0, 0.6, 0],
                 scale: [0.8, 1, 1.2, 1]

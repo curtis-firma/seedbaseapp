@@ -377,7 +377,7 @@ export default function OneAccordPage() {
         {/* Scrollable Content */}
         {isLoading ? (
           <div className="px-4 py-12 text-center">
-            <div className="w-8 h-8 border-2 border-blue-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+            <div className="w-8 h-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
             <p className="text-gray-400">Loading messages...</p>
           </div>
         ) : (
@@ -387,7 +387,7 @@ export default function OneAccordPage() {
               <div className="mb-6">
                 <div className="flex items-center gap-2 mb-3">
                   <h2 className="font-semibold text-white">Pending</h2>
-                  <span className="px-2 py-0.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium">
+                  <span className="px-2 py-0.5 bg-gradient-to-r from-primary to-trust text-white rounded-full text-xs font-medium">
                     {pendingTransfers.length + demoPending.length}
                   </span>
                 </div>
@@ -399,7 +399,7 @@ export default function OneAccordPage() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       transition={{ delay: i * 0.05 }}
-                      className="bg-[#1a1a1a] rounded-2xl border border-blue-500/30 ring-1 ring-blue-500/20 p-4"
+                      className="bg-[#1a1a1a] rounded-2xl border border-primary/30 ring-1 ring-primary/20 p-4"
                     >
                       <div className="flex items-center gap-3 mb-3">
                         {transfer.from_user?.avatar_url ? (
@@ -409,7 +409,7 @@ export default function OneAccordPage() {
                             className="w-10 h-10 rounded-full object-cover"
                           />
                         ) : (
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary to-trust flex items-center justify-center">
                             <DollarSign className="h-5 w-5 text-white" />
                           </div>
                         )}
@@ -419,7 +419,7 @@ export default function OneAccordPage() {
                             {formatDistanceToNow(new Date(transfer.created_at), { addSuffix: true })}
                           </p>
                         </div>
-                        <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                        <p className="text-xl font-bold bg-gradient-to-r from-primary to-trust bg-clip-text text-transparent">
                           ${transfer.amount.toFixed(2)}
                         </p>
                       </div>
@@ -446,7 +446,7 @@ export default function OneAccordPage() {
                           <motion.div
                             initial={{ scale: 0.95 }}
                             animate={{ scale: [1, 1.05, 1] }}
-                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-medium"
+                            className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-primary to-trust rounded-xl text-white font-medium"
                           >
                             <Check className="h-5 w-5" />
                             Accepted! ✨
@@ -456,7 +456,7 @@ export default function OneAccordPage() {
                             <motion.button
                               whileTap={{ scale: 0.98 }}
                               onClick={(e) => handleAccept(transfer, e)}
-                              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-primary to-purple-600 hover:opacity-90 rounded-xl text-white font-medium shadow-lg"
+                              className="flex-1 flex items-center justify-center gap-2 py-3 bg-gradient-to-r from-primary to-trust hover:opacity-90 rounded-xl text-white font-medium shadow-lg"
                             >
                               <Check className="h-4 w-4" />
                               Accept
@@ -508,7 +508,7 @@ export default function OneAccordPage() {
                         <div className="flex-1">
                           <div className="flex items-center gap-2">
                             <p className="font-semibold text-white">{msg.from}</p>
-                            <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded text-[10px] font-medium flex items-center gap-0.5">
+                            <span className="px-1.5 py-0.5 bg-primary/20 text-primary/70 rounded text-[10px] font-medium flex items-center gap-0.5">
                               <Sparkles className="h-2.5 w-2.5" />
                               Demo
                             </span>
@@ -518,7 +518,7 @@ export default function OneAccordPage() {
                           </p>
                         </div>
                         {msg.amount && (
-                          <p className="text-xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                          <p className="text-xl font-bold bg-gradient-to-r from-primary to-trust bg-clip-text text-transparent">
                             ${msg.amount.toLocaleString()}
                           </p>
                         )}
@@ -571,15 +571,15 @@ export default function OneAccordPage() {
                         convo.isDemo 
                           ? "bg-[#1e1e1e] border-white/10 hover:bg-[#252525] pr-12"
                           : convo.unreadCount > 0
-                            ? "bg-blue-500/10 border-blue-500/30 hover:bg-blue-500/15"
+                            ? "bg-primary/10 border-primary/30 hover:bg-primary/15"
                             : convo.hasPendingTransfer 
-                              ? "bg-[#1a1a1a] border-blue-500/30 ring-1 ring-blue-500/20 hover:bg-[#1e1e1e]" 
+                              ? "bg-[#1a1a1a] border-primary/30 ring-1 ring-primary/20 hover:bg-[#1e1e1e]" 
                               : "bg-[#1a1a1a] border-white/10 hover:bg-white/5"
                       )}
                     >
                       {/* Unread dot indicator */}
                       {convo.unreadCount > 0 && !convo.isDemo && (
-                        <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-blue-500" />
+                        <div className="absolute left-1.5 top-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-primary" />
                       )}
                       
                       {/* Avatar */}
@@ -602,7 +602,7 @@ export default function OneAccordPage() {
                           className="w-12 h-12 rounded-full object-cover flex-shrink-0"
                         />
                       ) : (
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center flex-shrink-0">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-primary to-trust flex items-center justify-center flex-shrink-0">
                           <span className="text-white font-semibold text-lg">
                             {convo.partnerName.charAt(0).toUpperCase()}
                           </span>
@@ -621,13 +621,13 @@ export default function OneAccordPage() {
                             {convo.isDemo ? convo.partnerName : `@${convo.partnerName}`}
                           </p>
                           {convo.isDemo && (
-                            <span className="px-1.5 py-0.5 bg-blue-500/20 text-blue-400 rounded text-[10px] font-medium flex items-center gap-0.5 flex-shrink-0">
+                            <span className="px-1.5 py-0.5 bg-primary/20 text-primary/70 rounded text-[10px] font-medium flex items-center gap-0.5 flex-shrink-0">
                               <Sparkles className="h-2.5 w-2.5" />
                               Demo
                             </span>
                           )}
                           {convo.hasPendingTransfer && !convo.isDemo && (
-                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-medium flex-shrink-0">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-primary/20 text-primary/70 font-medium flex-shrink-0">
                               Pending
                             </span>
                           )}
@@ -648,7 +648,7 @@ export default function OneAccordPage() {
                       {/* Right side: unread count or chevron */}
                       <div className="flex items-center gap-2 flex-shrink-0">
                         {convo.unreadCount > 0 && !convo.isDemo && (
-                          <span className="min-w-[20px] h-5 px-1.5 bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-full text-xs font-medium flex items-center justify-center">
+                          <span className="min-w-[20px] h-5 px-1.5 bg-gradient-to-r from-primary to-trust text-white rounded-full text-xs font-medium flex items-center justify-center">
                             {convo.unreadCount}
                           </span>
                         )}
@@ -681,7 +681,7 @@ export default function OneAccordPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   onClick={restoreDemoMessages}
-                  className="w-full py-3 text-center text-sm text-blue-400 hover:text-blue-300 font-medium"
+                  className="w-full py-3 text-center text-sm text-primary hover:text-primary/80 font-medium"
                 >
                   Restore {dismissedDemoIds.size} hidden demo message{dismissedDemoIds.size > 1 ? 's' : ''}
                 </motion.button>

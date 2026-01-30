@@ -42,7 +42,7 @@ const iconMap: Record<ActivityType, LucideIcon> = {
 
 const colorMap: Record<ActivityType, string> = {
   mission_launched: 'bg-primary text-white',
-  provision_allocated: 'bg-blue-500 text-white',
+  provision_allocated: 'bg-primary text-white',
   vote_opened: 'bg-orange-500 text-white',
   vote_closed: 'bg-emerald-500 text-white',
   commitment_added: 'bg-green-500 text-white',

@@ -168,8 +168,8 @@ const SchoolCard = () => (
     />
     <div className="p-3">
       <div className="flex items-center gap-2 mb-1">
-        <BookOpen className="w-4 h-4 text-blue-500" />
-        <span className="text-xs font-medium text-blue-600">Education</span>
+        <BookOpen className="w-4 h-4 text-primary" />
+        <span className="text-xs font-medium text-primary">Education</span>
       </div>
       <p className="text-sm font-medium">New classroom built!</p>
     </div>
