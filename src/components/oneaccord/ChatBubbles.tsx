@@ -186,7 +186,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
           return isOutgoing ? (
             <span className="flex items-center gap-1 text-[10px] text-yellow-400">
               <Clock className="h-3 w-3" />
-              Pending
+              Waiting for @{recipientUsername}
             </span>
           ) : (
             <Clock className="h-3 w-3 text-yellow-400" />
