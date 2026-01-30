@@ -246,13 +246,15 @@ export async function updateWalletBalance(walletId: string, newBalance: number):
   return data;
 }
 
-// Get user's key
+// Get user's key (most recent active key)
 export async function getKeyByUserId(userId: string): Promise<DemoKey | null> {
   const { data, error } = await supabase
     .from('demo_keys')
     .select('*')
     .eq('user_id', userId)
     .eq('status', 'active')
+    .order('created_at', { ascending: false })
+    .limit(1)
     .maybeSingle();
   
   if (error) {
