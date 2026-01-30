@@ -175,7 +175,7 @@ export function WelcomeWalkthrough({ isOpen, onComplete }: WelcomeWalkthroughPro
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border/50">
                 <div className="flex items-center gap-2">
-                  <Logo variant="wordmark" size="xs" />
+                  <Logo variant="combined" size="xs" />
                 </div>
                 <div className="flex items-center gap-3">
                   {/* Enhanced progress dots - pill shape when active */}

@@ -1,12 +1,14 @@
 import { cn } from '@/lib/utils';
 
-// New Seedbase brand assets
+// Seedbase brand assets
 import seedbaseIconBlue from '@/assets/seedbase-icon-blue.png';
 import seedbaseWordmarkWhite from '@/assets/seedbase-wordmark-white.png';
 import seedbaseWordmarkBlack from '@/assets/seedbase-wordmark-black.png';
 import seedbaseWordmarkBlue from '@/assets/seedbase-wordmark-blue.png';
+import seedbaseCombinedBlack from '@/assets/seedbase-combined-black.png';
+import seedbaseCombinedWhite from '@/assets/seedbase-combined-white.png';
 
-type LogoVariant = 'icon' | 'wordmark' | 'full';
+type LogoVariant = 'icon' | 'wordmark' | 'full' | 'combined';
 type LogoSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 interface LogoProps {
@@ -33,6 +35,14 @@ const wordmarkSizes: Record<LogoSize, string> = {
   xl: 'h-12 w-auto'
 };
 
+const combinedSizes: Record<LogoSize, string> = {
+  xs: 'h-6 w-auto',
+  sm: 'h-8 w-auto',
+  md: 'h-10 w-auto',
+  lg: 'h-12 w-auto',
+  xl: 'h-16 w-auto'
+};
+
 /**
  * Canonical Logo component for Seedbase brand.
  * 
@@ -41,11 +51,11 @@ const wordmarkSizes: Record<LogoSize, string> = {
  * Variants:
  * - icon: Just the Seedbase blue square icon
  * - wordmark: Just the Seedbase text
- * - full: Icon + Wordmark side by side
+ * - full: Icon + Wordmark side by side (separate images)
+ * - combined: Single image with blue box + wordmark (preferred)
  * 
  * For dark backgrounds: use forceDark={true} → white wordmark
- * For light backgrounds: use forceLight={true} → black wordmark
- * For themed pages: leave both false to auto-detect via CSS
+ * For light backgrounds (default): black wordmark
  */
 export function Logo({
   variant = 'icon',
@@ -89,6 +99,15 @@ export function Logo({
     );
   };
 
+  const renderCombined = (sizeClass: string) => {
+    if (forceDark) {
+      // White text for dark backgrounds
+      return <img src={seedbaseCombinedWhite} alt="Seedbase" className={cn(sizeClass, className)} />;
+    }
+    // Default: Black text for light backgrounds
+    return <img src={seedbaseCombinedBlack} alt="Seedbase" className={cn(sizeClass, className)} />;
+  };
+
   if (variant === 'icon') {
     return renderIcon(iconSizes[size]);
   }
@@ -97,7 +116,11 @@ export function Logo({
     return renderWordmark(wordmarkSizes[size]);
   }
 
-  // Full: icon + wordmark
+  if (variant === 'combined') {
+    return renderCombined(combinedSizes[size]);
+  }
+
+  // Full: icon + wordmark (legacy - use combined instead)
   return (
     <div className={cn('flex items-center gap-2', className)}>
       {renderIcon(iconSizes[size])}
@@ -111,5 +134,7 @@ export {
   seedbaseIconBlue, 
   seedbaseWordmarkWhite, 
   seedbaseWordmarkBlack, 
-  seedbaseWordmarkBlue 
+  seedbaseWordmarkBlue,
+  seedbaseCombinedBlack,
+  seedbaseCombinedWhite
 };

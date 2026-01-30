@@ -16,7 +16,7 @@ import TitheAllocationCard from "@/components/cards/TitheAllocationCard";
 import WalletCard from "@/components/cards/WalletCard";
 import ImpactPreviewCard from "@/components/cards/ImpactPreviewCard";
 import CampaignCard from "@/components/cards/CampaignCard";
-import { seedbaseWordmarkBlack } from "@/components/shared/Logo";
+import { Logo } from "@/components/shared/Logo";
 import poweredByCik from "@/assets/powered-by-cik-text.png";
 import baseLogo from "@/assets/base-logo.png";
 import LoginModal from "@/components/sections/LoginModal";
@@ -150,9 +150,9 @@ const ScrollingLandingPage = () => {
       <div className="flex flex-col lg:flex-row">
         {/* Left - Fixed Hero Text Column */}
         <header className="lg:w-[36%] lg:fixed lg:top-0 lg:left-0 lg:h-screen flex flex-col pt-8 lg:pt-6 px-4 sm:px-6 md:px-8 lg:px-10 xl:px-12 bg-white z-20 pb-safe">
-          {/* Seedbase wordmark logo at top - forceDark for light background */}
-          <div className="w-[163px] lg:w-[203px] xl:w-[244px] h-auto mb-2 lg:mb-0">
-            <img src={seedbaseWordmarkBlack} alt="Seedbase - Transparent Network of Generosity" className="w-full h-auto" />
+          {/* Seedbase combined logo at top - black text for light background */}
+          <div className="mb-2 lg:mb-0">
+            <Logo variant="combined" size="lg" />
           </div>
           
           <div className="max-w-sm flex flex-col flex-1">
@@ -245,8 +245,8 @@ const ScrollingLandingPage = () => {
             <button onClick={() => window.scrollTo({
             top: 0,
             behavior: 'smooth'
-          })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg w-full flex justify-center" aria-label="Scroll back to top of page">
-              <img alt="Seedbase" className="w-full max-w-2xl h-auto transition-opacity duration-300 opacity-100" src={seedbaseWordmarkBlack} />
+          })} className="cursor-pointer hover:scale-105 transition-transform duration-300 focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 rounded-lg flex justify-center" aria-label="Scroll back to top of page">
+              <Logo variant="combined" size="xl" />
             </button>
           </section>
 
