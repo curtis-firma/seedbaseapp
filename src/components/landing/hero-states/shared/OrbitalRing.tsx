@@ -1,6 +1,6 @@
 import { forwardRef } from 'react';
 import { motion } from 'framer-motion';
-import seedBlue from '@/assets/seed-icon-blue.png';
+import seedbaseIcon from '@/assets/seedbase-icon-blue.png';
 
 export type OrbitalRingProps = {
   /** Percentage-based radius (e.g., "45%") */
@@ -42,7 +42,7 @@ const OrbitalRing = forwardRef<HTMLDivElement, OrbitalRingProps>(function Orbita
           cy="50"
           r="48"
           fill="none"
-          stroke="rgba(0, 0, 255, 0.2)"
+          stroke="hsl(var(--primary) / 0.2)"
           strokeWidth="0.5"
           strokeDasharray="3 5"
           style={{ opacity }}
@@ -71,7 +71,7 @@ const OrbitalRing = forwardRef<HTMLDivElement, OrbitalRingProps>(function Orbita
               ease: 'easeInOut',
             }}
           >
-            <img src={seedBlue} alt="" className="w-full h-full opacity-80" />
+            <img src={seedbaseIcon} alt="" className="w-full h-full opacity-80" />
           </motion.div>
         );
       })}

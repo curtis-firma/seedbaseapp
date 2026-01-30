@@ -326,7 +326,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
           </div>
         ) : messages.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500/20 to-purple-500/20 flex items-center justify-center mb-4">
+            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary/20 to-purple-500/20 flex items-center justify-center mb-4">
               {selectedUser.avatar_url ? (
                 <img 
                   src={selectedUser.avatar_url} 
@@ -405,7 +405,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                     )}
                     {/* Avatar for incoming messages */}
                     {!isOutgoing && (
-                      <div className="w-8 h-8 rounded-full flex-shrink-0 mt-auto overflow-hidden bg-gradient-to-br from-blue-500 to-purple-600">
+                      <div className="w-8 h-8 rounded-full flex-shrink-0 mt-auto overflow-hidden bg-gradient-to-br from-primary to-purple-600">
                         {selectedUser?.avatar_url ? (
                           <img 
                             src={selectedUser.avatar_url} 
@@ -425,7 +425,7 @@ export const ChatBubbles = forwardRef<ChatBubblesRef, ChatBubblesProps>(
                       className={cn(
                         "relative max-w-[75%] rounded-2xl px-4 py-2.5 shadow-sm",
                         isOutgoing
-                          ? "bg-blue-600 text-white rounded-br-md"
+                          ? "bg-primary text-white rounded-br-md"
                           : "bg-white/10 text-white rounded-bl-md"
                       )}
                     >

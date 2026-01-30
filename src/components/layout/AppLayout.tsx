@@ -149,18 +149,18 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
                 "relative p-2 rounded-xl transition-colors",
                 location.pathname === '/app/oneaccord' 
                   ? "bg-primary/10" 
-                  : "bg-gradient-to-r from-[#0000ff]/10 to-purple-500/10"
+                  : "bg-gradient-to-r from-primary/10 to-purple-500/10"
               )}
               whileTap={{ scale: 0.95 }}
             >
               <MessageCircle 
                 className={cn(
                   "h-5 w-5",
-                  location.pathname === '/app/oneaccord' ? "text-primary" : "text-[#0000ff]"
+                  location.pathname === '/app/oneaccord' ? "text-primary" : "text-primary"
                 )} 
               />
               {location.pathname !== '/app/oneaccord' && (
-                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#0000ff] rounded-full" />
+                <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-primary rounded-full" />
               )}
             </motion.button>
           </div>
