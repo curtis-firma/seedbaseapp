@@ -142,7 +142,7 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
           
           {/* Right: Logo + Message icon */}
           <div className="flex items-center gap-3">
-            <Logo variant="wordmark" size="sm" />
+            <Logo variant="combined" size="sm" />
             <motion.button
               onClick={() => navigate('/app/oneaccord')}
               className={cn(
