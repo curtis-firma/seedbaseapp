@@ -607,7 +607,7 @@ function KeysView({ user }: { user: any }) {
               {!key.isActive && (
                 <motion.button
                   whileTap={{ scale: 0.95 }}
-                  onClick={() => handleActivateKey(key.type as 'SeedKey' | 'BaseKey' | 'MissionKey')}
+                  onClick={() => handleActivateKey(key.type as 'SeedKey' | 'BaseKey' | 'MissionKey' | 'GiverKey')}
                   className={cn(
                     "px-4 py-2 rounded-xl text-sm font-medium text-white",
                     config.gradient
