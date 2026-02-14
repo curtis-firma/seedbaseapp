@@ -265,7 +265,7 @@ export async function getKeyByUserId(userId: string): Promise<DemoKey | null> {
 }
 
 // Create key for user
-export async function createKey(userId: string, keyType: 'SeedKey' | 'BaseKey' | 'MissionKey'): Promise<DemoKey | null> {
+export async function createKey(userId: string, keyType: 'SeedKey' | 'BaseKey' | 'MissionKey' | 'GiverKey'): Promise<DemoKey | null> {
   // Generate display ID from a new UUID
   const tempId = crypto.randomUUID();
   const displayId = generateDisplayId(tempId);

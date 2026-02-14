@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { 
   Wallet as WalletIcon, Lock, Clock, ArrowDownRight, ArrowUpRight,
-  Key, CheckCircle2, XCircle, Sprout, Shield, Rocket, ChevronRight,
+  Key, CheckCircle2, XCircle, Sprout, Shield, Rocket, ChevronRight, Heart,
   Layers, PiggyBank, Receipt, Users, Vote, AlertCircle, Plus, Banknote, Copy, History, Info
 } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
@@ -145,7 +145,7 @@ export default function WalletPage() {
             />
             <div className="flex-1">
               <h1 className="text-xl font-bold">{user.name}</h1>
-              <p className="text-sm text-muted-foreground capitalize">{activeRole} since Jan 2024</p>
+              <p className="text-sm text-muted-foreground capitalize">{{ activator: 'Seeder', trustee: 'Trustee', envoy: 'Envoy' }[activeRole] || activeRole} since Jan 2024</p>
             </div>
           </div>
 
@@ -550,9 +550,9 @@ function RecentActivitySection({
 
 function KeysView({ user }: { user: any }) {
   const [showActivationModal, setShowActivationModal] = useState(false);
-  const [selectedKeyType, setSelectedKeyType] = useState<'SeedKey' | 'BaseKey' | 'MissionKey'>('SeedKey');
+  const [selectedKeyType, setSelectedKeyType] = useState<'SeedKey' | 'BaseKey' | 'MissionKey' | 'GiverKey'>('SeedKey');
 
-  const handleActivateKey = (keyType: 'SeedKey' | 'BaseKey' | 'MissionKey') => {
+  const handleActivateKey = (keyType: 'SeedKey' | 'BaseKey' | 'MissionKey' | 'GiverKey') => {
     setSelectedKeyType(keyType);
     setShowActivationModal(true);
   };
@@ -762,7 +762,7 @@ const keyConfig = {
   SeedKey: {
     icon: Sprout,
     gradient: 'gradient-seed',
-    role: 'Activator - Commit & Grow',
+    role: 'Seeder - Commit & Grow',
   },
   BaseKey: {
     icon: Shield,
@@ -773,5 +773,10 @@ const keyConfig = {
     icon: Rocket,
     gradient: 'gradient-envoy',
     role: 'Envoy - Execute & Report',
+  },
+  GiverKey: {
+    icon: Heart,
+    gradient: 'bg-gradient-to-br from-amber-400 to-amber-600',
+    role: 'Giver - Pledge & Fund',
   },
 };
