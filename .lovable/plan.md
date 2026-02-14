@@ -1,31 +1,19 @@
 
-
-# Fix Sidebar and Header Logo to Match Homepage
+# Fix Collapsed Sidebar Logo Distortion
 
 ## Problem
-The sidebar logo shows only the black wordmark text (no blue box icon) when expanded. It should show the same "combined" logo (blue box + wordmark) used on the homepage. It also needs to scale properly without distortion.
+When the sidebar is collapsed (80px wide), the logo icon renders at `size="lg"` (h-12) but stretches to fill available width, distorting its aspect ratio.
 
-## Changes
+## Fix
 
-### 1. `src/components/layout/Sidebar.tsx` (lines 49-58)
+### `src/components/layout/Sidebar.tsx` (line 49)
 
-**When expanded**: Change `variant="wordmark"` to `variant="combined"` so it shows the blue box + wordmark, matching the homepage branding.
+Change the collapsed logo from `size="lg"` to `size="sm"` and add explicit square dimensions with `object-contain` to prevent distortion:
 
-**When collapsed**: Keep `variant="icon"` (just the blue square) -- this is correct.
+```tsx
+<Logo variant="icon" size="sm" className="h-10 w-10 object-contain" />
+```
 
-**Sizing fix**: Use `w-auto max-w-full object-contain` styling on the expanded logo container to prevent distortion when the sidebar width changes. The `size` prop stays `"lg"`.
+This gives the icon a fixed 40x40px square that fits within the 80px collapsed sidebar with proper padding, maintaining its aspect ratio at any screen size.
 
-### 2. `src/components/layout/AppLayout.tsx` (line 145)
-
-The mobile header already uses `variant="combined" size="sm"` which is correct. No change needed here.
-
-## Summary
-
-| Location | Before | After |
-|----------|--------|-------|
-| Sidebar expanded | `variant="wordmark"` (black text only) | `variant="combined"` (blue box + black wordmark) |
-| Sidebar collapsed | `variant="icon"` (blue box) | No change |
-| Mobile header | `variant="combined"` | No change |
-
-One file changes: `Sidebar.tsx`.
-
+One line change in one file.
