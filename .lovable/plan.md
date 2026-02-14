@@ -1,29 +1,31 @@
 
 
-# Add Close Button to Mobile Login Modal
+# Fix Sidebar and Header Logo to Match Homepage
 
-## The Problem
+## Problem
+The sidebar logo shows only the black wordmark text (no blue box icon) when expanded. It should show the same "combined" logo (blue box + wordmark) used on the homepage. It also needs to scale properly without distortion.
 
-The Login modal (sign-in popup) hides the default dialog close button with `[&>button]:hidden`. On mobile there's no way to dismiss it.
+## Changes
 
-## The Fix
+### 1. `src/components/layout/Sidebar.tsx` (lines 49-58)
 
-Update `src/components/sections/LoginModal.tsx` to add a visible close (X) button in the top-right corner on mobile. On desktop/tablet, the dialog overlay click already handles dismissal, but we'll show the X on all sizes for consistency.
+**When expanded**: Change `variant="wordmark"` to `variant="combined"` so it shows the blue box + wordmark, matching the homepage branding.
 
-### Changes to `src/components/sections/LoginModal.tsx`
+**When collapsed**: Keep `variant="icon"` (just the blue square) -- this is correct.
 
-- Import the `X` icon from `lucide-react`
-- Add a close button (`<button>`) positioned `absolute top-3 right-3` with a circular background, inside the `DialogContent` but above the `PhoneAuthFlow`
-- Keep the default dialog close button hidden (via `[&>button]:hidden`) since we're providing our own styled one
-- The button calls `onClose()` on click
+**Sizing fix**: Use `w-auto max-w-full object-contain` styling on the expanded logo container to prevent distortion when the sidebar width changes. The `size` prop stays `"lg"`.
 
-### Result
+### 2. `src/components/layout/AppLayout.tsx` (line 145)
 
-```
-DialogContent
-  [X button] ← absolute top-right, z-10, circular, subtle background
-  PhoneAuthFlow (existing)
-```
+The mobile header already uses `variant="combined" size="sm"` which is correct. No change needed here.
 
-Only one file changes: `LoginModal.tsx`.
+## Summary
+
+| Location | Before | After |
+|----------|--------|-------|
+| Sidebar expanded | `variant="wordmark"` (black text only) | `variant="combined"` (blue box + black wordmark) |
+| Sidebar collapsed | `variant="icon"` (blue box) | No change |
+| Mobile header | `variant="combined"` | No change |
+
+One file changes: `Sidebar.tsx`.
 
