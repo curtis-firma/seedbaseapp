@@ -62,7 +62,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-xl [backdrop-filter:blur(20px)_saturate(180%)] z-50"
             onClick={onClose}
           />
 
@@ -72,7 +72,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
             animate={{ x: 0 }}
             exit={{ x: '-100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed left-0 top-0 bottom-0 w-[300px] bg-card border-r border-border/50 z-50 flex flex-col"
+            className="fixed left-0 top-0 bottom-0 w-[300px] liquid-glass-strong border-r border-border/50 z-50 flex flex-col"
           >
             {/* Header - Full Logo on LEFT, Close on RIGHT */}
             <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">

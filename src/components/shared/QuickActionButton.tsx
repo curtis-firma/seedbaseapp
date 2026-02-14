@@ -368,7 +368,7 @@ export function QuickActionButton() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50"
+              className="fixed inset-0 bg-black/40 backdrop-blur-xl [backdrop-filter:blur(20px)_saturate(180%)] z-50"
               onClick={handleClose}
             />
 
@@ -388,7 +388,7 @@ export function QuickActionButton() {
               }}
               className="fixed bottom-0 left-0 right-0 md:bottom-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:max-w-md z-50"
             >
-              <div className="bg-card rounded-t-3xl md:rounded-3xl border border-border/50 overflow-hidden shadow-elevated max-h-[85vh] overflow-y-auto">
+              <div className="liquid-glass-card rounded-t-3xl md:rounded-3xl border border-border/50 overflow-hidden shadow-elevated max-h-[85vh] overflow-y-auto">
                 {/* Drag Handle - mobile only */}
                 <div className="flex justify-center pt-3 pb-1 md:hidden">
                   <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />

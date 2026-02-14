@@ -39,7 +39,7 @@ export function AmplifyPromptModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4"
+            className="fixed inset-0 z-50 bg-black/40 backdrop-blur-xl [backdrop-filter:blur(20px)_saturate(180%)] flex items-center justify-center p-4"
             onClick={onClose}
           >
             <motion.div
@@ -48,7 +48,7 @@ export function AmplifyPromptModal({
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-full max-w-sm bg-card rounded-2xl overflow-hidden"
+              className="w-full max-w-sm liquid-glass-card rounded-2xl overflow-hidden"
             >
               {/* Header with animation */}
               <div className="p-6 text-center">
