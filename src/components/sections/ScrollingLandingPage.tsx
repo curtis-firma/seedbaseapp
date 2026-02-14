@@ -192,8 +192,8 @@ const ScrollingLandingPage = () => {
           open={showLearnMore} 
           onOpenChange={setShowLearnMore}
           onGetStarted={() => {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-            setTimeout(() => setShowLoginModal(true), 300);
+            setShowLearnMore(false);
+            setShowLoginModal(true);
           }}
         />
 
