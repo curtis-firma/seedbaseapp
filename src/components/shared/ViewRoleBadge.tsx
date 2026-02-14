@@ -1,8 +1,14 @@
 import { motion } from 'framer-motion';
-import { Eye, Sprout, Shield, Rocket } from 'lucide-react';
+import { Eye, Sprout, Shield, Rocket, ChevronDown } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { UserRole } from '@/types/seedbase';
 import { cn } from '@/lib/utils';
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from '@/components/ui/dropdown-menu';
 
 const roleConfig: Record<UserRole, {
   icon: typeof Sprout;
@@ -41,12 +47,56 @@ const roleConfig: Record<UserRole, {
 const roles: UserRole[] = ['activator', 'trustee', 'envoy'];
 
 interface ViewRoleBadgeProps {
-  variant?: 'compact' | 'full';
+  variant?: 'compact' | 'full' | 'dropdown';
   className?: string;
 }
 
 export function ViewRoleBadge({ variant = 'compact', className }: ViewRoleBadgeProps) {
   const { viewRole, setViewRole, activeRole } = useUser();
+
+  if (variant === 'dropdown') {
+    const current = roleConfig[viewRole];
+    const CurrentIcon = current.icon;
+    return (
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            className={cn(
+              "flex items-center gap-2 px-3 py-2.5 rounded-xl w-full transition-all",
+              current.bgClass, current.textClass, current.borderClass,
+              "border hover:opacity-90",
+              className
+            )}
+          >
+            <CurrentIcon className="h-4 w-4 flex-shrink-0" />
+            <span className="text-sm font-medium flex-1 text-left">{current.label}</span>
+            <ChevronDown className="h-3.5 w-3.5 opacity-60" />
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent align="start" className="w-48 bg-card border border-border z-50">
+          {roles.map((role) => {
+            const config = roleConfig[role];
+            const Icon = config.icon;
+            const isSelected = viewRole === role;
+            return (
+              <DropdownMenuItem
+                key={role}
+                onClick={() => setViewRole(role)}
+                className={cn(
+                  "flex items-center gap-2 cursor-pointer",
+                  isSelected && `${config.bgClass} ${config.textClass}`
+                )}
+              >
+                <Icon className={cn("h-4 w-4", !isSelected && config.textClass)} />
+                <span className="font-medium">{config.label}</span>
+                {isSelected && <span className="ml-auto text-xs">✓</span>}
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuContent>
+      </DropdownMenu>
+    );
+  }
 
   return (
     <div className={cn("flex gap-2", className)}>

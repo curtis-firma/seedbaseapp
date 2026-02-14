@@ -76,7 +76,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
           >
             {/* Header - Full Logo on LEFT, Close on RIGHT */}
             <div className="px-4 py-3 flex items-center justify-between border-b border-border/50">
-              <Logo variant="wordmark" size="sm" />
+              <Logo variant="combined" size="sm" />
               <motion.button
                 whileTap={{ scale: 0.95 }}
                 onClick={onClose}
@@ -90,7 +90,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
             {username && (
               <motion.div 
                 className="px-6 py-4 border-b border-border/50 cursor-pointer hover:bg-muted/50 transition-colors"
-                onClick={() => handleNavigate('/app/profile')}
+                onClick={() => handleNavigate('/app/wallet')}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="flex items-center gap-4">
@@ -111,7 +111,7 @@ export function MobileDrawer({ isOpen, onClose, onShowWalkthrough }: MobileDrawe
                       </p>
                     )}
                   </div>
-                  <span className="text-xs text-muted-foreground">View Profile →</span>
+                  <span className="text-xs text-muted-foreground">My Account →</span>
                 </div>
               </motion.div>
             )}

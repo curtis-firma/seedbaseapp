@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { 
   Wallet as WalletIcon, Lock, Clock, ArrowDownRight, ArrowUpRight,
   Key, CheckCircle2, XCircle, Sprout, Shield, Rocket, ChevronRight, Heart,
-  Layers, PiggyBank, Receipt, Users, Vote, AlertCircle, Plus, Banknote, Copy, History, Info
+  Layers, PiggyBank, Receipt, Users, Vote, AlertCircle, Plus, Banknote, Copy, History, Info, Settings
 } from 'lucide-react';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
@@ -27,6 +27,7 @@ import { useRealtimeTransfers } from '@/hooks/useRealtimeTransfers';
 
 export default function WalletPage() {
   const { user, activeRole, isKeyActive, walletDisplayId, keyDisplayId, keyType } = useUser();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState(0);
   const [walletBalance, setWalletBalance] = useState(25.00);
   const [walletId, setWalletId] = useState<string | null>(null);
@@ -147,6 +148,14 @@ export default function WalletPage() {
               <h1 className="text-xl font-bold">{user.name}</h1>
               <p className="text-sm text-muted-foreground capitalize">{{ activator: 'Seeder', trustee: 'Trustee', envoy: 'Envoy' }[activeRole] || activeRole} since Jan 2024</p>
             </div>
+            <motion.button
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/app/settings')}
+              className="p-2 rounded-xl hover:bg-muted/50 transition-colors text-muted-foreground"
+              title="Edit Profile"
+            >
+              <Settings className="h-5 w-5" />
+            </motion.button>
           </div>
 
           {/* Wallet Address Display */}
