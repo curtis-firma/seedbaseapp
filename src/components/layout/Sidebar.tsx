@@ -55,7 +55,7 @@ export function Sidebar() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -10 }}
             >
-              <Logo variant="wordmark" size="lg" />
+              <Logo variant="combined" size="lg" className="w-auto max-w-full object-contain" />
             </motion.div>
           )}
         </AnimatePresence>
