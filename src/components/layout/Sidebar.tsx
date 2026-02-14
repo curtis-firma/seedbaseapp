@@ -168,7 +168,7 @@ export function Sidebar() {
             >
               <p className="px-4 text-xs font-medium text-muted-foreground mb-2">View As</p>
               <div className="px-2">
-                <ViewRoleBadge variant="full" className="w-full" />
+                <ViewRoleBadge variant="dropdown" className="w-full" />
               </div>
             </motion.div>
           )}

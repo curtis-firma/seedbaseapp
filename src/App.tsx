@@ -21,7 +21,7 @@ const SeededPage = lazy(() => import("./pages/SeededPage"));
 const LauncherPage = lazy(() => import("./pages/LauncherPage"));
 const SettingsPage = lazy(() => import("./pages/SettingsPage"));
 const GovernancePage = lazy(() => import("./pages/GovernancePage"));
-const ProfilePage = lazy(() => import("./pages/ProfilePage"));
+
 const NotFound = lazy(() => import("./pages/NotFound"));
 
 const queryClient = new QueryClient();
@@ -78,7 +78,7 @@ const App = () => (
               <Route path="/app/launcher" element={<AppLayout><LauncherPage /></AppLayout>} />
               <Route path="/app/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
               <Route path="/app/governance" element={<AppLayout><GovernancePage /></AppLayout>} />
-              <Route path="/app/profile" element={<AppLayout><ProfilePage /></AppLayout>} />
+              
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

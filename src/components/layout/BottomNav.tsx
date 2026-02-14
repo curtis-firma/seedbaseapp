@@ -75,7 +75,7 @@ export const BottomNav = memo(function BottomNav() {
     if (path === '/app' || path === '/app/') return 0;
     if (path.startsWith('/app/seedbase')) return 1;
     if (path.startsWith('/app/oneaccord')) return 2;
-    if (path.startsWith('/app/wallet') || path.startsWith('/app/profile') || path.startsWith('/app/settings')) return 3;
+    if (path.startsWith('/app/wallet') || path.startsWith('/app/settings')) return 3;
     return 0;
   };
   
