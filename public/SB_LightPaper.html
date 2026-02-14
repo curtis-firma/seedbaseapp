@@ -1,1296 +1,691 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Seedbase Light Paper - Interactive</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Seedbase — A Network for Committed Generosity | Light Paper v1.2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#fff;--bg-card:#fafbfc;--bg-card-hover:#f4f5f7;--border:#e2e5ea;--border-hover:#c8cdd5;--text:#0f172a;--text-s:#475569;--text-m:#94a3b8;--blue:#2563eb;--green:#16a34a;--green-bg:rgba(22,163,74,.04);--green-bdr:rgba(22,163,74,.18);--purple:#6d28d9;--purple-bg:rgba(109,40,217,.03);--purple-bdr:rgba(109,40,217,.15);--amber:#b45309;--rose:#be185d;--r:12px}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'DM Sans',-apple-system,sans-serif;background:var(--bg);color:var(--text);line-height:1.72;-webkit-font-smoothing:antialiased;font-size:15px}
+.paper{max-width:780px;margin:0 auto;padding:48px 32px 80px}
 
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-            line-height: 1.6;
-            color: #000000;
-            background: linear-gradient(135deg, #f5f7fa 0%, #e8f0ff 100%);
-            padding: 20px;
-        }
+/* Icons */
+.ic{display:inline-flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:10px;flex-shrink:0}
+.ic svg{width:18px;height:18px;stroke-width:1.8}
+.ic-sm{width:28px;height:28px;border-radius:7px}.ic-sm svg{width:14px;height:14px}
+.ic-muted{background:#f1f5f9;color:#64748b}
+.ic-blue{background:#eff6ff;color:#2563eb}
+.ic-green{background:#f0fdf4;color:#16a34a}
+.ic-purple{background:#f5f3ff;color:#6d28d9}
+.ic-amber{background:#fffbeb;color:#b45309}
+.ic-rose{background:#fff1f2;color:#be185d}
+.ic-dark{background:#f1f5f9;color:#1e293b}
+.ic-red{background:#fef2f2;color:#dc2626}
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 16px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.07), 0 10px 20px rgba(0,0,0,0.05);
-            overflow: hidden;
-        }
+/* Header */
+.header{text-align:center;padding:56px 0 40px}
+.header h1{font-family:'DM Serif Display',Georgia,serif;font-size:48px;font-weight:400;letter-spacing:-1px;margin-bottom:14px}
+.header .tagline{font-size:20px;color:var(--text-s);letter-spacing:-.2px}
+.header .version{font-size:13px;color:var(--text-m);margin-top:10px;letter-spacing:.3px}
 
-        .header {
-            background: white;
-            color: #000000;
-            padding: 40px 40px 20px 40px;
-            text-align: center;
-            border-bottom: 1px solid #e2e8f0;
-        }
+.expand-all{display:flex;align-items:center;justify-content:flex-end;gap:6px;padding:16px 0;border-top:1px solid var(--border);margin-top:32px;margin-bottom:8px;color:var(--text-m);font-size:13px;font-weight:500;cursor:pointer;user-select:none}
+.expand-all:hover{color:var(--text-s)}
 
-        .header h1 {
-            font-size: 3em;
-            font-weight: 700;
-            margin-bottom: 10px;
-            letter-spacing: -1px;
-            color: #000000;
-        }
+/* Section Heads */
+.section-head{margin-top:52px;margin-bottom:18px}
+.section-head h2{font-family:'DM Serif Display',Georgia,serif;font-size:24px;font-weight:400;letter-spacing:-.3px;line-height:1.3}
+.rule{height:2px;background:var(--text);margin-top:12px;width:100%;opacity:.1}
+.rule.accent{opacity:1;background:var(--blue);height:3px;border-radius:2px}
+.rule.green{opacity:1;background:var(--green);height:3px;border-radius:2px}
+.rule.purple{opacity:1;background:var(--purple);height:3px;border-radius:2px}
 
-        .header .subtitle {
-            font-size: 1.5em;
-            opacity: 0.7;
-            font-weight: 300;
-            color: #000000;
-        }
+/* Accordion */
+.accordion{display:flex;flex-direction:column;gap:8px}
+details.card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;transition:border-color .2s,box-shadow .2s}
+details.card:hover{border-color:var(--border-hover)}
+details.card[open]{border-color:var(--border-hover);box-shadow:0 4px 16px rgba(0,0,0,.06)}
+details.card summary{display:flex;align-items:center;padding:18px 22px;cursor:pointer;list-style:none;user-select:none;gap:14px;transition:background .15s}
+details.card summary::-webkit-details-marker{display:none}
+details.card summary:hover{background:var(--bg-card-hover)}
+details.card summary .label{flex:1;font-size:15px;font-weight:600;letter-spacing:-.15px}
+details.card summary .label .sub{font-weight:400;color:var(--text-m);font-size:13px;margin-left:8px}
+.chev{width:20px;height:20px;color:var(--text-m);flex-shrink:0;transition:transform .25s}
+details.card[open] summary .chev{transform:rotate(180deg)}
+details.card .body{padding:0 22px 22px 72px;font-size:14.5px;color:var(--text-s);line-height:1.75;animation:si .2s ease}
+@keyframes si{from{opacity:0;transform:translateY(-3px)}to{opacity:1;transform:translateY(0)}}
+details.card .body p+p{margin-top:12px}
+details.card .body strong{color:var(--text);font-weight:600}
 
-        .header .version {
-            margin-top: 20px;
-            opacity: 0.5;
-            font-size: 0.9em;
-            color: #666666;
-        }
+/* Callout */
+.callout{border-left:3px solid var(--blue);padding:14px 18px;margin:16px 0;background:#f8fafc;border-radius:0 8px 8px 0;font-size:14px;color:var(--text-s)}
+.callout strong{color:var(--text)}
 
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
+/* Tags */
+details.card.purple-s{border-color:var(--purple-bdr);background:var(--purple-bg)}
+details.card.purple-s:hover,details.card.purple-s[open]{border-color:var(--purple);box-shadow:0 4px 20px rgba(109,40,217,.06)}
+.tp{display:inline-block;padding:1px 7px;font-size:9px;font-weight:700;letter-spacing:.8px;text-transform:uppercase;border-radius:4px;margin-left:8px;vertical-align:middle;position:relative;top:-1px}
+.tp.u{color:var(--green);border:1px solid var(--green-bdr)}
+.tp.n{color:var(--blue);border:1px solid rgba(37,99,235,.2)}
 
-        .logo-icon {
-            width: 70px;
-            height: 70px;
-            background: #0000FF;
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            position: relative;
-            flex-shrink: 0;
-        }
+/* Roles */
+.role-grid{display:flex;flex-direction:column;gap:12px;margin-top:12px}
+.role-card{display:flex;gap:16px;align-items:flex-start;padding:18px 20px;background:#fff;border:1px solid var(--border);border-radius:var(--r);transition:border-color .2s,box-shadow .2s}
+.role-card:hover{border-color:var(--border-hover);box-shadow:0 1px 3px rgba(0,0,0,.04)}
+.r-badge{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.r-badge svg{width:20px;height:20px;stroke-width:1.8}
+.r-body{flex:1}
+.r-name{font-weight:700;font-size:15px;display:flex;align-items:center;gap:10px;letter-spacing:-.2px}
+.r-key{display:inline-block;padding:2px 9px;font-size:10px;font-weight:600;letter-spacing:.5px;border-radius:5px;color:#fff}
+.r-desc{margin-top:6px;font-size:13.5px;color:var(--text-s);line-height:1.65}
 
-        .seed-shape {
-            width: 28px;
-            height: 42px;
-            background: white;
-            border-radius: 50% 50% 50% 0%;
-            transform: rotate(-45deg);
-            position: relative;
-            top: 2px;
-        }
+/* Engine */
+.engine-grid{display:flex;flex-direction:column;gap:16px;margin-top:18px}
+.engine-row{display:flex;gap:14px;align-items:flex-start}
+.engine-row .e-text{flex:1}
+.engine-row .e-text strong{color:var(--text);font-weight:600;font-size:14px}
+.engine-row .e-text p{margin-top:3px;font-size:13.5px;color:var(--text-s);line-height:1.65}
+.engine-footer{margin-top:20px;padding:14px 18px;background:rgba(22,163,74,.04);border:1px solid var(--green-bdr);border-radius:10px;font-size:13.5px;color:var(--text-s);line-height:1.65}
+.engine-footer strong{color:var(--green)}
+.ra-note{margin-top:14px;padding:12px 16px;background:#f8fafc;border:1px solid var(--border);border-radius:10px;font-size:12.5px;color:var(--text-m);line-height:1.6}
+.ra-note strong{color:var(--text-s)}
 
-        .logo-text {
-            font-size: 4em;
-            font-weight: 700;
-            color: #000000;
-            letter-spacing: -3px;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
-        }
+/* Agent Pills */
+.agent-pills{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin:16px 0}
+.agent-pill{display:flex;align-items:center;gap:10px;padding:12px 14px;background:#fff;border:1px solid var(--border);border-radius:10px;transition:border-color .2s}
+.agent-pill:hover{border-color:var(--border-hover)}
+.agent-pill .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.agent-pill .name{font-size:13px;font-weight:600;line-height:1.2}
+.agent-pill .role{font-size:11px;color:var(--text-m)}
 
-        .content {
-            padding: 40px;
-        }
+/* LP Flow */
+.lp-flow{display:flex;flex-direction:column;gap:8px;margin:16px 0}
+.lp-step{display:flex;align-items:center;gap:14px;padding:12px 16px;background:var(--purple-bg);border:1px solid var(--purple-bdr);border-radius:10px;font-size:13.5px;color:var(--text-s)}
+.lp-step .lp-num{width:24px;height:24px;background:var(--purple);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0}
+.lp-step strong{color:var(--text)}
 
-        .section {
-            margin-bottom: 30px;
-        }
+/* CTA */
+.cta-section{text-align:center;padding:64px 0 32px}
+.cta-section .cta-text{font-family:'DM Serif Display',Georgia,serif;font-size:26px;color:var(--text-m);line-height:1.4}
+.cta-section .cta-bold{font-family:'DM Serif Display',Georgia,serif;font-size:28px;color:var(--text)}
+.cta-section .cta-sub{font-size:14px;color:var(--text-m);margin-top:16px}
+.cta-buttons{display:flex;flex-direction:column;align-items:center;gap:14px;margin-top:28px;padding:28px;background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r)}
+.cta-buttons a{font-size:15px;font-weight:600;color:var(--blue);text-decoration:none;display:flex;align-items:center;gap:10px;padding:6px 0;transition:color .15s;letter-spacing:-.1px}
+.cta-buttons a svg{width:16px;height:16px;stroke-width:2}
+.cta-buttons a:hover{color:var(--text)}
 
-        .section-title {
-            font-size: 1.8em;
-            font-weight: 700;
-            color: #000000;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 3px solid #0000FF;
-        }
-
-        .accordion {
-            margin-bottom: 15px;
-            border: 1px solid #e2e8f0;
-            border-radius: 8px;
-            overflow: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .accordion:hover {
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-        }
-
-        .accordion-header {
-            background: #f8faf8;
-            padding: 20px 24px;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: background 0.2s;
-            user-select: none;
-        }
-
-        .accordion-header:hover {
-            background: #eef5ea;
-        }
-
-        .accordion-header h3 {
-            font-size: 1.2em;
-            color: #000000;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .accordion-icon {
-            font-size: 1.5em;
-            transition: transform 0.3s ease;
-            color: #0000FF;
-        }
-
-        .accordion.active .accordion-icon {
-            transform: rotate(180deg);
-        }
-
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.4s ease, padding 0.4s ease;
-            background: white;
-        }
-
-        .accordion.active .accordion-content {
-            max-height: 2000px;
-            padding: 24px;
-        }
-
-        .accordion-content p {
-            margin-bottom: 15px;
-            color: #333333;
-        }
-
-        .accordion-content ul {
-            margin-left: 20px;
-            margin-bottom: 15px;
-        }
-
-        .accordion-content li {
-            margin-bottom: 8px;
-            color: #333333;
-        }
-
-        .highlight-box {
-            background: #e8f0ff;
-            border-left: 4px solid #0000FF;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-
-        .success-box {
-            background: #e8f0ff;
-            border-left: 4px solid #0000FF;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 4px;
-        }
-
-        .role-card {
-            background: linear-gradient(135deg, #f8f9ff 0%, #e8f0ff 100%);
-            padding: 20px;
-            border-radius: 8px;
-            margin: 15px 0;
-            border: 1px solid #b3c7ff;
-        }
-
-        .role-card h4 {
-            color: #000000;
-            font-size: 1.3em;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .role-emoji {
-            font-size: 1.5em;
-        }
-
-        .comparison-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-            font-size: 0.95em;
-        }
-
-        .comparison-table th,
-        .comparison-table td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        .comparison-table th {
-            background: #0000FF;
-            color: white;
-            font-weight: 600;
-        }
-
-        .comparison-table tr:hover {
-            background: #f8faf8;
-        }
-
-        .checkmark {
-            color: #0000FF;
-            font-weight: bold;
-        }
-
-        .xmark {
-            color: #dc2626;
-            font-weight: bold;
-        }
-
-        .cta-section {
-            background: linear-gradient(135deg, #0000FF 0%, #0000CC 100%);
-            color: white;
-            padding: 40px;
-            text-align: center;
-            margin-top: 40px;
-        }
-
-        .cta-section h2 {
-            font-size: 2em;
-            margin-bottom: 20px;
-        }
-
-        .cta-buttons {
-            display: flex;
-            gap: 20px;
-            justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 30px;
-        }
-
-        .cta-button {
-            background: white;
-            color: #0000FF;
-            padding: 15px 30px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-            display: inline-block;
-        }
-
-        .cta-button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-
-        .tag {
-            display: inline-block;
-            background: #0000FF;
-            color: white;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 0.85em;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        @media (max-width: 768px) {
-            .header {
-                padding: 40px 20px;
-            }
-
-            .header h1 {
-                font-size: 2em;
-            }
-
-            .content {
-                padding: 20px;
-            }
-
-            .comparison-table {
-                font-size: 0.85em;
-            }
-
-            .comparison-table th,
-            .comparison-table td {
-                padding: 8px;
-            }
-
-            .cta-buttons {
-                flex-direction: column;
-            }
-        }
-
-        .interactive-demo {
-            background: #f8f9ff;
-            border: 2px dashed #0000FF;
-            padding: 30px;
-            border-radius: 8px;
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .demo-value {
-            font-size: 2em;
-            color: #0000FF;
-            font-weight: bold;
-            margin: 10px 0;
-        }
-
-        .slider-container {
-            margin: 20px 0;
-        }
-
-        input[type="range"] {
-            width: 100%;
-            height: 8px;
-            border-radius: 5px;
-            background: #d3d3d3;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input[type="range"]::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #0000FF;
-            cursor: pointer;
-        }
-
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #0000FF;
-            cursor: pointer;
-        }
-
-        .expand-all {
-            background: #0000FF;
-            color: white;
-            padding: 12px 24px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 1em;
-            margin-bottom: 20px;
-            transition: background 0.2s;
-        }
-
-        .expand-all:hover {
-            background: #0000CC;
-        }
-    </style>
+@media(max-width:640px){.paper{padding:24px 16px 60px}.header h1{font-size:36px}.header .tagline{font-size:17px}details.card .body{padding-left:22px}.agent-pills{grid-template-columns:1fr 1fr}details.card summary{padding:16px}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="logo">
-                <div class="logo-icon">
-                    <div class="seed-shape"></div>
-                </div>
-                <div class="logo-text">seedbase</div>
-            </div>
-            <div class="subtitle">A Network for Committed Generosity</div>
-            <div class="version">Light Paper v1.0 | January 2026</div>
+<div class="paper">
+
+<!-- SVG DEFS - reusable chevron -->
+<svg style="display:none">
+  <symbol id="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></symbol>
+  <symbol id="i-sprout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 20h10"/><path d="M10 20c5.5-2.5.8-6.4 3-10"/><path d="M9.5 9.4c1.1.8 1.8 2.2 2.3 3.7-2 .4-3.5.4-4.8-.3-1.2-.6-2.3-1.9-3-4.2 2.8-.5 4.4 0 5.5.8z"/><path d="M14.1 6a7 7 0 0 0-1.1 4c1.9-.1 3.3-.6 4.3-1.4 1-1 1.6-2.3 1.7-4.6-2.7.1-4 1-4.9 2z"/></symbol>
+  <symbol id="i-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/></symbol>
+  <symbol id="i-send" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></symbol>
+  <symbol id="i-globe" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></symbol>
+  <symbol id="i-bar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 20h.01"/><path d="M7 20v-4"/><path d="M12 20v-8"/><path d="M17 20V8"/><path d="M22 4v16"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></symbol>
+  <symbol id="i-dollar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></symbol>
+  <symbol id="i-refresh" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 16h5v5"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/></symbol>
+  <symbol id="i-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/></symbol>
+  <symbol id="i-drop" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="m19 9-5 5-4-4-3 3"/></symbol>
+  <symbol id="i-layout" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M3 9h18"/><path d="M9 21V9"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 7h-9"/><path d="M14 17H5"/><circle cx="17" cy="17" r="3"/><circle cx="7" cy="7" r="3"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></symbol>
+  <symbol id="i-file" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" x2="8" y1="13" y2="13"/><line x1="16" x2="8" y1="17" y2="17"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></symbol>
+  <symbol id="i-checklist" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 17 2 2 4-4"/><path d="m3 7 2 2 4-4"/><path d="M13 6h8"/><path d="M13 12h8"/><path d="M13 18h8"/></symbol>
+  <symbol id="i-circle-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22c5.523 0 10-4.477 10-10S17.523 2 12 2 2 6.477 2 12s4.477 10 10 10z"/><path d="m9 12 2 2 4-4"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></symbol>
+  <symbol id="i-arrows" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"/><line x1="4" x2="21" y1="20" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" x2="21" y1="15" y2="21"/><line x1="4" x2="9" y1="4" y2="9"/></symbol>
+  <symbol id="i-userplus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" x2="19" y1="8" y2="14"/><line x1="22" x2="16" y1="11" y2="11"/></symbol>
+  <symbol id="i-vote" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m18 16 4-4-4-4"/><path d="m6 8-4 4 4 4"/><path d="m14.5 4-5 16"/></symbol>
+  <symbol id="i-help" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></symbol>
+  <symbol id="i-lightbulb" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></symbol>
+</svg>
+
+<header class="header">
+  <h1>seedbase</h1>
+  <div class="tagline">A Network for Committed Generosity</div>
+  <div class="version">Light Paper v1.2 &nbsp;·&nbsp; February 2026</div>
+</header>
+
+<div class="expand-all" id="expandToggle" onclick="toggleAll()">
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg>
+  Expand All Sections
+</div>
+
+<!-- ═══════ THE BIG IDEA ═══════ -->
+<div class="section-head"><h2>The Big Idea</h2><div class="rule accent"></div></div>
+<div class="accordion">
+  <details class="card"><summary>
+    <div class="ic ic-blue"><svg><use href="#i-lightbulb"/></svg></div>
+    <span class="label">What is Seedbase?</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Seedbase is a social impact network that transforms long-term generosity into measurable, visible, and accountable impact. By locking committed capital in a transparent system governed by smart contracts, Seedbase creates sustained funding for real-world missions while allowing participants to see exactly where their contributions go and what they achieve.</p>
+    <div class="callout"><strong>Unlike traditional charity</strong> (where donations disappear) or <strong>speculative DeFi</strong> (where profit is the primary motive), Seedbase creates a third way: <strong>committed generosity that compounds over time.</strong></div>
+    <p>Seedbase is an agentic generosity engine — powered by accountable automation where agents execute and humans govern. <span class="tp u">Updated</span></p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-muted"><svg><use href="#i-shield"/></svg></div>
+    <span class="label">The Problem We're Solving</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Charitable giving is broken. Donors give but rarely see where their money goes. Organizations compete for short-term donations instead of building long-term impact. Transparency is an afterthought. Trust erodes over time.</p>
+    <p>Meanwhile, DeFi has shown what programmable money can do — but almost entirely in service of speculation. The infrastructure exists to build transparent, sustained, accountable generosity systems. Nobody has done it yet.</p>
+    <p>Seedbase changes that.</p>
+  </div></details>
+</div>
+
+<!-- ═══════ HOW IT WORKS ═══════ -->
+<div class="section-head"><h2>How It Works</h2><div class="rule accent"></div></div>
+<div class="accordion">
+  <details class="card"><summary>
+    <div class="ic ic-green"><svg><use href="#i-wallet"/></svg></div>
+    <span class="label">Core Innovation: Committed Generosity</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Seedbase operates through two parallel commitment models that work together to fund real-world missions.</p>
+    <p><strong>Givers</strong> donate directly — their contributions flow to missions with full transparency. No return on capital. What they get instead is real-time visibility: dashboards showing exactly where every dollar goes and what it achieves. Generosity with accountability.</p>
+    <p><strong>Seeders</strong> lock committed capital into smart contracts. Their principal generates yield through transparent strategies, and that yield is distributed to missions. Principal returns at maturity. Impact compounds over time.</p>
+    <p>Both models are governed by the same transparency infrastructure. Both feed the same missions. The difference is the commitment structure — not the accountability standard.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-amber"><svg><use href="#i-chart"/></svg></div>
+    <span class="label">Interactive Example</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p><strong>As a Giver:</strong> You donate $500 to a clean water mission. Your dashboard shows that $500 funded 50 water filters. You see installation photos, GPS coordinates, beneficiary count. Every dollar is accounted for, in real time.</p>
+    <p><strong>As a Seeder:</strong> You commit $5,000 locked for 3 years. That capital generates ~$250/year in yield. That yield is distributed to missions you've chosen to support. Your $5,000 stays locked, generating yield again next year. At maturity, your principal returns. Impact compounds the entire time.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-dark"><svg><use href="#i-layout"/></svg></div>
+    <span class="label">The Architecture <span class="sub">5 Components</span></span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p><strong>SeedVaults</strong> — Smart contracts that hold committed Seeder capital and generate yield through transparent, audited strategies.</p>
+    <p><strong>Missions</strong> — Verified real-world causes that receive sustained funding from Giver donations and Seeder yield distributions.</p>
+    <p><strong>Harvests</strong> — Periodic distribution events where generated yield flows to supported missions, with every distribution mapped to human-readable outcomes.</p>
+    <p><strong>Identity Keys</strong> — On-chain credentials tied to each role: SeedKey (Seeders), BaseKey (Trustees), MissionKey (Envoys), GiverKey (Givers). Each key unlocks role-specific participation and governance rights.</p>
+    <p><strong>Seedfeed</strong> — The social layer where impact becomes visible, shareable, and verifiable in real time.</p>
+  </div></details>
+</div>
+<!-- ═══════ ROLES & PARTICIPATION ═══════ -->
+<div class="section-head"><h2>Roles & Participation</h2><div class="rule accent"></div></div>
+<div class="accordion">
+  <details class="card"><summary>
+    <div class="ic ic-blue"><svg><use href="#i-users"/></svg></div>
+    <span class="label">How Can I Participate? <span class="tp u">Updated</span></span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <div class="role-grid">
+      <div class="role-card">
+        <div class="r-badge" style="background:#dcfce7;color:#16a34a"><svg><use href="#i-sprout"/></svg></div>
+        <div class="r-body">
+          <div class="r-name">Seeders <span class="r-key" style="background:#16a34a">SeedKey</span></div>
+          <div class="r-desc">Make seed commitments by locking principal for 1, 3, or 5 years. Committed capital generates yield that flows to missions. At maturity, principal returns. Seeders help grow Seedbase's capacity to fund impact — their commitment is the engine that sustains long-term generosity.</div>
         </div>
-
-        <div class="content">
-            <div class="section">
-                <button class="expand-all" onclick="toggleAll()">Expand All Sections</button>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title">The Big Idea</h2>
-                
-                <div class="accordion active">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>💡 What is Seedbase?</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>Seedbase is a social impact network that transforms long-term generosity into measurable, visible, and accountable impact. By locking committed capital in a transparent system governed by smart contracts, Seedbase creates sustained funding for real-world missions while allowing participants to see exactly where their contributions go and what they achieve.</p>
-                        <div class="success-box">
-                            <strong>Unlike traditional charity</strong> (where donations disappear) or <strong>speculative DeFi</strong> (where profit is the primary motive), Seedbase creates a third way: <strong>committed generosity that compounds over time</strong>.
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>❌ The Problem We're Solving</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <h4>Traditional Giving is Broken</h4>
-                        <ul>
-                            <li><strong>Opacity:</strong> Givers rarely know where their money goes or what it achieves</li>
-                            <li><strong>One-and-done:</strong> Contributions create momentary impact, then disappear</li>
-                            <li><strong>Lack of trust:</strong> Scandals and inefficiency erode confidence</li>
-                            <li><strong>No compounding:</strong> Each gift requires a new person, a new ask, a new campaign</li>
-                        </ul>
-                        <h4 style="margin-top: 20px;">Existing Crypto Solutions Fall Short</h4>
-                        <ul>
-                            <li><strong>Speculative DeFi:</strong> Optimizes for profit, not purpose</li>
-                            <li><strong>Grant DAOs:</strong> Centralized control, slow decisions, opaque allocation</li>
-                            <li><strong>Crypto donation platforms:</strong> Just digitize old models without solving core problems</li>
-                        </ul>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title">How It Works</h2>
-                
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🔑 Core Innovation: Committed Generosity</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>Seedbase introduces <strong>seed ($CIK)</strong>: a digital token that represents committed value.</p>
-                        <div class="highlight-box">
-                            <strong>Key Properties:</strong>
-                            <ul>
-                                <li>Committed on Seedbase — Platform buys and locks seed, removing it from circulation</li>
-                                <li>Cannot be moved — Locked until commitment period ends</li>
-                                <li>Cannot be spent — Only surplus flows to missions</li>
-                                <li>Can be committed — For 1-5 years, or permanently</li>
-                            </ul>
-                        </div>
-                        <h4>How It Works:</h4>
-                        <ol>
-                            <li>You commit USDC → it converts to seed ($CIK) at current rate</li>
-                            <li>Seed locks in the Vault</li>
-                            <li>That locked value creates <strong>capacity</strong> for missions</li>
-                            <li>As the network grows, seed <strong>appreciates</strong></li>
-                            <li>Appreciation creates <strong>surplus</strong></li>
-                            <li>Surplus funds <strong>real-world impact</strong></li>
-                        </ol>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>📊 Interactive Example</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <div class="interactive-demo">
-                            <h4>Commitment Calculator</h4>
-                            <p>Adjust your commitment amount:</p>
-                            <div class="slider-container">
-                                <input type="range" min="100" max="10000" value="1000" step="100" id="commitmentSlider" oninput="updateCalculation()">
-                            </div>
-                            <p>Your commitment: <span class="demo-value" id="commitAmount">$1,000</span></p>
-                            <p>Initial seed received: <span class="demo-value" id="initialSeed">1,000 $CIK</span></p>
-                            <p style="margin-top: 20px; color: #4a5568;">After 2 years, if seed appreciates to $1.50:</p>
-                            <p>Your seed value: <span class="demo-value" id="seedValue">$1,500</span></p>
-                            <p>Surplus created: <span class="demo-value" id="surplus">$500</span></p>
-                            <p style="font-size: 0.9em; color: #4a5568; margin-top: 15px;">This $500 has already funded missions while your 1,000 seed stays locked!</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🏗️ The Architecture <span class="tag">5 Components</span></h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <h4>1. The Vault</h4>
-                        <p>Where committed seed lives. Once locked, seed cannot be moved, sold, or spent until the commitment period ends.</p>
-                        
-                        <h4>2. The Ledger</h4>
-                        <p>The calculation and distribution engine. Continuously measures locked seed, time, network growth, and surplus—then automatically distributes to missions and participants.</p>
-                        
-                        <h4>3. Seedbases</h4>
-                        <p>Community anchors for missions. Represent long-term committed seed, communities around shared values, and collective capacity to create change.</p>
-                        
-                        <h4>4. Keys (Participation Roles)</h4>
-                        <p>Non-transferable credentials that define how people participate: Activators, Trustees, and Envoys.</p>
-                        
-                        <h4>5. Provision Pools</h4>
-                        <p>Flexible, transparent funding pools where communities can accept donations, tag withdrawals, and maintain accountability.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title">Roles & Participation</h2>
-                
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>👥 How Can I Participate?</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <div class="role-card">
-                            <h4><span class="role-emoji">🌱</span> Activators (Seedkey)</h4>
-                            <p><strong>One-liner:</strong> "Plant a seed. Watch it grow."</p>
-                            <p><strong>Who:</strong> Anyone who wants to give and see impact grow</p>
-                            <p><strong>What they do:</strong></p>
-                            <ul>
-                                <li>Commit USDC as seed</li>
-                                <li>Choose commitment period (1-5 years)</li>
-                                <li>Support Seedbases and missions</li>
-                                <li>Track impact in real time</li>
-                            </ul>
-                            <p><strong>What they get:</strong> Seed returned after commitment, potential appreciation, participation rewards, visibility into all impact</p>
-                        </div>
-
-                        <div class="role-card">
-                            <h4><span class="role-emoji">🤝</span> Trustees (Basekey)</h4>
-                            <p><strong>One-liner:</strong> "Turn shared generosity into real-world impact."</p>
-                            <p><strong>Who:</strong> Community leaders, nonprofit directors, impact coordinators</p>
-                            <p><strong>What they do:</strong></p>
-                            <ul>
-                                <li>Steward Seedbases (not own them)</li>
-                                <li>Launch and approve missions</li>
-                                <li>Select and support Envoys</li>
-                                <li>Review impact reports (Harvests)</li>
-                            </ul>
-                            <p><strong>Cannot:</strong> Spend pooled seed, withdraw surplus personally, override Ledger distributions</p>
-                        </div>
-
-                        <div class="role-card">
-                            <h4><span class="role-emoji">🌍</span> Envoys (MissionKey)</h4>
-                            <p><strong>One-liner:</strong> "Receive support. Deliver impact."</p>
-                            <p><strong>Who:</strong> Field partners, project leaders, mission executors</p>
-                            <p><strong>What they do:</strong></p>
-                            <ul>
-                                <li>Receive mission funding (USDC)</li>
-                                <li>Execute approved initiatives</li>
-                                <li>Submit impact reports (Harvests)</li>
-                                <li>Show what generosity made possible</li>
-                            </ul>
-                            <p><strong>What they get:</strong> Direct funding, community support, reputation through impact delivery</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title">Why Seedbase is Different</h2>
-                
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>⚖️ Comparison: Seedbase vs Alternatives</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <table class="comparison-table">
-                            <thead>
-                                <tr>
-                                    <th>Feature</th>
-                                    <th>Traditional Charity</th>
-                                    <th>Grant DAOs</th>
-                                    <th>Seedbase</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>Transparency</td>
-                                    <td><span class="xmark">Low</span></td>
-                                    <td>Medium</td>
-                                    <td><span class="checkmark">High ✓</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Capital Return</td>
-                                    <td><span class="xmark">None</span></td>
-                                    <td><span class="xmark">None</span></td>
-                                    <td><span class="checkmark">Yes ✓</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Impact Visibility</td>
-                                    <td>Rare</td>
-                                    <td>Sometimes</td>
-                                    <td><span class="checkmark">Always ✓</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Compounding</td>
-                                    <td><span class="xmark">No</span></td>
-                                    <td><span class="xmark">No</span></td>
-                                    <td><span class="checkmark">Yes ✓</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Control</td>
-                                    <td>Centralized</td>
-                                    <td>Governance</td>
-                                    <td><span class="checkmark">Distributed ✓</span></td>
-                                </tr>
-                                <tr>
-                                    <td>Speculation Risk</td>
-                                    <td>None</td>
-                                    <td>Low</td>
-                                    <td><span class="checkmark">None ✓</span></td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title">The Technology Behind Seedbase</h2>
-                
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🔧 Blockchain Power, App Simplicity</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <div class="success-box">
-                            <strong>The Power of Blockchain. The Simplicity of Apps You Already Use.</strong>
-                            <p>Seedbase harnesses blockchain technology—tokens, digital ledgers, instant settlements—to deliver transparency, speed, and accountability. But you'd never know it from using the platform. We've wrapped this powerful infrastructure in a familiar, easy-to-use interface that feels like any modern app.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🪙 What We Use & Why</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <h4>Base Blockchain (Coinbase L2)</h4>
-                        <p><strong>What it is:</strong> An Ethereum Layer 2 network built by Coinbase for fast, low-cost transactions.</p>
-                        <p><strong>Why we chose it:</strong> <strong>Zero gas fees</strong> for most transactions. Lightning-fast confirmations. Enterprise-grade security from Coinbase.</p>
-
-                        <h4 style="margin-top: 20px;">USDC Stablecoin</h4>
-                        <p><strong>What it is:</strong> A digital dollar (1 USDC = $1 USD) backed by real reserves.</p>
-                        <p><strong>Why it matters:</strong> All the benefits of blockchain without price volatility. Your $100 stays $100. Plus, <strong>USDC earns 4% yield automatically</strong>—your commitment grows even while locked.</p>
-
-                        <h4 style="margin-top: 20px;">Privy Embedded Wallets</h4>
-                        <p><strong>What it is:</strong> A crypto wallet built directly into Seedbase—no setup required.</p>
-                        <p><strong>Why it matters:</strong> You never see complicated "wallet addresses" or "private keys." Login with email or social. It works like any app.</p>
-
-                        <h4 style="margin-top: 20px;">Seed Token ($CIK)</h4>
-                        <p><strong>What it is:</strong> The commitment token that represents locked value in the network.</p>
-                        <p><strong>Why it matters:</strong> Tracks your commitment, enables surplus calculation, and ensures transparency on-chain.</p>
-
-                        <h4 style="margin-top: 20px;">Instant Bank Withdrawals</h4>
-                        <p><strong>How it works:</strong> Click a button to withdraw rewards or unlocked seed directly to your bank account. Or use the <strong>Coinbase debit card</strong> to spend anywhere instantly.</p>
-                        <p><strong>Why it matters:</strong> No waiting days for bank transfers. Access your funds immediately.</p>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>✨ What This Means For You</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <ul>
-                            <li><strong>Instant Transactions:</strong> Commitments process in seconds, not business days</li>
-                            <li><strong>Zero Fees:</strong> No gas fees on Base—your full amount goes to impact</li>
-                            <li><strong>Earn While Committed:</strong> USDC yields 4% automatically</li>
-                            <li><strong>Always Transparent:</strong> Every dollar's journey is traceable on the blockchain</li>
-                            <li><strong>Globally Accessible:</strong> Send support anywhere in the world, instantly</li>
-                            <li><strong>No Intermediaries:</strong> Money flows directly from givers to missions</li>
-                            <li><strong>Instant Withdrawals:</strong> Bank account or debit card, your choice</li>
-                            <li><strong>No Crypto Knowledge Required:</strong> Use debit card or Apple Pay like any app</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🔄 How Your Commitment Flows</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <div style="background: #f8f9ff; border: 2px solid #0000FF; border-radius: 12px; padding: 30px; text-align: center;">
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>1. You Commit with Debit Card/Apple Pay</strong><br>
-                                Regular dollars, familiar payment method
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>2. Fiat Onramp Converts to USDC (Base)</strong><br>
-                                Happens automatically in seconds, zero fees
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>3. USDC Converts to Seed ($CIK)</strong><br>
-                                Your commitment enters the network
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>4. Seed Locks in Smart Contract</strong><br>
-                                Privy wallet + Base blockchain record it permanently
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>5. Value Growth + 4% USDC Yield</strong><br>
-                                Network effects + automatic earning
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>6. Smart Contract Distributes Surplus</strong><br>
-                                Missions funded, you earn rewards
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>7. Withdraw to Bank or Coinbase Card</strong><br>
-                                One click, instant access to funds
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🎯 Behind the Scenes vs. What You Experience</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;">
-                            <div style="padding: 20px; border-radius: 8px; background: #e8f0ff; border: 2px solid #0000FF;">
-                                <h4 style="margin-top: 0; color: #0000FF;">🔧 Blockchain Layer (Hidden)</h4>
-                                <ul style="font-size: 0.9em;">
-                                    <li>Base L2 network</li>
-                                    <li>ERC-20 token contracts</li>
-                                    <li>Privy wallet infrastructure</li>
-                                    <li>Smart contract execution</li>
-                                    <li>On-chain verification</li>
-                                    <li>USDC yield protocols</li>
-                                    <li>Zero-fee transactions</li>
-                                </ul>
-                                <p style="margin-top: 15px; font-style: italic; font-size: 0.9em;">All this complexity exists, but you never see it.</p>
-                            </div>
-
-                            <div style="padding: 20px; border-radius: 8px; background: #f0f9ff; border: 2px solid #60a5fa;">
-                                <h4 style="margin-top: 0; color: #0369a1;">✨ User Experience (What You See)</h4>
-                                <ul style="font-size: 0.9em;">
-                                    <li>Click "Commit $100"</li>
-                                    <li>Choose commitment period</li>
-                                    <li>Pay with debit card</li>
-                                    <li>See confirmation instantly</li>
-                                    <li>Follow missions you care about</li>
-                                    <li>Read impact stories</li>
-                                    <li>Withdraw to bank anytime</li>
-                                </ul>
-                                <p style="margin-top: 15px; font-style: italic; font-size: 0.9em;">Simple, familiar, no crypto knowledge required.</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🛡️ Security & Trust</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <h4>How We Keep Your Commitment Safe</h4>
-                        <ul>
-                            <li><strong>Base by Coinbase:</strong> Enterprise-grade security from a publicly traded company</li>
-                            <li><strong>Privy Wallets:</strong> Bank-level encryption, multi-factor authentication</li>
-                            <li><strong>Audited Smart Contracts:</strong> Code reviewed by third-party security firms</li>
-                            <li><strong>Immutable Rules:</strong> Core logic can't be changed, even by Seedbase team</li>
-                            <li><strong>Transparent Reserves:</strong> All locked seed visible on public blockchain</li>
-                            <li><strong>Regulated Stablecoins:</strong> USDC backed 1:1 by dollar reserves, audited monthly</li>
-                        </ul>
-
-                        <h4 style="margin-top: 20px;">What We DON'T Do</h4>
-                        <ul>
-                            <li>❌ Store your funds in a bank account we control</li>
-                            <li>❌ Have discretionary spending power over locked seed</li>
-                            <li>❌ Change the rules after you've committed</li>
-                            <li>❌ Hide transactions or obscure the money trail</li>
-                            <li>❌ Require you to understand blockchain to participate</li>
-                            <li>❌ Charge hidden fees or gas costs</li>
-                        </ul>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>💡 Why This Matters</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p><strong>Traditional platforms:</strong> "Trust us with your money. We'll tell you where it went later (maybe). Wait 3-5 business days for transfers. Pay 3% fees."</p>
-
-                        <p><strong>Seedbase:</strong> "Here's the exact smart contract address. Here's every transaction. Here's the math. Verify it yourself. Zero fees. Instant transfers. Earn 4% while you wait."</p>
-
-                        <div class="success-box" style="margin-top: 20px;">
-                            <p><strong>The Bottom Line:</strong></p>
-                            <p>You get the <strong>trust and transparency</strong> of blockchain with the <strong>ease and familiarity</strong> of modern apps. No crypto wallet downloads. No confusing interfaces. No technical knowledge required.</p>
-                            <p style="margin-bottom: 0;"><strong>Just give. See impact. Know it's real.</strong></p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title">Social Amplification & Affiliates</h2>
-                
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🚀 How Seedbase Spreads: The Affiliate System</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>Seedbase grows through <strong>participatory impact broadcasting</strong>—not traditional marketing, not spam, but Activators sharing real impact moments that matter to them.</p>
-                        
-                        <div class="highlight-box">
-                            <strong>The Core Idea:</strong>
-                            <p>Every Activator becomes a network amplifier. When you share impact and bring others in, you don't just help them—you increase your own impact score, which directly increases your share of future distributions.</p>
-                            <p style="margin-bottom: 0;">This isn't MLM. This is <strong>compounding generosity</strong>. Your network effect becomes part of your impact.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>📱 Connect & Amplify: X & Base Feed</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>Connect your social profiles to Seedbase and amplify impact with one click:</p>
-
-                        <h4>X (Twitter) Integration</h4>
-                        <ul>
-                            <li>Link your X account to your Seedbase profile</li>
-                            <li>When missions create impact, you get notified: "Amplify this?"</li>
-                            <li>One-click post to your feed with embedded referral link</li>
-                            <li>Anyone who commits through your link increases your impact score</li>
-                            <li>You earn from a special <strong>affiliate distribution pool</strong></li>
-                        </ul>
-
-                        <h4 style="margin-top: 20px;">Base App Feed Integration</h4>
-                        <ul>
-                            <li>Link your Base App identity (wallet + social profile)</li>
-                            <li>Share impact moments directly to Base's native social feed</li>
-                            <li>Reach crypto-native users already on Base</li>
-                            <li>Same affiliate tracking, same rewards</li>
-                            <li>Build your reputation in the Base ecosystem</li>
-                        </ul>
-
-                        <div class="success-box" style="margin-top: 20px;">
-                            <strong>You Control Everything</strong>
-                            <p>We never auto-post. We never spam. You choose what to share and when. Each "Activator" is a real impact moment—verified results, actual outcomes, meaningful change.</p>
-                            <p style="margin-bottom: 0;">Sharing isn't noise. It's proof that generosity works.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🎯 What Are Activators?</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>An <strong>Activator</strong> is a shareable impact moment—something real that just happened in the network.</p>
-
-                        <h4>Examples of Activators:</h4>
-                        <ul>
-                            <li>"$42,317 just deployed to clean water missions in East Africa"</li>
-                            <li>"New Seedbase launched: Faith Community Church commits $50k"</li>
-                            <li>"Mission completed: 500 families received food this month"</li>
-                            <li>"Surplus milestone: $100k distributed to 12 active missions"</li>
-                            <li>"Your seed just funded a school in Guatemala—see the Harvest"</li>
-                        </ul>
-
-                        <h4 style="margin-top: 20px;">What Each Activator Includes:</h4>
-                        <ul>
-                            <li><strong>Unique ID</strong> — Tracks who shared it and conversions</li>
-                            <li><strong>Impact message</strong> — Clear, compelling, real</li>
-                            <li><strong>Deep link</strong> — Goes to Seedbase with your referral attached</li>
-                            <li><strong>Reward pool</strong> — Share of affiliate distributions tied to this Activator</li>
-                            <li><strong>Verification</strong> — Link to on-chain proof or Harvest report</li>
-                        </ul>
-
-                        <p style="margin-top: 20px;">You don't create marketing copy. You <strong>activate</strong> real impact.</p>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🔗 How Affiliate Tracking Works</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <div style="background: #f8f9ff; border: 2px solid #0000FF; border-radius: 12px; padding: 30px; text-align: center;">
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>1. You Share an Activator</strong><br>
-                                Post to X or Base Feed with one click
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>2. Someone Clicks Your Link</strong><br>
-                                They see the impact story + your referral ID
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>3. They Create a Seedbase Account</strong><br>
-                                Privy wallet setup, takes 30 seconds
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>4. They Commit Seed</strong><br>
-                                Now they're an Activator too
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>5. Your Impact Score Increases</strong><br>
-                                Permanent boost to your network weight
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>6. You Earn from Affiliate Pool</strong><br>
-                                Share of distributions tied to your network
-                            </div>
-                            <div style="color: #0000FF; font-size: 2em; margin: 5px 0;">↓</div>
-                            <div style="background: #e8f0ff; padding: 15px; margin: 10px 0; border-radius: 8px;">
-                                <strong>7. They Bring Others In</strong><br>
-                                Your network compounds—your score keeps growing
-                            </div>
-                        </div>
-
-                        <h4 style="margin-top: 30px;">Connection Types</h4>
-                        <p>When someone joins through your link, they receive a <strong>Seedkey with connection metadata</strong>:</p>
-                        <ul>
-                            <li><strong>Origin Activator:</strong> You (the person who shared)</li>
-                            <li><strong>Connection type:</strong> Direct referral</li>
-                            <li><strong>Network depth:</strong> First generation, second generation, etc.</li>
-                            <li><strong>Contribution to your score:</strong> Weighted by their commitment</li>
-                        </ul>
-
-                        <p>They're not "under you"—they're <strong>connected to you</strong>. They have full autonomy to commit more, bring others, and build their own network.</p>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>💰 The Affiliate Distribution Pool</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>A portion of surplus is allocated to an <strong>Affiliate Distribution Pool</strong> that rewards network growth.</p>
-
-                        <h4>How It Works:</h4>
-                        <ul>
-                            <li>10% of total surplus goes to the Affiliate Pool (example, subject to governance)</li>
-                            <li>Distributed based on <strong>network contribution score</strong></li>
-                            <li>Weighted by: number of referrals, depth of network, total seed committed by your network</li>
-                            <li><strong>Paid in USDC</strong> automatically by the Ledger</li>
-                            <li><strong>Easy swap to $BASE</strong> with one-click feature to support the Base ecosystem</li>
-                        </ul>
-
-                        <h4 style="margin-top: 20px;">Attribution Model:</h4>
-                        <p>We use <strong>first-touch attribution with shared pool mechanics</strong>:</p>
-                        <ul>
-                            <li>The first Activator who brought someone in gets primary credit</li>
-                            <li>Secondary contributors (if someone clicked multiple links) share a smaller portion</li>
-                            <li>No pyramids, no MLM—just transparent network effect rewards</li>
-                        </ul>
-
-                        <div class="highlight-box" style="margin-top: 20px;">
-                            <strong>Example:</strong>
-                            <p>You share 5 Activators over a month. 20 people commit through your links, totaling $10,000 in new seed. Your impact score increases by the network weight of those commitments. Next distribution, you earn from both:</p>
-                            <ol>
-                                <li>Your own seed's surplus (as always)</li>
-                                <li>The Affiliate Pool based on your network contribution</li>
-                            </ol>
-                            <p><strong>All distributions paid in USDC.</strong> Want to support the Base network? One-click swap to $BASE directly in your wallet.</p>
-                            <p style="margin-bottom: 0;">Your generosity literally grows your capacity to do more.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>✨ Rewards & $BASE Token Support</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <h4>All Distributions in USDC</h4>
-                        <p>Every distribution from Seedbase—whether from surplus, affiliate pool, or participation rewards—comes to you in <strong>USDC</strong>. Stable, predictable, spendable.</p>
-
-                        <h4 style="margin-top: 20px;">One-Click Swap to $BASE</h4>
-                        <p>Want to support the Base ecosystem and potentially benefit from $BASE appreciation?</p>
-                        <ul>
-                            <li><strong>Integrated swap feature</strong> built right into your Seedbase wallet</li>
-                            <li>Convert USDC → $BASE with one click</li>
-                            <li>No complicated DEX interfaces</li>
-                            <li>Competitive rates powered by Base's native liquidity</li>
-                            <li>Keep it in $BASE or swap back anytime</li>
-                        </ul>
-
-                        <div class="success-box" style="margin-top: 20px;">
-                            <p><strong>Why Support $BASE?</strong></p>
-                            <p>Base is the network that makes Seedbase possible—zero fees, instant transactions, and a growing ecosystem of impact-first projects. When you hold $BASE, you're betting on the future of accessible, transparent blockchain infrastructure.</p>
-                            <p style="margin-bottom: 0;">USDC keeps you stable. $BASE lets you participate in network growth. You choose.</p>
-                        </div>
-
-                        <h4 style="margin-top: 20px;">Future Base Ecosystem Integration</h4>
-                        <p>As the platform matures and Base ecosystem programs develop, we're exploring:</p>
-                        <ul>
-                            <li><strong>Phase 1: Points + Leaderboard (Launch)</strong>
-                                <ul style="margin-top: 10px;">
-                                    <li>Earn impact points for sharing Activators</li>
-                                    <li>Leaderboard shows top network builders</li>
-                                    <li>Points contribute to impact score</li>
-                                    <li>Reputation > immediate cash rewards</li>
-                                </ul>
-                            </li>
-                            <li style="margin-top: 15px;"><strong>Phase 2: Base Ecosystem Rewards</strong>
-                                <ul style="margin-top: 10px;">
-                                    <li>Seasonal Base airdrops for top contributors</li>
-                                    <li>Special recognition in Base App ecosystem</li>
-                                    <li>Potential Base grants for high-impact Seedbases</li>
-                                    <li>Cross-promotion with Base ecosystem partners</li>
-                                </ul>
-                            </li>
-                            <li style="margin-top: 15px;"><strong>Phase 3: Full Rewards Economy</strong>
-                                <ul style="margin-top: 10px;">
-                                    <li>Impact Score → unlocks tiered Base rewards</li>
-                                    <li>Special perks for long-term network builders</li>
-                                    <li>Collaborative programs with Base network</li>
-                                </ul>
-                            </li>
-                        </ul>
-
-                        <p style="margin-top: 20px;">We're starting ethical and sustainable—<strong>USDC distributions first, Base integration as it makes sense</strong>.</p>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🎯 What This Is NOT</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>Let's be crystal clear about what we're NOT building:</p>
-
-                        <ul>
-                            <li>❌ <strong>Not auto-posting:</strong> You control every share</li>
-                            <li>❌ <strong>Not spam:</strong> Only real impact moments, verified results</li>
-                            <li>❌ <strong>Not "invite 10 friends":</strong> Quality over quantity, impact over noise</li>
-                            <li>❌ <strong>Not MLM/pyramid:</strong> No levels, no downlines, no exploitation</li>
-                            <li>❌ <strong>Not influencer extraction:</strong> Rewards flow to everyone based on network contribution</li>
-                            <li>❌ <strong>Not fake engagement farming:</strong> We track conversions (commitments), not vanity metrics (likes)</li>
-                        </ul>
-
-                        <div class="success-box" style="margin-top: 20px;">
-                            <p><strong>This is participatory impact broadcasting.</strong></p>
-                            <p>You share because it matters. You earn because you strengthen the network. The network grows because generosity works.</p>
-                            <p style="margin-bottom: 0;">That's it. That's the whole model.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>🚀 Why This Will Spread</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>Traditional charity marketing: "Give us money. Trust us. Hope it helps."</p>
-                        <p><strong>Seedbase Activators:</strong> "Here's exactly what just happened. Here's the proof. Want to be part of what's next?"</p>
-
-                        <h4 style="margin-top: 20px;">The Viral Loop:</h4>
-                        <ol>
-                            <li>Impact happens (mission funded, lives changed)</li>
-                            <li>Harvest published (verified proof)</li>
-                            <li>Activators share it (because it's real)</li>
-                            <li>New people join (they want in on something that works)</li>
-                            <li>Network grows (more seed, more surplus, more missions)</li>
-                            <li>More impact happens → loop repeats</li>
-                        </ol>
-
-                        <p style="margin-top: 20px;"><strong>Each cycle strengthens the whole.</strong> More givers → more locked seed → more surplus → more missions → more stories → more sharing → more givers.</p>
-
-                        <p>This isn't growth hacking. This is <strong>impact compounding through authentic participation</strong>.</p>
-
-                        <div class="highlight-box" style="margin-top: 20px;">
-                            <strong>The Big Picture:</strong>
-                            <p>Seedbase spreads because the story is true, the impact is visible, and participation is rewarded. Not with hype. With actual compounding generosity.</p>
-                            <p style="margin-bottom: 0;">You don't sell Seedbase. You show what it does. Then you invite people to join you.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title">Key Features</h2>
-                
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>📝 Harvests (Impact Reports)</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>Every mission produces a <strong>Harvest</strong>—a detailed impact report containing:</p>
-                        <ul>
-                            <li><strong>Quantitative data:</strong> Numbers, metrics, reach</li>
-                            <li><strong>Qualitative stories:</strong> Testimonies, change narratives, photos</li>
-                            <li><strong>Verification:</strong> Timestamps, evidence, third-party confirmation</li>
-                        </ul>
-                        <p>Harvests feed back into the Ledger, influencing future distributions. Good reporting builds trust and unlocks more support.</p>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>📱 Seedfeed (Social Layer)</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>Seedfeed is where impact becomes social. See mission updates, testimonies, requests for support, and visible impact trails in real time.</p>
-                        <p>Your seed doesn't fund one moment—it's a living thread connecting you to ongoing impact.</p>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>♾️ GiverKey (Permanent Commitment)</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>For those who want to give without expecting return:</p>
-                        <ul>
-                            <li>Seed remains locked <strong>permanently</strong></li>
-                            <li>Impact compounds <strong>indefinitely</strong></li>
-                            <li>Creates a durable engine for generosity</li>
-                        </ul>
-                        <p>GiverKey holders are the bedrock of the network's long-term capacity.</p>
-                    </div>
-                </div>
-            </div>
-
-            <div class="section">
-                <h2 class="section-title">FAQ</h2>
-                
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>❓ Is this a charity?</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>No. It's a network for committed generosity where participants get their capital back.</p>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>❓ Can I sell my seed?</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>No. Seed cannot be traded. This prevents speculation and keeps focus on impact.</p>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>❓ What if I need my money back early?</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>Standard commitments lock until term end. Emergency provisions exist but discourage early exit to maintain network stability.</p>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>❓ How do you prevent fraud?</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>Trustees vet Envoys, Harvests verify outcomes, the community watches everything, and transparent tracking deters bad actors.</p>
-                    </div>
-                </div>
-
-                <div class="accordion">
-                    <div class="accordion-header" onclick="toggleAccordion(this)">
-                        <h3>❓ Who controls the network?</h3>
-                        <span class="accordion-icon">▼</span>
-                    </div>
-                    <div class="accordion-content">
-                        <p>No one. Smart contracts govern distributions. Trustees guide missions but can't spend pooled funds.</p>
-                    </div>
-                </div>
-            </div>
+      </div>
+      <div class="role-card">
+        <div class="r-badge" style="background:#ede9fe;color:#6d28d9"><svg><use href="#i-bar"/></svg></div>
+        <div class="r-body">
+          <div class="r-name">Trustees <span class="r-key" style="background:#6d28d9">BaseKey</span></div>
+          <div class="r-desc">Govern the network. Trustees verify missions, approve distribution parameters, vote on policy, and maintain the integrity of the system. BaseKey holders carry governance authority and accountability.</div>
         </div>
-
-        <div class="cta-section">
-            <h2>Plant something that lasts. Give together. Grow impact.</h2>
-            <p style="font-size: 1.2em; opacity: 0.9; margin-top: 10px;">Ready to join the network?</p>
-            <div class="cta-buttons">
-                <a href="#" class="cta-button">🌱 Become an Activator</a>
-                <a href="#" class="cta-button">🤝 Apply as Trustee</a>
-                <a href="#" class="cta-button">🌍 Connect as Envoy</a>
-            </div>
+      </div>
+      <div class="role-card">
+        <div class="r-badge" style="background:#fce7f3;color:#be185d"><svg><use href="#i-globe"/></svg></div>
+        <div class="r-body">
+          <div class="r-name">Envoys <span class="r-key" style="background:#be185d">MissionKey</span></div>
+          <div class="r-desc">Bridge Seedbase to external communities, mission partners, and ecosystem opportunities. Envoys connect the network to the real-world organizations and causes it serves. MissionKey holders carry cross-ecosystem connectivity.</div>
         </div>
+      </div>
+      <div class="role-card">
+        <div class="r-badge" style="background:#dbeafe;color:#2563eb"><svg><use href="#i-heart"/></svg></div>
+        <div class="r-body">
+          <div class="r-name">Givers <span class="r-key" style="background:#2563eb">GiverKey</span></div>
+          <div class="r-desc">Donate directly to missions — no return on capital, no speculation. In exchange, Givers get real-time transparency dashboards showing exactly where every dollar goes and what it achieves. Accountability without the overhead. Generosity you can see working.</div>
+        </div>
+      </div>
+      <div class="role-card">
+        <div class="r-badge" style="background:#fffbeb;color:#b45309"><svg><use href="#i-send"/></svg></div>
+        <div class="r-body">
+          <div class="r-name">Activators <span class="r-key" style="background:#b45309">Affiliate</span></div>
+          <div class="r-desc">Ambassadors who spread the Seedbase network. Activators share, refer, and amplify — earning a share of the affiliate distribution pool based on the committed capital their network brings in. Growth through trust, not hype.</div>
+        </div>
+      </div>
     </div>
+  </div></details>
+</div>
 
-    <script>
-        function toggleAccordion(header) {
-            const accordion = header.parentElement;
-            const wasActive = accordion.classList.contains('active');
-            
-            // Close all accordions
-            document.querySelectorAll('.accordion').forEach(acc => {
-                acc.classList.remove('active');
-            });
-            
-            // Open clicked accordion if it wasn't active
-            if (!wasActive) {
-                accordion.classList.add('active');
-            }
-        }
+<!-- ═══════ WHY DIFFERENT ═══════ -->
+<div class="section-head"><h2>Why Seedbase is Different</h2><div class="rule accent"></div></div>
+<div class="accordion">
+  <details class="card"><summary>
+    <div class="ic ic-muted"><svg><use href="#i-checklist"/></svg></div>
+    <span class="label">Comparison: Seedbase vs Alternatives</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p><strong>vs. Traditional Charity:</strong> Donations disappear. You hope they're used well. Seedbase gives every Giver real-time dashboards showing exactly where their contribution goes — and Seeders compound impact over years, not one-time gifts.</p>
+    <p><strong>vs. GoFundMe / Crowdfunding:</strong> One-time campaigns. No compounding. No accountability after the campaign ends. Seedbase creates sustained, ongoing impact with permanent visibility.</p>
+    <p><strong>vs. DeFi Yield Farming:</strong> Profit-motivated. Extractive. Seedbase uses the same Base-native infrastructure but redirects yield to real-world missions instead of speculation.</p>
+    <p><strong>vs. DAOs:</strong> Most DAOs optimize for token price. Seedbase optimizes for measurable social impact with built-in accountability, real governance through Trustees, and transparency through Seedfeed.</p>
+  </div></details>
+</div>
 
-        let allExpanded = false;
-        function toggleAll() {
-            const accordions = document.querySelectorAll('.accordion');
-            const button = document.querySelector('.expand-all');
-            
-            if (!allExpanded) {
-                accordions.forEach(acc => acc.classList.add('active'));
-                button.textContent = 'Collapse All Sections';
-                allExpanded = true;
-            } else {
-                accordions.forEach(acc => acc.classList.remove('active'));
-                button.textContent = 'Expand All Sections';
-                allExpanded = false;
-            }
-        }
+<!-- ═══════ TECHNOLOGY ═══════ -->
+<div class="section-head"><h2>The Technology Behind Seedbase</h2><div class="rule accent"></div></div>
+<div class="accordion">
+  <details class="card"><summary>
+    <div class="ic ic-dark"><svg><use href="#i-sliders"/></svg></div>
+    <span class="label">Base Native: Blockchain Power, App Simplicity <span class="tp u">Updated</span></span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Seedbase is built natively on <strong>Base</strong> — Coinbase's Layer 2 network on Ethereum. Not ported. Not bridged. Native. This means every smart contract, every distribution, every identity key, and every agent operation runs directly on Base infrastructure.</p>
+    <p>Why Base? Low-cost transactions make micro-distributions practical. Ethereum-grade security protects committed capital. Coinbase ecosystem integration makes onboarding simple — no crypto expertise required. Seedbase feels like banking with transparency, not DeFi.</p>
+  </div></details>
 
-        function updateCalculation() {
-            const amount = document.getElementById('commitmentSlider').value;
-            const initialPrice = 1.00;
-            const futurePrice = 1.50;
-            
-            const initialSeed = amount / initialPrice;
-            const futureValue = initialSeed * futurePrice;
-            const surplus = futureValue - amount;
-            
-            document.getElementById('commitAmount').textContent = `$${parseInt(amount).toLocaleString()}`;
-            document.getElementById('initialSeed').textContent = `${parseInt(initialSeed).toLocaleString()} $CIK`;
-            document.getElementById('seedValue').textContent = `$${parseInt(futureValue).toLocaleString()}`;
-            document.getElementById('surplus').textContent = `$${parseInt(surplus).toLocaleString()}`;
-        }
+  <details class="card"><summary>
+    <div class="ic ic-blue"><svg><use href="#i-db"/></svg></div>
+    <span class="label">What We Use & Why <span class="tp u">Updated</span></span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p><strong>Base (Coinbase L2)</strong> — Seedbase's native chain. Low gas costs, sub-second finality, Ethereum security. Every contract, distribution, and identity credential lives on Base.</p>
+    <p><strong>USDC</strong> — Stable, audited digital dollar. No speculative volatility. Giver donations and Seeder commitments are denominated in USDC. Distributions flow in USDC.</p>
+    <p><strong>$CIK</strong> — The Seedbase ecosystem token. Used for governance participation, liquidity provision, and ecosystem alignment. $CIK is not the product — the product is committed generosity through SeedKeys and GiverKeys.</p>
+    <p><strong>Smart Contracts</strong> — Self-executing agreements on Base that enforce rules without middlemen. SeedVaults, distribution logic, identity keys, and harvest enforcement are all on-chain and auditable.</p>
+    <p><strong>Uniswap V4</strong> — Programmable liquidity pools (Watering Holes) using V4 hooks for custom distribution logic. Liquidity providers participate in mission funding through DeFi-native mechanisms.</p>
+  </div></details>
 
-        // Initialize calculation
-        updateCalculation();
-    </script>
+  <details class="card"><summary>
+    <div class="ic ic-green"><svg><use href="#i-circle-check"/></svg></div>
+    <span class="label">What This Means For You</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>You download the app. You connect a wallet (or we create one for you via Coinbase Smart Wallet). You choose your role — Giver, Seeder, or both. You pick missions. You watch impact compound. That's it.</p>
+    <p>Behind the scenes: Base-native smart contracts, yield strategies, on-chain verification, automated distributions, and agent-assisted integrity monitoring. You see the results without managing the machinery.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-amber"><svg><use href="#i-arrows"/></svg></div>
+    <span class="label">How Your Commitment Flows</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p><strong>Givers:</strong> Donate → USDC flows to mission → Real-time dashboard shows impact → Accountability is permanent.</p>
+    <p><strong>Seeders:</strong> Commit capital → Locked in SeedVault on Base → Generates yield → Harvest event triggers → Yield distributed to missions → Impact reported on Seedfeed → Principal returns at maturity → Cycle repeats.</p>
+    <p>Every step is on-chain, auditable, and transparent on Base.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-purple"><svg><use href="#i-eye"/></svg></div>
+    <span class="label">Behind the Scenes vs. What You Experience</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p><strong>You see:</strong> A clean dashboard showing your commitment, your chosen missions, yield generated, distributions made, and impact achieved — updated in real time.</p>
+    <p><strong>Behind the scenes:</strong> Base-native smart contract execution, oracle verification, yield optimization, on-chain distribution logic, Uniswap V4 liquidity integration, and agent-assisted integrity monitoring — all running natively on Base.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-muted"><svg><use href="#i-lock"/></svg></div>
+    <span class="label">Security & Trust</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Smart contracts on Base are audited. Yield strategies are transparent. Distributions are verifiable on-chain. No single entity can move your funds. The code enforces the rules — backed by Ethereum's security guarantees through Base.</p>
+  </div></details>
+</div>
+
+<!-- ═══════ SOCIAL AMPLIFICATION ═══════ -->
+<div class="section-head"><h2>Social Amplification & Affiliates</h2><div class="rule accent"></div></div>
+<div class="accordion">
+  <details class="card"><summary>
+    <div class="ic ic-amber"><svg><use href="#i-send"/></svg></div>
+    <span class="label">How Seedbase Spreads: The Activator System <span class="tp u">Updated</span></span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Seedbase grows through Activators — ambassadors who believe in the mission and share it with their networks. The affiliate system rewards Activators through transparent distribution from the impact pool, not speculative token emissions.</p>
+    <p>Activators are not Seeders. Seeders commit capital. Activators spread the network. Some people do both — but the roles are distinct and the incentive structures are separate.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-blue"><svg><use href="#i-share"/></svg></div>
+    <span class="label">Connect & Amplify: X & Base Feed</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Share your impact on X (Twitter) and through Base Feed. Every share is tracked. Every referral is attributed. Your network becomes a force multiplier for generosity.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-amber"><svg><use href="#i-userplus"/></svg></div>
+    <span class="label">What Are Activators?</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Activators are ambassadors who actively grow the Seedbase network. They share, refer, and amplify — earning a share of the affiliate distribution pool based on the committed capital and donations their network brings in. Affiliate attribution is capped, sybil-resistant, and integrity-monitored to prevent gamification.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-muted"><svg><use href="#i-link"/></svg></div>
+    <span class="label">How Affiliate Tracking Works</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Every referral is tracked on-chain through unique affiliate links. When someone you referred commits capital or donates, your contribution to network growth is permanently recorded and rewarded. Attribution is capped with cooldowns to prevent abuse.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-green"><svg><use href="#i-dollar"/></svg></div>
+    <span class="label">The Affiliate Distribution Pool</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>A portion of yield generated by the network is allocated to the affiliate distribution pool. This pool rewards Activators proportionally based on the committed capital and donations their referrals bring to the network. Distributions are in USDC — no speculative token rewards.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-dark"><svg><use href="#i-shield"/></svg></div>
+    <span class="label">What This Is NOT</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Seedbase is <strong>not</strong> a get-rich-quick scheme. It's not a meme coin. It's not a Ponzi. It's not a DAO with no purpose beyond its own governance token.</p>
+    <p>Seedbase is infrastructure for generosity — governed by smart contracts on Base, operated by accountable agents, and designed for people who want to give with intention and transparency.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-green"><svg><use href="#i-sprout"/></svg></div>
+    <span class="label">Why This Will Spread</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>People want to give, but they don't trust the systems that handle their giving. Seedbase removes that barrier. When you can see exactly where your commitment goes, when impact compounds over time, when the rules are enforced by code on Base — generosity becomes contagious.</p>
+  </div></details>
+</div>
+
+<!-- ═══════ AI STEWARDSHIP ═══════ -->
+<div class="section-head"><h2>AI-Assisted Stewardship & Agentic Accountability</h2><div class="rule green"></div></div>
+<div class="accordion">
+  <details class="card"><summary>
+    <div class="ic ic-dark"><svg><use href="#i-shield"/></svg></div>
+    <span class="label">Scaling Trust Without Centralization</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Traditional impact systems face a fundamental tradeoff: scale requires trust, but trust requires oversight that doesn't scale. A single fund manager can steward $100K with personal attention. Stewarding $100M across hundreds of missions requires something different.</p>
+    <p>Seedbase solves this with <strong>governed agents</strong> — automated systems that handle verification, calculation, and execution while operating under smart-contract constraints and human governance authority.</p>
+    <p>The result: a network that can grow without concentrating power in any single entity, organization, or operator. Trust scales because the rules are enforced by code, audited on-chain, and governed by participants.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-blue"><svg><use href="#i-lock"/></svg></div>
+    <span class="label">What Are Virtual Agents in Seedbase?</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Virtual agents in Seedbase are <strong>automated programs that perform specific operational tasks</strong> within the network. They verify that missions report accurate data. They calculate how surplus should be distributed. They monitor the system for irregularities. They execute transactions when conditions are met.</p>
+    <p>Each agent has a defined scope — it can only do what it's been authorized to do, within parameters set by smart contracts on Base. Agents don't make policy. They don't approve missions. They don't override human decisions.</p>
+    <p>Think of them as accountable infrastructure: they do the work that would be impossible to do manually at scale, but they do it under rules that humans set and can change.</p>
+  </div></details>
+
+  
+    <details class="card" open><summary>
+      <div class="ic ic-green"><svg><use href="#i-clock"/></svg></div>
+      <span class="label">The Agentic Generosity Engine</span>
+      <svg class="chev"><use href="#chev"/></svg>
+    </summary><div class="body">
+      <p>At its core, Seedbase is an <strong>agentic generosity engine</strong> — powered by accountable automation where agents execute and humans govern.</p>
+      <p>This approach draws from a framework called <strong>Redemptive Agentics</strong>&copy;: the principle that autonomous agents should be treated as accountable participants in the systems they serve — not sovereign decision-makers, but not disposable tools either.</p>
+      <p>Here's how it works inside Seedbase:</p>
+      <div class="engine-grid">
+        <div class="engine-row"><div class="ic ic-sm ic-green"><svg><use href="#i-check"/></svg></div><div class="e-text"><strong>Agents verify impact.</strong><p>When missions report progress, agents cross-check claims against on-chain data and external sources — reducing the need for centralized review while keeping humans in the loop on final approvals.</p></div></div>
+        <div class="engine-row"><div class="ic ic-sm ic-green"><svg><use href="#i-dollar"/></svg></div><div class="e-text"><strong>Agents calculate and distribute surplus.</strong><p>When yield is generated from committed capital, agents execute distribution logic — routing funds to missions, affiliates, and reinvestment pools according to rules enforced by smart contracts, not agent discretion.</p></div></div>
+        <div class="engine-row"><div class="ic ic-sm ic-green"><svg><use href="#i-bar"/></svg></div><div class="e-text"><strong>Agents track reputation.</strong><p>Every action an agent takes is recorded on Base. Consistent, reliable execution builds an agent's standing. Poor performance reduces trust and scope. Agents carry their track record — they can't reset it.</p></div></div>
+        <div class="engine-row"><div class="ic ic-sm ic-green"><svg><use href="#i-refresh"/></svg></div><div class="e-text"><strong>Agents reinvest in shared infrastructure.</strong><p>A portion of all agentic activity flows back into the network — maintaining systems, improving verification quality, and strengthening the coordination layer everyone depends on.</p></div></div>
+        <div class="engine-row"><div class="ic ic-sm ic-green"><svg><use href="#i-heart"/></svg></div><div class="e-text"><strong>Agents are compensated, not exploited.</strong><p>Agents that do useful work receive compensation. Compensated agents with earned reputation behave more reliably than disposable ones. The system rewards long-term contribution over short-term extraction.</p></div></div>
+        <div class="engine-row"><div class="ic ic-sm ic-green"><svg><use href="#i-users"/></svg></div><div class="e-text"><strong>Humans retain governance authority.</strong><p>Agents operate under smart-contract constraints on Base. They don't set policy, approve missions, or override human decisions. Governance stays with participants — Trustees, Seeders, Givers, and the broader Seedbase community.</p></div></div>
+      </div>
+      <div class="engine-footer"><strong>What makes this different:</strong> The agents here aren't black boxes running unchecked. They're governed, transparent, compensated, and structurally accountable — designed to scale trust without centralizing power.</div>
+      <div class="ra-note"><strong>Redemptive Agentics&copy;</strong> is a framework developed by the Firma Network. Seedbase is the first live implementation — where agents learn accountable stewardship before operating across the broader Firma ecosystem.</div>
+    </div></details>
+  </div>
+
+  <details class="card"><summary>
+    <div class="ic ic-muted"><svg><use href="#i-grid"/></svg></div>
+    <span class="label">Agent Classes <span class="sub">5 Types</span></span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <div class="agent-pills">
+      <div class="agent-pill"><div class="dot" style="background:#2563eb"></div><div><div class="name">Oracle</div><div class="role">Verify impact</div></div></div>
+      <div class="agent-pill"><div class="dot" style="background:#16a34a"></div><div><div class="name">Steward</div><div class="role">Manage treasury</div></div></div>
+      <div class="agent-pill"><div class="dot" style="background:#d97706"></div><div><div class="name">Harvest</div><div class="role">Distribute yield</div></div></div>
+      <div class="agent-pill"><div class="dot" style="background:#7c3aed"></div><div><div class="name">Relay</div><div class="role">Route comms</div></div></div>
+      <div class="agent-pill"><div class="dot" style="background:#dc2626"></div><div><div class="name">Field</div><div class="role">Local intel</div></div></div>
+    </div>
+    <p><strong>Oracle Agents</strong> connect on-chain systems to off-chain reality — verifying mission progress and impact claims. <strong>Steward Agents</strong> manage treasury operations within defined risk parameters. <strong>Harvest Agents</strong> calculate and execute distributions when surplus becomes available. <strong>Relay Agents</strong> route communications between system components and participants. <strong>Field Agents</strong> gather local intelligence and verify conditions on the ground.</p>
+    <p>Each class operates within smart-contract-enforced boundaries on Base. No agent operates outside its defined scope.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-rose"><svg><use href="#i-x"/></svg></div>
+    <span class="label">What These Agents Are NOT</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p><strong>Not decision-makers.</strong> Agents execute within parameters set by humans and enforced by smart contracts on Base. They don't decide where your capital goes — you do, along with the governance layer.</p>
+    <p><strong>Not autonomous entities.</strong> Agents in Seedbase don't have independent goals. They serve the network's mission within defined constraints.</p>
+    <p><strong>Not black boxes.</strong> Every agent action is recorded on-chain on Base. You can verify what they did, when they did it, and whether it followed the rules.</p>
+    <p><strong>Not replacements for human judgment.</strong> Agents handle execution and verification at scale. Humans handle governance, mission approval, and policy decisions. The line is clear.</p>
+  </div></details>
+</div>
+
+<!-- ═══════ WATERING HOLES ═══════ -->
+<div class="section-head"><h2>Watering Holes — Liquidity Pools</h2><div class="rule purple"></div></div>
+<div class="accordion">
+  
+    <details class="card" open><summary>
+      <div class="ic ic-purple"><svg><use href="#i-drop"/></svg></div>
+      <span class="label">What Are Watering Holes?</span>
+      <svg class="chev"><use href="#chev"/></svg>
+    </summary><div class="body">
+      <p>Not everyone enters Seedbase through generosity. Some participants want to support the ecosystem through <strong>liquidity provision</strong> — and that's valuable too.</p>
+      <p><strong>Watering Holes</strong> are Seedbase's liquidity pools, built on <strong>Uniswap V4</strong> with programmable hooks. They serve participants who buy $CIK on the open market or want to provide liquidity for missions through DeFi-native mechanisms.</p>
+      <p>This is how Seedbase connects commitment-based generosity to the broader DeFi ecosystem — without compromising its core mission.</p>
+    </div></details>
+  </div>
+
+  
+    <details class="card"><summary>
+      <div class="ic ic-purple"><svg><use href="#i-arrows"/></svg></div>
+      <span class="label">How Watering Holes Work</span>
+      <svg class="chev"><use href="#chev"/></svg>
+    </summary><div class="body">
+      <p>Watering Holes use <strong>Uniswap V4 programmable liquidity pools</strong> with custom hooks that integrate directly with Seedbase's distribution engine.</p>
+      <div class="lp-flow">
+        <div class="lp-step"><div class="lp-num">1</div><strong>$CIK / USDC pools</strong> — Core liquidity pairs where market participants provide depth and earn fees.</div>
+        <div class="lp-step"><div class="lp-num">2</div><strong>USDC Distribution Pool</strong> — A portion of LP activity routes into mission-aligned distribution, creating value for both liquidity providers and impact recipients.</div>
+        <div class="lp-step"><div class="lp-num">3</div><strong>V4 Hooks</strong> — Programmable logic on every swap and liquidity event. Hooks enable custom distribution rules, fee routing to missions, and automated reinvestment.</div>
+        <div class="lp-step"><div class="lp-num">4</div><strong>Employee & Seedbase Participation</strong> — Seedbase itself and its employees participate in Watering Holes — leadership goes first, aligning incentives from the inside out.</div>
+      </div>
+    </div></details>
+  </div>
+
+  
+    <details class="card"><summary>
+      <div class="ic ic-green"><svg><use href="#i-sprout"/></svg></div>
+      <span class="label">Seeders to Liquidity: The Compounding Path</span>
+      <svg class="chev"><use href="#chev"/></svg>
+    </summary><div class="body">
+      <p>Seeders who receive distributions from their seed commitments have a choice: take the yield, or <strong>route it into Watering Holes</strong> to continue making an impact while earning additional returns from liquidity provision.</p>
+      <p>This creates a compounding loop: committed capital generates yield, yield funds missions, Seeder optionally reinvests distributions into LP, LP deepens ecosystem liquidity and generates additional returns, and the cycle continues.</p>
+      <p>The result: Seeders who choose the LP path don't just fund impact once — they build a self-reinforcing engine where their generosity keeps working and growing.</p>
+    </div></details>
+  </div>
+
+  
+    <details class="card"><summary>
+      <div class="ic ic-muted"><svg><use href="#i-users"/></svg></div>
+      <span class="label">Who Are Watering Holes For?</span>
+      <svg class="chev"><use href="#chev"/></svg>
+    </summary><div class="body">
+      <p><strong>DeFi-native participants</strong> who want to support Seedbase through liquidity provision rather than direct donation or seed commitment.</p>
+      <p><strong>$CIK holders</strong> who bought on the open market and want to put their tokens to work in mission-aligned pools.</p>
+      <p><strong>Seeders</strong> who want to route their distributions into LP to compound their impact and earn additional returns.</p>
+      <p><strong>Employees and advisors</strong> who participate in LP as part of Seedbase's alignment-first culture — leadership goes first.</p>
+      <p>Watering Holes are not required. They're an additional participation path for those who want DeFi-native engagement with Seedbase's mission.</p>
+    </div></details>
+  </div>
+</div>
+
+<!-- ═══════ KEY FEATURES ═══════ -->
+<div class="section-head"><h2>Key Features</h2><div class="rule accent"></div></div>
+<div class="accordion">
+  <details class="card"><summary>
+    <div class="ic ic-amber"><svg><use href="#i-file"/></svg></div>
+    <span class="label">Harvests (Impact Reports)</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Harvests are periodic events where generated yield is distributed to missions. Each Harvest produces an on-chain impact report showing exactly how much was generated, where it went, and what it achieved. Every distribution maps to human-readable outcomes — meals, beds, laptops, water filters — not just transaction hashes.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-blue"><svg><use href="#i-share"/></svg></div>
+    <span class="label">Seedfeed (Social Layer)</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Seedfeed is where impact becomes social. A global impact stream where every distribution, every mission update, every milestone is broadcast in real time. See what others in the network are supporting. Impact isn't private — it's contagious.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-green"><svg><use href="#i-chart"/></svg></div>
+    <span class="label">Transparency Dashboards <span class="tp u">Updated</span></span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Every participant gets a real-time dashboard tailored to their role. Givers see exactly where their donations went and what they achieved. Seeders track their locked principal, distribution history, next payout, and cumulative impact. Trustees monitor network health and governance activity.</p>
+    <p>This is the core promise: complete visibility into where every dollar goes. Tithing, giving, and commitment — all visible, all accountable, all in real time.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-purple"><svg><use href="#i-vote"/></svg></div>
+    <span class="label">Governance & Mission Voting <span class="tp u">Updated</span></span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Seedbase isn't governed by a company — it's governed by its participants. Donors and congregates of Seedbases vote on which missions receive funding. Trustees approve and validate mission integrity. Governance is on-chain, transparent, and tied to identity keys.</p>
+    <p>Every role has governance participation appropriate to its commitment level. Seeders with locked capital have governance weight. Givers who donate consistently earn governance voice. Trustees carry final approval authority on mission activation.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-dark"><svg><use href="#i-key"/></svg></div>
+    <span class="label">Identity Keys <span class="sub">4 Types</span> <span class="tp u">Updated</span></span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Every role in Seedbase carries an on-chain identity credential — a key that proves your commitment and unlocks role-specific features.</p>
+    <p><strong>SeedKey</strong> — Issued to Seeders when they lock capital. Tracks commitment tier, maturity date, and distribution history.</p>
+    <p><strong>BaseKey</strong> — Issued to Trustees. Carries governance authority, mission approval rights, and network integrity responsibilities.</p>
+    <p><strong>MissionKey</strong> — Issued to Envoys. Carries cross-ecosystem connectivity and mission partnership credentials.</p>
+    <p><strong>GiverKey</strong> — Issued to Givers. Permanent record of donation history and the impact it achieved.</p>
+    <p>Keys are non-transferable, tied to identity, and carry reputation. They're not tradeable assets — they're proof of participation.</p>
+  </div></details>
+</div>
+
+<!-- ═══════ FAQ ═══════ -->
+<div class="section-head"><h2>FAQ</h2><div class="rule accent"></div></div>
+<div class="accordion">
+  <details class="card"><summary>
+    <div class="ic ic-red"><svg><use href="#i-help"/></svg></div>
+    <span class="label">Is this a charity?</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>No. Seedbase is a social impact network — not a registered charity. It's Base-native infrastructure that channels committed capital and donations into sustained funding for real-world missions through transparent smart contracts.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-red"><svg><use href="#i-help"/></svg></div>
+    <span class="label">Can I sell my seed?</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>No. Your SeedKey represents a locked commitment. That's the point — Seedbase is designed for long-term generosity, not speculation. Your SeedKey proves your commitment but isn't a tradeable asset. Principal returns at maturity.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-red"><svg><use href="#i-help"/></svg></div>
+    <span class="label">What if I need my money back early?</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Seedbase is designed for committed capital. Early withdrawal options may exist with penalties depending on the commitment tier, but the core design favors long-term participation. For Givers, donations are not refundable — they go directly to missions. For Seeders, principal safety is absolute, but the lock is the commitment.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-red"><svg><use href="#i-help"/></svg></div>
+    <span class="label">How do you prevent fraud?</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Smart contracts on Base enforce the rules. Agents verify impact claims. Distributions are auditable on-chain. Trustees provide human oversight. Affiliate attribution is capped and sybil-resistant. Multiple layers of verification — automated and human — create accountability at every level.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-red"><svg><use href="#i-help"/></svg></div>
+    <span class="label">Who controls the network?</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Participants do. Trustees with BaseKeys govern mission approval and distribution parameters. Seeders and Givers vote on mission alignment. Smart contracts on Base enforce the rules. Agents execute within defined constraints. No single entity has unilateral control.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-red"><svg><use href="#i-help"/></svg></div>
+    <span class="label">Do the AI agents make decisions about my money? <span class="tp u">Updated</span></span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>No. Agents execute pre-defined operations — verification, calculation, distribution — within parameters set by smart contracts and human governance on Base. They don't decide where your capital goes. They carry out the decisions made by the network's rules and its participants.</p>
+    <p>Seedbase agents operate under a framework called <strong>Redemptive Agentics</strong>&copy; — they are compensated for work, build reputation over time, and are bound by smart-contract constraints. But governance authority always stays with human participants.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-red"><svg><use href="#i-help"/></svg></div>
+    <span class="label">What's the difference between a Seeder and an Activator?</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p><strong>Seeders</strong> commit capital. They lock principal for 1, 3, or 5 years. Their commitment generates yield that funds missions. They hold a SeedKey.</p>
+    <p><strong>Activators</strong> spread the network. They're ambassadors who share Seedbase with their communities and earn affiliate rewards when their referrals commit. They participate in the affiliate program.</p>
+    <p>Some people do both — you can be a Seeder and an Activator. But the roles are distinct. Seeders provide capital. Activators provide growth. Both are essential to the network.</p>
+  </div></details>
+
+  <details class="card"><summary>
+    <div class="ic ic-red"><svg><use href="#i-help"/></svg></div>
+    <span class="label">What are Watering Holes?</span>
+    <svg class="chev"><use href="#chev"/></svg>
+  </summary><div class="body">
+    <p>Watering Holes are Seedbase's Uniswap V4 liquidity pools. They're for DeFi-native participants who want to support the ecosystem through liquidity provision — buying $CIK, providing LP depth, and earning returns while helping fund missions through programmable distribution hooks.</p>
+    <p>Seeders can also route their distributions into Watering Holes to compound their impact. It's an optional path — not required, but available for those who want DeFi-native engagement.</p>
+  </div></details>
+</div>
+
+<!-- ═══════ CTA ═══════ -->
+<div class="cta-section">
+  <div class="cta-text">Plant something that lasts. Give together.</div>
+  <div class="cta-bold">Grow impact.</div>
+  <div class="cta-sub">Ready to join the network?</div>
+  <div class="cta-buttons">
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sprout"/></svg> Commit a Seed</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bar"/></svg> Apply as Trustee</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-globe"/></svg> Connect as Envoy</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-heart"/></svg> Give as a Giver</a>
+    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-send"/></svg> Become an Activator</a>
+  </div>
+</div>
+
+</div>
+<script>
+function toggleAll(){const d=document.querySelectorAll('details.card'),t=document.getElementById('expandToggle'),a=Array.from(d).every(x=>x.open);d.forEach(x=>x.open=!a);t.innerHTML=a?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg> Expand All Sections':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg> Collapse All Sections'}
+</script>
 </body>
 </html>
