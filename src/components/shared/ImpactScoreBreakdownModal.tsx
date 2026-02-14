@@ -53,8 +53,8 @@ const scoreActions: ScoreAction[] = [
   {
     id: 'refer',
     icon: Users,
-    label: 'Invite Activators',
-    description: 'Bring new activators who commit seed',
+    label: 'Invite Seeders',
+    description: 'Bring new seeders who commit seed',
     points: 200,
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10',

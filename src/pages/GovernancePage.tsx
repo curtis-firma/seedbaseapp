@@ -374,7 +374,7 @@ export default function GovernancePage() {
                 <TrendingUp className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <h2 className="font-semibold text-lg">Top Activators</h2>
+                <h2 className="font-semibold text-lg">Top Seeders</h2>
                 <p className="text-xs text-muted-foreground">Leaderboard by network impact</p>
               </div>
             </div>
