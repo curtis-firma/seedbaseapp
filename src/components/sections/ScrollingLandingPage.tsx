@@ -35,7 +35,7 @@ const sections = [
 {
   id: "impact",
   headline: "See your impact",
-  description: "A live social feed shows generosity in motion.",
+  description: "A live social feed powered by our Redemptive Agentics Engine™ shows generosity in motion.",
   card: "impact",
   bgColor: "bg-landing-impact"
 },
