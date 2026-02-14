@@ -25,57 +25,57 @@ import FeatureSquareCard from "@/components/landing/FeatureSquareCard";
 import LearnMoreModal from "@/components/landing/LearnMoreModal";
 import waterBackground from "@/assets/water-background.png";
 const sections = [
-  {
-    id: "wallet",
-    headline: "A wallet built for giving",
-    description: "Sign in with email or phone. Give instantly. Withdraw to your bank.",
-    card: "wallet",
-    bgColor: "bg-landing-wallet",
-  },
-  {
-    id: "impact",
-    headline: "See your impact",
-    description: "A live social feed shows generosity in motion.",
-    card: "impact",
-    bgColor: "bg-landing-impact",
-  },
-  {
-    id: "spread",
-    headline: "See generosity spread",
-    description: "Watch surplus move across people, places, and missions.",
-    card: "campaign",
-    bgColor: "bg-landing-spread",
-    bgImage: true,
-  },
-  {
-    id: "ledger",
-    headline: "Built on shared ledgers",
-    description: "Every seed. Every surplus. Every deployment. Trust you can see.",
-    card: "ledger",
-    bgColor: "bg-landing-ledger",
-  },
-  {
-    id: "seedbases",
-    headline: "Communities steward together",
-    description: "Ministries and teams run seedbases. Same numbers. Shared clarity.",
-    card: "dashboard",
-    bgColor: "bg-landing-seedbases",
-  },
-  {
-    id: "tithing",
-    headline: "Transparent tithing",
-    description: "See allocations. Vote on priorities. Track impact.",
-    card: "transparency",
-    bgColor: "bg-landing-tithing",
-  },
-  {
-    id: "movement",
-    headline: "Built by generosity",
-    description: "Every seed grows. Every surplus spreads. Trust rewards come back.",
-    card: "growth",
-    bgColor: "bg-landing-movement",
-  },
-];
+{
+  id: "wallet",
+  headline: "A wallet built for giving",
+  description: "Sign in with email or phone. Give instantly. Withdraw to your bank.",
+  card: "wallet",
+  bgColor: "bg-landing-wallet"
+},
+{
+  id: "impact",
+  headline: "See your impact",
+  description: "A live social feed shows generosity in motion.",
+  card: "impact",
+  bgColor: "bg-landing-impact"
+},
+{
+  id: "spread",
+  headline: "See generosity spread",
+  description: "Watch surplus move across people, places, and missions.",
+  card: "campaign",
+  bgColor: "bg-landing-spread",
+  bgImage: true
+},
+{
+  id: "ledger",
+  headline: "Built on shared ledgers",
+  description: "Every seed. Every surplus. Every deployment. Trust you can see.",
+  card: "ledger",
+  bgColor: "bg-landing-ledger"
+},
+{
+  id: "seedbases",
+  headline: "Communities steward together",
+  description: "Ministries and teams run seedbases. Same numbers. Shared clarity.",
+  card: "dashboard",
+  bgColor: "bg-landing-seedbases"
+},
+{
+  id: "tithing",
+  headline: "Transparent tithing",
+  description: "See allocations. Vote on priorities. Track impact.",
+  card: "transparency",
+  bgColor: "bg-landing-tithing"
+},
+{
+  id: "movement",
+  headline: "Built by generosity",
+  description: "Every seed grows. Every surplus spreads. Trust rewards come back.",
+  card: "growth",
+  bgColor: "bg-landing-movement"
+}];
+
 const ScrollingLandingPage = () => {
   const [showLearnMore, setShowLearnMore] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -116,9 +116,9 @@ const ScrollingLandingPage = () => {
       case "feed":
         return (
           <div
-            className={`aspect-square w-full ${compact ? "max-w-xs" : "max-w-sm"} rounded-2xl bg-white/20 border-2 border-white/40`}
-          />
-        );
+            className={`aspect-square w-full ${compact ? "max-w-xs" : "max-w-sm"} rounded-2xl bg-white/20 border-2 border-white/40`} />);
+
+
       case "campaign":
         return <CampaignCard />;
       case "impact":
@@ -163,7 +163,7 @@ const ScrollingLandingPage = () => {
                 
                 <div className="text-[18px] lg:text-[20px] text-muted-foreground mb-3 lg:mb-8 leading-[1.5] opacity-0 animate-fade-in-stagger-1 max-w-[34rem]">
                   <p className="mb-3">Social app where generosity becomes shared impact.</p>
-                  <p>Plant a seed, grow it with others, and follow how value flows back to you and missions through a transparent impact ledger.</p>
+                  <p>Plant a seed and watch it grow and support missions through a transparent agentic impact ledger.</p>
                 </div>
                 
                 {/* CTA Buttons - Tablet + Desktop in header */}
@@ -178,24 +178,24 @@ const ScrollingLandingPage = () => {
         </header>
 
         <div className="md:hidden px-4 sm:px-6">
-          <MobileScrollNarrative 
-            onEnterApp={() => setShowLoginModal(true)} 
-            onLearnMore={() => setShowLearnMore(true)}
-          />
+          <MobileScrollNarrative
+          onEnterApp={() => setShowLoginModal(true)}
+          onLearnMore={() => setShowLearnMore(true)} />
+
         </div>
 
         {/* Login Modal */}
         <LoginModal isOpen={showLoginModal} onClose={() => setShowLoginModal(false)} onComplete={handleLoginComplete} />
 
         {/* Learn More Modal */}
-        <LearnMoreModal 
-          open={showLearnMore} 
-          onOpenChange={setShowLearnMore}
-          onGetStarted={() => {
-            setShowLearnMore(false);
-            setShowLoginModal(true);
-          }}
-        />
+        <LearnMoreModal
+        open={showLearnMore}
+        onOpenChange={setShowLearnMore}
+        onGetStarted={() => {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          setTimeout(() => setShowLoginModal(true), 300);
+        }} />
+
 
         {/* Right - Scrolling Content (tablet and desktop) */}
         <main className="hidden md:block lg:ml-[36%] lg:w-[64%] w-full pointer-events-none" ref={contentRef}>
@@ -209,21 +209,21 @@ const ScrollingLandingPage = () => {
 
           {/* Scrolling Content Sections */}
           <div ref={desktopSectionsRef} className="scroll-mt-8" />
-          {sections.map(section => <section key={section.id} className="py-16 px-8 pointer-events-auto">
+          {sections.map((section) => <section key={section.id} className="py-16 px-8 pointer-events-auto">
               {/* 
-                Layout:
-                - Tablet (md): Stacked vertically - card on top, text below (like mobile but larger)
-                - Desktop (lg): Side-by-side grid - text left, card right
-              */}
+             Layout:
+             - Tablet (md): Stacked vertically - card on top, text below (like mobile but larger)
+             - Desktop (lg): Side-by-side grid - text left, card right
+            */}
               <div className="flex flex-col lg:grid w-full gap-8 lg:gap-12 items-center lg:items-start content-start lg:grid-cols-[minmax(0,1fr)_auto]">
                 {/* Card - Top on tablet, Right on desktop */}
                 <div className="order-1 lg:order-2 w-full lg:w-auto">
-                  <FeatureSquareCard 
-                    bgColor={section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor}
-                    bgImage={section.bgImage ? waterBackground : undefined}
-                    animate
-                    className={section.id === 'wallet' ? 'animate-fade-in' : ''}
-                  >
+                  <FeatureSquareCard
+                bgColor={section.bgImage ? 'bg-gradient-to-br from-teal-300 to-cyan-400' : section.bgColor}
+                bgImage={section.bgImage ? waterBackground : undefined}
+                animate
+                className={section.id === 'wallet' ? 'animate-fade-in' : ''}>
+
                     {renderCard(section.card, section.id)}
                   </FeatureSquareCard>
                 </div>
