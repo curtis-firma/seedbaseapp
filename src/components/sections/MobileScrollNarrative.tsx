@@ -90,7 +90,7 @@ const MobileScrollNarrative = ({ onEnterApp, onLearnMore }: MobileScrollNarrativ
     {
       id: "impact",
       title: "See your impact",
-      description: "A live social feed shows generosity in motion.",
+      description: "A live social feed powered by our Redemptive Agentics Engine™ shows generosity in motion.",
       bgColor: "bg-landing-impact",
       card: <ImpactPreviewCard />,
     },
