@@ -2,7 +2,7 @@ import { useState } from "react";
 import { motion, Variants, AnimatePresence, PanInfo } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { ChevronDown, Loader2, Rocket, Check, X, ArrowLeft } from "lucide-react";
+import { ChevronDown, Rocket, Check, X, ArrowLeft } from "lucide-react";
 
 interface LearnMoreModalProps {
   open: boolean;
@@ -101,18 +101,12 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
   const [showDetails, setShowDetails] = useState(false);
   const [showAffiliate, setShowAffiliate] = useState(false);
   const [openRole, setOpenRole] = useState<RoleType>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  
   const [showLightPaper, setShowLightPaper] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(true);
 
   const handleGetStarted = () => {
-    setIsLoading(true);
-    onOpenChange(false);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeout(() => {
-      setIsLoading(false);
-      onGetStarted();
-    }, 300);
+    onGetStarted();
   };
 
   const handleReadLightPaper = () => {
@@ -246,10 +240,10 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
               dragConstraints={{ top: 0, bottom: 0 }}
               dragElastic={{ top: 0, bottom: 0.3 }}
               onDragEnd={handleDragEnd}
-              className="h-full sm:h-auto overflow-y-auto overflow-x-hidden p-5 sm:p-6 w-full"
+              className="h-full sm:h-auto flex flex-col overflow-x-hidden p-5 sm:p-6 w-full"
             >
               {/* Mobile Header with Close Button */}
-              <div className="flex items-center justify-between -mt-2 mb-3 sm:hidden">
+              <div className="flex items-center justify-between -mt-2 mb-3 sm:hidden flex-shrink-0">
                 <div className="w-8" /> {/* Spacer for centering */}
                 <div className="w-10 h-1 bg-muted-foreground/30 rounded-full" />
                 <button
@@ -265,7 +259,7 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
             variants={containerVariants}
             initial="hidden"
             animate="visible"
-            className="space-y-4 w-full"
+            className="space-y-4 w-full flex-1 overflow-y-auto sm:overflow-y-visible"
           >
           {/* Hero Headline */}
           <motion.h2 
@@ -451,24 +445,19 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
             </motion.div>
           </motion.div>
 
-          {/* Action Buttons */}
+          </motion.div>
+
+          {/* Action Buttons - sticky on mobile */}
           <motion.div 
             variants={itemVariants}
-            className="flex gap-3 pt-2"
+            className="flex gap-3 pt-3 flex-shrink-0 sticky bottom-0 bg-background sm:relative sm:pt-2"
+            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0.5rem)' }}
           >
             <Button
               onClick={handleGetStarted}
-              disabled={isLoading}
               className="flex-1 bg-primary hover:bg-primary/90 text-primary-foreground font-medium h-11 rounded-xl"
             >
-              {isLoading ? (
-                <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                "Get Started"
-              )}
+              Get Started
             </Button>
             <Button
               onClick={handleReadLightPaper}
@@ -479,7 +468,6 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
               <span className="sm:hidden">Light Paper</span>
             </Button>
           </motion.div>
-        </motion.div>
             </motion.div>
           )}
         </AnimatePresence>
