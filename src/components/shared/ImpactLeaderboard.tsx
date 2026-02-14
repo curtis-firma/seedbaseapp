@@ -124,7 +124,7 @@ export function ImpactLeaderboard({ compact = false, maxEntries = 7 }: ImpactLea
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Trophy className="h-5 w-5 text-primary" />
-          <h3 className="font-semibold">Top Activators</h3>
+          <h3 className="font-semibold">Top Seeders</h3>
         </div>
         <div className="flex items-center gap-1 text-xs text-muted-foreground">
           <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />

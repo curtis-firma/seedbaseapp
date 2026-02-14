@@ -1200,7 +1200,7 @@ export const mockFeedItems: FeedItem[] = [
     yourSeed: 200,
     yourImpactPercentage: 0.71,
   },
-  // NEW: Activator milestone
+  // NEW: Seeder milestone
   {
     id: 'nf-20',
     type: 'commitment',
@@ -1218,12 +1218,12 @@ export const mockFeedItems: FeedItem[] = [
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'stats',
-      title: 'Activator+ Unlocked',
+      title: 'Seeder+ Unlocked',
       badge: 'NEW TIER',
       stats: [
         { label: 'Lifetime', value: '$25,000' },
         { label: 'Missions', value: 8 },
-        { label: 'Status', value: 'Activator+' },
+        { label: 'Status', value: 'Seeder+' },
       ],
     },
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 96),
@@ -1491,7 +1491,7 @@ export const forYouItems: FeedItem[] = [
         { label: 'Total Distributed', value: '$12,500' },
         { label: 'Missions Funded', value: 3 },
         { label: 'Efficiency', value: '99.2%' },
-        { label: 'Activators', value: 45 },
+        { label: 'Seeders', value: 45 },
       ],
     },
     timestamp: new Date(Date.now() - 1000 * 60 * 15),

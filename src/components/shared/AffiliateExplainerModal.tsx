@@ -61,7 +61,7 @@ export function AffiliateExplainerModal({ isOpen, onClose }: AffiliateExplainerM
                 <Users className="h-5 w-5 text-white" />
               </div>
               <div>
-                <span className="block">How Activators</span>
+                <span className="block">How Seeders</span>
                 <span className="block text-primary">Grow the Network</span>
               </div>
             </DialogTitle>
@@ -143,7 +143,7 @@ export function AffiliateExplainerModal({ isOpen, onClose }: AffiliateExplainerM
               </div>
               <p className="text-2xl font-bold text-seed mb-1">$84,000</p>
               <p className="text-sm text-muted-foreground">
-                Distributed to top activators monthly based on impact score
+                Distributed to top seeders monthly based on impact score
               </p>
             </motion.div>
 

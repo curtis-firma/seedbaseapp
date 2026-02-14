@@ -46,7 +46,7 @@ export function CommitmentsDetailModal({ open, onClose, recentTotal, onCommitSee
             <div className="bg-card rounded-xl border border-border/50 p-3 text-center">
               <Users className="h-4 w-4 mx-auto mb-1 text-primary" />
               <p className="text-lg font-bold">{totalCommitters}</p>
-              <p className="text-xs text-muted-foreground">Activators</p>
+              <p className="text-xs text-muted-foreground">Seeders</p>
             </div>
             <div className="bg-card rounded-xl border border-border/50 p-3 text-center">
               <Calendar className="h-4 w-4 mx-auto mb-1 text-emerald-500" />

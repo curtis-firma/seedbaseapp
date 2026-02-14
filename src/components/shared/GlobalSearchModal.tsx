@@ -218,7 +218,7 @@ export function GlobalSearchModal({ isOpen, onClose }: GlobalSearchModalProps) {
                           user.active_role === 'envoy' && "bg-envoy/10 text-envoy",
                           user.active_role === 'activator' && "bg-seed/10 text-seed"
                         )}>
-                          {user.active_role}
+                          {{ activator: 'Seeder', trustee: 'Trustee', envoy: 'Envoy' }[user.active_role] || user.active_role}
                         </span>
                       </motion.button>
                     ))}
