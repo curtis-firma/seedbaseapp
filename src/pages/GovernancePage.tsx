@@ -96,7 +96,7 @@ export default function GovernancePage() {
 
       {/* Tabs */}
       <Tabs defaultValue="votes" className="w-full">
-        <div className="sticky top-[73px] z-10 bg-background/95 backdrop-blur-sm border-b border-border/50 px-4 py-2">
+        <div className="sticky top-[73px] z-10 liquid-glass-strong border-b border-border/50 px-4 py-2">
           <TabsList className="w-full grid grid-cols-4 h-10">
             <TabsTrigger value="votes" className="text-xs">Votes</TabsTrigger>
             <TabsTrigger value="amplify" className="text-xs">Amplify</TabsTrigger>

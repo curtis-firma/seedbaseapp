@@ -250,7 +250,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             initial={{ opacity: 0, backdropFilter: 'blur(0px)' }}
             animate={{ opacity: 1, backdropFilter: 'blur(12px)' }}
             exit={{ opacity: 0, backdropFilter: 'blur(0px)' }}
-            className="fixed inset-0 bg-black/60 z-50"
+            className="fixed inset-0 bg-black/40 backdrop-blur-xl [backdrop-filter:blur(20px)_saturate(180%)] z-50"
             onClick={handleClose}
           />
 
@@ -261,7 +261,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
             transition={slideTransition}
             className="fixed inset-4 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 md:w-full md:max-w-lg z-50"
           >
-            <div className="bg-card/95 backdrop-blur-xl rounded-3xl border border-border/50 overflow-hidden shadow-elevated h-full md:h-auto max-h-[90vh] flex flex-col">
+            <div className="liquid-glass-card rounded-3xl border border-border/50 overflow-hidden shadow-elevated h-full md:h-auto max-h-[90vh] flex flex-col">
               {/* Header */}
               <div className="flex items-center justify-between p-4 border-b border-border/50">
                 <div className="flex gap-1.5">

@@ -11,7 +11,7 @@ interface LoginModalProps {
 export default function LoginModal({ isOpen, onClose, onComplete }: LoginModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md p-0 border-0 bg-white rounded-3xl overflow-hidden max-h-[90vh] overflow-y-auto" hideCloseButton>
+      <DialogContent className="sm:max-w-md p-0 border-0 liquid-glass-card rounded-3xl overflow-hidden max-h-[90vh] overflow-y-auto" hideCloseButton>
         <div
           onClick={onClose}
           role="button"

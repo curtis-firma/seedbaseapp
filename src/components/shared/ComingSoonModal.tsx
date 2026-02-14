@@ -17,7 +17,7 @@ export function ComingSoonModal({ isOpen, onClose, featureName }: ComingSoonModa
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/40 backdrop-blur-xl [backdrop-filter:blur(20px)_saturate(180%)] z-50 flex items-center justify-center p-4"
           onClick={onClose}
         >
           <motion.div
@@ -25,7 +25,7 @@ export function ComingSoonModal({ isOpen, onClose, featureName }: ComingSoonModa
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-card rounded-2xl p-6 max-w-sm w-full text-center border border-border/50"
+            className="liquid-glass-card rounded-2xl p-6 max-w-sm w-full text-center border border-border/50"
           >
             <motion.button
               whileTap={{ scale: 0.95 }}

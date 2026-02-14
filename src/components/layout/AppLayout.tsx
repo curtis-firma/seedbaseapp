@@ -135,7 +135,7 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
       <ViewingAsBadge />
       
       {/* Mobile Header with Profile Menu Trigger */}
-      <div className="md:hidden fixed top-0 left-0 right-0 z-40 bg-card/95 backdrop-blur-xl border-b border-border/50">
+      <div className="md:hidden fixed top-0 left-0 right-0 z-40 liquid-glass-strong border-b border-border/50">
         <div className="px-4 py-3 flex items-center justify-between">
           {/* Left: Profile pill */}
           <ProfileMenuTrigger onOpen={() => setIsDrawerOpen(true)} />

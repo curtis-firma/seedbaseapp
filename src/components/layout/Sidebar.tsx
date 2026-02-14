@@ -34,7 +34,7 @@ export function Sidebar() {
     <motion.aside
       initial={false}
       animate={{ width: isCollapsed ? 80 : 260 }}
-      className="hidden md:flex flex-col h-screen fixed left-0 top-0 bg-card/90 backdrop-blur-xl border-r border-border/50 z-40"
+      className="hidden md:flex flex-col h-screen fixed left-0 top-0 liquid-glass-strong border-r border-border/50 z-40"
     >
       {/* Logo */}
       <div className="p-6 flex items-center gap-3">
