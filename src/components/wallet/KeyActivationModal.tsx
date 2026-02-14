@@ -18,7 +18,7 @@ import { Confetti } from '@/components/shared/Confetti';
 interface KeyActivationModalProps {
   isOpen: boolean;
   onClose: () => void;
-  keyType: 'SeedKey' | 'BaseKey' | 'MissionKey';
+  keyType: 'SeedKey' | 'BaseKey' | 'MissionKey' | 'GiverKey';
   onSuccess?: () => void;
 }
 
