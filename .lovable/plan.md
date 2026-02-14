@@ -1,126 +1,36 @@
 
-# Add Combined Logo Assets and Update Logo Component
 
-## What You Asked For
+# Fix Landing Page Logo Sizing and Consistency
 
-You want to use the combined logo (blue icon box + wordmark together) with:
-- **Black text** on light/white backgrounds (default)  
-- **White text** only on black/dark backgrounds
+## Issues Found
 
-## New Assets to Add
+1. **Desktop bottom logo** (line 249 of `ScrollingLandingPage.tsx`): Uses `<Logo variant="combined" size="xl" />` which caps at `h-16`. It should stretch across the full width of the right panel instead.
 
-I'll add your uploaded files to the assets folder:
+2. **Desktop top-left logo** (line 155): Uses `size="lg"` (`h-12`). Slightly too small -- bump up.
 
-| File | Purpose |
-|------|---------|
-| `Frame_22-2.png` → `seedbase-combined-black.png` | Blue box + black wordmark (for light backgrounds) |
-| `seedwhite-2.png` → `seedbase-combined-white.png` | Blue box + white wordmark (for dark backgrounds) |
-| `Seed_wordmark.svg` → `seedbase-wordmark.svg` | SVG wordmark for scalable use |
+3. **Mobile/tablet bottom logo** (line 167 of `MobileScrollNarrative.tsx`): Uses `seedbaseWordmarkBlack` (just the wordmark text, no blue box). It should use the same combined logo (blue box + wordmark) as desktop.
 
 ---
 
-## Logo Component Updates
+## Changes
 
-### New Variant: `combined`
+### 1. `src/components/sections/ScrollingLandingPage.tsx`
 
-```text
-variant="combined" → Single image of blue box + wordmark side-by-side
-- Default: Black text version (light backgrounds)
-- forceDark={true}: White text version (dark backgrounds)
+**Top-left logo (line 155)**: Change `size="lg"` to `size="xl"` to make it bigger.
+
+**Bottom logo (lines 244-251)**: Replace the `<Logo>` component with a direct `<img>` tag using `seedbaseCombinedBlack` with `w-full` so it stretches across the right panel. Import the asset from the Logo exports.
+
+### 2. `src/components/sections/MobileScrollNarrative.tsx`
+
+**Bottom logo (lines 164-168)**: Replace the `seedbaseWordmarkBlack` import with `seedbaseCombinedBlack` so mobile/tablet shows the same combined logo (blue box + black wordmark) as desktop. Keep the `w-full max-w-md` sizing so it scales nicely on smaller screens.
+
+Update the import from:
 ```
-
-### Updated Size System
-
-```text
-combinedSizes: Record<LogoSize, string> = {
-  xs: 'h-6 w-auto',
-  sm: 'h-8 w-auto', 
-  md: 'h-10 w-auto',
-  lg: 'h-12 w-auto',
-  xl: 'h-16 w-auto'
-}
+import { seedbaseWordmarkBlack } from "@/components/shared/Logo";
 ```
-
----
-
-## Files to Update
-
-### 1. Add new assets
-- Copy `Frame_22-2.png` → `src/assets/seedbase-combined-black.png`
-- Copy `seedwhite-2.png` → `src/assets/seedbase-combined-white.png`
-
-### 2. Update Logo component (`src/components/shared/Logo.tsx`)
-- Import new combined assets
-- Add `combined` variant type
-- Add `combinedSizes` record
-- Add `renderCombined()` function that shows:
-  - Black text version by default (for light backgrounds)
-  - White text version when `forceDark={true}` (for dark backgrounds)
-
-### 3. Update Landing Page (`src/components/sections/ScrollingLandingPage.tsx`)
-- Replace `seedbaseWordmarkBlack` import with `Logo` component
-- Use `<Logo variant="combined" size="lg" />` in hero header
-
-### 4. Update App Header (`src/components/layout/AppLayout.tsx`)
-- Update mobile header to use `<Logo variant="combined" size="sm" />`
-
-### 5. Update Splash Screen (`src/components/shared/AppSplashScreen.tsx`)
-- Use `<Logo variant="combined" size="xl" forceDark />` for dark background splash
-
-### 6. Other usages
-- `WelcomeWalkthrough.tsx` - Update to use combined variant
-- Any other places showing icon + wordmark separately
-
----
-
-## Usage Examples After Update
-
-```tsx
-// Light background (default) - blue box + black text
-<Logo variant="combined" size="lg" />
-
-// Dark background - blue box + white text
-<Logo variant="combined" size="lg" forceDark />
-
-// Just the icon
-<Logo variant="icon" size="md" />
-
-// Just the wordmark (legacy)
-<Logo variant="wordmark" size="sm" />
+to:
 ```
-
----
-
-## Technical Details
-
-### Logo.tsx changes
-
-```typescript
-// New imports
-import seedbaseCombinedBlack from '@/assets/seedbase-combined-black.png';
-import seedbaseCombinedWhite from '@/assets/seedbase-combined-white.png';
-
-// Updated variant type
-type LogoVariant = 'icon' | 'wordmark' | 'full' | 'combined';
-
-// New size record
-const combinedSizes: Record<LogoSize, string> = {
-  xs: 'h-6 w-auto',
-  sm: 'h-8 w-auto',
-  md: 'h-10 w-auto',
-  lg: 'h-12 w-auto',
-  xl: 'h-16 w-auto'
-};
-
-// New render function
-const renderCombined = (sizeClass: string) => {
-  if (forceDark) {
-    // White text for dark backgrounds
-    return <img src={seedbaseCombinedWhite} alt="Seedbase" className={cn(sizeClass, className)} />;
-  }
-  // Default: Black text for light backgrounds
-  return <img src={seedbaseCombinedBlack} alt="Seedbase" className={cn(sizeClass, className)} />;
-};
+import { seedbaseCombinedBlack } from "@/components/shared/Logo";
 ```
 
 ---
@@ -129,7 +39,7 @@ const renderCombined = (sizeClass: string) => {
 
 | Location | Before | After |
 |----------|--------|-------|
-| Landing hero | `seedbaseWordmarkBlack` image | `<Logo variant="combined" size="lg" />` |
-| App header | `<Logo variant="wordmark" />` | `<Logo variant="combined" size="sm" />` |
-| Splash screen | `<Logo variant="full" forceDark />` | `<Logo variant="combined" forceDark />` |
-| Welcome walkthrough | `<Logo variant="wordmark" />` | `<Logo variant="combined" />` |
+| Desktop top-left | `size="lg"` (h-12) | `size="xl"` (h-16) |
+| Desktop bottom | `<Logo size="xl">` (h-16, centered) | `<img>` with `w-full` (stretches across panel) |
+| Mobile/tablet bottom | Wordmark only (black text, no icon) | Combined logo (blue box + black text) |
+
