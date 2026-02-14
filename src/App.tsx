@@ -33,12 +33,9 @@ seedDemoDataIfEmpty();
 function ScrollToTop() {
   const { pathname } = useLocation();
   useEffect(() => {
-    // Scroll both window and document for maximum compatibility
     window.scrollTo(0, 0);
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-    
-    // Also reset any scrollable main content area
     const mainElement = document.querySelector('main');
     if (mainElement) {
       mainElement.scrollTop = 0;
@@ -67,18 +64,19 @@ const App = () => (
               {/* Landing Page - NO AppLayout */}
               <Route path="/" element={<ScrollingLandingPage />} />
               
-              {/* Demo App - WITH AppLayout */}
-              <Route path="/app" element={<AppLayout><HomePage /></AppLayout>} />
-              <Route path="/app/seedbase" element={<AppLayout><SeedbasePage /></AppLayout>} />
-              <Route path="/app/wallet" element={<AppLayout><WalletPage /></AppLayout>} />
-              <Route path="/app/wallet/history" element={<AppLayout><TransactionHistoryPage /></AppLayout>} />
-              <Route path="/app/oneaccord" element={<AppLayout><OneAccordPage /></AppLayout>} />
-              <Route path="/app/vault" element={<AppLayout><VaultPage /></AppLayout>} />
-              <Route path="/app/seeded" element={<AppLayout><SeededPage /></AppLayout>} />
-              <Route path="/app/launcher" element={<AppLayout><LauncherPage /></AppLayout>} />
-              <Route path="/app/settings" element={<AppLayout><SettingsPage /></AppLayout>} />
-              <Route path="/app/governance" element={<AppLayout><GovernancePage /></AppLayout>} />
-              
+              {/* Demo App - Persistent AppLayout via Outlet */}
+              <Route path="/app" element={<AppLayout />}>
+                <Route index element={<HomePage />} />
+                <Route path="seedbase" element={<SeedbasePage />} />
+                <Route path="wallet" element={<WalletPage />} />
+                <Route path="wallet/history" element={<TransactionHistoryPage />} />
+                <Route path="oneaccord" element={<OneAccordPage />} />
+                <Route path="vault" element={<VaultPage />} />
+                <Route path="seeded" element={<SeededPage />} />
+                <Route path="launcher" element={<LauncherPage />} />
+                <Route path="settings" element={<SettingsPage />} />
+                <Route path="governance" element={<GovernancePage />} />
+              </Route>
               
               {/* 404 */}
               <Route path="*" element={<NotFound />} />

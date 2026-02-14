@@ -1,12 +1,11 @@
-import { ReactNode, useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { useSwipeable } from 'react-swipeable';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { AnimatePresence, motion } from 'framer-motion';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { MessageCircle } from 'lucide-react';
 import { BottomNav } from './BottomNav';
 import { Sidebar } from './Sidebar';
 import { MobileDrawer } from './MobileDrawer';
-import { PageTransition } from './PageTransition';
 import { QuickActionButton } from '@/components/shared/QuickActionButton';
 import { ProfileMenuTrigger } from '@/components/shared/ProfileMenuTrigger';
 import { PhoneAuthFlow } from '@/components/onboarding/PhoneAuthFlow';
@@ -15,18 +14,20 @@ import { OnboardingModal } from '@/components/shared/OnboardingModal';
 import { TutorialOverlay, useShouldShowTutorial } from '@/components/shared/TutorialOverlay';
 import { ViewingAsBadge } from '@/components/shared/ViewRoleBadge';
 import { Logo } from '@/components/shared/Logo';
+import { SeedbaseLoader } from '@/components/shared/SeedbaseLoader';
 import { useUser } from '@/contexts/UserContext';
 import { useScrollToTop } from '@/hooks/useScrollToTop';
 import { cn } from '@/lib/utils';
 
 const TUTORIAL_FIRST_LOGIN_KEY = 'seedbase-first-login-tutorial-pending';
 
-interface AppLayoutProps {
-  children: ReactNode;
-  onShowWalkthrough?: () => void;
-}
+const PageLoader = () => (
+  <div className="min-h-screen flex items-center justify-center bg-background">
+    <SeedbaseLoader message="Loading..." />
+  </div>
+);
 
-export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
+export function AppLayout() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [showAuth, setShowAuth] = useState(false);
   const [forceDemo, setForceDemo] = useState(false);
@@ -168,11 +169,9 @@ export function AppLayout({ children, onShowWalkthrough }: AppLayoutProps) {
       </div>
       
       <main className="md:ml-[260px] pt-16 md:pt-0 pb-24 md:pb-0">
-        <AnimatePresence mode="wait">
-          <PageTransition key={location.pathname}>
-            {children}
-          </PageTransition>
-        </AnimatePresence>
+        <Suspense fallback={<PageLoader />}>
+          <Outlet />
+        </Suspense>
       </main>
       <BottomNav />
       <QuickActionButton />
