@@ -11,14 +11,16 @@ interface LoginModalProps {
 export default function LoginModal({ isOpen, onClose, onComplete }: LoginModalProps) {
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md p-0 border-0 bg-white rounded-3xl overflow-hidden max-h-[90vh] overflow-y-auto [&>button]:hidden">
-        <button
+      <DialogContent className="sm:max-w-md p-0 border-0 bg-white rounded-3xl overflow-hidden max-h-[90vh] overflow-y-auto" hideCloseButton>
+        <div
           onClick={onClose}
-          className="absolute right-3 top-3 z-10 p-2 rounded-full bg-background/80 backdrop-blur-sm hover:bg-muted transition-colors"
+          role="button"
+          tabIndex={0}
+          className="absolute right-3 top-3 z-50 p-2 rounded-full bg-muted hover:bg-accent transition-colors cursor-pointer"
           aria-label="Close"
         >
-          <X className="h-4 w-4 text-foreground" />
-        </button>
+          <X className="h-4 w-4 text-muted-foreground" />
+        </div>
         <PhoneAuthFlow 
           isOpen={true} 
           onComplete={onComplete}
