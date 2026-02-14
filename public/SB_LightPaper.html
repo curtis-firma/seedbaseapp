@@ -675,17 +675,18 @@ details.card.purple-s:hover,details.card.purple-s[open]{border-color:var(--purpl
   <div class="cta-bold">Grow impact.</div>
   <div class="cta-sub">Ready to join the network?</div>
   <div class="cta-buttons">
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sprout"/></svg> Commit a Seed</a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bar"/></svg> Apply as Trustee</a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-globe"/></svg> Connect as Envoy</a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-heart"/></svg> Give as a Giver</a>
-    <a href="#"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-send"/></svg> Become an Activator</a>
+    <a href="#" class="cta-signup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-sprout"/></svg> Commit a Seed</a>
+    <a href="#" class="cta-signup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-bar"/></svg> Apply as Trustee</a>
+    <a href="#" class="cta-signup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-globe"/></svg> Connect as Envoy</a>
+    <a href="#" class="cta-signup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-heart"/></svg> Give as a Giver</a>
+    <a href="#" class="cta-signup"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><use href="#i-send"/></svg> Become an Activator</a>
   </div>
 </div>
 
 </div>
 <script>
 function toggleAll(){const d=document.querySelectorAll('details.card'),t=document.getElementById('expandToggle'),a=Array.from(d).every(x=>x.open);d.forEach(x=>x.open=!a);t.innerHTML=a?'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg> Expand All Sections':'<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 15l5 5 5-5"/><path d="M7 9l5-5 5 5"/></svg> Collapse All Sections'}
+document.querySelectorAll('.cta-signup').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();window.parent.postMessage({type:'seedbase-get-started'},'*')})});
 </script>
 </body>
 </html>

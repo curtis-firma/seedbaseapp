@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, Variants, AnimatePresence, PanInfo } from "framer-motion";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -104,6 +104,17 @@ const LearnMoreModal = ({ open, onOpenChange, onGetStarted }: LearnMoreModalProp
   
   const [showLightPaper, setShowLightPaper] = useState(false);
   const [iframeLoading, setIframeLoading] = useState(true);
+
+  // Listen for postMessage from Light Paper iframe CTA links
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (e.data?.type === 'seedbase-get-started') {
+        onGetStarted();
+      }
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, [onGetStarted]);
 
   const handleGetStarted = () => {
     onGetStarted();
