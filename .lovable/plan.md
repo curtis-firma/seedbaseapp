@@ -1,45 +1,72 @@
 
 
-# Fix Landing Page Logo Sizing and Consistency
+# Fix Learn More Modal: Mobile Viewport + Seamless Login Transition
 
-## Issues Found
+## Problem 1: Mobile Modal Cuts Off Buttons
 
-1. **Desktop bottom logo** (line 249 of `ScrollingLandingPage.tsx`): Uses `<Logo variant="combined" size="xl" />` which caps at `h-16`. It should stretch across the full width of the right panel instead.
+The modal uses `h-full` on mobile but the content area doesn't account for safe areas and the action buttons at the bottom get clipped. The scrollable content area needs proper constraints so buttons remain visible.
 
-2. **Desktop top-left logo** (line 155): Uses `size="lg"` (`h-12`). Slightly too small -- bump up.
+### Fix
+- On mobile, make the overview content area use `flex-1 overflow-y-auto` with a sticky/fixed bottom action bar
+- Move the "Get Started" and "Light Paper" buttons into a separate fixed-bottom container on mobile so they're always visible
+- Add `pb-safe` padding to ensure buttons clear the home indicator on notched phones
 
-3. **Mobile/tablet bottom logo** (line 167 of `MobileScrollNarrative.tsx`): Uses `seedbaseWordmarkBlack` (just the wordmark text, no blue box). It should use the same combined logo (blue box + wordmark) as desktop.
+## Problem 2: "Get Started" Flashes Home Screen
 
----
+Currently the flow is:
+1. Modal closes (shows landing page behind it)
+2. 300ms delay
+3. Parent scrolls to top
+4. Another 300ms delay
+5. Login modal opens
 
-## Changes
+This creates a visible flash of the landing page between modals.
 
-### 1. `src/components/sections/ScrollingLandingPage.tsx`
+### Fix
+- Remove the intermediate close/scroll/delay chain
+- Instead, keep the Learn More modal open while immediately opening the Login modal (or close and open login simultaneously)
+- Simplest approach: In `handleGetStarted`, call `onGetStarted()` directly without closing the modal first. Let the parent handle closing Learn More and opening Login in the same render cycle
+- Update parent's `onGetStarted` callback to close Learn More and open Login together with no scroll or delay
 
-**Top-left logo (line 155)**: Change `size="lg"` to `size="xl"` to make it bigger.
+## Files to Change
 
-**Bottom logo (lines 244-251)**: Replace the `<Logo>` component with a direct `<img>` tag using `seedbaseCombinedBlack` with `w-full` so it stretches across the right panel. Import the asset from the Logo exports.
+### 1. `src/components/landing/LearnMoreModal.tsx`
 
-### 2. `src/components/sections/MobileScrollNarrative.tsx`
+**Mobile layout fix (lines 249, 455-481)**:
+- Split the overview content into a scrollable body area and a sticky bottom action bar
+- The scrollable area gets `flex-1 overflow-y-auto` 
+- The action buttons get `flex-shrink-0 sticky bottom-0 bg-background pt-3 pb-4` with safe-area padding on mobile
 
-**Bottom logo (lines 164-168)**: Replace the `seedbaseWordmarkBlack` import with `seedbaseCombinedBlack` so mobile/tablet shows the same combined logo (blue box + black wordmark) as desktop. Keep the `w-full max-w-md` sizing so it scales nicely on smaller screens.
+**Get Started flow fix (lines 108-116)**:
+- Simplify `handleGetStarted` to just call `onGetStarted()` directly without closing the modal, scrolling, or adding delays. Let the parent orchestrate the transition.
 
-Update the import from:
+### 2. `src/components/sections/ScrollingLandingPage.tsx`
+
+**Parent callback fix (lines 175-178)**:
+- Update the `onGetStarted` callback to simultaneously close Learn More and open Login in one step, with no `scrollTo` or `setTimeout` delay:
 ```
-import { seedbaseWordmarkBlack } from "@/components/shared/Logo";
+onGetStarted={() => {
+  setShowLearnMore(false);
+  setShowLoginModal(true);
+}}
 ```
-to:
+
+## Technical Details
+
+### Mobile button fix structure:
 ```
-import { seedbaseCombinedBlack } from "@/components/shared/Logo";
+overview motion.div (h-full flex flex-col)
+  mobile header (flex-shrink-0)
+  scrollable content (flex-1 overflow-y-auto)
+    headline, summary, dropdowns, roles...
+  action buttons (flex-shrink-0, safe-area bottom padding)
 ```
 
----
+### Simplified handleGetStarted:
+```typescript
+const handleGetStarted = () => {
+  onGetStarted();
+};
+```
 
-## Summary
-
-| Location | Before | After |
-|----------|--------|-------|
-| Desktop top-left | `size="lg"` (h-12) | `size="xl"` (h-16) |
-| Desktop bottom | `<Logo size="xl">` (h-16, centered) | `<img>` with `w-full` (stretches across panel) |
-| Mobile/tablet bottom | Wordmark only (black text, no icon) | Combined logo (blue box + black text) |
-
+The parent now handles both closing Learn More and opening Login atomically -- no flash.
