@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { Rocket, Layers, DollarSign, ChevronRight, Plus, Target, Shield, Sprout } from 'lucide-react';
+import { Rocket, Layers, DollarSign, ChevronRight, Plus, Target, Shield, Sprout, Heart } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useUser } from '@/contexts/UserContext';
 import { cn } from '@/lib/utils';
@@ -29,6 +29,14 @@ const launchOptions = [
     icon: DollarSign,
     gradient: 'gradient-seed',
     requiredKey: 'SeedKey' as const,
+  },
+  {
+    id: 'pledge',
+    title: 'Make a Pledge',
+    description: 'Fund missions consistently over time',
+    icon: Heart,
+    gradient: 'bg-amber-500',
+    requiredKey: 'GiverKey' as const,
   },
 ];
 
@@ -119,6 +127,7 @@ export default function LauncherPage() {
               { type: 'SeedKey' as const, icon: Sprout, label: 'SeedKey' },
               { type: 'BaseKey' as const, icon: Shield, label: 'BaseKey' },
               { type: 'MissionKey' as const, icon: Rocket, label: 'MissionKey' },
+              { type: 'GiverKey' as const, icon: Heart, label: 'GiverKey' },
             ]).map((key) => {
               const active = isKeyActive(key.type);
               return (
@@ -149,7 +158,7 @@ export default function LauncherPage() {
           transition={{ delay: 0.5 }}
           className="text-center text-sm text-muted-foreground italic py-4"
         >
-          "Activators commit. Trustees steward. Envoys execute."
+          "Seeders commit. Trustees steward. Envoys execute. Givers sustain."
         </motion.p>
       </div>
     </div>

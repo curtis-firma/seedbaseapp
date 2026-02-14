@@ -1,10 +1,10 @@
 // Seedbase Core Types
 
-export type KeyType = 'SeedKey' | 'BaseKey' | 'MissionKey';
+export type KeyType = 'SeedKey' | 'BaseKey' | 'MissionKey' | 'GiverKey';
 
 export type UserRole = 'activator' | 'trustee' | 'envoy';
 
-export type RoleBadge = 'Trustee' | 'Recipient' | 'Official' | 'Envoy' | 'Activator';
+export type RoleBadge = 'Trustee' | 'Recipient' | 'Official' | 'Envoy' | 'Seeder' | 'Giver';
 
 export type PostType = 'testimony' | 'surplus' | 'recipient' | 'milestone' | 'deployment' | 'announcement' | 'mission_update' | 'harvest' | 'commitment' | 'distribution' | 'transparency';
 

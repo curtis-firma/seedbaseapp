@@ -9,6 +9,7 @@ export const mockUser: User = {
     { type: 'SeedKey', isActive: true, activatedAt: new Date('2024-01-15') },
     { type: 'BaseKey', isActive: true, activatedAt: new Date('2024-02-01') },
     { type: 'MissionKey', isActive: false },
+    { type: 'GiverKey', isActive: false },
   ],
   activeRole: 'activator',
   walletBalance: 12450.00,
@@ -397,7 +398,7 @@ export const mockFeedItems: FeedItem[] = [
     type: 'commitment',
     postType: 'commitment',
     title: '',
-    content: '@john | Activator\nJust locked $3,000 in Water Wells Uganda\n"Excited to see this grow over the next 3 years!"',
+    content: '@john | Seeder\nJust locked $3,000 in Water Wells Uganda\n"Excited to see this grow over the next 3 years!"',
     author: {
       name: 'John Miller',
       avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop',
@@ -405,7 +406,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'john',
       isVerified: true,
     },
-    roleBadge: 'Activator',
+    roleBadge: 'Seeder',
     seedbase: { id: 'sb-wwu', name: 'Water Wells Uganda' },
     embeddedCard: {
       type: 'stats',
@@ -466,7 +467,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'emma',
       isVerified: true,
     },
-    roleBadge: 'Activator',
+    roleBadge: 'Seeder',
     timestamp: new Date(Date.now() - 1000 * 60 * 40),
     likes: 32,
     comments: 5,
@@ -601,7 +602,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'david',
       isVerified: true,
     },
-    roleBadge: 'Activator',
+    roleBadge: 'Seeder',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 6),
     likes: 78,
     comments: 15,
@@ -727,7 +728,7 @@ export const mockFeedItems: FeedItem[] = [
     type: 'commitment',
     postType: 'commitment',
     title: '',
-    content: '@emma | Activator\nIncreasing my commitment to $12,000 in Christ is King Seedbase.\n"This is generosity that lasts."',
+    content: '@emma | Seeder\nIncreasing my commitment to $12,000 in Christ is King Seedbase.\n"This is generosity that lasts."',
     author: {
       name: 'Emma Johnson',
       avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
@@ -735,7 +736,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'emma',
       isVerified: true,
     },
-    roleBadge: 'Activator',
+    roleBadge: 'Seeder',
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'stats',
@@ -792,7 +793,7 @@ export const mockFeedItems: FeedItem[] = [
     type: 'mission_update',
     postType: 'mission_update',
     title: '',
-    content: 'Every time I see a child drink clean water for the first time, I remember why we do this. Thank you activators! 💧',
+    content: 'Every time I see a child drink clean water for the first time, I remember why we do this. Thank you seeders! 💧',
     author: {
       name: 'Marcus Okonkwo',
       avatar: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=100&h=100&fit=crop',
@@ -811,7 +812,7 @@ export const mockFeedItems: FeedItem[] = [
     type: 'commitment',
     postType: 'commitment',
     title: '',
-    content: 'Just signed up as an Activator. Ready to plant my first seed! Who else is new here? 🌱',
+    content: 'Just signed up as a Seeder. Ready to plant my first seed! Who else is new here? 🌱',
     author: {
       name: 'Michelle Park',
       avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=100&h=100&fit=crop',
@@ -819,7 +820,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'michelle',
       isVerified: false,
     },
-    roleBadge: 'Activator',
+    roleBadge: 'Seeder',
     timestamp: new Date(Date.now() - 1000 * 60 * 60 * 30),
     likes: 89,
     comments: 34,
@@ -830,7 +831,7 @@ export const mockFeedItems: FeedItem[] = [
     type: 'milestone',
     postType: 'announcement',
     title: '',
-    content: '🌱 Seedbase Network Milestone!\nTotal locked value across all Seedbases: $330,000\n47 active missions | 2,340 Activators | 12 countries',
+    content: '🌱 Seedbase Network Milestone!\nTotal locked value across all Seedbases: $330,000\n47 active missions | 2,340 Seeders | 12 countries',
     author: {
       name: 'Seedbase Network',
       avatar: 'official',
@@ -845,7 +846,7 @@ export const mockFeedItems: FeedItem[] = [
       stats: [
         { label: 'Total Locked', value: '$330K' },
         { label: 'Missions', value: 47 },
-        { label: 'Activators', value: '2,340' },
+        { label: 'Seeders', value: '2,340' },
         { label: 'Countries', value: 12 },
       ],
     },
@@ -898,7 +899,7 @@ export const mockFeedItems: FeedItem[] = [
     type: 'commitment',
     postType: 'commitment',
     title: '',
-    content: '@david | Activator\nSplit my $8,000 commitment between CIK and Water Wells.\n"Diversified impact across two causes I care about."',
+    content: '@david | Seeder\nSplit my $8,000 commitment between CIK and Water Wells.\n"Diversified impact across two causes I care about."',
     author: {
       name: 'David Kim',
       avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop',
@@ -906,7 +907,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'david',
       isVerified: true,
     },
-    roleBadge: 'Activator',
+    roleBadge: 'Seeder',
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'stats',
@@ -1044,11 +1045,11 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'michael',
       isVerified: true,
     },
-    roleBadge: 'Activator',
+    roleBadge: 'Seeder',
     seedbase: { id: 'sb-mci', name: 'Mobile Classrooms Initiative' },
     embeddedCard: {
       type: 'stats',
-      title: 'New Activator',
+      title: 'New Seeder',
       stats: [
         { label: 'First Commitment', value: '$2,500' },
         { label: 'Seedbase', value: 'MCI' },
@@ -1133,7 +1134,7 @@ export const mockFeedItems: FeedItem[] = [
     type: 'milestone',
     postType: 'announcement',
     title: '',
-    content: '🎯 FULLY FUNDED: Guatemala Medical Clinic\n$50,000 goal reached! 1,200+ families will receive care annually.\nThank you to all 127 activators!',
+    content: '🎯 FULLY FUNDED: Guatemala Medical Clinic\n$50,000 goal reached! 1,200+ families will receive care annually.\nThank you to all 127 seeders!',
     author: {
       name: 'Christ is King Seedbase',
       avatar: '⛪',
@@ -1153,7 +1154,7 @@ export const mockFeedItems: FeedItem[] = [
       fundingGoal: 50000,
       stats: [
         { label: 'Raised', value: '$50,000' },
-        { label: 'Activators', value: 127 },
+        { label: 'Seeders', value: 127 },
         { label: 'Families/Year', value: '1,200+' },
       ],
       imageUrl: 'https://images.unsplash.com/photo-1576091160550-2173dba999ef?w=800&h=600&fit=crop',
@@ -1205,7 +1206,7 @@ export const mockFeedItems: FeedItem[] = [
     type: 'commitment',
     postType: 'commitment',
     title: '',
-    content: '@emma reached Activator+ status! 🌟\nTotal lifetime commitment: $25,000\n"Generosity compounds. Both the impact and the joy."',
+    content: '@emma reached Seeder+ status! 🌟\nTotal lifetime commitment: $25,000\n"Generosity compounds. Both the impact and the joy."',
     author: {
       name: 'Emma Johnson',
       avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop',
@@ -1213,7 +1214,7 @@ export const mockFeedItems: FeedItem[] = [
       handle: 'emma',
       isVerified: true,
     },
-    roleBadge: 'Activator',
+    roleBadge: 'Seeder',
     seedbase: { id: 'sb-cik', name: 'Christ is King Seedbase' },
     embeddedCard: {
       type: 'stats',
@@ -1511,7 +1512,7 @@ export const forYouItems: FeedItem[] = [
       handle: 'rachel',
       isVerified: true,
     },
-    roleBadge: 'Activator',
+    roleBadge: 'Seeder',
     timestamp: new Date(Date.now() - 1000 * 60 * 25),
     likes: 54,
     comments: 9,

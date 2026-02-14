@@ -14,7 +14,7 @@ const roleConfig: Record<UserRole, {
 }> = {
   activator: {
     icon: Sprout,
-    label: 'Activator',
+    label: 'Seeder',
     gradient: 'gradient-seed',
     bgClass: 'bg-seed/10',
     textClass: 'text-seed',

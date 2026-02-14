@@ -72,12 +72,12 @@ const ROLE_OPTIONS = [
   { 
     role: 'activator' as const, 
     keyType: 'SeedKey' as const,
-    title: 'Activator',
-    tagline: 'Plant generosity. Watch it grow.',
-    description: 'Commit capital, earn distributions',
-    bullets: ['Plant USDC into missions', 'Receive surplus distributions', 'Track your impact'],
+    title: 'Seeder',
+    tagline: 'Commit a seed. Share impact. Earn rewards as the network grows.',
+    description: 'Commit capital, share impact, earn rewards',
+    bullets: ['Commit USDC as seed', 'Share impact moments', 'Earn rewards as the network grows'],
     details: {
-      who: 'Anyone who wants to give and see their impact multiply',
+      who: 'Anyone who wants to give and see their generosity multiply',
       whatYouDo: [
         'Commit USDC as seed',
         'Share impact moments',
@@ -97,7 +97,7 @@ const ROLE_OPTIONS = [
     role: 'trustee' as const, 
     keyType: 'BaseKey' as const,
     title: 'Trustee',
-    tagline: 'Steward shared generosity.',
+    tagline: 'Steward and grow a Seedbase. Approve missions. Keep everything transparent.',
     description: 'Govern funds, approve missions',
     bullets: ['Manage your Seedbase', 'Approve mission deployments', 'Oversee provision pool'],
     details: {
@@ -121,7 +121,7 @@ const ROLE_OPTIONS = [
     role: 'envoy' as const, 
     keyType: 'MissionKey' as const,
     title: 'Envoy',
-    tagline: 'Execute missions. Deliver impact.',
+    tagline: 'Deliver missions. Verify outcomes. Report impact.',
     description: 'Execute missions on the ground',
     bullets: ['Receive mission funding', 'Report milestones', 'Deliver impact'],
     details: {
