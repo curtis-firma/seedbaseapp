@@ -163,7 +163,7 @@ const ScrollingLandingPage = () => {
                 
                 <div className="text-[18px] lg:text-[20px] text-muted-foreground mb-3 lg:mb-8 leading-[1.5] opacity-0 animate-fade-in-stagger-1 max-w-[34rem]">
                   <p className="mb-3">Social app where generosity becomes shared impact.</p>
-                  <p>Plant a seed and watch it grow and support missions through a transparent agentic impact ledger.</p>
+                  <p>Plant a seed and watch it grow. Missions are funded in real-time and tracked through our agentic transparecny system. </p>
                 </div>
                 
                 {/* CTA Buttons - Tablet + Desktop in header */}
