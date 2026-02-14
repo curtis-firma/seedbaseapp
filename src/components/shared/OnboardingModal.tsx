@@ -18,9 +18,9 @@ const roleData = {
     icon: Sprout,
     gradient: 'gradient-seed',
     glowColor: 'rgba(34, 197, 94, 0.4)',
-    title: 'Activator',
-    tagline: 'Plant generosity. Watch it grow.',
-    who: 'Anyone who wants to give and see their impact multiply',
+    title: 'Seeder',
+    tagline: 'Commit a seed. Share impact. Earn rewards as the network grows.',
+    who: 'Anyone who wants to give and see their generosity multiply',
     whatYouDo: [
       'Commit USDC as seed (any amount, 1-5 years)',
       'Watch your seed appreciate as the network grows',
@@ -42,7 +42,7 @@ const roleData = {
     gradient: 'gradient-trust',
     glowColor: 'rgba(168, 85, 247, 0.4)',
     title: 'Trustee',
-    tagline: 'Steward shared generosity.',
+    tagline: 'Steward and grow a Seedbase. Approve missions. Keep everything transparent.',
     who: 'Community leaders, nonprofit directors, church leaders, impact coordinators',
     whatYouDo: [
       'Steward a Seedbase (community anchor)',
@@ -70,7 +70,7 @@ const roleData = {
     gradient: 'gradient-envoy',
     glowColor: 'rgba(249, 115, 22, 0.4)',
     title: 'Envoy',
-    tagline: 'Execute missions. Deliver impact.',
+    tagline: 'Deliver missions. Verify outcomes. Report impact.',
     who: 'Field partners, project leaders, missionaries, on-the-ground implementers',
     whatYouDo: [
       'Receive mission funding (USDC directly to you)',
@@ -416,7 +416,7 @@ export function OnboardingModal({ isOpen, onClose }: OnboardingModalProps) {
                           })}
                         </div>
                         <p className="text-xs text-muted-foreground text-center mb-4">
-                          Activator → Trustee → Envoy
+                          Seeder → Trustee → Envoy
                         </p>
                       </div>
                     )}

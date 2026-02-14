@@ -15,9 +15,9 @@ interface KeyGatedCardProps {
 const keyConfig = {
   SeedKey: {
     name: 'SeedKey',
-    description: 'Commit capital to activate',
+    description: 'Commit a seed to get started',
     gradient: 'gradient-seed',
-    action: 'Become an Activator',
+    action: 'Become a Seeder',
   },
   BaseKey: {
     name: 'BaseKey',
@@ -30,6 +30,12 @@ const keyConfig = {
     description: 'Get approved to execute missions',
     gradient: 'gradient-envoy',
     action: 'Apply as Envoy',
+  },
+  GiverKey: {
+    name: 'GiverKey',
+    description: 'Pledge long-term. Fund missions consistently.',
+    gradient: 'bg-amber-500',
+    action: 'Coming Soon',
   },
 };
 

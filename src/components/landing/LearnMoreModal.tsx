@@ -15,8 +15,8 @@ type RoleType = 'activator' | 'trustee' | 'envoy' | null;
 const roleData = {
   activator: {
     emoji: "🌱",
-    title: "Activators",
-    tagline: "Plant a seed. Watch it grow. Share impact and earn.",
+    title: "Seeders",
+    tagline: "Commit a seed. Share impact. Earn rewards as the network grows.",
     who: "Anyone who wants to give and see their impact multiply",
     whatYouDo: [
       "Commit USDC as seed (any amount, 1-5 years)",
@@ -40,7 +40,7 @@ const roleData = {
   trustee: {
     emoji: "⛨",
     title: "Trustees",
-    tagline: "Lead communities. Guide missions with transparency.",
+    tagline: "Steward and grow a Seedbase. Approve missions. Keep everything transparent.",
     who: "Community leaders, nonprofit directors, church leaders, impact coordinators",
     whatYouDo: [
       "Steward a Seedbase (community anchor)",
@@ -69,7 +69,7 @@ const roleData = {
   envoy: {
     emoji: "🚀",
     title: "Envoys",
-    tagline: "Execute on the ground. Deliver impact.",
+    tagline: "Deliver missions. Verify outcomes. Report impact.",
     who: "Field partners, project leaders, missionaries, on-the-ground implementers",
     whatYouDo: [
       "Receive mission funding (USDC directly to you)",

@@ -181,7 +181,7 @@ export default function ProfilePage() {
           variant="outline" 
           className={`mt-2 capitalize ${roleBadgeColors[activeRole as keyof typeof roleBadgeColors] || roleBadgeColors.activator}`}
         >
-          {activeRole}
+          {{ activator: 'Seeder', trustee: 'Trustee', envoy: 'Envoy' }[activeRole] || activeRole}
         </Badge>
       </motion.div>
 

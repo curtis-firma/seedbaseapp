@@ -5,7 +5,7 @@ import { cn } from '@/lib/utils';
 
 // Role config for shiny gradient pill styling
 const roleConfig = {
-  activator: { label: 'Activator', gradient: 'gradient-seed' },
+  activator: { label: 'Seeder', gradient: 'gradient-seed' },
   trustee: { label: 'Trustee', gradient: 'gradient-trust' },
   envoy: { label: 'Envoy', gradient: 'gradient-envoy' },
 };

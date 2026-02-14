@@ -44,7 +44,7 @@ function postToFeedItem(post: DemoPost): FeedItem {
     seedbase: post.seedbase_tag ? { id: post.id, name: post.seedbase_tag } : undefined,
     mission: post.mission_tag ? { id: post.id, name: post.mission_tag } : undefined,
     roleBadge: post.author?.active_role === 'trustee' ? 'Trustee' : 
-               post.author?.active_role === 'envoy' ? 'Envoy' : 'Activator',
+               post.author?.active_role === 'envoy' ? 'Envoy' : 'Seeder',
   };
 }
 
@@ -67,7 +67,7 @@ function generateMoreMockItems(existingCount: number, count: number): FeedItem[]
 
 // Role badge config - Activator is GREEN (seed), Trustee is purple, Envoy is orange
 const roleConfig = {
-  activator: { label: 'Activator', bg: 'bg-seed/20', text: 'text-seed', border: 'border-seed/30' },
+  activator: { label: 'Seeder', bg: 'bg-seed/20', text: 'text-seed', border: 'border-seed/30' },
   trustee: { label: 'Trustee', bg: 'bg-purple-500/20', text: 'text-purple-500', border: 'border-purple-500/30' },
   envoy: { label: 'Envoy', bg: 'bg-orange-500/20', text: 'text-orange-500', border: 'border-orange-500/30' },
 };
@@ -219,7 +219,7 @@ export default function HomePage() {
       isVerified: true,
     },
     seedbase: { id: 'sb-cik', name: item.seedbase },
-    roleBadge: 'Activator',
+    roleBadge: 'Seeder',
     totalRaised: item.amount,
   }));
   
