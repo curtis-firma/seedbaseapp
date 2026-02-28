@@ -107,7 +107,7 @@ export function SwipeableTabContent({
         className="cursor-grab active:cursor-grabbing"
         style={{ touchAction: 'pan-y' }}
       >
-        <AnimatePresence mode="wait" initial={false} custom={direction}>
+        <AnimatePresence mode="popLayout" initial={false} custom={direction}>
           <motion.div
             key={activeTab}
             custom={direction}

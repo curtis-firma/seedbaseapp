@@ -12,9 +12,11 @@ import { VideoCardV2 } from './cards/VideoCardV2';
 import { TransparencyCard } from '@/components/feed/TransparencyCard';
 import { useNavigate } from 'react-router-dom';
 
-// Video assets for feed
-import seededHypeFull from '@/assets/seeded-hype-full.mp4';
-import missionVideo from '@/assets/mission-video.mp4';
+// Video assets - lazy loaded only when needed
+const getVideoUrl = (type: 'hype' | 'mission') => {
+  if (type === 'hype') return new URL('@/assets/seeded-hype-full.mp4', import.meta.url).href;
+  return new URL('@/assets/mission-video.mp4', import.meta.url).href;
+};
 
 // Simple hash function for deterministic variant selection
 function hashCode(str: string): number {
@@ -164,7 +166,7 @@ export function FeedRenderer({ items }: FeedRendererProps) {
             )}
             {variant === 'v2-video' && (
               <VideoCardV2
-                videoUrl={item.media?.url || seededHypeFull}
+                videoUrl={item.media?.url || getVideoUrl('hype')}
                 title={item.embeddedCard?.title || 'Impact Update'}
                 description={item.content?.slice(0, 100)}
                 missionName={item.mission?.name}
