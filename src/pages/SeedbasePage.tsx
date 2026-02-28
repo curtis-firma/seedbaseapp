@@ -49,13 +49,7 @@ export default function SeedbasePage() {
   const tabs = roleTabs[viewRole];
   const [activeTab, setActiveTab] = useState(0);
   const [activeModal, setActiveModal] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  
-  // Simulate initial load
-  useEffect(() => {
-    const timer = setTimeout(() => setIsLoading(false), 400);
-    return () => clearTimeout(timer);
-  }, []);
+  const isLoading = false;
   // Activity stream state with persistence
   const [activity, setActivity] = useState<ActivityItem[]>(() => {
     const stored = localStorage.getItem(STORAGE_KEY);

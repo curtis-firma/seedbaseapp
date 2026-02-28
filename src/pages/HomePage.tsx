@@ -75,7 +75,7 @@ const roleConfig = {
 export default function HomePage() {
   const [activeTab, setActiveTab] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
-  const [isTabSwitching, setIsTabSwitching] = useState(false);
+  const hasLoadedRef = useRef(false);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [posts, setPosts] = useState<FeedItem[]>([]);
   const [page, setPage] = useState(0);
@@ -152,8 +152,10 @@ export default function HomePage() {
     setForYouPosts(prev => [...prev, ...moreItems]);
   }, [forYouPosts.length]);
 
-  // Initial load
+  // Initial load - only once
   useEffect(() => {
+    if (hasLoadedRef.current) return;
+    hasLoadedRef.current = true;
     loadPosts(true);
   }, []);
 
@@ -181,10 +183,7 @@ export default function HomePage() {
   const handleTabChange = (index: number) => {
     if (index === activeTab) return;
     haptic.selection();
-    setIsTabSwitching(true);
     setActiveTab(index);
-    // Brief skeleton display for smooth transition
-    setTimeout(() => setIsTabSwitching(false), 300);
   };
 
   const handleDragEnd = useCallback((event: any, info: PanInfo) => {
@@ -286,16 +285,16 @@ export default function HomePage() {
           onDragEnd={handleDragEnd}
           className="px-4 py-4"
         >
-        <AnimatePresence mode="wait">
+        <AnimatePresence mode="popLayout">
           <motion.div
             key={activeTab}
-            initial={{ opacity: 0, x: activeTab === 0 ? -20 : 20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: activeTab === 0 ? 20 : -20 }}
-            transition={{ duration: 0.2 }}
+            initial={{ opacity: 0.8 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.1 }}
             className="space-y-4"
           >
-            {isLoading || isTabSwitching ? (
+            {isLoading ? (
               <>
                 <SkeletonCard />
                 <SkeletonCard />
